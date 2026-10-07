@@ -7,6 +7,11 @@ import {
 } from "@/domain/tree";
 import type { Analysis } from "@/domain/types";
 
+interface FrameRequest {
+  /** "selection" falls back to the whole graph when nothing is selected */
+  scope: "all" | "selection";
+}
+
 /** How long the fully expanded overview stays on screen before collapsing */
 export const INTRO_HOLD_MS = 1800;
 
@@ -29,10 +34,19 @@ export const useAnalysisExplorer = (analysis: Analysis) => {
 
   const [introActive, setIntroActive] = useState(true);
   const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set());
+  /**
+   * Asks the graph to re-frame. Explicit scope instead of reading the selection
+   * later: router updates arrive in a transition, after this state.
+   */
+  const [frameRequest, setFrameRequest] = useState<FrameRequest | null>(null);
+  const requestFrame = (scope: FrameRequest["scope"]) => setFrameRequest({ scope });
 
   useEffect(() => {
     if (!introActive) return;
-    const timer = setTimeout(() => setIntroActive(false), INTRO_HOLD_MS);
+    const timer = setTimeout(() => {
+      setIntroActive(false);
+      requestFrame("selection");
+    }, INTRO_HOLD_MS);
     return () => clearTimeout(timer);
   }, [introActive]);
 
@@ -77,9 +91,13 @@ export const useAnalysisExplorer = (analysis: Analysis) => {
   const collapseAll = () => {
     setExpandedAfterIntro(() => new Set());
     select(null);
+    requestFrame("all");
   };
 
-  const expandAll = () => setExpandedAfterIntro(() => new Set(getExpandableIds(index)));
+  const expandAll = () => {
+    setExpandedAfterIntro(() => new Set(getExpandableIds(index)));
+    requestFrame("all");
+  };
 
   return {
     index,
@@ -87,6 +105,7 @@ export const useAnalysisExplorer = (analysis: Analysis) => {
     selectedNode: selectedId ? index.get(selectedId) : undefined,
     expanded: effectiveExpanded,
     introActive,
+    frameRequest,
     select,
     activate,
     toggle,

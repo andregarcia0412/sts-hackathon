@@ -72,3 +72,8 @@
     @apply mb-1 block text-sm font-medium;
   }
 }
+
+/* React Flow: nodes are clickable even though built-in selection is off */
+.react-flow__node {
+  cursor: pointer;
+}

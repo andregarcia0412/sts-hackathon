@@ -1,10 +1,14 @@
-import { ArrowRight, ListCollapse, ListTree } from "lucide-react";
+import { ReactFlowProvider, useReactFlow } from "@xyflow/react";
+import { ArrowRight, Crosshair, ListCollapse, ListTree } from "lucide-react";
 import { Group, Panel, Separator } from "react-resizable-panels";
 import { Link } from "react-router-dom";
 import { SUGGESTED_CATEGORY_LABELS } from "@/domain/labels";
 import type { Analysis, Project } from "@/domain/types";
 import { AnalysisBreadcrumb } from "@/features/analysis/AnalysisBreadcrumb";
 import { NodeDetail } from "@/features/analysis/detail/NodeDetail";
+import { AnalysisGraph } from "@/features/analysis/graph/AnalysisGraph";
+import type { AnalysisFlowNode } from "@/features/analysis/graph/graphTypes";
+import { useFrameGraph } from "@/features/analysis/graph/useFrameGraph";
 import { AnalysisTree } from "@/features/analysis/tree/AnalysisTree";
 import { useAnalysisExplorer } from "@/features/analysis/useAnalysisExplorer";
 import { paths } from "@/routes/paths";
@@ -17,8 +21,17 @@ interface AnalysisWorkspaceProps {
 const separatorClass =
   "bg-border transition-colors hover:bg-accent data-[separator=active]:bg-accent";
 
-export const AnalysisWorkspace = ({ project, analysis }: AnalysisWorkspaceProps) => {
+/* The provider wraps the toolbar and the tree too, so they can move the graph camera */
+export const AnalysisWorkspace = (props: AnalysisWorkspaceProps) => (
+  <ReactFlowProvider>
+    <WorkspaceContent {...props} />
+  </ReactFlowProvider>
+);
+
+const WorkspaceContent = ({ project, analysis }: AnalysisWorkspaceProps) => {
   const explorer = useAnalysisExplorer(analysis);
+  const frameGraph = useFrameGraph();
+  const { getNodes } = useReactFlow<AnalysisFlowNode>();
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -42,6 +55,20 @@ export const AnalysisWorkspace = ({ project, analysis }: AnalysisWorkspaceProps)
             <ListTree className="size-4" aria-hidden />
             Expandir tudo
           </button>
+          <button
+            type="button"
+            className="btn-ghost"
+            onClick={() =>
+              frameGraph(
+                getNodes().filter((n) => !explorer.selectedId || n.id === explorer.selectedId),
+                explorer.selectedId ? 0.25 : undefined,
+              )
+            }
+            title="Centraliza o item selecionado, ou enquadra o grafo inteiro"
+          >
+            <Crosshair className="size-4" aria-hidden />
+            Centralizar
+          </button>
           <Link to={paths.decision(project.id)} className="btn-primary ml-2">
             Ir para a decisão
             <ArrowRight className="size-4" aria-hidden />
@@ -63,9 +90,7 @@ export const AnalysisWorkspace = ({ project, analysis }: AnalysisWorkspaceProps)
         </Panel>
         <Separator className={`w-px ${separatorClass}`} />
         <Panel minSize="30%">
-          <div className="flex h-full items-center justify-center text-sm text-fg-muted">
-            Grafo (próximo passo)
-          </div>
+          <AnalysisGraph explorer={explorer} />
         </Panel>
       </Group>
     </div>
