@@ -1,7 +1,18 @@
 import uvicorn
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI()
+from ai_microservice.config import get_settings
+from ai_microservice.modules.novelty.router import router as novelty_router
+
+app = FastAPI(title="STS 2026 — AI microservice")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=get_settings().cors_origins,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+app.include_router(novelty_router)
 
 
 @app.get("/")

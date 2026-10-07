@@ -9,6 +9,9 @@ authors = [
 requires-python = ">=3.13"
 dependencies = [
     "fastapi[standard]>=0.142.2",
+    "ollama>=0.6.3",
+    "pydantic-settings>=2.15.0",
+    "pypdf>=6.19.0",
 ]
 
 [project.scripts]
@@ -17,3 +20,14 @@ ai-microservice = "ai_microservice.main:main"
 [build-system]
 requires = ["uv_build>=0.12.23,<0.13.0"]
 build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "respx>=0.23.1",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
