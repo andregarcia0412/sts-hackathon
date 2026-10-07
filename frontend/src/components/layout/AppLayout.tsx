@@ -12,7 +12,7 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
 
 export const AppLayout = () => {
   return (
-    <div className="flex h-dvh flex-col">
+    <div className="flex h-dvh flex-col print:block print:h-auto">
       <header className="flex h-14 shrink-0 items-center gap-6 border-b border-border bg-surface px-4 print:hidden">
         <Link
           to={paths.projects()}
@@ -30,7 +30,7 @@ export const AppLayout = () => {
           Análise preliminar · apoio à decisão
         </span>
       </header>
-      <main className="flex min-h-0 flex-1 flex-col overflow-auto">
+      <main className="flex min-h-0 flex-1 flex-col overflow-auto print:block print:overflow-visible">
         <Outlet />
       </main>
     </div>

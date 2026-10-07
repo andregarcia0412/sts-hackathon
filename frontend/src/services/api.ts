@@ -29,14 +29,84 @@ export class NotFoundError extends Error {
   }
 }
 
-const db = {
+/*
+ * Mock database, persisted in localStorage so a demo survives a page reload.
+ * Call resetMockData() (e.g. from the console via window.resetMockData) to
+ * start over from the fictitious examples.
+ */
+// Bump the version when src/mocks changes, or browsers keep the old copy
+const STORAGE_KEY = "lei-do-bem:mock-db:v1";
+
+interface MockDb {
+  projects: Project[];
+  analyses: Analysis[];
+  decisions: Decision[];
+  /** Mock-created projects become "ready" after this timestamp (ms) */
+  processingUntil: Record<string, number>;
+}
+
+const seedDb = (): MockDb => ({
   projects: structuredClone(mockProjects),
   analyses: structuredClone(mockAnalyses),
   decisions: structuredClone(mockDecisions),
+  processingUntil: {},
+});
+
+const loadDb = (): MockDb => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw) as MockDb;
+  } catch {
+    // Storage unavailable or corrupted: fall back to the seed
+  }
+  return seedDb();
 };
 
-const delay = (ms = LATENCY_MS) =>
-  new Promise<void>((resolve) => setTimeout(resolve, ms));
+let db = loadDb();
+
+const persist = () => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+  } catch {
+    // Non-essential: the demo still works in memory
+  }
+};
+
+export const resetMockData = () => {
+  db = seedDb();
+  persist();
+};
+
+if (import.meta.env.DEV) {
+  Object.assign(window, { resetMockData });
+}
+
+/** Finishes the fake processing of projects whose time is up */
+const settleProcessing = () => {
+  const now = Date.now();
+  let changed = false;
+  for (const [projectId, until] of Object.entries(db.processingUntil)) {
+    if (until > now) continue;
+    const project = db.projects.find((p) => p.id === projectId);
+    if (project?.status === "processing") {
+      db.analyses.push({
+        ...structuredClone(analysisTemplate),
+        id: newId("an"),
+        projectId,
+        generatedAt: new Date(until).toISOString(),
+      });
+      project.status = "ready";
+    }
+    delete db.processingUntil[projectId];
+    changed = true;
+  }
+  if (changed) persist();
+};
+
+const delay = async (ms = LATENCY_MS) => {
+  await new Promise<void>((resolve) => setTimeout(resolve, ms));
+  settleProcessing();
+};
 
 const newId = (prefix: string) =>
   `${prefix}-${crypto.randomUUID().slice(0, 8)}`;
@@ -95,16 +165,8 @@ export const createProject = async (
     })),
   };
   db.projects.push(project);
-
-  setTimeout(() => {
-    db.analyses.push({
-      ...structuredClone(analysisTemplate),
-      id: newId("an"),
-      projectId: project.id,
-      generatedAt: new Date().toISOString(),
-    });
-    project.status = "ready";
-  }, MOCK_PROCESSING_MS);
+  db.processingUntil[project.id] = Date.now() + MOCK_PROCESSING_MS;
+  persist();
 
   return structuredClone(project);
 };
@@ -137,5 +199,6 @@ export const saveDecision = async (
   const decision: Decision = { ...input, decidedAt: new Date().toISOString() };
   db.decisions.push(decision);
   project.status = "decided";
+  persist();
   return structuredClone(decision);
 };

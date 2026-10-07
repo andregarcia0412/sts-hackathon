@@ -77,3 +77,30 @@
 .react-flow__node {
   cursor: pointer;
 }
+
+/* Print / PDF export of the decision document */
+@media print {
+  @page {
+    size: A4;
+    margin: 18mm 16mm;
+  }
+
+  body {
+    background: white;
+  }
+
+  h2,
+  h3,
+  h4,
+  h5 {
+    break-after: avoid;
+  }
+
+  /* Paper has no hover: print where each reference points to */
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.75em;
+    word-break: break-all;
+    color: var(--color-fg-muted);
+  }
+}
