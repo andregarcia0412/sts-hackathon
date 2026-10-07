@@ -133,3 +133,25 @@ export const getRootIds = (index: AnalysisIndex): string[] =>
   [...index.values()]
     .filter((node) => node.parentId === undefined)
     .map((node) => node.id);
+
+/** Ancestor ids of a node, root first (the node itself is not included) */
+export const getAncestorIds = (index: AnalysisIndex, nodeId: string) =>
+  getNodePath(index, nodeId)
+    .slice(0, -1)
+    .map((node) => node.id);
+
+/** Nodes shown when only `expanded` nodes have their children visible, in tree order */
+export const getVisibleNodes = (
+  index: AnalysisIndex,
+  expanded: ReadonlySet<string>,
+): AnalysisNode[] =>
+  [...index.values()].filter((node) =>
+    getAncestorIds(index, node.id).every((id) => expanded.has(id)),
+  );
+
+/** Short label for a node, used by the tree, breadcrumb and graph */
+export const getNodeTitle = (node: AnalysisNode) => {
+  if (node.kind === "criterion") return node.criterion.name;
+  if (node.kind === "rule") return `${node.rule.code} ${node.rule.name}`;
+  return node.evidence.title;
+};

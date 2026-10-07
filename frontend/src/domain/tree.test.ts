@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+  getAncestorIds,
   getNodePath,
+  getVisibleNodes,
   indexAnalysis,
   numberTree,
 } from "@/domain/tree";
@@ -100,5 +102,36 @@ describe("getNodePath", () => {
 
   it("returns an empty path for unknown ids", () => {
     expect(getNodePath(indexAnalysis(analysis), "nope")).toEqual([]);
+  });
+});
+
+describe("getVisibleNodes", () => {
+  const index = indexAnalysis(analysis);
+
+  it("shows only criteria when nothing is expanded", () => {
+    expect(getVisibleNodes(index, new Set()).map((n) => n.id)).toEqual([
+      "crit-a",
+      "crit-b",
+    ]);
+  });
+
+  it("shows children only when every ancestor is expanded", () => {
+    const visible = getVisibleNodes(index, new Set(["crit-a", "crit-b.r1"]));
+
+    expect(visible.map((n) => n.id)).toEqual([
+      "crit-a",
+      "crit-a.r1",
+      "crit-a.r2",
+      "crit-b",
+    ]);
+  });
+});
+
+describe("getAncestorIds", () => {
+  it("lists ancestors root first, without the node itself", () => {
+    expect(getAncestorIds(indexAnalysis(analysis), "crit-a.r1.ev-2")).toEqual([
+      "crit-a",
+      "crit-a.r1",
+    ]);
   });
 });
