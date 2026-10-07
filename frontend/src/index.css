@@ -49,3 +49,26 @@
     @apply outline-2 outline-offset-2 outline-accent;
   }
 }
+
+/* Provisional primitives, restyled when the high-fidelity design arrives */
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-md bg-accent px-3.5 py-2 text-sm font-medium text-accent-fg transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-md border border-border-strong bg-surface px-3.5 py-2 text-sm font-medium text-fg transition-colors hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium text-fg-muted transition-colors hover:bg-surface-muted hover:text-fg disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .input {
+    @apply w-full rounded-md border border-border-strong bg-surface px-3 py-2 text-sm placeholder:text-fg-muted/70 focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-accent;
+  }
+
+  .label {
+    @apply mb-1 block text-sm font-medium;
+  }
+}
