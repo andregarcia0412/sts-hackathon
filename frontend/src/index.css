@@ -1,1 +1,51 @@
 @import "tailwindcss";
+
+/*
+ * Design tokens (provisional).
+ * The designer's palette replaces only the values below; components use the
+ * semantic names (bg-surface, text-fg-muted, text-score-strong, ...).
+ */
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Source Serif 4", ui-serif, Georgia, serif;
+
+  --color-canvas: oklch(0.975 0.003 250);
+  --color-surface: oklch(1 0 0);
+  --color-surface-muted: oklch(0.955 0.005 250);
+  --color-border: oklch(0.9 0.008 250);
+  --color-border-strong: oklch(0.8 0.01 250);
+  --color-fg: oklch(0.22 0.02 255);
+  --color-fg-muted: oklch(0.48 0.02 255);
+  --color-accent: oklch(0.5 0.15 255);
+  --color-accent-fg: oklch(0.99 0 0);
+  --color-accent-soft: oklch(0.94 0.035 255);
+  --color-danger: oklch(0.55 0.19 27);
+
+  /* Score bands: evidence strength (not approval probability) */
+  --color-score-strong: oklch(0.52 0.13 155);
+  --color-score-strong-soft: oklch(0.95 0.04 155);
+  --color-score-moderate: oklch(0.6 0.13 75);
+  --color-score-moderate-soft: oklch(0.96 0.05 85);
+  --color-score-weak: oklch(0.55 0.17 30);
+  --color-score-weak-soft: oklch(0.95 0.035 30);
+
+  /* Evidence polarity */
+  --color-evidence-positive: oklch(0.52 0.13 155);
+  --color-evidence-positive-soft: oklch(0.95 0.04 155);
+  --color-evidence-negative: oklch(0.55 0.17 30);
+  --color-evidence-negative-soft: oklch(0.95 0.035 30);
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+
+  body {
+    @apply bg-canvas font-sans text-fg antialiased;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-accent;
+  }
+}
