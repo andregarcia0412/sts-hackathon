@@ -19,7 +19,7 @@ const projectLink = (project: ProjectSummary) => {
 
 export const ProjectTable = ({ projects }: { projects: ProjectSummary[] }) => {
   return (
-    <div className="overflow-x-auto rounded-lg border border-border bg-surface">
+    <div className="relative overflow-x-auto rounded-lg border border-border bg-surface">
       <table className="w-full text-left text-sm">
         <thead className="border-b border-border bg-surface-muted text-xs text-fg-muted uppercase">
           <tr>

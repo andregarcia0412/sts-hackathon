@@ -11,6 +11,7 @@ import type { AnalysisFlowNode } from "@/features/analysis/graph/graphTypes";
 import { useFrameGraph } from "@/features/analysis/graph/useFrameGraph";
 import { AnalysisTree } from "@/features/analysis/tree/AnalysisTree";
 import { useAnalysisExplorer } from "@/features/analysis/useAnalysisExplorer";
+import { useMediaQuery } from "@/lib/useMediaQuery";
 import { paths } from "@/routes/paths";
 
 interface AnalysisWorkspaceProps {
@@ -32,6 +33,8 @@ const WorkspaceContent = ({ project, analysis }: AnalysisWorkspaceProps) => {
   const explorer = useAnalysisExplorer(analysis);
   const frameGraph = useFrameGraph();
   const { getNodes } = useReactFlow<AnalysisFlowNode>();
+  // Desktop first: side by side; on small screens the graph goes below
+  const isWide = useMediaQuery("(min-width: 768px)");
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -46,7 +49,7 @@ const WorkspaceContent = ({ project, analysis }: AnalysisWorkspaceProps) => {
           </p>
           <AnalysisBreadcrumb explorer={explorer} framework={analysis.framework} />
         </div>
-        <div className="flex shrink-0 items-center gap-1">
+        <div className="flex flex-wrap items-center gap-1">
           <button type="button" className="btn-ghost" onClick={explorer.collapseAll}>
             <ListCollapse className="size-4" aria-hidden />
             Ver todos os critérios
@@ -76,8 +79,16 @@ const WorkspaceContent = ({ project, analysis }: AnalysisWorkspaceProps) => {
         </div>
       </div>
 
-      <Group orientation="horizontal" className="min-h-0 flex-1">
-        <Panel defaultSize="30%" minSize="260px" maxSize="60%">
+      <Group
+        key={isWide ? "wide" : "narrow"}
+        orientation={isWide ? "horizontal" : "vertical"}
+        className="min-h-0 flex-1"
+      >
+        <Panel
+          defaultSize={isWide ? "30%" : "50%"}
+          minSize={isWide ? "260px" : "160px"}
+          maxSize={isWide ? "60%" : "80%"}
+        >
           <Group orientation="vertical" className="h-full bg-surface">
             <Panel defaultSize="45%" minSize="120px" className="overflow-y-auto">
               <AnalysisTree explorer={explorer} />
@@ -88,8 +99,8 @@ const WorkspaceContent = ({ project, analysis }: AnalysisWorkspaceProps) => {
             </Panel>
           </Group>
         </Panel>
-        <Separator className={`w-px ${separatorClass}`} />
-        <Panel minSize="30%">
+        <Separator className={`${isWide ? "w-px" : "h-px"} ${separatorClass}`} />
+        <Panel minSize={isWide ? "30%" : "20%"}>
           <AnalysisGraph explorer={explorer} />
         </Panel>
       </Group>

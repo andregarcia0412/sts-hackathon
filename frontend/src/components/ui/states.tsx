@@ -42,10 +42,13 @@ export const ErrorState = ({
   title = "Algo deu errado",
   error,
   onRetry,
+  action,
 }: {
   title?: string;
   error?: unknown;
   onRetry?: () => void;
+  /** Extra way out, e.g. a link back to the project list */
+  action?: ReactNode;
 }) => (
   <div role="alert" className="contents">
     <MessageState
@@ -53,10 +56,15 @@ export const ErrorState = ({
       description={error instanceof Error ? error.message : undefined}
       icon={<CircleAlert className="size-8 text-danger" aria-hidden />}
       action={
-        onRetry && (
-          <button type="button" className="btn-secondary" onClick={onRetry}>
-            Tentar novamente
-          </button>
+        (onRetry || action) && (
+          <div className="flex flex-wrap justify-center gap-2">
+            {onRetry && (
+              <button type="button" className="btn-secondary" onClick={onRetry}>
+                Tentar novamente
+              </button>
+            )}
+            {action}
+          </div>
         )
       }
     />

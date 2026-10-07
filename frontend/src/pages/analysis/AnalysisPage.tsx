@@ -19,6 +19,11 @@ export const AnalysisPage = () => {
     const error = project.error ?? analysis.error;
     return (
       <ErrorState
+        action={
+          <Link to={paths.projects()} className="btn-secondary">
+            Voltar para os projetos
+          </Link>
+        }
         title={
           error instanceof NotFoundError
             ? "Projeto não encontrado"
@@ -39,6 +44,11 @@ export const AnalysisPage = () => {
   if (project.data.status === "error") {
     return (
       <ErrorState
+        action={
+          <Link to={paths.projects()} className="btn-secondary">
+            Voltar para os projetos
+          </Link>
+        }
         title="Não foi possível processar este projeto"
         error={new Error(
           "O material enviado não pôde ser analisado. Verifique os arquivos e envie o projeto novamente.",

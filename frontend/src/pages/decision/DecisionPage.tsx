@@ -31,6 +31,11 @@ export const DecisionPage = () => {
     const error = project.error ?? analysis.error ?? decisions.error;
     return (
       <ErrorState
+        action={
+          <Link to={paths.projects()} className="btn-secondary">
+            Voltar para os projetos
+          </Link>
+        }
         title={
           error instanceof NotFoundError
             ? "Projeto não encontrado"
@@ -43,6 +48,11 @@ export const DecisionPage = () => {
   if (analysis.data === null) {
     return (
       <ErrorState
+        action={
+          <Link to={paths.projects()} className="btn-secondary">
+            Voltar para os projetos
+          </Link>
+        }
         title="A análise deste projeto ainda não está pronta"
         error={new Error("O documento de decisão fica disponível quando a análise terminar.")}
       />

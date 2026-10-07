@@ -1,35 +1,65 @@
-# React + TypeScript + Vite
+# Front-end: Lei do Bem · Apoio à Decisão
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Esqueleto do front-end do Hackathon STS 2026 (desafio BNB). O visual é **provisório**:
+a alta fidelidade do designer entra trocando os tokens do tema e os componentes de
+apresentação, sem mexer na lógica.
 
-Currently, two official plugins are available:
+> A ferramenta **apoia** a decisão, não decide. As notas são **força da evidência**
+> (0–100), nunca "probabilidade de aprovação".
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Rodando
 
-## React Compiler
-
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
-
-Note: This will impact Vite dev & build performances.
-You can also try [the experimental native React Compiler support in plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md#rust-react-compiler) by using `compiler: true` in the plugin options instead of using the Babel plugin.
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev        # http://localhost:5173
+npm test           # Vitest (funções puras: árvore, grafo)
+npm run lint       # oxlint
+npm run build      # tsc + vite build
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Stack: Vite 8, React 19 (React Compiler ligado), TypeScript, Tailwind v4,
+React Router 7 (modo declarativo), TanStack Query, React Flow + dagre,
+react-resizable-panels, react-dropzone, react-to-print, lucide-react.
+
+## Telas
+
+| Rota | Tela |
+|---|---|
+| `/projetos` | Lista de projetos + "Novo projeto" (arquivos e/ou texto livre) |
+| `/projetos/:id/analise?no=<nó>` | Árvore + detalhe + grafo Critério → Regra → Evidência |
+| `/projetos/:id/decisao` | Documento de decisão, formulário do analista, trilha e PDF |
+
+O nó selecionado fica na URL (`?no=crit-uncertainty.rule-proj-13.ev-1`): voltar/avançar
+funciona e dá para compartilhar um link que aponta para uma evidência.
+
+## Onde mexer
+
+```
+src/
+  domain/      tipos (contrato provisório), faixas de nota (score.ts), árvore numerada (tree.ts)
+  mocks/       projetos e análises FICTÍCIOS
+  services/    api.ts (camada única de dados) + queries.ts (hooks do React Query)
+  features/
+    projects/  tabela, modal de novo projeto, dropzone
+    analysis/  useAnalysisExplorer (seleção + expansão), tree/, detail/, graph/
+    decision/  relatório imprimível, formulário, trilha
+  components/  layout e UI compartilhada (ScoreBadge, PolarityTag, ReferenceLink, estados)
+  pages/       uma pasta por rota
+  index.css    tokens do tema (@theme) e CSS de impressão
+```
+
+- **Trocar mocks pela API real:** só `src/services/api.ts`. As telas consomem apenas
+  essas funções. Os tipos esperados estão em `src/domain/types.ts`.
+- **Visual do designer:** cores e fontes são tokens em `src/index.css` (`--color-score-strong`,
+  `--color-evidence-negative`, ...). Os cards do grafo ficam em `features/analysis/graph/GraphNodes.tsx`.
+- **Faixas de nota:** `src/domain/score.ts` (`scoreBand()`); o resto da UI segue.
+
+## Comportamentos já decididos
+
+- **Grafo mostra os 5 critérios.** Ao entrar na tela, tudo aparece expandido e depois
+  recolhe para só os critérios. Clicar num critério ou regra expande; clicar de novo recolhe.
+- **Decisão nunca é sobrescrita.** Cada registro entra na trilha (quem, quando, com base
+  em qual análise); a mais recente é a "vigente".
+- **Mock persistente.** O banco mockado fica no `localStorage`, então uma demo sobrevive
+  ao F5. Para voltar aos exemplos: `resetMockData()` no console (modo dev). Ao mudar
+  `src/mocks`, troque a versão de `STORAGE_KEY` em `api.ts`.

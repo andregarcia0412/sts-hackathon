@@ -11,7 +11,7 @@ export const NotFoundPage = () => {
       </p>
       <Link
         to={paths.projects()}
-        className="mt-2 rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-fg hover:opacity-90"
+        className="btn-primary mt-2"
       >
         Voltar para os projetos
       </Link>

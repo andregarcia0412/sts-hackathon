@@ -138,9 +138,10 @@ export const AnalysisGraph = ({ explorer }: { explorer: AnalysisExplorer }) => {
         pannable
         zoomable
         position="bottom-right"
+        className="max-md:hidden"
         nodeColor={minimapNodeColor}
       />
-      <Panel position="top-right">
+      <Panel position="top-right" className="max-md:hidden">
         <GraphLegend />
       </Panel>
     </ReactFlow>
