@@ -177,6 +177,8 @@ const AssistantPanel = ({ onClose }: { onClose: () => void }) => {
           onClick={() => {
             clear();
             setRecording(null);
+            // The button disables itself: keep focus (and Escape) inside the panel
+            inputRef.current?.focus();
           }}
           disabled={messages.length === 0}
           aria-label="Limpar conversa"

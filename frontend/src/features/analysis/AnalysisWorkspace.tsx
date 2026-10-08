@@ -106,9 +106,10 @@ const WorkspaceContent = ({ project, analysis, analyses }: AnalysisWorkspaceProp
           </Link>
         }
       />
-      <div className="flex min-h-[600px] flex-1 flex-col gap-4 p-4 lg:flex-row">
+      {/* pb-24 on phones: room for the assistant button */}
+      <div className="flex min-h-[600px] flex-1 flex-col gap-4 p-4 pb-24 lg:flex-row lg:pb-4">
         <DetailPanel
-          className="h-[80vh] shrink-0 lg:h-auto lg:w-[488px]"
+          className="shrink-0 lg:w-[488px]"
           explorer={explorer}
           projectId={project.id}
           analysis={analysis}
@@ -118,7 +119,7 @@ const WorkspaceContent = ({ project, analysis, analyses }: AnalysisWorkspaceProp
         />
         <section
           aria-label="Grafo de evidências"
-          className="relative h-[80vh] min-w-0 overflow-hidden rounded-xl bg-white/50 lg:h-auto lg:flex-1"
+          className="relative h-[80vh] min-w-0 shrink-0 overflow-hidden rounded-xl bg-white/50 lg:h-auto lg:flex-1 lg:shrink"
         >
           <AnalysisGraph explorer={explorer} reviewMarkers={markers} toolbar={toolbar} />
         </section>

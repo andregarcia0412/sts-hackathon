@@ -1,4 +1,5 @@
 import { LogOut } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { Link, Outlet, useLocation, useMatch } from "react-router-dom";
 import logoBnb from "@/assets/logo-bnb.svg";
 import { KeyboardArrowRightIcon } from "@/components/icons/MaterialIcons";
@@ -51,15 +52,25 @@ const stepClass = "flex items-center px-2.5 py-1.5 text-base leading-5 whitespac
 
 const Stepper = () => {
   const { steps, current } = useSteps();
+  const currentRef = useRef<HTMLSpanElement>(null);
+
+  // Narrow screens scroll the steps sideways: bring the current one into view
+  useEffect(() => {
+    const step = currentRef.current;
+    const nav = step?.closest("nav");
+    if (!step || !nav || nav.scrollWidth <= nav.clientWidth) return;
+    nav.scrollLeft = step.offsetLeft - (nav.clientWidth - step.offsetWidth) / 2;
+  }, [current]);
 
   return (
-    <nav aria-label="Etapas da análise" className="max-w-full overflow-x-auto">
+    <nav aria-label="Etapas da análise" className="relative max-w-full overflow-x-auto">
       <ol className="flex items-center gap-2">
         {steps.map((step, i) => (
           <li key={step.key} className="flex items-center gap-2">
             {i > 0 && <KeyboardArrowRightIcon className="size-6 shrink-0 text-fg-faint" />}
             {step.key === current ? (
               <span
+                ref={currentRef}
                 aria-current="step"
                 className={`${stepClass} border-b border-action bg-accent-soft font-bold text-accent`}
               >

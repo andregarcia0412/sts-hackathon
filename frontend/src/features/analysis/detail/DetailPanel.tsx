@@ -71,8 +71,14 @@ export const DetailPanel = ({
   useEffect(() => {
     const container = scrollRef.current;
     if (!selectedId || !container) return;
-    const target = container.querySelector(`[data-node="${CSS.escape(selectedId)}"]`);
+    const target = container.querySelector<HTMLElement>(`[data-node="${CSS.escape(selectedId)}"]`);
     if (!target) return;
+    // Opening an item swaps the clicked button for the open card: keep keyboard focus on it
+    if (document.activeElement === document.body) {
+      (target.matches("button") ? target : target.querySelector("button"))?.focus({
+        preventScroll: true,
+      });
+    }
     const box = container.getBoundingClientRect();
     const item = target.getBoundingClientRect();
     const margin = 8;
@@ -88,12 +94,13 @@ export const DetailPanel = ({
   return (
     <section
       aria-label="Detalhamento de informações"
-      className={`flex min-h-0 flex-col overflow-hidden rounded-2xl border-r border-border bg-white/80 ${className}`}
+      className={`flex flex-col rounded-2xl border-r border-border bg-white/80 lg:min-h-0 lg:overflow-hidden ${className}`}
     >
       <h2 className="shrink-0 px-4 pt-4 pb-3 text-xl leading-6 font-semibold">
         Detalhamento de informações
       </h2>
-      <div ref={scrollRef} className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-4 pb-4">
+      {/* Desktop: this list scrolls and the decision stays docked; phone: everything flows with the page */}
+      <div ref={scrollRef} className="flex flex-col gap-1 px-4 pb-4 lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
         {criteria.map((node) =>
           node.id === focusCriterionId ? (
             <OpenCriterion

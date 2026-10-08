@@ -30,7 +30,10 @@ export const RuleDecisionDock = ({ node, projectId, analysisId, current }: RuleD
   const user = useCurrentUser();
   const create = useCreateRuleDecision();
   const suggested = suggestedRating(ruleStatus(node.rule));
-  const [rating, setRating] = useState<RuleRating | "">(current?.rating ?? suggested ?? "");
+  // Until the analyst picks one, follow the latest rating or the current suggestion
+  // (a reanalysis may change the suggestion while this rule is open)
+  const [chosen, setRating] = useState<RuleRating | null>(null);
+  const rating: RuleRating | "" = chosen ?? current?.rating ?? suggested ?? "";
   const [justification, setJustification] = useState("");
   const [showErrors, setShowErrors] = useState(false);
   const fieldId = `nota-${node.id}`;
@@ -55,6 +58,7 @@ export const RuleDecisionDock = ({ node, projectId, analysisId, current }: RuleD
       {
         onSuccess: () => {
           setJustification("");
+          setRating(null);
           setShowErrors(false);
         },
       },
@@ -64,7 +68,7 @@ export const RuleDecisionDock = ({ node, projectId, analysisId, current }: RuleD
   return (
     <form
       aria-label="Decisão do analista"
-      className="flex shrink-0 flex-col gap-4 border-t border-border bg-surface px-4 pb-4 shadow-dock"
+      className="flex shrink-0 flex-col gap-4 rounded-b-2xl border-t border-border bg-surface px-4 pb-4 shadow-dock"
       onSubmit={(e) => {
         e.preventDefault();
         submit();
