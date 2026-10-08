@@ -415,6 +415,9 @@ def full_handlers(states: dict[str, str] | None = None) -> dict:  # noqa: F811  
     return _with_report(_full_handlers_without_report(states))
 
 
+LAST_FAKE_LLM = None
+
+
 async def analysed_project(states: dict[str, str] | None = None, owner_id: str = "owner-1"):
     """A project with a finished analysis, run through the whole fake pipeline."""
     from backend.analyses.orchestrator import AnalysisService
@@ -425,6 +428,8 @@ async def analysed_project(states: dict[str, str] | None = None, owner_id: str =
     from tests.fakes import FakeLLM
 
     project = await create_project(owner_id, "PRJ90 fila", synthetic_package())
-    service = AnalysisService(FakeLLM(full_handlers(states)), fake_providers, Settings(_env_file=None, ollama_model="m"), get_catalog())
+    global LAST_FAKE_LLM
+    LAST_FAKE_LLM = FakeLLM(full_handlers(states))
+    service = AnalysisService(LAST_FAKE_LLM, fake_providers, Settings(_env_file=None, ollama_model="m"), get_catalog())
     analysis = await service.run(str((await service.create(project)).id))
     return await Project.get(project.id), analysis

@@ -76,3 +76,44 @@ async def test_web_search_requires_api_key():
     client, _ = make_client([])
     with pytest.raises(LLMError):
         await client.web_search("circuit breaker")
+
+
+class Nested(BaseModel):
+    regra_id: str
+    quote: str
+
+
+class Out(BaseModel):
+    evidencias: list[Nested]
+
+
+async def test_structured_puts_the_schema_in_the_prompt():
+    client, fake = make_client(['{"value": 1}'])
+    await client.structured([{"role": "system", "content": "sys"}, {"role": "user", "content": "?"}], Answer)
+    messages = fake.requests[0]["messages"]
+    assert messages[0] == {"role": "system", "content": "sys"}
+    assert messages[1]["role"] == "system" and '"value"' in messages[1]["content"]
+    assert messages[-1] == {"role": "user", "content": "?"}
+
+
+@pytest.mark.parametrize("content", ['```json\n{"value": 5}\n```', '```\n{"value": 5}\n```',
+                                     'Aqui está:\n{"value": 5}\nFim.'])
+async def test_structured_accepts_fenced_or_wrapped_json(content):
+    client, fake = make_client([content])
+    assert (await client.structured([{"role": "user", "content": "?"}], Answer)).value == 5
+    assert len(fake.requests) == 1
+
+
+async def test_retry_feedback_names_the_expected_fields():
+    client, fake = make_client(['{"evidencias": [{"regra": "NOV-D1", "quote": "x"}]}',
+                                '{"evidencias": [{"regra_id": "NOV-D1", "quote": "x"}]}'])
+    result = await client.structured([{"role": "user", "content": "?"}], Out)
+    assert result.evidencias[0].regra_id == "NOV-D1"
+    feedback = fake.requests[1]["messages"][-1]["content"]
+    assert "evidencias.0.regra_id" in feedback and "regra_id, quote" in feedback
+
+
+async def test_schema_attempts_are_configurable():
+    client, fake = make_client(["a", "b", '{"value": 2}'], ollama_schema_retries=2)
+    assert (await client.structured([{"role": "user", "content": "?"}], Answer)).value == 2
+    assert len(fake.requests) == 3

@@ -113,3 +113,23 @@ async def test_missing_model_fails_the_analysis_instead_of_leaving_it_pending(pr
     assert "OLLAMA_MODEL" in (done.error or "")
     assert done.versions.models["doc"] is None
     assert (await Project.get(project.id)).status == "error"
+
+
+async def test_usage_counts_every_llm_call_and_survives_the_stage_saves(db):
+    from collections import Counter
+
+    from backend.analyses.models import Analysis
+    from tests.factories import analysed_project
+
+    _, analysis = await analysed_project()
+    stored = await Analysis.get(analysis.id)
+    expected = Counter(role for _, role, _ in analysis_llm_calls(analysis))
+    assert expected["doc"] == 5
+    assert {role: usage.calls for role, usage in stored.usage.roles.items()} == dict(expected)
+
+
+def analysis_llm_calls(analysis):
+    """The FakeLLM of the last analysed_project run records every call."""
+    from tests import factories
+
+    return factories.LAST_FAKE_LLM.calls

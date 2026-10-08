@@ -1,5 +1,7 @@
 import asyncio
+import json
 import logging
+import re
 import time
 from collections.abc import Mapping, Sequence
 from typing import Any, Protocol
@@ -17,6 +19,13 @@ OLLAMA_CLOUD_HOST = "https://ollama.com"
 # Reproducibility (principle 11): every call runs at temperature 0. Not configurable on purpose.
 DETERMINISTIC_OPTIONS = {"temperature": 0, "seed": 0}
 RETRY_BACKOFF_S = 1.0
+# Some models answer ```json ... ``` or wrap the JSON in prose even with `format` set.
+FENCE_RE = re.compile(r"```(?:json)?\s*(.*?)\s*```", re.DOTALL)
+SCHEMA_INSTRUCTION = (
+    "Responda SOMENTE com um objeto JSON válido conforme o JSON Schema abaixo: use exatamente os nomes de "
+    "campo do schema, preencha todos os campos obrigatórios e respeite os tipos. Sem markdown, sem texto fora "
+    "do JSON.\nJSON Schema:\n{schema}"
+)
 
 Message = Mapping[str, Any]
 
@@ -125,25 +134,26 @@ class LLMClient:
     async def structured[T: BaseModel](
         self, messages: Sequence[Message], schema: type[T], role: LLMRole = "default"
     ) -> T:
-        """Chat validated against a Pydantic schema. Retries once, feeding the validation error back."""
-        history = list(messages)
+        """Chat validated against a Pydantic schema.
+
+        `format` alone is not enough: some models ignore it. The schema also goes in the prompt, fenced or
+        wrapped JSON is unwrapped, and an invalid answer is retried with the failing fields and the
+        expected field names (OLLAMA_SCHEMA_RETRIES times).
+        """
         json_schema = schema.model_json_schema()
+        history = _with_schema_instruction(list(messages), json_schema)
         last_error: ValidationError | None = None
-        for _ in range(2):
+        for _ in range(self.settings.ollama_schema_retries + 1):
             content = await self.chat(history, role=role, format=json_schema)
             try:
-                return schema.model_validate_json(content)
+                return schema.model_validate_json(extract_json(content))
             except ValidationError as error:
                 last_error = error
                 if (usage := self._role_usage(role)) is not None:
-                    usage.schema_retries += 1
+                    usage.schema_retries += 1  # invalid answers
                 history += [
                     {"role": "assistant", "content": content},
-                    {
-                        "role": "user",
-                        "content": f"The answer does not follow the requested JSON schema. Errors: {error}. "
-                        "Answer again with valid JSON only.",
-                    },
+                    {"role": "user", "content": _schema_feedback(error, schema)},
                 ]
         raise LLMError(f"Invalid output for {schema.__name__}: {last_error}")
 
@@ -176,3 +186,56 @@ class LLMClient:
     def _require_api_key(self) -> None:
         if not self.settings.ollama_api_key:
             raise LLMError("OLLAMA_API_KEY is required for web_search/web_fetch")
+
+
+def extract_json(content: str) -> str:
+    """The JSON inside a ```json fence, or between the first '{' and the last '}' when wrapped in prose."""
+    text = content.strip()
+    if match := FENCE_RE.search(text):
+        text = match.group(1).strip()
+    if not text.startswith(("{", "[")) and "{" in text and "}" in text:
+        text = text[text.index("{"): text.rindex("}") + 1]
+    return text
+
+
+def _with_schema_instruction(messages: list[Message], json_schema: dict[str, Any]) -> list[Message]:
+    """Inserts the schema as a system message right after the leading system message(s)."""
+    instruction = {"role": "system",
+                   "content": SCHEMA_INSTRUCTION.format(schema=json.dumps(json_schema, ensure_ascii=False))}
+    position = next((i for i, m in enumerate(messages) if m.get("role") != "system"), len(messages))
+    return [*messages[:position], instruction, *messages[position:]]
+
+
+def _fields_of(schema: type[BaseModel], loc: tuple) -> list[str]:
+    """Field names expected at the object where the error happened (walks nested models and lists)."""
+    model: Any = schema
+    for part in loc[:-1]:
+        if isinstance(part, int) or not (isinstance(model, type) and issubclass(model, BaseModel)):
+            continue
+        field = model.model_fields.get(part)
+        if field is None:
+            break
+        annotation = field.annotation
+        for candidate in (annotation, *getattr(annotation, "__args__", ())):
+            inner = (candidate, *getattr(candidate, "__args__", ()))
+            found = next((c for c in inner if isinstance(c, type) and issubclass(c, BaseModel)), None)
+            if found is not None:
+                model = found
+                break
+    return list(model.model_fields) if isinstance(model, type) and issubclass(model, BaseModel) else []
+
+
+def _schema_feedback(error: ValidationError, schema: type[BaseModel]) -> str:
+    problems = error.errors(include_url=False)
+    if problems and problems[0]["type"] == "json_invalid":
+        return ("The answer is not valid JSON (it does not follow the requested schema). "
+                "Answer again with the JSON object only, without markdown fences or text around it.")
+    lines = []
+    for problem in problems[:12]:
+        loc = tuple(problem["loc"])
+        expected = _fields_of(schema, loc) if loc else []
+        hint = f" (campos esperados neste objeto: {', '.join(expected)})" if expected else ""
+        lines.append(f"- {'.'.join(str(p) for p in loc) or '(raiz)'}: {problem['msg']}{hint}")
+    more = f"\n- ... e mais {len(problems) - 12} erro(s) do mesmo tipo" if len(problems) > 12 else ""
+    return ("The answer does not follow the requested JSON schema. Fix these fields and answer again with the "
+            "complete JSON only, using the exact field names of the schema:\n" + "\n".join(lines) + more)

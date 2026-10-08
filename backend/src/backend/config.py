@@ -37,6 +37,7 @@ class Settings(BaseSettings):
     ollama_max_concurrency: int = 4
     ollama_timeout_s: float = 180
     ollama_retries: int = 2
+    ollama_schema_retries: int = 2  # new attempts after an answer that does not match the JSON schema
 
     openalex_api_key: str | None = None
     openalex_mailto: str | None = None

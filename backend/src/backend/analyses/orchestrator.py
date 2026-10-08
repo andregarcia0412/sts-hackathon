@@ -20,7 +20,7 @@ from backend.graph.scoring import score_criterion, score_rule
 from backend.graph.states import judge_state, numeric_record_in
 from backend.llm import LLM
 from backend.llm.prompts import prompt_hashes
-from backend.llm.usage import meter_scope
+from backend.llm.usage import current_usage, meter_scope
 from backend.projects.importer import IncomingFile
 from backend.projects.models import Project
 from backend.report.service import generate_report
@@ -93,7 +93,15 @@ class AnalysisService:
                     stage.duration_s = round((moment - started).total_seconds(), 3)
             stage.status = status
             stage.error = error
+            self._snapshot_usage(analysis)
             await analysis.save()
+
+    @staticmethod
+    def _snapshot_usage(analysis: Analysis) -> None:
+        """A copy of the live meter: `save()` merges the stored document back into nested objects,
+        which would wipe counters mutated in place by the calls running in parallel."""
+        if (meter := current_usage()) is not None:
+            analysis.usage = meter.model_copy(deep=True)
 
     async def _load_files(self, project: Project) -> list[IncomingFile]:
         return [
@@ -115,7 +123,6 @@ class AnalysisService:
         )
         await analysis.save()
         with meter_scope() as usage:
-            analysis.usage = usage
             try:
                 missing = [role for role, model in models.items() if model is None]
                 if missing:
@@ -128,6 +135,7 @@ class AnalysisService:
                 analysis.status = "falhou"
                 if analysis.stage(EXTRACTION).status == "pendente":
                     analysis.stage(EXTRACTION).status, analysis.stage(EXTRACTION).error = "falhou", analysis.error
+        analysis.usage = usage.model_copy(deep=True)
         analysis.versions.prompts = prompt_hashes()
         analysis.finished_at = datetime.now(UTC)
         analysis.total_s = round(time.monotonic() - started, 3)
