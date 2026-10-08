@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 import { PolarityTag } from "@/components/ui/PolarityTag";
 import { ReferenceLink } from "@/components/ui/ReferenceLink";
 import { ScoreBadge } from "@/components/ui/ScoreBadge";
+import { ScoreBreakdown } from "@/components/ui/ScoreBreakdown";
+import { formatPoints } from "@/lib/scoreFormat";
 import { POLARITY_ICONS, POLARITY_STYLES } from "@/components/ui/polarityStyles";
 import type {
   AnalysisNode,
@@ -125,6 +127,7 @@ const CriterionDetail = ({
     <Section title="Por que esta nota">
       <p className="leading-relaxed">{node.criterion.summary}</p>
     </Section>
+    <ScoreSection node={node} explorer={explorer} />
     <Section title="Regras que compõem o critério">
       <ul className="-mx-2">
         {node.childIds.map((id) => {
@@ -161,6 +164,7 @@ const RuleDetail = ({
     <Section title="Explicação">
       <p className="leading-relaxed">{node.rule.explanation}</p>
     </Section>
+    <ScoreSection node={node} explorer={explorer} />
     <Section title="Referência normativa">
       <ReferenceLink reference={node.rule.normativeSource} />
     </Section>
@@ -206,6 +210,7 @@ const EvidenceDetail = ({
     <Section title="Por que conta a favor ou contra">
       <p className="leading-relaxed">{node.evidence.explanation}</p>
     </Section>
+    <EvidenceImpact node={node} explorer={explorer} />
     <Section title="Trecho do material do projeto">
       {node.evidence.projectExcerpt ? (
         <Excerpt excerpt={node.evidence.projectExcerpt} />
@@ -280,5 +285,74 @@ const ParentNote = ({
         {label}
       </button>
     </p>
+  );
+};
+
+/** Visual, step-by-step composition of a criterion or rule score */
+const ScoreSection = ({
+  node,
+  explorer,
+}: {
+  node: CriterionNode | RuleNode;
+  explorer: AnalysisExplorer;
+}) => {
+  const target = node.kind === "criterion" ? node.criterion : node.rule;
+  if (!target.scoreExplanation) return null;
+
+  const factors = target.scoreExplanation.factors.map((factor) => {
+    const childId = factor.refId ? `${node.id}.${factor.refId}` : undefined;
+    const child = childId ? explorer.index.get(childId) : undefined;
+    return {
+      ...factor,
+      number: child?.number,
+      onSelect: child ? () => explorer.activate(child.id) : undefined,
+    };
+  });
+
+  return (
+    <Section title="Como a nota foi formada">
+      <ScoreBreakdown
+        explanation={target.scoreExplanation}
+        factors={factors}
+        score={target.score}
+        subject={node.kind === "criterion" ? "do critério" : "da regra"}
+      />
+    </Section>
+  );
+};
+
+/** How many points this evidence moved its rule's score */
+const EvidenceImpact = ({
+  node,
+  explorer,
+}: {
+  node: EvidenceNode;
+  explorer: AnalysisExplorer;
+}) => {
+  const factor = node.rule.scoreExplanation?.factors.find(
+    (f) => f.kind === "evidence" && f.refId === node.evidence.id,
+  );
+  if (!factor || !node.parentId) return null;
+  const rule = explorer.index.get(node.parentId);
+
+  return (
+    <Section title="Impacto na nota">
+      <p className="leading-relaxed">
+        Esta evidência{" "}
+        <strong className="tabular-nums">
+          {factor.points >= 0 ? "soma" : "tira"} {formatPoints(factor.points).replace(/^[+−]/, "")}{" "}
+          {Math.abs(factor.points) === 1 ? "ponto" : "pontos"}
+        </strong>{" "}
+        da nota da{" "}
+        <button
+          type="button"
+          className="font-medium text-accent hover:underline"
+          onClick={() => node.parentId && explorer.select(node.parentId)}
+        >
+          regra {rule?.number} {node.rule.code}
+        </button>{" "}
+        ({node.rule.score}/100).
+      </p>
+    </Section>
   );
 };

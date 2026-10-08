@@ -8,6 +8,7 @@ import type {
 } from "@/domain/types";
 import type { AssistantAnswer, AssistantContext } from "@/domain/assistant";
 import { answerQuestion } from "@/mocks/assistantEngine";
+import { withScoreExplanations } from "@/mocks/scoreExplanations";
 import {
   analysisTemplate,
   mockAnalyses,
@@ -181,7 +182,8 @@ export const getAnalysis = async (
   await delay();
   findProject(projectId);
   const analysis = db.analyses.find((a) => a.projectId === projectId);
-  return analysis ? structuredClone(analysis) : null;
+  // Mock: the real back-end will send scoreExplanation itself
+  return analysis ? withScoreExplanations(structuredClone(analysis)) : null;
 };
 
 /** Decision trail, oldest first. Every save adds a new entry (never edits). */

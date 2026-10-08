@@ -60,6 +60,31 @@ export interface Evidence {
   references: Reference[];
 }
 
+/**
+ * How a score was reached, step by step, so the UI can show it visually.
+ * Provisional: the real calculation is still being defined by the team.
+ */
+export interface ScoreFactor {
+  /** "evidence" / "rule": points from that child; "adjustment": anything else */
+  kind: "evidence" | "rule" | "adjustment";
+  /** Local id of the evidence or rule inside its parent (when kind ≠ adjustment) */
+  refId?: string;
+  label: string;
+  /** Contribution in score points (may be negative) */
+  points: number;
+  /** For rules inside a criterion: the rule's own score and its weight (0–1) */
+  value?: number;
+  weight?: number;
+}
+
+export interface ScoreExplanation {
+  /** One-sentence description of the method, shown above the chart */
+  method: string;
+  /** Starting point before the factors (e.g. 50 = neutral; 0 for weighted averages) */
+  baseline: number;
+  factors: ScoreFactor[];
+}
+
 export interface Rule {
   id: string;
   code: string; // ex.: "PROJ-09", "EXC-11"
@@ -68,6 +93,7 @@ export interface Rule {
   explanation: string;
   normativeSource: Reference;
   evidences: Evidence[];
+  scoreExplanation?: ScoreExplanation;
 }
 
 export type CriterionKey =
@@ -84,6 +110,7 @@ export interface Criterion {
   score: number; // 0–100
   summary: string;
   rules: Rule[];
+  scoreExplanation?: ScoreExplanation;
 }
 
 export type Framework = "frascati";

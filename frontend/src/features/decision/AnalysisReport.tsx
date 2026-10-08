@@ -11,6 +11,7 @@ import { indexAnalysis } from "@/domain/tree";
 import type { AnalysisIndex } from "@/domain/tree";
 import type { Analysis, Project } from "@/domain/types";
 import { formatDateTime } from "@/lib/format";
+import { breakdownFormula } from "@/lib/scoreFormat";
 import { paths } from "@/routes/paths";
 
 /*
@@ -119,6 +120,12 @@ export const ReportDetails = ({ project, analysis }: AnalysisReportProps) => {
               <ScoreBadge score={criterion.score} showLabel size="sm" />
             </NodeHeading>
             <p>{criterion.summary}</p>
+            {criterion.scoreExplanation && (
+              <ScoreFormula
+                text={breakdownFormula(criterion.scoreExplanation, criterion.score)}
+                method={criterion.scoreExplanation.method}
+              />
+            )}
             {node.childIds.map((ruleId) => (
               <RuleBlock key={ruleId} index={index} ruleId={ruleId} projectId={project.id} />
             ))}
@@ -149,6 +156,12 @@ const RuleBlock = ({
         <ScoreBadge score={rule.score} size="sm" />
       </NodeHeading>
       <p>{rule.explanation}</p>
+      {rule.scoreExplanation && (
+        <ScoreFormula
+          text={breakdownFormula(rule.scoreExplanation, rule.score)}
+          method={rule.scoreExplanation.method}
+        />
+      )}
       <div className="font-sans">
         <span className="text-xs text-fg-muted">Referência normativa: </span>
         <ReferenceLink reference={rule.normativeSource} />
@@ -198,6 +211,15 @@ const RuleBlock = ({
     </div>
   );
 };
+
+/** Compact, printable composition of a score */
+const ScoreFormula = ({ text, method }: { text: string; method: string }) => (
+  <p className="font-sans text-sm">
+    <span className="text-fg-muted">Composição da nota (ilustrativa): </span>
+    <span className="font-medium tabular-nums">{text}</span>
+    <span className="block text-xs text-fg-muted">{method}</span>
+  </p>
+);
 
 const HEADING_CLASSES = {
   3: "text-xl font-semibold",

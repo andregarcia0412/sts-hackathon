@@ -13,6 +13,8 @@ import type {
   EvidenceNode,
   RuleNode,
 } from "@/domain/tree";
+import type { ScoreExplanation } from "@/domain/types";
+import { breakdownFormula, formatPoints } from "@/lib/scoreFormat";
 import type {
   AnswerBlock,
   AnswerSource,
@@ -51,6 +53,39 @@ const evidenceCounts = (index: AnalysisIndex, rule: RuleNode) => {
 
 const CALCULATION_NOTE =
   "Nesta versão de demonstração, a nota chega pronta do motor de análise: ela resume as regras e o equilíbrio entre evidências a favor e contra. A fórmula exata de agregação ainda será documentada pelo back-end.";
+
+/** Step-by-step composition when the analysis brings it, else the generic note */
+const calculationBlocks = (
+  index: AnalysisIndex,
+  node: CriterionNode | RuleNode,
+): AnswerBlock[] => {
+  const target = node.kind === "criterion" ? node.criterion : node.rule;
+  const explanation: ScoreExplanation | undefined = target.scoreExplanation;
+  if (!explanation) return [{ type: "text", text: CALCULATION_NOTE }];
+
+  const label = (refId?: string, fallback?: string) => {
+    const child = refId ? index.get(`${node.id}.${refId}`) : undefined;
+    return child ? `${child.number} ${getNodeTitle(child)}` : fallback ?? "";
+  };
+  return [
+    { type: "text", text: `Como a nota foi formada: ${explanation.method}` },
+    {
+      type: "list",
+      items: [
+        ...(explanation.baseline > 0 ? [`Ponto de partida: ${explanation.baseline}`] : []),
+        ...explanation.factors.map((f) =>
+          f.kind === "rule" && f.value !== undefined && f.weight !== undefined
+            ? `${label(f.refId, f.label)}: ${f.value} × ${Math.round(f.weight * 100)}% = ${formatPoints(f.points)}`
+            : `${label(f.refId, f.label)}: ${formatPoints(f.points)}`,
+        ),
+      ],
+    },
+    {
+      type: "text",
+      text: `Resultado: ${breakdownFormula(explanation, target.score)}. É uma composição ilustrativa: o cálculo definitivo ainda está em definição.`,
+    },
+  ];
+};
 
 // ---------------------------------------------------------------------------
 // Which node is the question about?
@@ -119,7 +154,7 @@ const explainScore = (index: AnalysisIndex, node: AnalysisNode): AssistantAnswer
             return `${r.number} ${r.rule.code} ${r.rule.name}: ${r.rule.score}/100 (${bandLabel(r.rule.score)}), ${positive} evidência(s) a favor e ${negative} contra`;
           }),
         },
-        { type: "text", text: CALCULATION_NOTE },
+        ...calculationBlocks(index, node),
       ],
       sources: [source(node), ...rules.map(source)],
       suggestions: [
@@ -146,7 +181,7 @@ const explainScore = (index: AnalysisIndex, node: AnalysisNode): AssistantAnswer
             (e) => `${e.number} ${e.evidence.title} (${POLARITY_LABELS[e.evidence.polarity].toLowerCase()})`,
           ),
         },
-        { type: "text", text: CALCULATION_NOTE },
+        ...calculationBlocks(index, node),
       ],
       sources: [source(node), ...evidences.map(source)],
       suggestions: [

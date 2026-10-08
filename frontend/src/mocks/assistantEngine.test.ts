@@ -9,6 +9,7 @@ import type {
 } from "@/domain/assistant";
 import { indexAnalysis } from "@/domain/tree";
 import { soilSensorAnalysis } from "@/mocks/analysis-soil-sensor";
+import { withScoreExplanations } from "@/mocks/scoreExplanations";
 
 const index = indexAnalysis(soilSensorAnalysis);
 
@@ -108,5 +109,16 @@ describe("answerQuestion", () => {
 
     expect(allText(answer)).toMatch(/selecione|cite/i);
     expect(answer.suggestions.length).toBeGreaterThan(0);
+  });
+
+  it("walks through the score composition when the analysis brings it", () => {
+    const answer = answerQuestion("como a nota foi calculada?", {
+      ...context("crit-uncertainty.rule-proj-13"),
+      analysis: withScoreExplanations(soilSensorAnalysis),
+    });
+
+    expect(allText(answer)).toContain("Ponto de partida: 50");
+    expect(allText(answer)).toContain("3.1.1 Hipótese de modelo descartada: +19");
+    expect(allText(answer)).toContain("50 +19 +19 −8 = 80");
   });
 });
