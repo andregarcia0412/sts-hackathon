@@ -16,6 +16,12 @@ async def init_db() -> None:
     )
 
 
+def get_database():
+    if client is None:
+        raise RuntimeError("database not initialised")
+    return client[settings.mongodb_db]
+
+
 async def close_db() -> None:
     if client is not None:
         await client.close()

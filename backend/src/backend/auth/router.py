@@ -32,7 +32,7 @@ def _token_pair(user_id: str) -> TokenPair:
 @router.post("/register", status_code=status.HTTP_201_CREATED)
 async def register(body: RegisterRequest) -> TokenPair:
     try:
-        user = await create_user(body.email, body.password)
+        user = await create_user(body.email, body.password, body.name)
     except EmailAlreadyRegistered:
         raise HTTPException(status.HTTP_409_CONFLICT, "Email already registered")
     return _token_pair(str(user.id))

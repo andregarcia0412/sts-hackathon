@@ -52,12 +52,17 @@ These apply to every piece of code, prompt and endpoint. Breaking one costs poin
 | Systematicity | `SIS` | — | yes |
 | Reproducibility | `REP` | — | yes |
 
-Plus the cross-cutting rules **T1–T8**. Total: 66 rules (58 specific + 8 cross-cutting).
+Catalog (`src/backend/catalog/rules.yaml`, audited against `organizacao-dados-por-criterio.md`):
+**66 active criterion rules** (17 web + 49 document), **9 absorbed** markers (never executed) and the
+cross-cutting rules **T1–T15** (design guarantees or prompt instructions). N/A in the package: NOV-D8,
+SIS-D4, SIS-D10, REP-D5. Partial: CRI-D3, CRI-D7, SIS-D3, REP-D4. N/A and partial rules leave with the
+catalog reason, without calling the LLM.
 
-**0–100 score (deterministic):** each piece of evidence is `positive` / `negative` / `irrelevant`.
-Rule score = positives / (positives + negatives). Criterion score = mean of its rules.
-The same source counts once per rule (dedupe by DOI, patent family, fragment).
-NOV-W1, W2 and W8 are informational only (excluded from the mean).
+**0–100 score (deterministic, computed by the back-end):** each piece of evidence is `positiva` or
+`negativa` (what does not speak to the rule is not evidence). Rule score = positives / (positives +
+negatives) × 100. Criterion score = mean of its rules. The same source counts once per rule. Rules without
+evidence, N/A, not executed and NOV-W1, W2, W8 (informative) are out of the mean. There is **no** "odd
+number of evidences" rule: a tie scores 50. The score is an indicator for the analyst only.
 
 **The class does not come from the mean.** It comes from the vector of per-criterion states, using
 the exact vocabulary of `historicos_classificados.csv`:
@@ -73,9 +78,12 @@ the exact vocabulary of `historicos_classificados.csv`:
 Classes: **Elegível** (eligible) · **Com ressalvas** (with caveats; requires the supported scope,
 the limitation and the evidence needed) · **Não elegível** (not eligible) · **Evidência
 insuficiente** (insufficient evidence; requires the missing link and the evidence to request).
-Gates force a state regardless of the score (e.g. a single prior document with full coverage in
-NOV-W3, or parameters within the manual's range in NOV-D4/CRI-D5 → negative). A state vector that
-fits no pattern → no automatic class, flagged as inconsistent for the analyst.
+The criterion state is suggested by an LLM judge that reads only that criterion's evidence nodes and must
+answer with the exact vocabulary; then code gates force it: NOV-W3 with full coverage, or NOV-D4 /
+NOV-D10 / CRI-D5 with predominant negative evidence → negative column; a positive state without
+numeric record (medicoes/resultados) → undetermined column. The class comes from the exact answer-key
+patterns; a mixed vector gets a suggestion from the decision tree of the historical cases **in code**
+(`graph/classify.py`) and the flag `inconsistent`.
 
 ## Input package
 
@@ -98,69 +106,102 @@ Fixed-order pipeline; each stage reads and writes **only** through the canonical
 graph. No module calls another directly:
 
 1. **Extraction** → converts the package into the **canonical JSON** (the single input for every
-   module). Deterministic, no LLM when the file is recognized. A fragment with a stable ID is the
-   unit of citation (file, page/line, verbatim text, nature). Unrecognized file: the LLM classifies
-   it, the analysis runs, the frontend shows "pending validation".
-2. **Deterministic rules** (RULE mode) → recompute `medicoes` × `resultados`, timeline, version
-   consistency. They run **before** any LLM.
+   module). **Every file goes through the extraction agent** (LLM), which identifies its type by
+   content and maps its structure (section headings with line numbers, table header row and ID column).
+   **Code slices** the verbatim text from that mapping, so no sentence or number passes through
+   generation; an invented heading is dropped. A fragment with a stable ID is the unit of citation
+   (file, page/line, verbatim text, nature). Unrecognized file → "pendente de validação".
+2. **Deterministic checks** (`CHK-*`: recompute `medicoes` × `resultados`, timeline, versions) run
+   **via LLM instructions** inside the document sub-agents in the MVP; Python checks are post-MVP.
 3. **Web research** (`-W` rules; OpenAlex, Google Patents, market, technical documentation) and
    **LLM rules over documents** (`-D` rules), in parallel.
 4. **Evidence graph** → the system's memory; per-criterion states and suggested class.
    MongoDB with two collections (`nodes`, `edges`) traversed with `$graphLookup`. Deterministic IDs
    (hash of rule + source + quote), idempotent inserts.
 5. **Report (parecer)** → assembles the final document from the graph (decides nothing);
-   PDF/DOCX plus CSV/JSON in the answer-key schema (27 columns).
+   PDF plus CSV/JSON in the answer-key schema (27 columns). DOCX is post-MVP.
 
 Cross-cutting: **orchestrator** (upload returns an `analise_id` immediately, processing runs in the
-background, per-stage status, batch runs, incremental re-analysis, retry/timeout for external
-calls), **rule catalog** (versioned YAML/JSON in the repo, loaded into Mongo on startup;
+background, per-stage status, batch runs, re-analysis as a new version — full re-run in v1,
+incremental is post-MVP — retry/timeout for external calls), **rule catalog** (versioned YAML/JSON in the repo, loaded into Mongo on startup;
 `GET /regras`, `GET /regras/{id}`) and **chatbot** (answers only from graph nodes + RAG over the
 regulations; it explains, it does not decide).
 
 The **frontend is the source of truth for the API contract**: `frontend/src/domain/types.ts` on the
-`feature/frontend-skeleton` branch. Fit the backend schemas to it.
+`feature/frontend-hifi` branch, plus documented domain extensions (criterion `state`, rule `counts` and
+`status`, evidence `source`, `suggestedClass` with the 4 classes, `inconsistent`, `caveat`,
+`missingLink`, `divergences`, `versions`; `score` is `null` when there is no evidence). Only the
+`frascati` framework is produced. `DecisionOutcome` uses the 4 classes: `eligible`,
+`eligible_with_caveats`, `not_eligible`, `insufficient_evidence`. API schemas are camelCase
+(`api_schema.CamelModel`).
 
 ## Current code
 
 ```
 backend/
-  pyproject.toml          # uv, Python >= 3.13, FastAPI + Beanie + pydantic-settings
-  .env.example            # Mongo, JWT secrets/expirations, seed users (JWT + seed vars are required)
+  pyproject.toml            # uv, Python >= 3.13; scripts: backend, backend-import, backend-ingest-norms, backend-calibrate
+  .env.example              # every setting, documented (Ollama models per role live here)
+  data/normas/              # normative PDFs for the chatbot (BM25 index, no embeddings)
   src/backend/
-    main.py               # FastAPI app, lifespan (Mongo init, seed users, close), GET /, GET /health/db
-    config.py             # Settings (pydantic-settings, reads .env)
-    database.py           # AsyncMongoClient + init_beanie
-    models/__init__.py    # DOCUMENT_MODELS: register every Beanie Document here
-    users/                # User document (email + argon2 password_hash only), service, GET /users/me,
-                          #   seed.py: 5 users from SEED_EMAIL_PATTERN/SEED_PASSWORD, created on startup
-    auth/                 # POST /auth/register|login|refresh; stateless JWT access + refresh tokens
-                          #   (separate secrets, `type` claim), get_current_user / CurrentUser dependency
-  tests/                  # pytest against the local Mongo, isolated `sts_test` database
+    main.py                 # app, lifespan (Mongo, seed users, catalog sync, services, norm index), routers
+    config.py               # Settings; LLM roles: extraction, doc, search, judge, report, chat
+    llm/                    # LLMClient (Ollama chat/structured/web_search/web_fetch, temperature 0, retries) + prompt registry
+    catalog/                # rules.yaml (versioned), loader + Mongo sync, GET /regras, /regras/{id}
+    storage.py              # GridFS: immutable originals with sha256
+    projects/               # Project + files (superseded, never deleted), upload (multipart/.zip), list (ProjectQuery), CLI import
+    extraction/             # 1. raw text → extraction agent (mapping) → slicer (verbatim fragments) → canonical JSON + context
+    search/                 # OpenAlex, Ollama web (patents/market/docs), Mongo cache, T6 sanitizer
+    criteria/               # 2. generic criterion agent: sub Doc + sub Web, citation gate, routing; NOV before CRI/INC
+    graph/                  # 3. scoring, state judge + gates, class (patterns + tree), nodes/edges, $graphLookup trace
+    analyses/               # 4. orchestrator (stages, versions, background jobs), batches, status/graph/canonical routes
+    report/                 # 5. parecer: LLM prose with numbers gate, 27-column CSV/JSON, PDF, calibration CLI
+    review/                 # decisions, contestations (+ reanalysis), rule decisions, evidence reviews — append-only
+    frontend_api/           # projection to the hifi Analysis tree (crit-x.rule-y.ev-z), ProjectQuery
+    assistant/              # 6. chatbot: graph + catalog + norms (BM25), citation and numbers gates, debate
+    users/, auth/           # User (email, name, argon2), JWT access/refresh, CurrentUser dependency
+  tests/                    # unit/ (fakes, no network), api/ (TestClient), live/ (opt-in, real Ollama)
 ```
 
-Protect an endpoint by adding a `user: CurrentUser` parameter (`backend.auth.dependencies`).
+Protect an endpoint by adding a `user: CurrentUser` parameter (`backend.auth.dependencies`). Every
+project, analysis and review record is scoped to its owner.
 
-The Novelty module (NOV-W1…W8, LLM/OpenAlex/Ollama web search clients, jobs) already exists on the
-`feature/ai-models` branch under `ai-microservice/`. When bringing it over, adapt it to
-Mongo/Beanie, the 0–100 score and the frontend contract.
+Main endpoints: `POST /projects` (multipart files or .zip; starts the analysis) · `GET /projects`
+(`ProjectPage`) · `POST /projects/{id}/documents` (re-analysis) · `POST /projects/{id}/analyses` ·
+`GET /projects/{id}/analyses` (hifi `Analysis[]` or `null`) · `GET /analyses/{id}/status|graph|canonical`
+· `GET /analyses/{id}/graph/trace/{node}` · `GET /analyses/{id}/report.{json,csv,pdf}` · `POST /batches`
+(`packageDir` inside `PACKAGE_DIR`) · `POST /batches/upload` (.zip) · `GET /batches/{id}[/report.csv]` ·
+`GET|POST /projects/{id}/decisions|contestations|rule-decisions|evidence-reviews` ·
+`POST /contestations/{id}/reanalysis` · `POST /assistant/ask|debate` · `GET /regras[/{id}]`.
 
 ## Commands
 
 ```bash
-docker compose up -d mongo     # from the repo root; Mongo 8 on localhost:27017 (root/root)
+docker compose up -d mongo     # from the repo root; Mongo 8 on localhost:27017 (root/root, nofile 64000)
 cd backend
-cp .env.example .env
+cp .env.example .env           # set OLLAMA_API_KEY, OLLAMA_MODEL (and per-role overrides), PACKAGE_DIR
 uv sync
-uv run backend                 # uvicorn with reload at http://127.0.0.1:8000
-uv run pytest                  # needs Mongo running
+uv run backend                 # uvicorn with reload at http://127.0.0.1:8000 (docs at /docs)
+uv run backend-import <folder> # import + analyse every project folder as a batch (progress in the terminal)
+uv run backend-ingest-norms    # (re)index data/normas (also done in the background on the first start)
+uv run backend-calibrate historicos_classificados.csv nosso.csv   # confusion matrix vs the answer key
+uv run pytest                  # unit + API tests, needs Mongo; no network
+uv run pytest -m live          # opt-in: PRJ21 end to end with the real Ollama (reads backend/.env)
 uv add <package>               # always manage dependencies with uv, never pip
 ```
 
 ## Conventions
 
 - Configuration only through `Settings` in `config.py` (variables in `.env`, documented in
-  `.env.example`). Ollama: host and model in `.env` (`OLLAMA_MODEL`, plus per-role overrides);
+  `.env.example`). Ollama: host and model in `.env` (`OLLAMA_MODEL`, plus per-role overrides
+  `OLLAMA_MODEL_{EXTRACTION,DOC,SEARCH,JUDGE,REPORT,CHAT}`); changing a model never needs code.
   `web_search`/`web_fetch` require the cloud API key.
+- Every LLM call goes through `LLMClient.structured` (JSON schema, temperature 0) and every prompt is
+  registered with `register_prompt` so analyses record its hash. Project and web content is wrapped in
+  tags and declared data, never instructions.
+- Gates live in code, not in prompts: citation (`criteria/citation.py`), testimony is never evidence,
+  later sources are not prior art (except NOV-W6), numbers gate on generated prose, state vocabulary.
+- TDD: tests use `tests/fakes.py` (`FakeLLM`, `FakeSearchProvider`) and the synthetic package in
+  `tests/factories.py`. The real hackathon package is confidential and never enters the repository.
 - Every Beanie `Document` goes into `DOCUMENT_MODELS`. Every persisted analysis records the
   converter/model/prompt/catalog version it used.
 - Async I/O throughout (async FastAPI + `AsyncMongoClient`).

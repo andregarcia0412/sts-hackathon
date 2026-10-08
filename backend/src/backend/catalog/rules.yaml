@@ -1,0 +1,1200 @@
+# Rule catalog (Lei do Bem / Frascati). Data, not code: agents, graph, report and chatbot read from here.
+# Source: second-brain/hackathons/sts-2026/criterios/* and organizacao-dados-por-criterio.md (audit of 08/10/2026).
+# Domain text stays in Portuguese (it must match the challenge vocabulary).
+#
+# Fields per rule:
+#   bloco: web | doc | transversal      modo: llm | procedural | design | regra
+#   papel: media (counts in the mean) | informativa (out of the mean) | gate (forces the criterion state)
+#   status: aplicavel | parcial | na    (parcial/na never call the LLM; motivo_status goes to the report)
+#   roteamento: doc -> file_type[#anchor]; web -> query families
+#   prompt: rule-specific instruction (positiva quando / negativa quando) used by the sub-agent prompt
+versao: "2026.10.08-1"
+
+tipos_de_arquivo:
+  - dossie
+  - registro_tecnico
+  - entrevista
+  - metodo
+  - cronologia
+  - medicoes
+  - resultados
+  - atividades
+  - configuracao
+  - inventario
+  - entradas
+  - observacoes
+  - revisao
+
+familias_web:
+  mecanismo: "o elemento novo declarado (o 'como'): técnica, algoritmo, padrão de arquitetura"
+  setor: "uso da mesma solução por outros atores do setor (bancos, fintechs, fornecedores)"
+  barreira: "a solução da barreira técnica declarada, não o produto"
+  configuracao_documentada: "a configuração/abordagem do projeto em documentação oficial, tutorial, manual de fornecedor"
+  problema_em_aberto: "o problema relatado como em aberto ou limitações das soluções existentes"
+  combinacao: "os elementos combinados pelo projeto e seus efeitos isolados; conhecimento vindo de outro campo"
+  maturidade: "maturidade (TRL) da técnica no setor"
+
+criterios:
+  NOV:
+    nome: Novidade
+    chave: novelty
+    pergunta: Era novo?
+    fonte_normativa: "Frascati 2015 §2.14–2.16; Guia MCTI 2020 §6.2; FORMP&D 3.1.7"
+    estados:
+      positivo: [DEMONSTRADA NO RECORTE]
+      negativo: NÃO DEMONSTRADA
+      indeterminado: INDETERMINADA
+  CRI:
+    nome: Criatividade técnica
+    chave: creativity
+    pergunta: Foi criativo? Partiu de uma hipótese própria, e não de um manual?
+    fonte_normativa: "Frascati 2015 §2.17 e Tab. 2.1(b)–(c); Guia MCTI 2020 §6"
+    estados:
+      positivo: [DEMONSTRADA NO RECORTE]
+      negativo: NÃO DEMONSTRADA
+      indeterminado: INDETERMINADA
+  INC:
+    nome: Incerteza tecnológica
+    chave: uncertainty
+    pergunta: O resultado era incerto para um profissional competente?
+    fonte_normativa: "Frascati 2015 §2.18; Guia MCTI 2020 §6.3"
+    estados:
+      positivo: [INVESTIGADA]
+      negativo: NÃO CARACTERIZADA
+      indeterminado: ALEGADA, NÃO VERIFICÁVEL
+  SIS:
+    nome: Sistematicidade
+    chave: systematicity
+    pergunta: Foi conduzido de forma planejada e registrada, como experimento?
+    fonte_normativa: "Frascati 2015 §2.19; Guia MCTI 2020 §6.4"
+    estados:
+      positivo: [DOCUMENTADA]
+      negativo: DOCUMENTADA COMO ACEITE
+      indeterminado: PARCIAL
+  REP:
+    nome: Transferência/reprodução
+    chave: reproducibility
+    pergunta: O conhecimento está registrado de forma que outro profissional possa reproduzir?
+    fonte_normativa: "Frascati 2015 §2.20–2.21"
+    estados:
+      positivo: [DOCUMENTADA NO ESCOPO, DOCUMENTADA COM LIMITE]
+      negativo: DOCUMENTADA PARA A CONFIGURAÇÃO
+      indeterminado: INSUFICIENTE PARA O NÚCLEO ALEGADO
+
+regras:
+  # ------------------------------------------------------------------ NOVIDADE / web
+  - id: NOV-W1
+    criterio: NOV
+    bloco: web
+    titulo: Data de referência
+    o_que_verificar: Fixar a data de referência = início do projeto; só é estado da arte o que estava acessível ao público antes dela.
+    evidencia: Data de início (corte − semanas do cabeçalho do dossiê) e data de publicação de cada resultado.
+    fontes_normativas: ["LPI art. 11 §1º", "INPI Res. 169/2016 itens 3.1 e 3.3", "HMRC GfC3 parte 2, passo 5", "IE TDM §8.1(e)"]
+    modo: procedural
+    papel: informativa
+    roteamento: [data_referencia]
+    explicacao_simples: A busca só considera como "já existia" o que foi publicado antes de o projeto começar.
+  - id: NOV-W2
+    criterio: NOV
+    bloco: web
+    titulo: Três frentes de busca
+    o_que_verificar: Buscar em patentes, literatura científica e soluções de mercado/concorrentes.
+    evidencia: Lista de bases consultadas por frente.
+    fontes_normativas: ["IT MIMIT 2024 §1.1.3.1", "AU R&DTI"]
+    modo: procedural
+    papel: informativa
+    roteamento: [todas_as_frentes]
+    explicacao_simples: A busca cobre artigos, patentes e produtos de mercado, não uma fonte só.
+  - id: NOV-W3
+    criterio: NOV
+    bloco: web
+    titulo: Documento mais próximo
+    o_que_verificar: Comparar o elemento novo declarado (o conhecimento/técnica, não o produto) com o documento mais próximo; se um único documento já descreve o elemento inteiro, não há novidade.
+    evidencia: Documento mais próximo + quadro "o que o projeto tem que o documento não tem".
+    fontes_normativas: ["Frascati 2015 §2.16", "INPI itens 4.6 e 4.10", "EPO G-VII 5 etapa (i)"]
+    modo: llm
+    papel: gate
+    roteamento: [mecanismo]
+    prompt: >-
+      Identifique o documento recuperado mais próximo do elemento novo declarado e diga a cobertura
+      (total, parcial, nenhuma). NEGATIVA quando UM único documento anterior à data de referência descreve o
+      elemento novo inteiro (cobertura total). POSITIVA quando o documento mais próximo deixa de fora parte
+      essencial do mecanismo declarado (diga o que o projeto tem a mais). Achar a técnica genérica não derruba
+      a novidade se o mecanismo específico do recorte não está descrito.
+    explicacao_simples: Procura o documento publicado mais parecido; se um só já descreve tudo, não é novo.
+  - id: NOV-W4
+    criterio: NOV
+    bloco: web
+    titulo: Setor, não a empresa
+    o_que_verificar: Comparar com o setor/campo, não com a empresa; o que já existe no mercado mas é novo para a instituição não é novo.
+    evidencia: Ausência de uso da solução por outros atores do setor.
+    fontes_normativas: ["Frascati 2015 §2.15", "UK DSIT ¶6, ¶20, ¶22", "FAQ MCTI P4(a)"]
+    modo: llm
+    papel: media
+    roteamento: [setor]
+    prompt: >-
+      NEGATIVA quando uma fonte mostra a mesma solução em uso por outros atores do setor antes da data de
+      referência. POSITIVA quando as fontes do setor tratam do problema sem usar o mecanismo do projeto.
+    explicacao_simples: Ser novo para o banco não basta; precisa ser novo para o setor.
+  - id: NOV-W5
+    criterio: NOV
+    bloco: web
+    titulo: Segredo industrial preserva novidade
+    o_que_verificar: Se outra empresa já chegou ao resultado mas o "como" não é público, a novidade se mantém.
+    evidencia: Ausência de documentação pública sobre o método.
+    fontes_normativas: ["UK DSIT ¶11, ¶21", "IE TDM §3.4", "IT MIMIT §1.1.3.1"]
+    modo: llm
+    papel: media
+    roteamento: [mecanismo, setor]
+    prompt: >-
+      Para fontes que mostram o mesmo RESULTADO: POSITIVA quando a fonte só anuncia o resultado e não publica o
+      método; NEGATIVA quando a fonte descreve publicamente como fazer.
+    explicacao_simples: Se um concorrente chegou lá mas não publicou como, o projeto ainda pode ser novo.
+  - id: NOV-W6
+    criterio: NOV
+    bloco: web
+    titulo: Trabalho simultâneo não elimina
+    o_que_verificar: Trabalho simultâneo e independente de concorrentes não elimina a novidade, se os resultados deles não estavam acessíveis.
+    evidencia: Datas das publicações dos concorrentes vs. início do projeto.
+    fontes_normativas: ["UK DSIT ¶21", "IE TDM §3.4", "IT MIMIT §1.1.3.1"]
+    modo: llm
+    papel: media
+    roteamento: [mecanismo]
+    prompt: >-
+      Considere também fontes POSTERIORES à data de referência (marcadas como "não é estado da arte").
+      POSITIVA quando a solução equivalente só foi publicada depois da data de referência. NEGATIVA quando foi
+      publicada antes.
+    explicacao_simples: Publicações de concorrentes posteriores ao início do projeto não tiram a novidade.
+  - id: NOV-W7
+    criterio: NOV
+    bloco: web
+    titulo: Página conta se achável e acessível
+    o_que_verificar: Página da internet conta como estado da técnica se pode ser achada por buscador público e continuou acessível.
+    evidencia: URL + data de publicação ou de captura.
+    fontes_normativas: ["INPI Res. 169/2016 item 3.33"]
+    modo: llm
+    papel: media
+    roteamento: [mecanismo]
+    prompt: >-
+      Avalie a admissibilidade das fontes web que se aproximam do elemento novo. NEGATIVA quando uma página
+      achável por buscador público, com data anterior à referência, descreve o mecanismo. POSITIVA quando as
+      páginas próximas não têm data verificável ou não estavam acessíveis antes da referência.
+    explicacao_simples: Uma página só conta como prova de que algo já existia se tem data e era acessível.
+  - id: NOV-W8
+    criterio: NOV
+    bloco: web
+    titulo: Busca reproduzível
+    o_que_verificar: Registrar a busca de forma reproduzível — bases, data, string exata, filtros, nº de resultados, selecionados e por quê.
+    evidencia: Log de busca (vira nó do grafo).
+    fontes_normativas: ["PRISMA-S (Rethlefsen et al. 2021)", "WIPO Pub. 946"]
+    modo: procedural
+    papel: informativa
+    roteamento: [log_de_busca]
+    explicacao_simples: Toda busca fica registrada para quem fiscalizar poder refazer.
+  # ------------------------------------------------------------------ NOVIDADE / doc
+  - id: NOV-D1
+    criterio: NOV
+    bloco: doc
+    titulo: Declara o elemento novo
+    o_que_verificar: O projeto declara explicitamente o elemento novo — a tecnologia, as funcionalidades/características e a aplicação.
+    evidencia: Texto do mecanismo e hipótese.
+    fontes_normativas: ["FORMP&D 3.1.7", "Guia MCTI 2020 §6.2", "FAQ MCTI P4(a) e (c)"]
+    modo: llm
+    papel: media
+    roteamento: ["metodo#2", "dossie#trabalho_documentado", "registro_tecnico#mecanismo_e_comparacao"]
+    prompt: >-
+      POSITIVA quando metodo.md §2 declara um elemento técnico próprio (regra, estrutura, algoritmo, acoplamento)
+      com o que ele faz de diferente. NEGATIVA quando o §2 só descreve configurar/aplicar algo existente ou não
+      declara elemento novo.
+    explicacao_simples: O projeto diz com clareza o que criou de novo.
+  - id: NOV-D2
+    criterio: NOV
+    bloco: doc
+    titulo: Estado da arte com modo de falha
+    o_que_verificar: O projeto descreve o estado da arte no início — alternativas conhecidas e o modo de falha específico de cada uma; só lista de ferramentas → indeterminada.
+    evidencia: metodo.md#1 com alternativa + limitação, datada.
+    fontes_normativas: ["Guia MCTI 2020 §6.2", "IT MIMIT §1.1.3.1", "IE TDM §8.1(e)", "Históricos PRJ02, 03, 05 × PRJ08"]
+    modo: llm
+    papel: media
+    roteamento: ["metodo#1", "dossie#referencia_anterior"]
+    prompt: >-
+      POSITIVA quando metodo.md §1 nomeia alternativas conhecidas E onde cada uma falha no problema estudado.
+      NEGATIVA quando o §1 mostra que a referência anterior já resolve o problema (manual, catálogo, produto).
+      Se só lista ferramentas sem dizer onde falham, não há evidência (registre em regras_sem_evidencia).
+    explicacao_simples: O projeto mostra o que já existia e por que não resolvia.
+  - id: NOV-D3
+    criterio: NOV
+    bloco: doc
+    titulo: Novidade de conhecimento, não de funcionalidade
+    o_que_verificar: A novidade é de conhecimento/técnica (o "como"), não de funcionalidade, negócio ou mercado.
+    evidencia: Trechos que explicam o problema técnico e a abordagem.
+    fontes_normativas: ["FAQ MCTI P4", "Frascati 2015 §2.16 e Tab. 2.1(a)", "Guia MCTI 2020 §6.1"]
+    modo: llm
+    papel: media
+    roteamento: ["metodo#1", "metodo#2", "dossie#contexto"]
+    prompt: >-
+      POSITIVA quando o novo é um "como" técnico (mecanismo). NEGATIVA quando o novo é uma lista de
+      funcionalidades, benefício de negócio ou mercado.
+    explicacao_simples: O que conta é o conhecimento técnico novo, não uma funcionalidade nova.
+  - id: NOV-D4
+    criterio: NOV
+    bloco: doc
+    titulo: Não é cópia nem compra de tecnologia
+    o_que_verificar: Não é cópia, imitação, engenharia reversa, compra de tecnologia nem adaptação sem barreira técnica.
+    evidencia: Origem da solução; contratos de licença ou aquisição; parâmetros dentro da faixa do manual.
+    fontes_normativas: ["Frascati 2015 §2.15", "UK DSIT ¶12, ¶22, ¶24", "Guia ANPEI 2017 pp. 19 e 26", "Guia MCTI 2020 Ap. B.3"]
+    modo: llm
+    papel: gate
+    roteamento: ["metodo#1", "metodo#2", "configuracao", "cronologia"]
+    prompt: >-
+      (CHK-CONFIG) NEGATIVA quando a solução vem de produto contratado, manual, catálogo, SDK ou runbook e o
+      trabalho foi configurar/ativar/mapear/ajustar parâmetros dentro da faixa já suportada. POSITIVA quando a
+      origem é desenvolvimento próprio do mecanismo além do que a referência fornece.
+    explicacao_simples: Comprar ou configurar uma ferramenta pronta não é novidade.
+  - id: NOV-D5
+    criterio: NOV
+    bloco: doc
+    titulo: Exclusões de software
+    o_que_verificar: Software não cai nas exclusões (sistema de negócio com métodos conhecidos, funcionalidade de usuário, ferramentas prontas, criptografia padrão, customização, depuração rotineira). Absorve a parte de software da T8.
+    evidencia: Técnica/arquitetura descrita vs. lista de exclusões.
+    fontes_normativas: ["Frascati 2015 §2.70–2.72", "IPCTN 2020 Anexo I"]
+    modo: llm
+    papel: media
+    roteamento: ["metodo#1", "metodo#2", "dossie#trabalho_documentado"]
+    prompt: >-
+      NEGATIVA quando o trabalho é sistema de negócio com métodos conhecidos, customização, integração de
+      ferramenta pronta, migração ou depuração rotineira. POSITIVA quando a conclusão depende de avanço técnico
+      e de resolver incerteza de forma sistemática (T8).
+    explicacao_simples: Software só conta quando avança a técnica, não quando só usa ferramentas prontas.
+  - id: NOV-D6
+    criterio: NOV
+    bloco: doc
+    titulo: Melhoria substancial com linha de base
+    o_que_verificar: A melhoria é substancial e objetiva, com comparação com a linha de base; melhora entre versões sozinha não basta (rotina também melhora).
+    evidencia: Métricas antes/depois por versão (resultados.csv recalculável de medicoes.csv).
+    fontes_normativas: ["Decreto 5.798 art. 2º II c", "Guia MCTI 2020 Ap. B.1", "UK DSIT ¶23–25"]
+    modo: llm
+    papel: media
+    roteamento: ["resultados", "medicoes", "metodo#1"]
+    prompt: >-
+      (CHK-RECALC) Compare o mecanismo com os comparadores conhecidos nas mesmas entradas. POSITIVA quando
+      resultados.csv mostra ganho do mecanismo sobre os comparadores conhecidos do §1. NEGATIVA quando a única
+      melhora é entre versões de uma mesma configuração (ex.: v1 falhou, v2 passou). Copie números, não recalcule
+      com arredondamento.
+    explicacao_simples: A melhora precisa ser medida contra o que já existia, não só entre versões.
+  - id: NOV-D7
+    criterio: NOV
+    bloco: doc
+    titulo: Plurianual
+    absorvida_em: [T2]
+  - id: NOV-D8
+    criterio: NOV
+    bloco: doc
+    titulo: Patente ou artigo como indício
+    o_que_verificar: Patente, registro de software, artigo ou aprovação por agência de fomento são indícios, não obrigatórios.
+    evidencia: Nº do pedido/registro, DOI, termo de outorga.
+    fontes_normativas: ["IT MIMIT §1.1.3.1", "Frascati Tab. 2.1(d)", "Guia ANPEI 2017 Fig. 1"]
+    modo: llm
+    papel: media
+    status: na
+    motivo_status: Não há patentes, registros ou artigos nos artefatos do pacote.
+    explicacao_simples: Patentes e artigos ajudam, mas não são obrigatórios.
+  - id: NOV-D9
+    criterio: NOV
+    bloco: doc
+    titulo: Estado da arte com modo de falha (histórico)
+    absorvida_em: [NOV-D2]
+  - id: NOV-D10
+    criterio: NOV
+    bloco: doc
+    titulo: Referência anterior já fornece a função
+    o_que_verificar: Se a referência anterior — manual, catálogo, dicionário ou produto contratado, datado antes do projeto — já fornece a função aplicada, a novidade não está demonstrada.
+    evidencia: Referência anterior + data (cronologia) + mecanismo de metodo.md#2.
+    fontes_normativas: ["Históricos PRJ01, 04, 09, 11, 12, 19, 20", "Frascati 2015 §2.72"]
+    modo: llm
+    papel: gate
+    roteamento: ["metodo#1", "metodo#2", "cronologia", "dossie#referencia_anterior"]
+    prompt: >-
+      (CHK-CONFIG + CHK-TEMPO) NEGATIVA quando metodo.md §1 cita manual/catálogo/produto contratado anterior ao
+      início (cronologia) que já descreve a função que o §2 aplica. POSITIVA quando a referência anterior falha
+      no problema e o §2 traz mecanismo que ela não fornece.
+    explicacao_simples: Se o manual que já existia fazia a mesma coisa, não há novidade.
+  - id: NOV-D11
+    criterio: NOV
+    bloco: doc
+    titulo: Novidade vale no recorte ensaiado
+    o_que_verificar: A novidade vale no recorte ensaiado (perfis, cenários, cargas); afirmações além dele não são cobertas.
+    evidencia: metodo.md#6 Limite da conclusão.
+    fontes_normativas: ["Históricos PRJ02, 05, 07, 14", "LEIA_ME"]
+    modo: llm
+    papel: media
+    roteamento: ["metodo#6", "revisao", "dossie#limite_da_conclusao"]
+    prompt: >-
+      (CHK-ESCOPO) POSITIVA quando o limite da conclusão delimita o recorte ensaiado e a novidade alegada cabe
+      nele. NEGATIVA quando a novidade alegada vai além do que foi ensaiado.
+    explicacao_simples: A novidade só vale para os cenários que foram de fato testados.
+  - id: NOV-D12
+    criterio: NOV
+    bloco: doc
+    titulo: Título não prova novidade
+    o_que_verificar: Título ou adjetivo comercial não prova novidade; técnica genérica só conta com elemento técnico próprio testado contra o comparador.
+    evidencia: Mecanismo de metodo.md#2 vs. título do dossiê.
+    fontes_normativas: ["Históricos PRJ09, PRJ19, PRJ02"]
+    modo: llm
+    papel: media
+    roteamento: ["dossie#cabecalho", "metodo#2", "resultados"]
+    prompt: >-
+      NEGATIVA quando o adjetivo do título ("inteligente", "adaptativo", "nova arquitetura") não corresponde a
+      mecanismo próprio no §2. POSITIVA quando há elemento próprio testado contra o comparador nomeado.
+    explicacao_simples: Nome bonito não prova nada; vale o mecanismo documentado.
+  # ------------------------------------------------------------------ CRIATIVIDADE / web
+  - id: CRI-W1
+    criterio: CRI
+    bloco: web
+    titulo: Roteiro problema-solução
+    o_que_verificar: (i) achar o estado da arte mais próximo, (ii) definir o problema técnico a partir dele, (iii) verificar se um técnico chegaria à solução de forma óbvia.
+    evidencia: Documento mais próximo + problema técnico + justificativa da não-obviedade.
+    fontes_normativas: ["EPO G-VII 5", "INPI Res. 169/2016 itens 5.9–5.21", "LPI art. 13", "Guia MCTI 2020 §6", "Frascati 2002 §84"]
+    modo: llm
+    papel: media
+    roteamento: [mecanismo]
+    prompt: >-
+      Use o documento mais próximo encontrado pela Novidade (NOV-W3) como estado da arte. NEGATIVA quando o
+      documento já aponta o caminho da solução de forma óbvia para um técnico. POSITIVA quando a solução exige
+      passo não óbvio frente ao documento.
+    explicacao_simples: A partir do que já existia, a solução era óbvia para um técnico?
+  - id: CRI-W2
+    criterio: CRI
+    bloco: web
+    titulo: Prática padrão ou tutorial
+    o_que_verificar: Se a abordagem aparece como prática padrão (documentação oficial, tutorial, manual), é rotina.
+    evidencia: Link do material que descreve a mesma abordagem.
+    fontes_normativas: ["Guia do desafio, Parte 4", "Frascati 2015 §2.72"]
+    modo: llm
+    papel: media
+    roteamento: [configuracao_documentada]
+    prompt: >-
+      NEGATIVA quando documentação oficial, tutorial ou manual de fornecedor descreve a mesma configuração ou
+      abordagem do §2 (ex.: circuit breaker documentado em biblioteca conhecida). POSITIVA quando a documentação
+      encontrada cobre a técnica genérica mas não o mecanismo específico do projeto.
+    explicacao_simples: Se está no tutorial ou no manual do fornecedor, é prática padrão.
+  - id: CRI-W3
+    criterio: CRI
+    bloco: web
+    titulo: Combinação além da soma
+    o_que_verificar: Combinação de elementos conhecidos só é criativa se o efeito conjunto vai além da soma dos efeitos isolados.
+    evidencia: Comparação dos efeitos isolados vs. combinados.
+    fontes_normativas: ["INPI itens 5.22 e 5.30"]
+    modo: llm
+    papel: media
+    roteamento: [combinacao]
+    prompt: >-
+      POSITIVA quando as fontes mostram os elementos isolados sem o efeito que o projeto obteve combinando-os.
+      NEGATIVA quando uma fonte já mostra a mesma combinação ou a simples justaposição.
+    explicacao_simples: Juntar peças conhecidas só é criativo se o resultado vai além de cada peça.
+  - id: CRI-W4
+    criterio: CRI
+    bloco: web
+    titulo: Conhecimento de outro campo
+    o_que_verificar: Trazer conhecimento de outro campo conta quando a adaptação não era facilmente dedutível.
+    evidencia: Origem do conhecimento + o que precisou ser adaptado.
+    fontes_normativas: ["UK DSIT ¶6 e ¶23", "IT MIMIT 2024 §1.1.3.2", "Frascati Tab. 2.1(b)"]
+    modo: llm
+    papel: media
+    roteamento: [combinacao]
+    prompt: >-
+      POSITIVA quando a técnica vem de outro campo e as fontes mostram que a adaptação ao problema do projeto não
+      estava publicada. NEGATIVA quando a mesma transferência já aparece descrita para o domínio do projeto.
+    explicacao_simples: Trazer uma ideia de outra área conta se adaptá-la não era óbvio.
+  - id: CRI-W5
+    criterio: CRI
+    bloco: web
+    titulo: Problema em aberto ou contra o consenso
+    o_que_verificar: Indícios a favor — o problema era conhecido há tempo e não resolvido, ou o projeto seguiu caminho contrário ao consenso técnico.
+    evidencia: Literatura relatando o problema em aberto ou o consenso contrariado.
+    fontes_normativas: ["INPI itens 5.57 e 5.58"]
+    modo: llm
+    papel: media
+    roteamento: [problema_em_aberto]
+    prompt: >-
+      Evidência A FAVOR (evita viés de rejeição). POSITIVA quando a literatura relata o problema como em aberto ou
+      o projeto contraria o consenso. NEGATIVA quando a literatura mostra o problema resolvido de forma conhecida.
+    explicacao_simples: Se o problema era conhecido e ninguém tinha resolvido, isso conta a favor.
+  # ------------------------------------------------------------------ CRIATIVIDADE / doc
+  - id: CRI-D1
+    criterio: CRI
+    bloco: doc
+    titulo: Hipótese explícita antes dos testes
+    o_que_verificar: Há hipótese explícita (ideia proposta para superar a barreira), registrada antes dos testes.
+    evidencia: metodo.md#2 com data (documento inicial precede os ensaios na cronologia).
+    fontes_normativas: ["Guia MCTI 2020 §6.2", "CRA SR&ED", "AU R&DTI", "IE TDM §8.1(f)"]
+    modo: llm
+    papel: media
+    roteamento: ["metodo#2", "cronologia"]
+    prompt: >-
+      (CHK-TEMPO) POSITIVA quando o §2 traz hipótese técnica e a cronologia mostra o registro do método/protocolo
+      ANTES dos ensaios. NEGATIVA quando não há hipótese (só objetivo de produto ou configuração) ou ela foi
+      registrada depois dos ensaios.
+    explicacao_simples: A equipe tinha uma ideia a testar, registrada antes dos testes.
+  - id: CRI-D2
+    criterio: CRI
+    bloco: doc
+    titulo: Barreira técnica concreta
+    o_que_verificar: Há obstáculo técnico que exigiu solução original, descrito de forma concreta.
+    evidencia: Pergunta registrada no dossiê + atividades da fase Caracterização.
+    fontes_normativas: ["IT MIMIT §1.1.3.2", "Guia MCTI 2020 §6.3", "FORMP&D 3.1.8"]
+    modo: llm
+    papel: media
+    roteamento: ["dossie#pergunta_registrada", "dossie#contexto", "atividades", "metodo#1"]
+    prompt: >-
+      POSITIVA quando a barreira é técnica e concreta (o que falha, em que condição). NEGATIVA quando a pergunta
+      registrada já nomeia a solução conhecida ou o produto contratado ("como configurar…", "como integrar ao…").
+    explicacao_simples: Existe um obstáculo técnico concreto que precisou de solução própria.
+  - id: CRI-D3
+    criterio: CRI
+    bloco: doc
+    titulo: Pesquisador na equipe
+    o_que_verificar: A equipe inclui pesquisador; dá para saber quem formulou a hipótese, com qual qualificação e dedicação.
+    evidencia: Lista da equipe com titulação, função e horas.
+    fontes_normativas: ["Frascati 2015 §2.17, §5.35–5.36", "Decreto 5.798 art. 2º III", "Guia ANPEI 2017 p. 27"]
+    modo: llm
+    papel: media
+    status: parcial
+    motivo_status: atividades.csv só traz responsavel_por_funcao (função, sem titulação); não dá para verificar pesquisador.
+    explicacao_simples: Alguém com perfil de pesquisa formulou a hipótese.
+  - id: CRI-D4
+    criterio: CRI
+    bloco: doc
+    titulo: Alternativas consideradas e abandonadas
+    o_que_verificar: Estão registradas as alternativas consideradas e as abandonadas, inclusive os insucessos.
+    evidencia: Comparadores rodados (versões) + versões abandonadas + observações.
+    fontes_normativas: ["IT MIMIT §1.1.3.2", "IE TDM §3.1", "26 CFR §1.41-4(a)(5)"]
+    modo: llm
+    papel: media
+    roteamento: ["metodo#3", "cronologia", "resultados", "observacoes"]
+    prompt: >-
+      (CHK-VERSOES + CHK-FALHAS) POSITIVA quando há comparadores/alternativas executados e versões abandonadas por
+      falha EXPERIMENTAL. NEGATIVA quando as únicas "alternativas" são versões de configuração corrigidas
+      (falha operacional: parâmetro, permissão, cadastro).
+    explicacao_simples: A equipe testou outros caminhos e registrou os que não funcionaram.
+  - id: CRI-D5
+    criterio: CRI
+    bloco: doc
+    titulo: Mudança não rotineira
+    o_que_verificar: A mudança não é rotineira — não se resume a layout, configurar, ativar, cadastrar, mapear campos ou ajustar parâmetro dentro da faixa suportada, sem alterar o algoritmo.
+    evidencia: Verbos do mecanismo em metodo.md#2; "nenhum algoritmo foi modificado"; configuracao.json.
+    fontes_normativas: ["Frascati 2015 §2.17 e §2.56", "Guia MCTI 2020 Ap. B.1", "FAQ MCTI P17", "Históricos PRJ01, 04, 09, 11, 12, 19, 20"]
+    modo: llm
+    papel: gate
+    roteamento: ["metodo#2", "configuracao", "metodo#1"]
+    prompt: >-
+      (CHK-CONFIG) NEGATIVA quando o mecanismo é configurar, ativar, cadastrar, mapear, traduzir sintaxe ou ajustar
+      parâmetro dentro da faixa já suportada pelo produto/manual. POSITIVA quando há regra de decisão, estrutura
+      ou algoritmo próprio alterando a técnica.
+    explicacao_simples: Configurar ou ajustar parâmetro de ferramenta pronta não é criativo.
+  - id: CRI-D6
+    criterio: CRI
+    bloco: doc
+    titulo: Método novo para tarefa comum conta
+    o_que_verificar: "Método novo para tarefa comum conta (ex.: novo método de processamento de dados)."
+    evidencia: Descrição do método e do que ele tem de diferente.
+    fontes_normativas: ["Frascati 2015 §2.17", "IT MIMIT §1.1.3.2"]
+    modo: llm
+    papel: media
+    polaridade_especial: Regra de polaridade POSITIVA; evita viés de rejeição de tarefas comuns.
+    somente_positiva: true
+    roteamento: ["metodo#2"]
+    prompt: >-
+      Esta regra só produz evidência POSITIVA: quando a tarefa é comum (ex.: processar dados, conciliar, migrar)
+      mas o MÉTODO descrito no §2 é novo. Se o método é o padrão da ferramenta, não há evidência.
+    explicacao_simples: Mesmo uma tarefa comum pode ter um método novo, e isso conta.
+  - id: CRI-D7
+    criterio: CRI
+    bloco: doc
+    titulo: Profissional competente afirma
+    o_que_verificar: Quem afirma a criatividade/avanço é profissional competente na área.
+    evidencia: Currículo / justificativa assinada.
+    fontes_normativas: ["HMRC GfC3 parte 3"]
+    modo: llm
+    papel: media
+    status: parcial
+    motivo_status: revisao_tecnica.md dá só a função "revisão técnica"; não há qualificação dos revisores no pacote.
+    explicacao_simples: Quem atesta o avanço precisa ser competente na área.
+  - id: CRI-D8
+    criterio: CRI
+    bloco: doc
+    titulo: Regra de decisão com parâmetros concretos
+    o_que_verificar: O mecanismo está especificado com regra de decisão e parâmetros concretos; plano ou diagrama sem limiares, empate ou versão → indeterminada.
+    evidencia: "metodo.md#2, #4, configuracao.json (parâmetros não nulos)."
+    fontes_normativas: ["Históricos PRJ02, PRJ03, PRJ13 × PRJ08, PRJ10, PRJ17"]
+    modo: llm
+    papel: media
+    roteamento: ["metodo#2", "metodo#4", "configuracao"]
+    prompt: >-
+      (CHK-VERSOES) POSITIVA quando há limiares, pesos, janelas, regras de empate ou pseudocódigo com valores
+      concretos e parâmetros-chave não nulos em configuracao.json. NEGATIVA quando os parâmetros-chave são null
+      ou o mecanismo é só o nome de uma técnica. null em configuracao.json é ausência, nunca zero.
+    explicacao_simples: O mecanismo tem regras e números concretos, não só um nome.
+  - id: CRI-D9
+    criterio: CRI
+    bloco: doc
+    titulo: Configurar não é criativo (histórico)
+    absorvida_em: [CRI-D5]
+  - id: CRI-D10
+    criterio: CRI
+    bloco: doc
+    titulo: Combinação original testada
+    o_que_verificar: A criatividade não exige inventar primitiva; pode estar num acoplamento original testado contra os conhecidos. Renomear técnica conhecida não conta.
+    evidencia: Mecanismo vs. comparadores nomeados em metodo.md#1.
+    fontes_normativas: ["Históricos PRJ05, PRJ07, PRJ03", "Frascati Tab. 2.1(b)"]
+    modo: llm
+    papel: media
+    roteamento: ["metodo#1", "metodo#2", "resultados"]
+    prompt: >-
+      (CHK-VERSOES) POSITIVA quando o acoplamento/combinação do §2 foi testado contra os comparadores conhecidos do
+      §1 (aparecem como versões em resultados.csv). NEGATIVA quando é técnica conhecida renomeada.
+    explicacao_simples: Combinar técnicas conhecidas de forma original e testada conta; renomear não.
+  # ------------------------------------------------------------------ INCERTEZA / web
+  - id: INC-W1
+    criterio: INC
+    bloco: web
+    titulo: Solução já disponível ou dedutível
+    o_que_verificar: A solução da barreira declarada já estava disponível ou era facilmente dedutível por um profissional competente na data de início?
+    evidencia: Resultados de busca sobre a barreira (com data).
+    fontes_normativas: ["UK DSIT ¶13–14", "CRA SR&ED", "AU R&DTI", "IE TDM §3.4", "HMRC GfC3 parte 2, passo 4"]
+    modo: llm
+    papel: media
+    roteamento: [barreira]
+    prompt: >-
+      Busque a SOLUÇÃO DA BARREIRA (não o produto). Use o documento mais próximo da Novidade como estado da arte.
+      NEGATIVA quando uma fonte anterior à data de referência já resolve a barreira. POSITIVA quando as fontes
+      mostram a barreira sem solução disponível.
+    explicacao_simples: Se a solução já estava publicada, não havia incerteza.
+  - id: INC-W2
+    criterio: INC
+    bloco: web
+    titulo: Não saber internamente não conta
+    o_que_verificar: Se a solução era razoavelmente acessível (publicada, consultoria, especialista), a falta de know-how da empresa não é incerteza.
+    evidencia: Evidência de que a solução não estava publicada nem disponível.
+    fontes_normativas: ["IE TDM §3.4", "IT MIMIT 2024 §1.1.3.3", "CRA SR&ED"]
+    modo: llm
+    papel: media
+    roteamento: [barreira, setor]
+    prompt: >-
+      NEGATIVA quando a solução da barreira é vendida como serviço, consultoria ou produto, ou está publicada.
+      POSITIVA quando não há solução acessível para a barreira específica.
+    explicacao_simples: Não saber fazer dentro de casa não é incerteza se a solução estava disponível.
+  - id: INC-W3
+    criterio: INC
+    bloco: web
+    titulo: Problema relatado como em aberto
+    o_que_verificar: A literatura ou documentação técnica relata o problema como em aberto ou aponta limitações das soluções existentes.
+    evidencia: Trechos de artigos, issues ou relatórios que descrevem a limitação.
+    fontes_normativas: ["Guia MCTI 2020 §6.2", "INPI item 5.57"]
+    modo: llm
+    papel: media
+    roteamento: [problema_em_aberto]
+    prompt: >-
+      Evidência A FAVOR. POSITIVA quando a fonte descreve o problema como em aberto ou as limitações das soluções
+      existentes. NEGATIVA quando a fonte trata o problema como resolvido por prática conhecida.
+    explicacao_simples: Outros também relatam o problema como não resolvido.
+  - id: INC-W4
+    criterio: INC
+    bloco: web
+    titulo: TRL como indício
+    o_que_verificar: Maturidade da tecnologia no setor como indício; quanto mais baixo o TRL, maior a incerteza (heurística).
+    evidencia: TRL estimado com base no que foi encontrado.
+    fontes_normativas: ["Guia MCTI 2020 §6.2", "ISO 16290:2013", "Mankins 2009"]
+    modo: llm
+    papel: media
+    roteamento: [maturidade]
+    prompt: >-
+      Estime a maturidade pelo tipo de achado (artigo de pesquisa → baixo TRL; produto à venda/documentação de
+      fornecedor → alto TRL). POSITIVA quando a técnica aparece só em pesquisa. NEGATIVA quando aparece como
+      produto maduro.
+    explicacao_simples: Técnica pouco madura no mercado indica mais incerteza.
+  # ------------------------------------------------------------------ INCERTEZA / doc
+  - id: INC-D1
+    criterio: INC
+    bloco: doc
+    titulo: Incerteza técnica, não comercial
+    o_que_verificar: A incerteza é técnica/científica e intrínseca — não de mercado, prazo, viabilidade comercial nem de regra de negócio ou política.
+    evidencia: Descrição do risco e da sua causa; origem das divergências registradas.
+    fontes_normativas: ["FAQ MCTI P4(b)", "IT MIMIT §1.1.3.3", "IE TDM §3.5", "Histórico PRJ20"]
+    modo: llm
+    papel: media
+    roteamento: ["metodo#2", "revisao", "observacoes", "dossie#contexto"]
+    prompt: >-
+      POSITIVA quando o risco é técnico (pode não funcionar por razão técnica). NEGATIVA quando o risco/divergência
+      é de mercado, prazo, política de negócio ou diferença de regra. A entrevista é só contexto (T9).
+    explicacao_simples: A dúvida era técnica, não de mercado ou de prazo.
+  - id: INC-D2
+    criterio: INC
+    bloco: doc
+    titulo: Pergunta técnica específica
+    o_que_verificar: A incerteza está formulada como pergunta técnica específica (dá para atingir? qual método atende às especificações?).
+    evidencia: "Coluna resultado_ou_saida (\"Pergunta: …\"), pergunta registrada no dossiê, §2."
+    fontes_normativas: ["IE TDM §3.5(a)–(b)", "UK DSIT ¶13", "HMRC GfC3 parte 2, passo 3", "Guia MCTI 2020 §6.3"]
+    modo: llm
+    papel: media
+    roteamento: ["atividades", "dossie#pergunta_registrada", "metodo#2"]
+    prompt: >-
+      POSITIVA quando a pergunta registrada é técnica e específica (método, condição, métrica). NEGATIVA quando é
+      pergunta de configuração/integração de produto conhecido ou de negócio.
+    explicacao_simples: A dúvida foi escrita como uma pergunta técnica clara.
+  - id: INC-D3
+    criterio: INC
+    bloco: doc
+    titulo: Por que um competente não resolveria
+    o_que_verificar: O projeto explica por que um profissional competente não resolveria aquilo com o conhecimento disponível.
+    evidencia: Justificativa técnica.
+    fontes_normativas: ["HMRC GfC3 parte 2, passo 4", "UK DSIT ¶14"]
+    modo: llm
+    papel: media
+    roteamento: ["metodo#1", "metodo#2"]
+    prompt: >-
+      POSITIVA quando §1/§2 explicam por que as alternativas conhecidas falham no problema (logo um competente não
+      resolveria só com elas). NEGATIVA quando o §1 diz que a referência já resolve e só falta configurar.
+    explicacao_simples: Mostra por que um especialista não resolveria só com o que já se sabia.
+  - id: INC-D4
+    criterio: INC
+    bloco: doc
+    titulo: Resultado não previsível
+    o_que_verificar: Há sinais de que o resultado não era previsível (falhas, reprojetos, hipóteses refutadas), desde que sejam falhas experimentais, não operacionais.
+    evidencia: Registro de falhas por versão, cronograma revisado.
+    fontes_normativas: ["IT MIMIT §1.1.3.3", "Guia MCTI 2020 §6.3", "IE TDM §3.1"]
+    modo: llm
+    papel: media
+    polaridade_especial: "T4: falha experimental (v1 falha na hipótese → v2 corrige) conta A FAVOR."
+    roteamento: ["resultados", "medicoes", "observacoes", "metodo#3", "cronologia"]
+    prompt: >-
+      (CHK-FALHAS) POSITIVA quando há falha EXPERIMENTAL registrada (hipótese não confirmada, critério prévio não
+      atingido, comparador que falha). NEGATIVA quando a única falha é OPERACIONAL (parâmetro, permissão,
+      cadastro, receita do fornecedor) resolvida por configuração. "v1 falhou → v2 corrigiu" sozinho não prova.
+    explicacao_simples: O resultado não era previsível; houve falhas da própria hipótese.
+  - id: INC-D5
+    criterio: INC
+    bloco: doc
+    titulo: Enfrentada, não contornada
+    o_que_verificar: A incerteza foi enfrentada, não contornada com conhecimento disponível (workaround).
+    evidencia: Decisão técnica registrada.
+    fontes_normativas: ["CRA SR&ED"]
+    modo: llm
+    papel: media
+    roteamento: ["observacoes", "metodo#2", "metodo#6"]
+    prompt: >-
+      POSITIVA quando o registro mostra que a equipe atacou a barreira com o mecanismo. NEGATIVA quando desviou
+      do problema usando recurso pronto ou excluiu o caso difícil.
+    explicacao_simples: A equipe enfrentou o problema em vez de desviar dele.
+  - id: INC-D6
+    criterio: INC
+    bloco: doc
+    titulo: Integração só se não dedutível
+    o_que_verificar: Integração de sistemas só tem incerteza se não era dedutível como combinar os componentes.
+    evidencia: Descrição do problema de integração.
+    fontes_normativas: ["UK DSIT ¶29–30", "Frascati 2015 §2.73"]
+    modo: llm
+    papel: media
+    roteamento: ["metodo#2", "metodo#1"]
+    prompt: >-
+      Só se aplica a projetos de integração. NEGATIVA quando é montar componentes num padrão estabelecido (SDK,
+      API documentada). POSITIVA quando o modo de combinar era incerto e foi investigado. Se não é integração, não
+      há evidência.
+    explicacao_simples: Integrar sistemas só é incerto se não se sabia como combiná-los.
+  - id: INC-D7
+    criterio: INC
+    bloco: doc
+    titulo: Protótipo testa conceito
+    o_que_verificar: Protótipo/piloto testa conceito técnico arriscado; homologação, pré-produção ou ajuste fino para produzir não é P&D.
+    evidencia: Finalidade do protótipo e o que foi testado.
+    fontes_normativas: ["Frascati 2015 §2.18, §2.49–2.50, Tab. 2.3, §2.55–2.56"]
+    modo: llm
+    papel: media
+    roteamento: ["metodo#3", "dossie#trabalho_documentado"]
+    prompt: >-
+      POSITIVA quando o protocolo testa um conceito técnico arriscado. NEGATIVA quando os testes são de
+      homologação/aceite de algo já definido.
+    explicacao_simples: O teste serviu para checar uma ideia arriscada, não só para homologar.
+  - id: INC-D8
+    criterio: INC
+    bloco: doc
+    titulo: Início e fim da P&D
+    o_que_verificar: Dá para delimitar início e fim da P&D pela cronologia e versões de ensaio.
+    evidencia: Datas de início/fim da etapa incerta.
+    fontes_normativas: ["UK DSIT ¶33–34", "HMRC GfC3 parte 2, passos 6–7", "FAQ MCTI P4(c)"]
+    modo: llm
+    papel: media
+    roteamento: ["cronologia", "dossie#cabecalho"]
+    prompt: >-
+      (CHK-TEMPO) POSITIVA quando a cronologia mostra início (registro do problema) e fim (revisão final) com
+      versões de ensaio entre eles. NEGATIVA quando não dá para delimitar a etapa incerta.
+    explicacao_simples: Dá para saber quando a pesquisa começou e terminou.
+  - id: INC-D9
+    criterio: INC
+    bloco: doc
+    titulo: Bug, ajuste ou falha operacional não é incerteza
+    o_que_verificar: Correção de bugs, troubleshooting, otimização e ajuste fino não são incerteza; inclui falha operacional resolvida por parâmetro, permissão, cadastro, mapeamento ou receita do fornecedor. Absorve a parte de software da T8.
+    evidencia: O que mudou entre v1 e v2 e por quê.
+    fontes_normativas: ["Frascati 2015 §2.57, §2.72", "UK DSIT ¶14, ¶35", "Históricos PRJ01, 04, 09, 11, 12"]
+    modo: llm
+    papel: media
+    roteamento: ["cronologia", "metodo#2", "metodo#3", "observacoes", "resultados"]
+    prompt: >-
+      (CHK-CONFIG + CHK-FALHAS) NEGATIVA quando as mudanças entre versões são correção de parâmetro, permissão,
+      cadastro, mapeamento ou receita do fornecedor. POSITIVA quando a mudança entre versões responde a falha da
+      hipótese técnica. Não use natureza_informada_pela_equipe como sinal (T13).
+    explicacao_simples: Corrigir erro ou ajustar configuração não é incerteza tecnológica.
+  - id: INC-D10
+    criterio: INC
+    bloco: doc
+    titulo: Custo/tempo quando decorre da técnica
+    o_que_verificar: Incerteza de custo/tempo conta quando decorre da técnica (meta técnica como critério prévio).
+    evidencia: Ligação entre a meta de custo/tempo e a questão técnica.
+    fontes_normativas: ["Frascati 2015 §2.18", "IT MIMIT §1.1.3.3", "IE TDM §3.5"]
+    modo: llm
+    papel: media
+    roteamento: ["metodo#2", "metodo#3"]
+    prompt: >-
+      POSITIVA quando uma meta de custo/latência/tempo é critério técnico prévio que exige resolver problema
+      técnico. NEGATIVA quando o custo/prazo é motivo comercial. Se não há meta desse tipo, não há evidência.
+    explicacao_simples: Meta de custo ou tempo conta quando exige resolver um problema técnico.
+  - id: INC-D11
+    criterio: INC
+    bloco: doc
+    titulo: Falha operacional (histórico)
+    absorvida_em: [INC-D9]
+  - id: INC-D12
+    criterio: INC
+    bloco: doc
+    titulo: Investigada exige execução contra comparadores
+    o_que_verificar: A incerteza só é investigada quando a hipótese foi executada e confrontada com os comparadores conhecidos, com registro do resultado; só plano/diagrama/memorando → alegada, não verificável.
+    evidencia: Ensaios por versão em medicoes.csv cobrindo a hipótese e os comparadores.
+    fontes_normativas: ["Históricos PRJ02, 03, 13–16 × PRJ08, 10, 17"]
+    modo: llm
+    papel: media
+    roteamento: ["medicoes", "resultados", "cronologia", "metodo#3", "revisao"]
+    prompt: >-
+      (CHK-VERSOES) POSITIVA quando medicoes.csv tem ensaios da versão da hipótese E dos comparadores nas mesmas
+      entradas. NEGATIVA quando só há plano, diagrama, memorando (MEMO-xx sem versão/saída) ou contagem de entrega.
+    explicacao_simples: A hipótese foi de fato testada contra as alternativas, com registro.
+  - id: INC-D13
+    criterio: INC
+    bloco: doc
+    titulo: Política de negócio não é incerteza (histórico)
+    absorvida_em: [INC-D1]
+  # ------------------------------------------------------------------ SISTEMATICIDADE / doc
+  - id: SIS-D1
+    criterio: SIS
+    bloco: doc
+    titulo: Objetivo, escopo, início e fim
+    o_que_verificar: O projeto tem objetivo, escopo e datas de início e fim (a unidade é o projeto, T1).
+    evidencia: Cabeçalho do dossiê (recorte e corte) + cronologia min/max.
+    fontes_normativas: ["FAQ MCTI P4(d)–(e)", "Frascati 2015 §2.12", "IT MIMIT 2024 §1.1.3.4"]
+    modo: llm
+    papel: media
+    roteamento: ["dossie#cabecalho", "dossie#contexto", "cronologia"]
+    prompt: >-
+      (CHK-TEMPO) POSITIVA quando há objetivo/escopo e datas de início e fim verificáveis na cronologia. NEGATIVA
+      quando faltam datas ou o objeto é uma área/departamento e não um projeto.
+    explicacao_simples: O projeto tem objetivo, escopo, começo e fim definidos.
+  - id: SIS-D2
+    criterio: SIS
+    bloco: doc
+    titulo: Plano datado antes
+    o_que_verificar: Há plano com etapas, marcos e indicadores de sucesso definidos no início.
+    evidencia: Evento "Registro do problema" e protocolo anteriores aos ensaios na cronologia.
+    fontes_normativas: ["Guia MCTI 2020 Ap. B.4", "IE TDM §8.1(f)", "IT MIMIT §1.1.3.4"]
+    modo: llm
+    papel: media
+    roteamento: ["cronologia", "metodo#3"]
+    prompt: >-
+      (CHK-TEMPO) POSITIVA quando a cronologia registra problema e protocolo/critérios ANTES do primeiro ensaio.
+      NEGATIVA quando os critérios aparecem depois dos ensaios ou não há plano.
+    explicacao_simples: Existia um plano com critérios definidos antes dos testes.
+  - id: SIS-D3
+    criterio: SIS
+    bloco: doc
+    titulo: Recursos próprios identificados
+    o_que_verificar: Equipe adequada ao problema, orçamento e fonte de financiamento identificados.
+    evidencia: Tabela de RH, currículos, orçamento.
+    fontes_normativas: ["Frascati 2015 §2.19", "FORMP&D", "IE TDM §8.1(g)–(h)"]
+    modo: llm
+    papel: media
+    status: parcial
+    motivo_status: Orçamento e dispêndios estão fora do escopo do guia; a equipe só aparece por função (responsavel_por_funcao), sem titulação.
+    explicacao_simples: A equipe e os recursos do projeto estão identificados.
+  - id: SIS-D4
+    criterio: SIS
+    bloco: doc
+    titulo: Dispêndios rastreáveis
+    o_que_verificar: Dispêndios rastreáveis ao projeto (contas e apontamento de horas).
+    evidencia: Plano de contas, timesheets.
+    fontes_normativas: ["Lei 11.196 art. 22 I", "Decreto 5.798 art. 10 I", "Portaria 9.563 art. 6º II"]
+    modo: llm
+    papel: media
+    status: na
+    motivo_status: O guia do desafio exclui explicitamente horas, despesas e requisitos fiscais.
+    explicacao_simples: Os gastos do projeto podem ser rastreados.
+  - id: SIS-D5
+    criterio: SIS
+    bloco: doc
+    titulo: Metodologia experimental, não aceite
+    o_que_verificar: A metodologia é de experimentação (alternativas nas mesmas entradas, referência fixada antes, critérios prévios), não gestão nem teste de aceite (roteiros com resultado esperado repetidos até passar).
+    evidencia: metodo.md#3, versões dos comparadores na cronologia, ensaios em medicoes.csv.
+    fontes_normativas: ["Guia MCTI 2020 §6.4", "FAQ MCTI P4", "CRA SR&ED", "IE TDM §3.6", "Históricos PRJ02, 13, 14, 16 × PRJ04, 09, 12"]
+    modo: llm
+    papel: media
+    roteamento: ["metodo#3", "cronologia", "medicoes", "resultados"]
+    prompt: >-
+      (CHK-VERSOES) POSITIVA quando alternativas (incluindo comparadores conhecidos) rodaram nas mesmas entradas
+      com critérios fixados antes. NEGATIVA quando é aceite: roteiros com resultado esperado repetidos até passar
+      (aceite perfeito pode ser rotina, T13). Não use natureza_informada_pela_equipe.
+    explicacao_simples: Os testes foram um experimento comparando alternativas, não só um teste de aceite.
+  - id: SIS-D6
+    criterio: SIS
+    bloco: doc
+    titulo: Registro contemporâneo (histórico)
+    absorvida_em: [T5]
+  - id: SIS-D7
+    criterio: SIS
+    bloco: doc
+    titulo: Desvios registrados
+    o_que_verificar: Estão registrados os desvios — caminhos que falharam e por que se mudou de rumo.
+    evidencia: Versões que falharam, observações, limite.
+    fontes_normativas: ["IE TDM §3.1", "IT MIMIT §1.1.3.4"]
+    modo: llm
+    papel: media
+    roteamento: ["observacoes", "resultados", "metodo#6", "cronologia"]
+    prompt: >-
+      (CHK-FALHAS) POSITIVA quando há registro de caminho que falhou e do motivo da mudança de rumo (falha
+      experimental). NEGATIVA quando não há desvio registrado ou os desvios são só correções de configuração.
+    explicacao_simples: Os caminhos que deram errado foram registrados.
+  - id: SIS-D8
+    criterio: SIS
+    bloco: doc
+    titulo: Plurianual (histórico)
+    absorvida_em: [T2]
+  - id: SIS-D9
+    criterio: SIS
+    bloco: doc
+    titulo: Pesquisador / adequação da equipe (histórico)
+    absorvida_em: [CRI-D3, SIS-D3]
+  - id: SIS-D10
+    criterio: SIS
+    bloco: doc
+    titulo: Documentação guardada
+    o_que_verificar: A documentação fica guardada e acessível durante o prazo prescricional.
+    evidencia: Onde e por quanto tempo os documentos ficam guardados.
+    fontes_normativas: ["Decreto 5.798 art. 14 §1º", "IE TDM §8.4"]
+    modo: design
+    papel: media
+    status: na
+    motivo_status: Não é input do pacote; é satisfeita no output pelo dossiê versionado da ferramenta (autor, data, hash).
+    explicacao_simples: Os documentos ficam guardados pelo tempo exigido.
+  - id: SIS-D11
+    criterio: SIS
+    bloco: doc
+    titulo: Experimento × aceite (histórico)
+    absorvida_em: [SIS-D5]
+  - id: SIS-D12
+    criterio: SIS
+    bloco: doc
+    titulo: Execução registrada por versão
+    o_que_verificar: Cada versão alegada tem ensaio identificado (ensaio_id) em medicoes.csv; plano/memorando sem registro de execução → parcial.
+    evidencia: cronologia.csv × medicoes.csv × configuracao.json.
+    fontes_normativas: ["Históricos PRJ08, 10, 17"]
+    modo: llm
+    papel: media
+    roteamento: ["cronologia", "medicoes", "configuracao", "resultados"]
+    prompt: >-
+      (CHK-VERSOES) POSITIVA quando toda versão citada na cronologia/configuração tem ensaio em medicoes.csv.
+      NEGATIVA quando há versão alegada sem ensaio, parâmetros null ou só contagem de entrega.
+    explicacao_simples: Cada versão testada tem registro de execução.
+  - id: SIS-D13
+    criterio: SIS
+    bloco: doc
+    titulo: Controles de desenho experimental
+    o_que_verificar: Controles como estrato do caso difícil, repetições, ordem contrabalançada e separação temporal do rótulo são indícios fortes (não obrigatórios).
+    evidencia: metodo.md#3, configuracao.json.
+    fontes_normativas: ["Históricos PRJ02, PRJ13, PRJ15, PRJ16"]
+    modo: llm
+    papel: media
+    roteamento: ["metodo#3", "configuracao"]
+    prompt: >-
+      POSITIVA quando o protocolo tem controles (estrato difícil, repetições, ordem contrabalançada, separação do
+      rótulo). NEGATIVA quando há vazamento de informação futura (ex.: variável só disponível depois do evento).
+      Ausência de controles não é evidência negativa.
+    explicacao_simples: O teste tem cuidados de desenho experimental.
+  - id: SIS-D14
+    criterio: SIS
+    bloco: doc
+    titulo: Entrega não é desempenho
+    o_que_verificar: Contagem de entrega não é desempenho e não prova execução; desempenho exige operação e base explícitas (T11).
+    evidencia: Colunas natureza e taxa_percentual de resultados.csv.
+    fontes_normativas: ["LEIA_ME", "Históricos PRJ08, 10, 17"]
+    modo: llm
+    papel: media
+    roteamento: ["resultados"]
+    prompt: >-
+      (CHK-RECALC) NEGATIVA quando os resultados são só natureza=entrega (taxa vazia). POSITIVA quando há
+      resultados de natureza=desempenho com operação e base explícitas. Vazio não é zero.
+    explicacao_simples: Contar o que foi entregue não mostra que o mecanismo funcionou.
+  # ------------------------------------------------------------------ REPRODUÇÃO / doc
+  - id: REP-D1
+    criterio: REP
+    bloco: doc
+    titulo: Conhecimento codificado
+    o_que_verificar: O conhecimento gerado está codificado num registro, não só no know-how da equipe.
+    evidencia: metodo.md#4 + configuracao.json presente e completo.
+    fontes_normativas: ["Frascati 2015 §2.20", "IPCTN 2020 Anexo I", "Nonaka 1994"]
+    modo: llm
+    papel: media
+    roteamento: ["metodo#4", "configuracao"]
+    prompt: >-
+      POSITIVA quando §4 e configuracao.json registram parâmetros e versões do mecanismo. NEGATIVA quando o
+      conhecimento depende de memória/memorando sem registro.
+    explicacao_simples: O que se aprendeu está escrito, não só na cabeça da equipe.
+  - id: REP-D2
+    criterio: REP
+    bloco: doc
+    titulo: Detalhe suficiente para repetir
+    o_que_verificar: O registro traz método, dados, configuração e resultados com detalhe suficiente para outro profissional repetir.
+    evidencia: "metodo.md#4 e #5 + base de cálculo recalculável."
+    fontes_normativas: ["Frascati 2015 §2.20", "UK DSIT ¶34", "NASEM 2019"]
+    modo: llm
+    papel: media
+    roteamento: ["metodo#4", "metodo#5", "resultados", "medicoes"]
+    prompt: >-
+      (CHK-RECALC) POSITIVA quando método, parâmetros e resultados com base de cálculo permitem repetir. NEGATIVA
+      quando falta parte essencial (versão, saída, parâmetros null).
+    explicacao_simples: Outro profissional conseguiria repetir com o que está registrado.
+  - id: REP-D3
+    criterio: REP
+    bloco: doc
+    titulo: Resultados negativos documentados
+    o_que_verificar: Resultados negativos e hipóteses refutadas também estão documentados.
+    evidencia: Linhas de falha experimental em medicoes/resultados.
+    fontes_normativas: ["Frascati 2015 §2.20", "Guia MCTI 2020 §6.2", "IT MIMIT §1.1.3.5"]
+    modo: llm
+    papel: media
+    polaridade_especial: "T4: falha experimental registrada conta A FAVOR."
+    roteamento: ["resultados", "medicoes", "observacoes"]
+    prompt: >-
+      (CHK-FALHAS) POSITIVA quando falhas EXPERIMENTAIS (comparador que falha, critério prévio não atingido) estão
+      registradas com números. Se não há falha registrada, não há evidência.
+    explicacao_simples: Os resultados ruins também foram registrados.
+  - id: REP-D4
+    criterio: REP
+    bloco: doc
+    titulo: Artefatos preservados e versionados
+    o_que_verificar: Código, dados, modelos, protótipos e protocolos preservados e versionados.
+    evidencia: Repositório, versão/commit, local dos dados.
+    fontes_normativas: ["Gundersen & Kjensmo 2018", "Pineau et al. 2021", "ACM Artifact Review v1.1"]
+    modo: llm
+    papel: media
+    status: parcial
+    motivo_status: O pacote não tem código executável; o artefato reproduzível é especificação + configuracao.json + registros por versão.
+    explicacao_simples: Os artefatos do projeto estão guardados com versão.
+  - id: REP-D5
+    criterio: REP
+    bloco: doc
+    titulo: Mecanismo de transferência
+    o_que_verificar: Existe mecanismo de transferência (patente, registro, publicação, documentação interna, treinamento).
+    evidencia: Nº de pedido/registro, DOI, documento interno.
+    fontes_normativas: ["Frascati Tab. 2.1(d)", "Decreto 5.798 art. 2º II d"]
+    modo: llm
+    papel: media
+    status: na
+    motivo_status: Não há patentes, registros ou publicações no pacote; a "Continuidade" (§7) não é transferência.
+    explicacao_simples: O conhecimento foi repassado (patente, publicação, treinamento).
+  - id: REP-D6
+    criterio: REP
+    bloco: doc
+    titulo: Cadeia plano → resultado rastreável
+    o_que_verificar: As fases planejadas e executadas podem ser rastreadas do plano ao resultado.
+    evidencia: cronologia.fonte → metodo.md#n; resultados.fonte → medicoes.csv#S.
+    fontes_normativas: ["IT MIMIT §1.1.3.5"]
+    modo: llm
+    papel: media
+    roteamento: ["cronologia", "resultados", "metodo#3"]
+    prompt: >-
+      (CHK-VERSOES) POSITIVA quando a cadeia fecha: cronologia aponta para o método, resultados apontam para os
+      ensaios de medicoes.csv. NEGATIVA quando há elo quebrado (resultado sem ensaio, versão sem registro).
+    explicacao_simples: Dá para seguir do plano até o resultado sem buracos.
+  - id: REP-D7
+    criterio: REP
+    bloco: doc
+    titulo: Limite de escopo — excluído × lacuna na pretensão
+    o_que_verificar: Limite excluído desde o início não gera ressalva; lacuna dentro da pretensão original (hipótese não ensaiada, critério prévio não atingido) gera ressalva com recorte + limitação + evidência necessária.
+    evidencia: "metodo.md#6 e #7, revisao_tecnica.md, flags *_executado:false em configuracao.json."
+    fontes_normativas: ["Históricos PRJ03, 14, 15, 16 × PRJ05, 06, 07, 18", "GUIA_DO_PARTICIPANTE"]
+    modo: llm
+    papel: media
+    roteamento: ["metodo#6", "metodo#7", "revisao", "configuracao", "dossie#limite_da_conclusao"]
+    prompt: >-
+      (CHK-ESCOPO) NEGATIVA quando há lacuna DENTRO da pretensão original (hipótese do protocolo não ensaiada,
+      flag *_executado:false, critério prévio não atingido) — descreva a limitação concreta. POSITIVA quando os
+      limites foram excluídos desde o início e o núcleo alegado está coberto. A ressalva é técnica, nunca "falta
+      reprodução por outra equipe".
+    explicacao_simples: Separa o que ficou de fora de propósito do que faltou testar.
+  - id: REP-D8
+    criterio: REP
+    bloco: doc
+    titulo: Documentação de configuração não é conhecimento novo
+    o_que_verificar: Documentação completa de uma configuração reproduz a configuração, não um conhecimento novo.
+    evidencia: Natureza do que está documentado.
+    fontes_normativas: ["Históricos PRJ01, 04, 09, 11, 12, 19, 20"]
+    modo: llm
+    papel: media
+    roteamento: ["metodo#3", "metodo#4", "configuracao"]
+    prompt: >-
+      (CHK-CONFIG) NEGATIVA quando o que está documentado é uma receita de configuração de produto existente.
+      POSITIVA quando o documentado é o mecanismo próprio e seus resultados.
+    explicacao_simples: Documentar uma configuração não a transforma em pesquisa.
+  - id: REP-D9
+    criterio: REP
+    bloco: doc
+    titulo: Números recalculáveis do registro primário
+    o_que_verificar: Os números são recalculáveis do registro primário (medicoes.csv → resultados.csv) e ligados a ensaio e versão.
+    evidencia: Recálculo a partir de medicoes.csv.
+    fontes_normativas: ["LEIA_ME", "Históricos PRJ02, 13, 15"]
+    modo: llm
+    papel: media
+    roteamento: ["resultados", "medicoes"]
+    prompt: >-
+      (CHK-RECALC) Para contagem, some numeradores e denominadores SOMENTE dentro do mesmo ensaio_id. POSITIVA
+      quando os valores de resultados.csv batem com medicoes.csv do mesmo ensaio. NEGATIVA quando não batem ou o
+      número só existe no PDF/memorando. Vazio ≠ zero. Copie os números, não arredonde.
+    explicacao_simples: Os números podem ser refeitos a partir dos registros originais.
+  # ------------------------------------------------------------------ TRANSVERSAIS
+  - id: T1
+    bloco: transversal
+    titulo: Cumulativos, por projeto
+    o_que_verificar: Os cinco critérios são cumulativos e verificados por projeto.
+    fontes_normativas: ["Frascati 2015 §2.8, §2.13", "Guia MCTI 2020 §6", "FAQ MCTI P4(d)"]
+    modo: regra
+    aplicacao: A classe sai do vetor de estados dos 5 critérios do projeto (tabela estado → classe).
+    explicacao_simples: Os cinco critérios valem juntos e por projeto.
+  - id: T2
+    bloco: transversal
+    titulo: Plurianual — cada ano-base separado
+    o_que_verificar: Projeto plurianual verifica cada ano-base separadamente (absorve NOV-D7 e SIS-D8).
+    fontes_normativas: ["Frascati 2015 §2.8", "Guia MCTI 2020 Ap. B.4", "FAQ MCTI P4"]
+    modo: regra
+    status: na
+    motivo_status: Janela única por projeto no pacote.
+    aplicacao: N/A no pacote.
+    explicacao_simples: Projetos de vários anos são avaliados ano a ano.
+  - id: T3
+    bloco: transversal
+    titulo: Comparação na data de início
+    o_que_verificar: A comparação é sempre com o conhecimento disponível na data de início do projeto.
+    fontes_normativas: ["HMRC GfC3 parte 2, passo 5", "IE TDM §8.1(e)", "IT MIMIT 2024 §1.1.3.1", "LPI art. 11 §1º"]
+    modo: regra
+    aplicacao: Data de referência = corte − semanas do cabeçalho do dossiê; filtro temporal da busca web.
+    instrucao_prompt: Compare sempre com o que estava disponível na data de referência (início do projeto); o que é posterior não é estado da arte.
+    explicacao_simples: Compara-se com o que se sabia quando o projeto começou.
+  - id: T4
+    bloco: transversal
+    titulo: Resultado negativo não desqualifica
+    o_que_verificar: A hipótese refutada também é conhecimento novo.
+    fontes_normativas: ["Frascati 2015 §2.20", "Guia MCTI 2020 §6.2", "UK DSIT ¶10", "CRA SR&ED"]
+    modo: regra
+    aplicacao: Falha experimental tem polaridade positiva em INC-D4, CRI-D4, SIS-D7 e REP-D3.
+    instrucao_prompt: Falha EXPERIMENTAL (hipótese não confirmada, critério prévio não atingido) conta a favor; meta não atingida não rebaixa o projeto sozinha. Falha OPERACIONAL (parâmetro, permissão, cadastro) não conta.
+    explicacao_simples: Um resultado ruim também é conhecimento e pode ser P&D.
+  - id: T5
+    bloco: transversal
+    titulo: Contemporâneo vale mais que reconstruído
+    o_que_verificar: Evidência contemporânea (datada, com autor) vale mais do que documento reconstruído depois (absorve SIS-D6).
+    fontes_normativas: ["IE TDM §3.1 e §8.4", "AU R&DTI", "CRA SR&ED", "Guia ANPEI 2017 p. 27"]
+    modo: regra
+    aplicacao: Datas progressivas na cronologia; documento reconstruído no fim gera alerta.
+    instrucao_prompt: Registro datado durante o trabalho vale mais que documento reconstruído no fim; se tudo foi registrado de uma vez no fim, registre como evidência negativa.
+    explicacao_simples: O que foi registrado na hora vale mais do que o escrito depois.
+  - id: T6
+    bloco: transversal
+    titulo: Query web sem dado sigiloso
+    o_que_verificar: A string de busca enviada à internet não contém dado sigiloso ou identificável do projeto.
+    fontes_normativas: ["Guia do desafio, Parte 6"]
+    modo: design
+    aplicacao: Sanitização de toda query (códigos PRJ, nomes de equipe, códigos internos, números) com log original × sanitizada.
+    explicacao_simples: Nada que identifique o projeto vai para a internet.
+  - id: T7
+    bloco: transversal
+    titulo: A ferramenta sinaliza, o analista decide
+    o_que_verificar: LLM sozinho não julga; o julgamento cita documentos recuperados e a decisão é do analista.
+    fontes_normativas: ["Guia do desafio, Parte 3", "Schopf & Färber 2026", "Zhang et al. 2026"]
+    modo: design
+    aplicacao: Toda evidência tem citação verificada; classe é sugestão; decisão do analista é registro separado.
+    explicacao_simples: O sistema sugere; quem decide é o analista.
+  - id: T8
+    bloco: transversal
+    titulo: Software só com avanço e incerteza sistemática
+    o_que_verificar: Software só é P&D se a conclusão depende de avanço científico/tecnológico e resolve incerteza de forma sistemática.
+    fontes_normativas: ["Frascati 2015 §2.68–2.73", "Frascati 2002 §135"]
+    modo: llm
+    aplicacao: Implementada por NOV-D5 (exclusões) e INC-D9 (rotina).
+    explicacao_simples: Desenvolver software não basta; precisa avançar a técnica.
+  - id: T9
+    bloco: transversal
+    titulo: Hierarquia de prova
+    o_que_verificar: Registro primário por versão > derivado > síntese > depoimento > memorando sem IDs; a entrevista nunca sustenta sozinha um critério.
+    fontes_normativas: ["LEIA_ME", "Guia do Participante"]
+    modo: regra
+    aplicacao: Fragmentos da entrevista têm natureza depoimento e não viram evidência contada.
+    instrucao_prompt: Hierarquia de prova — medicoes.csv (primário) > resultados.csv (derivado) > dossiê/registro técnico (síntese) > entrevista (depoimento) > memorando sem IDs. Nunca use a entrevista como evidência.
+    explicacao_simples: Registro original vale mais que resumo, que vale mais que depoimento.
+  - id: T10
+    bloco: transversal
+    titulo: Divergência entrevista × registro
+    o_que_verificar: Registrar as duas versões com ID e dizer qual prevalece; não esconder nem resolver em silêncio.
+    fontes_normativas: ["Guia do Participante", "Históricos PRJ02, 05, 07, 13, 15, 18"]
+    modo: llm
+    aplicacao: Campo divergencia_depoimento do parecer, no formato do guia.
+    instrucao_prompt: 'Quando a entrevista diverge de um registro, registre em divergencias no formato: "A entrevista afirma X; o registro Y mostra Z; prevalece o registro, por ser primário e identificado por versão."'
+    explicacao_simples: Quando a entrevista contradiz os registros, isso fica anotado.
+  - id: T11
+    bloco: transversal
+    titulo: Versão, escopo, unidade e denominador
+    o_que_verificar: Antes de comparar números, conferir versão, escopo, unidade e denominador; operação, base e unidade explícitas.
+    fontes_normativas: ["LEIA_ME", "Históricos PRJ13, PRJ18"]
+    modo: regra
+    aplicacao: Instrução dos sub Doc (CHK-RECALC/CHK-DIVERG).
+    instrucao_prompt: Antes de comparar números, confira versão, escopo, unidade e denominador; some só dentro do mesmo ensaio; base_de_calculo nem sempre é divisor.
+    explicacao_simples: Só compara números com a mesma unidade e a mesma base.
+  - id: T12
+    bloco: transversal
+    titulo: Localizada ≠ provada
+    o_que_verificar: '"Localizada" no inventário significa arquivo presente, não alegação provada.'
+    fontes_normativas: ["LEIA_ME"]
+    modo: regra
+    aplicacao: Instrução dos sub Doc; inventário nunca é evidência de mérito.
+    instrucao_prompt: '"Localizada" no inventário só significa que o arquivo existe; não prova a alegação. Não presuma arquivos citados em conversa.'
+    explicacao_simples: Ter o arquivo não prova o que ele alega.
+  - id: T13
+    bloco: transversal
+    titulo: Aceite perfeito pode ser rotina
+    o_que_verificar: Complexidade, valor de negócio, uso de IA, número de testes e natureza declarada não determinam a classe.
+    fontes_normativas: ["LEIA_ME", "Guia do Participante", "Históricos PRJ01, PRJ18"]
+    modo: design
+    aplicacao: Nenhuma regra usa natureza_informada_pela_equipe, nº de testes ou taxa de aprovação como sinal de P&D.
+    instrucao_prompt: 100% de aprovação, muitos testes, uso de IA ou natureza_informada_pela_equipe NÃO são sinal de P&D.
+    explicacao_simples: Passar em todos os testes não prova que foi pesquisa.
+  - id: T14
+    bloco: transversal
+    titulo: Favoráveis, contrárias, ausentes e contraditórias
+    o_que_verificar: Registrar evidências favoráveis, contrárias, ausentes e contraditórias para cada critério.
+    fontes_normativas: ["Guia do Participante, passo 9"]
+    modo: design
+    aplicacao: Cada nó tem polaridade; regra sem evidência sai como "sem evidência", nunca some.
+    explicacao_simples: Tudo entra no registro, inclusive o que pesa contra.
+  - id: T15
+    bloco: transversal
+    titulo: Históricos são calibração
+    o_que_verificar: Não classificar por semelhança com PRJ01–20; a classe sai das evidências do próprio projeto.
+    fontes_normativas: ["Guia do Participante"]
+    modo: design
+    aplicacao: PRJ01–20 só servem para calibrar contra o gabarito.
+    instrucao_prompt: Nunca classifique por semelhança com outros projetos; use só as evidências deste projeto.
+    explicacao_simples: Cada projeto é julgado pelas próprias evidências.

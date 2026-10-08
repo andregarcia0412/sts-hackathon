@@ -26,11 +26,15 @@ async def get_user_by_id(user_id: str) -> User | None:
     return await User.get(object_id)
 
 
-async def create_user(email: str, password: str) -> User:
+def default_name(email: str) -> str:
+    return email.split("@", 1)[0]
+
+
+async def create_user(email: str, password: str, name: str | None = None) -> User:
     email = normalize_email(email)
     if await User.find_one(User.email == email) is not None:
         raise EmailAlreadyRegistered(email)
-    user = User(email=email, password_hash=hash_password(password))
+    user = User(email=email, name=(name or "").strip() or default_name(email), password_hash=hash_password(password))
     try:
         await user.insert()
     except DuplicateKeyError as exc:

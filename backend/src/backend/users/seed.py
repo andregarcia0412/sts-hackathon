@@ -16,7 +16,7 @@ async def seed_users() -> None:
         if await get_user_by_email(email) is not None:
             continue
         try:
-            await create_user(email, settings.seed_password)
+            await create_user(email, settings.seed_password, name=f"Analista {n}")
             created += 1
         except EmailAlreadyRegistered:
             pass

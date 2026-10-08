@@ -20,3 +20,7 @@ def test_startup_seeds_users_that_can_log_in(client, users_collection):
 def test_seed_is_idempotent(client, users_collection):
     client.portal.call(seed_users)
     assert users_collection.count_documents({}) == SEED_USER_COUNT
+
+
+def test_seed_users_have_names(client, users_collection):
+    assert all(doc["name"].startswith("Analista ") for doc in users_collection.find())

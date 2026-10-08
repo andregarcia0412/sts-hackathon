@@ -26,14 +26,15 @@ def test_register_returns_tokens_that_authenticate(client):
     me = client.get("/users/me", headers=bearer(body["access_token"]))
     assert me.status_code == 200
     assert me.json()["email"] == "alice@example.com"
-    assert set(me.json()) == {"id", "email"}
+    assert set(me.json()) == {"id", "email", "name"}
+    assert me.json()["name"] == "alice"
 
 
 def test_register_stores_lowercased_email_and_hash(client, users_collection):
     register(client)
     doc = users_collection.find_one({"email": "alice@example.com"})
     assert doc is not None
-    assert set(doc) == {"_id", "email", "password_hash"}
+    assert set(doc) == {"_id", "email", "name", "password_hash"}
     assert doc["password_hash"].startswith("$argon2id$")
     assert PASSWORD not in doc["password_hash"]
 
@@ -99,3 +100,10 @@ def test_me_requires_valid_token(client):
 def test_refresh_rejects_garbage(client):
     response = client.post("/auth/refresh", json={"refresh_token": "garbage"})
     assert response.status_code == 401
+
+
+def test_register_accepts_display_name(client):
+    tokens = client.post(
+        "/auth/register", json={"email": "bob@example.com", "password": PASSWORD, "name": "Bob Analista"}
+    ).json()
+    assert client.get("/users/me", headers=bearer(tokens["access_token"])).json()["name"] == "Bob Analista"
