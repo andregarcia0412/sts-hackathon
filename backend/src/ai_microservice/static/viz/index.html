@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>STS 2026 — Grafo de Evidências</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; margin: 0; }
+  body { font-family: system-ui, sans-serif; background: #0f1115; color: #e6e6e6; display: flex; height: 100vh; }
+  #left { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  header { padding: 10px 16px; border-bottom: 1px solid #262a33; display: flex; gap: 10px; align-items: center; }
+  header h1 { font-size: 15px; font-weight: 600; }
+  input, button, select { background: #1a1e26; color: #e6e6e6; border: 1px solid #333a46; border-radius: 6px; padding: 6px 10px; font-size: 13px; }
+  button { cursor: pointer; }
+  button:hover { background: #232936; }
+  button:disabled { opacity: .5; cursor: default; }
+  #status { font-size: 12px; color: #9aa3b2; }
+  #canvas { flex: 1; overflow: auto; }
+  svg { display: block; }
+  .node { cursor: pointer; }
+  .node rect { stroke-width: 1.2; }
+  .node text { pointer-events: none; font-size: 11px; fill: #e6e6e6; }
+  .edge { stroke: #3a4150; stroke-width: 1; fill: none; }
+  .edge.sustenta { stroke: #2e9e5b; }
+  .edge.contraria { stroke: #d9534f; }
+  #panel { width: 380px; border-left: 1px solid #262a33; padding: 16px; overflow-y: auto; background: #12151b; }
+  #panel h2 { font-size: 14px; margin-bottom: 8px; word-break: break-all; }
+  #panel .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 10px; margin: 2px 4px 2px 0; background: #232936; }
+  #panel .quote { border-left: 3px solid #4a90d9; padding: 8px 10px; margin: 10px 0; background: #171b22; font-size: 13px; white-space: pre-wrap; }
+  #panel .kv { font-size: 12px; margin: 4px 0; color: #b9c0cc; }
+  #panel .kv b { color: #e6e6e6; font-weight: 600; }
+  #panel .rule { font-size: 12px; border: 1px solid #2b313d; border-radius: 8px; padding: 10px; margin-top: 10px; }
+  .pol-sustenta { color: #52c07f; }
+  .pol-contraria { color: #e8706c; }
+  .pol-neutra { color: #9aa3b2; }
+  #steps { font-size: 12px; line-height: 1.7; color: #9aa3b2; padding: 6px 16px; }
+  #steps .ok { color: #52c07f; } #steps .run { color: #e8c168; } #steps .fail { color: #e8706c; }
+</style>
+</head>
+<body>
+<div id="left">
+  <header>
+    <h1>STS 2026 — Grafo de Evidências</h1>
+    <input id="project" placeholder="PRJ01" value="PRJ01">
+    <button id="btn-analyze">Analisar projeto</button>
+    <span id="status">pronto</span>
+  </header>
+  <div id="steps"></div>
+  <div id="canvas"></div>
+</div>
+<div id="panel"><h2>Clique num nó do grafo</h2><div class="kv">Painel de detalhe — quote, âncora, justificativa e o texto da regra (<code>/regras/{id}</code>).</div></div>
+<script>
+const COLORS = {
+  projeto: '#4a90d9', criterio: '#7d5bd6', regra: '#3d6ea5',
+  evidencia: null, // por polaridade
+  fonte: '#6b7280', web_source: '#b8860b', query: '#0d9488', gap: '#555c66'
+};
+const polColor = { sustenta: '#2e9e5b', contraria: '#d9534f', neutra: '#555c66' };
+
+async function jget(url) { const r = await fetch(url); if (!r.ok) throw new Error((await r.json()).detail || r.status); return r.json(); }
+
+let G = null;
+
+function layout(nodes, edges) {
+  // camadas: projeto(0) > criterio(1) > regra(2) > evidencia(3) > fonte/query/web(4); gap na camada da regra
+  const layer = {};
+  const adj = {};
+  edges.forEach(e => { (adj[e.source] = adj[e.source] || []).push(e); });
+  const byId = {}; nodes.forEach(n => byId[n.id] = n);
+  function depth(n, seen) {
+    seen = seen || new Set();
+    if (layer[n.id] !== undefined) return layer[n.id];
+    if (n.type === 'projeto') return 0;
+    if (n.type === 'criterio') return 1;
+    if (n.type === 'regra') return 2;
+    if (n.type === 'evidencia') return 3;
+    return 4; // fonte, query, web_source, gap -> 4 (gap sobe p/ 3.5 via visual)
+  }
+  nodes.forEach(n => layer[n.id] = depth(n));
+  const cols = {};
+  const x0 = 60, dx = 230, y0 = 60, dy = 34;
+  const perLayer = {};
+  nodes.forEach(n => { const l = layer[n.id]; perLayer[l] = (perLayer[l] || 0) + 1; });
+  const counts = {};
+  const pos = {};
+  nodes.forEach(n => {
+    const l = layer[n.id];
+    counts[l] = counts[l] || 0;
+    pos[n.id] = { x: x0 + l * dx, y: y0 + counts[l] * dy, l };
+    counts[l]++;
+  });
+  return { pos, layer };
+}
+
+function render(g) {
+  G = g;
+  const { pos } = layout(g.nodes, g.edges);
+  const W = Math.max(...g.nodes.map(n => pos[n.id].x)) + 260;
+  const H = Math.max(...g.nodes.map(n => pos[n.id].y)) + 80;
+  const svgns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(svgns, 'svg');
+  svg.setAttribute('width', W); svg.setAttribute('height', H);
+  // arestas
+  g.edges.forEach(e => {
+    const a = pos[e.source], b = pos[e.target];
+    if (!a || !b) return;
+    const p = document.createElementNS(svgns, 'path');
+    const mx = (a.x + b.x) / 2;
+    p.setAttribute('d', `M ${a.x + 95} ${a.y + 12} C ${mx + 95} ${a.y + 12}, ${mx} ${b.y + 12}, ${b.x} ${b.y + 12}`);
+    p.setAttribute('class', 'edge ' + e.type);
+    svg.appendChild(p);
+  });
+  // nós
+  g.nodes.forEach(n => {
+    const p = pos[n.id];
+    const gEl = document.createElementNS(svgns, 'g');
+    gEl.setAttribute('class', 'node');
+    gEl.setAttribute('transform', `translate(${p.x}, ${p.y})`);
+    const r = document.createElementNS(svgns, 'rect');
+    const color = n.type === 'evidencia' ? (polColor[n.props.polaridade] || '#555c66') : (COLORS[n.type] || '#333');
+    r.setAttribute('width', 95); r.setAttribute('height', 24); r.setAttribute('rx', 5);
+    r.setAttribute('fill', '#171b22'); r.setAttribute('stroke', color);
+    if (n.type === 'evidencia' || n.type === 'gap') r.setAttribute('fill', '#151920');
+    if (n.type === 'evidencia' && n.props.polaridade === 'sustenta') r.setAttribute('fill', '#12301d');
+    if (n.type === 'evidencia' && n.props.polaridade === 'contraria') r.setAttribute('fill', '#331715');
+    gEl.appendChild(r);
+    const t = document.createElementNS(svgns, 'text');
+    t.setAttribute('x', 8); t.setAttribute('y', 16);
+    t.textContent = (n.label || n.id).slice(0, 20);
+    gEl.appendChild(t);
+    gEl.onclick = () => showNode(n);
+    svg.appendChild(gEl);
+  });
+  const c = document.getElementById('canvas');
+  c.innerHTML = ''; c.appendChild(svg);
+}
+
+async function showNode(n) {
+  const panel = document.getElementById('panel');
+  const esc = s => String(s ?? '').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  let html = `<h2>${esc(n.label || n.id)}</h2><span class="tag">${n.type}</span>`;
+  const props = n.props || {};
+  for (const k of ['regra_id','polaridade','natureza','status','status_reason','motivo','original','sanitized','removed','url','ancora','captured_at','model']) {
+    if (props[k] !== undefined) html += `<span class="tag">${esc(k)}: ${esc(JSON.stringify(props[k]))}</span>`;
+  }
+  if (props.quote) html += `<div class="quote">${esc(props.quote)}</div>`;
+  if (props.justificativa) html += `<div class="kv"><b>Justificativa:</b> ${esc(props.justificativa)}</div>`;
+  if (props.fonte) html += `<div class="kv"><b>Fonte:</b> ${esc(props.fonte)}</div>`;
+  if (n.type === 'query') html += `<div class="kv"><b>Query original × sanitizada</b><br><span class="quote">${esc(props.original)}</span><span class="quote">${esc(props.sanitized)}</span></div>`;
+  if (props.regra_id || n.type === 'regra') {
+    const rid = props.regra_id || n.label;
+    html += `<div class="rule" id="rulebox">carregando regra ${esc(rid)}…</div>`;
+    panel.innerHTML = html;
+    try {
+      const rule = await jget(`/regras/${rid}`);
+      const rb = document.getElementById('rulebox');
+      rb.innerHTML = `<b>${esc(rule.id)}</b> <span class="tag">${esc(rule.status)}</span>
+        <div class="kv"><b>O que verificar:</b> ${esc(rule.what)}</div>
+        <div class="kv"><b>Evidência esperada:</b> ${esc(rule.evidence)}</div>
+        <div class="kv"><b>Fontes normativas:</b> ${esc((rule.sources||[]).join('; '))}</div>
+        ${rule.status_reason ? `<div class="kv"><b>Motivo:</b> ${esc(rule.status_reason)}</div>` : ''}`;
+    } catch (e) { document.getElementById('rulebox').textContent = 'regra não encontrada: ' + e.message; }
+    return;
+  }
+  panel.innerHTML = html;
+}
+
+async function loadGraph(pid) {
+  try {
+    const g = await jget(`/graph/${pid}`);
+    document.getElementById('status').textContent = `grafo ${g.version} — ${g.nodes.length} nós / ${g.edges.length} arestas`;
+    render(g);
+  } catch (e) { document.getElementById('status').textContent = 'sem grafo: ' + e.message; }
+}
+
+async function analyze() {
+  const pid = document.getElementById('project').value.trim() || 'PRJ01';
+  const btn = document.getElementById('btn-analyze');
+  btn.disabled = true;
+  document.getElementById('status').textContent = 'enviando…';
+  try {
+    const r = await fetch('/analyze', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ project_path: pid }) });
+    if (!r.ok) throw new Error((await r.json()).detail || r.status);
+    const { analise_id } = await r.json();
+    document.getElementById('status').textContent = `analisando (${analise_id})…`;
+    const stepsEl = document.getElementById('steps');
+    const timer = setInterval(async () => {
+      try {
+        const st = await jget(`/status/${analise_id}`);
+        stepsEl.innerHTML = Object.entries(st.steps).map(([k, v]) => {
+          const cls = v.status === 'concluida' ? 'ok' : v.status === 'rodando' ? 'run' : v.status === 'falhou' ? 'fail' : '';
+          return `<div class="${cls}">${k}: ${v.status}${v.duracao_s ? ' (' + v.duracao_s + 's)' : ''}</div>`;
+        }).join('');
+        if (st.status === 'concluida' || st.status === 'falhou') {
+          clearInterval(timer);
+          btn.disabled = false;
+          if (st.status === 'concluida') { document.getElementById('status').textContent = `concluída — grafo ${st.version}`; loadGraph(pid); }
+          else document.getElementById('status').textContent = 'falhou: ' + st.error;
+        }
+      } catch (e) { clearInterval(timer); btn.disabled = false; document.getElementById('status').textContent = 'erro: ' + e.message; }
+    }, 2000);
+  } catch (e) { btn.disabled = false; document.getElementById('status').textContent = 'erro: ' + e.message; }
+}
+
+document.getElementById('btn-analyze').onclick = analyze;
+loadGraph(document.getElementById('project').value || 'PRJ01');
+</script>
+</body>
+</html>

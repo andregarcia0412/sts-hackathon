@@ -1,0 +1,1973 @@
+catalog_version: 1.0.0
+artifacts:
+- id: dossie_projeto.pdf
+  nature: sintese
+- id: registro_tecnico.pdf
+  nature: sintese
+- id: transcricao_entrevista_tecnica.pdf
+  nature: depoimento
+- id: atividades.csv
+  nature: registro_primario
+- id: atividades.xlsx
+  nature: registro_primario
+- id: inventario_evidencias.csv
+  nature: indice
+- id: evidencias/metodo.md
+  nature: sintese
+- id: evidencias/cronologia.csv
+  nature: registro_primario
+- id: evidencias/medicoes.csv
+  nature: registro_primario
+- id: evidencias/resultados.csv
+  nature: derivado
+- id: evidencias/configuracao.json
+  nature: especificacao
+- id: evidencias/observacoes.csv
+  nature: registro_primario
+- id: evidencias/entradas.csv
+  nature: registro_primario
+- id: evidencias/revisao_tecnica.md
+  nature: revisao
+rules:
+- id: NOV-W1
+  criterion: novidade
+  block: web
+  mode: regra
+  what: Fixar a data de referência = início do projeto; só é estado da arte o que estava acessível ao
+    público antes dela
+  evidence: data de início (FORMP&D 3.1.11) + data de publicação de cada resultado
+  sources:
+  - LPI art. 11 §1º
+  - INPI Res. 169/2016 itens 3.1 e 3.3
+  - HMRC GfC3 parte 2 passo 5
+  - IE TDM §8.1(e)
+  routing:
+  - evidencias/cronologia.csv
+  chk: CHK-TEMPO
+  polarity_hint: informativa
+  scoring_role: informativa
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+- id: NOV-W2
+  criterion: novidade
+  block: web
+  mode: web
+  what: 'Buscar em três frentes: patentes, literatura científica e soluções de mercado/concorrentes'
+  evidence: lista de bases consultadas por frente
+  sources:
+  - IT MIMIT 2024 §1.1.3.1
+  - AU R&DTI
+  routing: []
+  polarity_hint: informativa
+  scoring_role: informativa
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Para o elemento novo declarado no metodo.md#2, monte e execute um plano de busca em três frentes:
+
+    (1) patentes — query com termos do mecanismo e classe IPC/CPC se aplicável (G06F, H04L, G06Q 40);
+
+    (2) literatura científica — query em PT e EN com sinônimos técnicos;
+
+    (3) mercado — query sobre a solução/setor.
+
+    Registra, para cada frente, a base, a string usada e quantos resultados voltaram (NOV-W8).
+
+    Achados posteriores à data de referência do projeto não são estado da arte.'
+  query_family: plano de busca
+- id: NOV-W3
+  criterion: novidade
+  block: web
+  mode: web
+  what: Comparar o elemento novo declarado (o conhecimento/técnica, não o produto) com o documento mais
+    próximo; um único documento que descreva o elemento inteiro derruba a novidade
+  evidence: documento mais próximo + quadro 'o que o projeto tem que o achado não tem'
+  sources:
+  - Frascati §2.16
+  - INPI itens 4.6 e 4.10
+  - EPO G-VII 5 etapa (i)
+  routing: []
+  polarity_hint: negative
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'A partir do elemento novo declarado no metodo.md#2, busque o documento público mais próximo
+    dele.
+
+    Se um único resultado já descrever o elemento inteiro (o mecanismo, não só o resultado), a novidade
+
+    não está demonstrada — registra a evidência contrária com o trecho do achado (quote da fonte web).
+
+    Se nada cobrir o elemento, registra o achado mais próximo e o que falta nele.
+
+    IMPORTANTE: achar a técnica GENÉRICA na web não derruba a novidade se o mecanismo específico do
+
+    recorte não estiver descrito no achado.'
+  query_family: documento mais próximo
+- id: NOV-W4
+  criterion: novidade
+  block: web
+  mode: web
+  what: 'Comparar com o setor/campo, não com a empresa: algo que já existe no mercado mas é novo para
+    a empresa NÃO é novo'
+  evidence: ausência de uso da solução por outros atores do setor
+  sources:
+  - Frascati §2.15
+  - UK DSIT ¶6 ¶20 ¶22
+  - IE TDM §3.4
+  - FAQ MCTI P4(a)
+  routing: []
+  polarity_hint: negative
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Busque indícios de que a solução já era usada por outros atores do setor (bancos/fintechs para
+
+    projetos financeiros). Achado de uso setorial = evidência contrária; ausência de achado é registrada
+
+    com peso menor — nunca como prova de novidade.'
+  query_family: uso setorial
+- id: NOV-W5
+  criterion: novidade
+  block: web
+  mode: web
+  what: Se outra empresa já chegou ao resultado mas o COMO não é público (segredo industrial), a novidade
+    se mantém
+  evidence: ausência de documentação pública sobre o método
+  sources:
+  - UK DSIT ¶11 ¶21
+  - IE TDM §3.4
+  - IT MIMIT §1.1.3.1
+  routing: []
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Busque se o resultado (a função) já aparece publicamente e verifique se o MÉTODO está público.
+
+    Resultado público + método secreto = novidade se mantém. Registra o achado e se ele descreve
+
+    o como ou só o resultado.'
+  query_family: resultado público vs método
+- id: NOV-W6
+  criterion: novidade
+  block: web
+  mode: web
+  what: Trabalho simultâneo e independente de concorrentes não elimina a novidade, se os resultados deles
+    não estavam acessíveis
+  evidence: datas das publicações dos concorrentes vs. início do projeto
+  sources:
+  - UK DSIT ¶21
+  - IE TDM §3.4
+  - IT MIMIT §1.1.3.1
+  routing: []
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Compare a data de publicação dos achados com a data de referência do projeto (primeiro evento
+
+    da cronologia). Achado posterior é trabalho simultâneo — não derruba a novidade; registra a data.
+
+    Achado anterior é estado da técnica.'
+  query_family: datas de publicação
+- id: NOV-W7
+  criterion: novidade
+  block: web
+  mode: web
+  what: Página da internet conta como estado da técnica se pode ser achada por buscador público e continuou
+    acessível
+  evidence: URL + data de publicação ou de captura
+  sources:
+  - INPI Res. 169/2016 item 3.33
+  routing: []
+  polarity_hint: informativa
+  scoring_role: informativa
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Para cada achado usado, registra a URL e a data de captura (dia de hoje) — define a admissibilidade
+
+    da evidência web no grafo. Achado sem data confiável = ''data indeterminada'' (não conta como anterior
+
+    nem posterior).'
+  query_family: admissibilidade
+- id: NOV-W8
+  criterion: novidade
+  block: web
+  mode: web+regra
+  what: 'Registrar a busca de forma reproduzível: bases, data, string exata, filtros, nº de resultados,
+    selecionados e por quê'
+  evidence: log de busca (vira nó do grafo)
+  sources:
+  - PRISMA-S (Rethlefsen et al. 2021)
+  - WIPO Pub. 946
+  routing: []
+  polarity_hint: informativa
+  scoring_role: informativa
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Não gera evidência própria: o log de busca é gerado automaticamente pelo sistema para toda
+    query
+
+    que você executar. Confere apenas que você registrou, para cada regra web que rodou, quantas queries
+
+    fez e quantos achados selecionou.'
+  query_family: log de busca
+- id: NOV-D1
+  criterion: novidade
+  block: documento
+  mode: llm
+  what: 'O projeto declara explicitamente o elemento novo: a tecnologia, as novas funcionalidades/características
+    e a aplicação'
+  evidence: texto do campo 3.1.7 ou do relatório técnico
+  sources:
+  - FORMP&D 3.1.7
+  - Guia MCTI 2020 §6.2
+  - FAQ MCTI P4(a) e (c)
+  routing:
+  - evidencias/metodo.md#2
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'No §2 ''Mecanismo e hipótese'' do metodo.md, identifique a declaração de elemento novo do projeto.
+
+    O que a equipe afirma ser novo? Cite literalmente o trecho que descreve o mecanismo/hipótese. Se o
+
+    documento não declara elemento novo (só adequação de configuração), registre evidência contrária.'
+- id: NOV-D2
+  criterion: novidade
+  block: documento
+  mode: llm
+  what: 'O projeto descreve o estado da arte no início: alternativas conhecidas e o modo de falha específico
+    de cada uma; só lista de ferramentas → novidade indeterminada'
+  evidence: seção de estado da arte (metodo.md#1) com alternativa + limitação, datada
+  sources:
+  - Guia MCTI 2020 §6.2
+  - IT MIMIT §1.1.3.1
+  - IE TDM §8.1(e)
+  - Históricos PRJ02/03/05/06/13-16/18 × PRJ08
+  routing:
+  - evidencias/metodo.md#1
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'No §1 ''Referência anterior'' do metodo.md, verifique se o projeto descreve alternativas conhecidas
+
+    E onde cada uma falha no problema estudado. Alternativa + limitação = sustenta. Lista de ferramentas
+
+    sem modo de falha → registra neutra com a limitação. Sem referência anterior → sem evidência.'
+- id: NOV-D3
+  criterion: novidade
+  block: documento
+  mode: llm
+  what: A novidade é de conhecimento/técnica (o 'como'), não de funcionalidade, negócio ou mercado
+  evidence: trechos que explicam o problema técnico e a abordagem
+  sources:
+  - FAQ MCTI P4
+  - Frascati §2.16 e Tab. 2.1(a)
+  - Guia MCTI 2020 §6.1
+  routing:
+  - evidencias/metodo.md#2
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Analise se o elemento novo declarado é conhecimento/técnica (como fazer) ou apenas funcionalidade/
+
+    negócio. Cite o trecho que mostra o mecanismo técnico. Funcionalidade sem mecanismo → contrária.'
+- id: NOV-D4
+  criterion: novidade
+  block: documento
+  mode: llm
+  what: Não é cópia, imitação, engenharia reversa, compra de tecnologia nem nacionalização/adaptação sem
+    barreira técnica
+  evidence: origem da solução; contratos de licença ou aquisição
+  sources:
+  - Frascati §2.15
+  - UK DSIT ¶12 ¶22 ¶24
+  - Guia ANPEI 2017 pp. 19 e 26
+  - Guia MCTI 2020 Ap. B.3
+  routing:
+  - evidencias/metodo.md#1
+  - evidencias/metodo.md#2
+  chk: CHK-CONFIG
+  polarity_hint: negative
+  scoring_role: gate
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Use o resultado da checagem CHK-CONFIG (via tool chk_resultado). Se a referência anterior do
+    §1 é
+
+    manual/catálogo/produto contratado que já fornece a função aplicada no §2, a solução é adaptação de
+
+    tecnologia existente → contrária. Cite o trecho do §1/§2 que mostra a origem da solução.'
+- id: NOV-D5
+  criterion: novidade
+  block: documento
+  mode: llm
+  what: 'Software: não cai nas exclusões (sistema de negócio com métodos conhecidos, funcionalidade de
+    usuário, ferramentas prontas, customização, depuração rotineira)'
+  evidence: técnica/arquitetura descrita vs. lista de exclusões
+  sources:
+  - Frascati §2.70–2.72
+  - IPCTN 2020 Anexo I
+  routing:
+  - evidencias/metodo.md#1
+  - evidencias/metodo.md#2
+  polarity_hint: negative
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Compare o mecanismo do §2 contra as exclusões de software: sistema de negócio com métodos conhecidos,
+
+    funcionalidade de usuário, site com ferramentas prontas, customização, depuração rotineira. Cite o
+
+    trecho do §2 que caracteriza o mecanismo. Se o mecanismo é configuração/uso de ferramenta pronta →
+
+    contrária; se descreve técnica própria → sustenta.'
+- id: NOV-D6
+  criterion: novidade
+  block: documento
+  mode: regra
+  what: 'A melhoria é substancial e objetiva: há comparação com a linha de base; melhora numérica entre
+    versões SOZINHA não basta (rotina também melhora)'
+  evidence: métricas antes/depois, benchmark
+  sources:
+  - Decreto 5.798 art. 2º II 'c'
+  - Guia MCTI 2020 Ap. B.1
+  - UK DSIT ¶23–25
+  - IT MIMIT §1.1.3.1
+  - Histórico PRJ01 8/12→12/12 só mudando retenção
+  routing:
+  - evidencias/medicoes.csv
+  - evidencias/resultados.csv
+  chk: CHK-RECALC
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Use o resultado da CHK-RECALC (via tool chk_resultado) sobre a comparação entre versões. A
+    regra:
+
+    melhora numérica entre versões sozinha não demonstra novidade — rotina também melhora. Só registra
+
+    evidência sustentando se houver comparação qualitativa além da melhora numérica.'
+- id: NOV-D8
+  criterion: novidade
+  block: documento
+  mode: regra
+  what: Patente, registro de software, artigo ou aprovação por agência de fomento são indícios — não obrigatórios
+  evidence: nº do pedido/registro, DOI, termo de outorga
+  sources:
+  - IT MIMIT §1.1.3.1
+  - Frascati Tab. 2.1(d)
+  - Guia ANPEI 2017 Fig. 1
+  routing: []
+  polarity_hint: positive
+  scoring_role: informativa
+  status: na
+  status_reason: N/A no pacote — não há patentes, registros ou artigos nos artefatos
+  absorbed_into: null
+- id: NOV-D10
+  criterion: novidade
+  block: documento
+  mode: regra+llm
+  what: Se a referência anterior — manual, catálogo, dicionário ou produto contratado, datado antes do
+    projeto — já fornece a função aplicada, a novidade não está demonstrada
+  evidence: referência anterior + data (cronologia) + mecanismo do §2
+  sources:
+  - Históricos PRJ01 (BARR-2), PRJ04, 09, 11, 12, 19, 20
+  - Frascati §2.72
+  routing:
+  - evidencias/metodo.md#1
+  - evidencias/metodo.md#2
+  chk: CHK-CONFIG
+  polarity_hint: negative
+  scoring_role: gate
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Combine o resultado da CHK-CONFIG com as datas da CHK-TEMPO (tools chk_resultado). Passo a
+    passo:
+
+    (1) a referência do §1 é manual/catálogo/produto contratado? (2) ela é datada antes do início do
+
+    projeto? (3) o §2 aplica a função que ela já fornece? Se sim nos três → novidade NÃO demonstrada,
+
+    evidência contrária citando o trecho do §1 e do §2. Se algum passo falha → neutra explicando.'
+- id: NOV-D11
+  criterion: novidade
+  block: documento
+  mode: llm
+  what: A novidade vale no recorte ensaiado (perfis, cenários, cargas); afirmações gerais além dele não
+    são cobertas
+  evidence: seção 'Limite da conclusão' (metodo.md#6)
+  sources:
+  - Históricos PRJ02, 05, 07, 14
+  - LEIA_ME
+  routing:
+  - evidencias/metodo.md#6
+  chk: CHK-ESCOPO
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'No §6 ''Limite da conclusão'', identifique o recorte da novidade. Cite o trecho que delimita
+    onde a
+
+    conclusão vale. A regra apenas delimita — não é positiva nem negativa por si; registre a polaridade
+
+    neutra com a citação do limite.'
+- id: NOV-D12
+  criterion: novidade
+  block: documento
+  mode: llm
+  what: Título ou adjetivo comercial não prova novidade — decide o mecanismo documentado; técnica genérica
+    só conta com elemento técnico próprio testado contra o comparador
+  evidence: mecanismo do §2 vs. título do dossiê
+  sources:
+  - Históricos PRJ09, PRJ19, PRJ02
+  - T13
+  routing:
+  - dossie_projeto.pdf
+  - evidencias/metodo.md#2
+  chk: CHK-VERSOES
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Compare o título do dossiê (fragmento 1) com o mecanismo do §2. O título/adjetivo não prova
+    nada;
+
+    o mecanismo é o que decide. Se o §2 descreve técnica genérica sem elemento próprio testado contra
+
+    o comparador → contrária. Se há elemento próprio além do título → sustenta citando o mecanismo.'
+- id: CRI-W1
+  criterion: criatividade
+  block: web
+  mode: web+llm
+  what: 'Aplicar o roteiro problema-solução EPO: achar o estado da arte mais próximo, definir o problema
+    técnico, verificar se um técnico chegaria à solução de forma óbvia'
+  evidence: documento mais próximo + problema técnico + justificativa da não-obviedade
+  sources:
+  - EPO G-VII 5
+  - INPI Res. 169/2016 itens 5.9–5.21
+  - LPI art. 13
+  - Guia MCTI 2020 §6
+  routing: []
+  polarity_hint: negative
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Reaproveite o achado mais próximo da NOV-W3 (se disponível no contexto) e derive o problema
+    técnico
+
+    objetivo. Depois: um técnico no assunto chegaria à solução do projeto de forma óbvia? A justificativa
+
+    de não-obviedade é sinal, não veredito. Cite o trecho do achado e a justificativa.'
+  query_family: problema-solução EPO
+- id: CRI-W2
+  criterion: criatividade
+  block: web
+  mode: web+llm
+  what: Se a abordagem do projeto aparece como prática padrão (documentação oficial, tutorial, manual),
+    é rotina
+  evidence: link do material que descreve a mesma abordagem
+  sources:
+  - Guia do desafio Parte 4
+  - Frascati §2.72
+  routing: []
+  chk: CHK-CONFIG
+  polarity_hint: negative
+  scoring_role: gate
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'A configuração do §2 aparece em documentação oficial ou tutorial? Busque (1–2 queries) a prática
+
+    descrita no mecanismo. Achado que descreve a mesma abordagem como prática padrão → contrária (gate).
+
+    Use também o resultado da CHK-CONFIG (tool chk_resultado).'
+  query_family: prática padrão/tutorial
+- id: CRI-W3
+  criterion: criatividade
+  block: web
+  mode: llm+regra
+  what: Combinação de elementos conhecidos só é criativa se o efeito conjunto vai além da soma dos efeitos
+    isolados; justaposição simples é óbvia
+  evidence: comparação dos efeitos isolados vs. combinados
+  sources:
+  - INPI itens 5.22 e 5.30
+  routing:
+  - evidencias/medicoes.csv
+  polarity_hint: negative
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'O §2 vs. comparadores isolados — as estratégias alternativas medidas estão no medicoes.csv?
+    (tool
+
+    buscar_em_arquivos). Combinação com efeito além da soma → sustenta; justaposição → contrária.'
+- id: CRI-W4
+  criterion: criatividade
+  block: web
+  mode: llm
+  what: Trazer conhecimento de outro campo conta quando a adaptação não era facilmente dedutível
+  evidence: origem do conhecimento + o que precisou ser adaptado
+  sources:
+  - UK DSIT ¶6 e ¶23
+  - IT MIMIT 2024 §1.1.3.2
+  - Frascati Tab. 2.1(b)
+  routing:
+  - evidencias/metodo.md#1
+  - evidencias/metodo.md#2
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Procure no §1/§2 indícios de conhecimento importado de outro campo e o que precisou ser adaptado.
+
+    Cite o trecho. Sem indício → sem evidência (não contrária).'
+- id: CRI-W5
+  criterion: criatividade
+  block: web
+  mode: web
+  what: 'Indícios a favor: o problema era conhecido há tempo e não resolvido, ou o projeto seguiu caminho
+    contrário ao consenso técnico'
+  evidence: literatura relatando o problema em aberto ou o consenso contrariado
+  sources:
+  - INPI itens 5.57 e 5.58
+  routing: []
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Busque (1–2 queries) literatura ou relatórios mostrando o problema técnico SEM solução conhecida
+    ou
+
+    um consenso técnico contrariado. Achado → sustenta com o trecho. Nada → sem evidência.'
+  query_family: problema em aberto
+- id: CRI-D1
+  criterion: criatividade
+  block: documento
+  mode: regra+llm
+  what: Há hipótese explícita (ideia ou abordagem para superar a barreira), registrada antes dos testes
+  evidence: plano, ata ou relatório datado com a hipótese
+  sources:
+  - Guia MCTI 2020 §6.2
+  - CRA SR&ED
+  - AU R&DTI
+  - IE TDM §8.1(f)
+  routing:
+  - evidencias/metodo.md#2
+  chk: CHK-TEMPO
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Duas partes: (1) REGRA — use a CHK-TEMPO (tool chk_resultado): o evento ''Registro do problema
+    e das
+
+    referências'' (documento-inicial) é anterior aos ensaios? (2) LLM — no §2, identifique a hipótese
+
+    explícita e cite-a. Hipótese + registro anterior → sustenta; hipótese sem data anterior → neutra;
+
+    sem hipótese → contrária.'
+- id: CRI-D2
+  criterion: criatividade
+  block: documento
+  mode: llm
+  what: Há obstáculo técnico que exigiu solução original, descrito de forma concreta
+  evidence: campo 3.1.8 (barreira) / relatório técnico
+  sources:
+  - IT MIMIT §1.1.3.2
+  - Guia MCTI 2020 §6.3
+  - FORMP&D 3.1.8
+  routing:
+  - dossie_projeto.pdf
+  - atividades.csv
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Na pergunta registrada do dossiê e na fase ''Caracterização do problema'' do atividades.csv,
+    identifique
+
+    o obstáculo técnico concreto. Cite o trecho. Barreira descrita em termos de mercado/cliente →
+
+    contrária; sem menção → sem evidência.'
+- id: CRI-D3
+  criterion: criatividade
+  block: documento
+  mode: regra
+  what: A equipe inclui pesquisador — e dá para saber quem formulou a hipótese, com qual qualificação
+    e dedicação
+  evidence: lista da equipe com titulação, função e horas
+  sources:
+  - Frascati §2.17 §2.19 §5.35–5.36 Tab. 2.1(e)
+  - Decreto 5.798 art. 2º III
+  routing:
+  - atividades.csv
+  polarity_hint: positive
+  scoring_role: mean
+  status: parcial
+  status_reason: 'parcial: atividades.csv só traz responsavel_por_funcao (função, sem titulação) — limitação
+    registrada'
+  absorbed_into: null
+- id: CRI-D4
+  criterion: criatividade
+  block: documento
+  mode: llm+regra
+  what: Estão registradas as alternativas consideradas e as abandonadas, inclusive os insucessos
+  evidence: registro de decisões técnicas, experimentos descartados
+  sources:
+  - IT MIMIT §1.1.3.2
+  - IE TDM §3.1
+  - 26 CFR §1.41-4(a)(5)
+  - Históricos
+  routing:
+  - evidencias/observacoes.csv
+  chk: CHK-VERSOES
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Combine: CHK-VERSOES (comparadores rodados) + CHK-FALHAS (versões abandonadas) via chk_resultado,
+
+    e o observacoes.csv (tool buscar_em_arquivos). Alternativas registradas → sustenta citando o trecho;
+
+    só a versão final → sem evidência.'
+- id: CRI-D5
+  criterion: criatividade
+  block: documento
+  mode: llm+regra
+  what: 'A mudança não é rotineira: não se resume a configurar/ativar/cadastrar/mapear campos/ajustar
+    parâmetro dentro da faixa já suportada, sem alterar o algoritmo'
+  evidence: o que mudou tecnicamente; verbos do mecanismo; frases como 'nenhum algoritmo foi modificado'
+  sources:
+  - Frascati §2.17 e §2.56
+  - Guia MCTI 2020 Ap. B.1
+  - FAQ MCTI P17
+  - Históricos PRJ01, 04, 09, 11, 12, 19, 20
+  routing:
+  - evidencias/metodo.md#2
+  - evidencias/configuracao.json
+  chk: CHK-CONFIG
+  polarity_hint: negative
+  scoring_role: gate
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Use CHK-CONFIG (tool chk_resultado): o mecanismo é configurar/ativar/mapear/ajustar dentro
+    da faixa
+
+    suportada? Procure no §2 frases como ''nenhum algoritmo foi modificado'' e verbos de configuração.
+
+    Mudança dentro da faixa → contrária (gate). Alteração de algoritmo/mecanismo próprio → sustenta.'
+- id: CRI-D6
+  criterion: criatividade
+  block: documento
+  mode: llm
+  what: 'Método novo para tarefa comum CONTA (ex.: novo método de processamento de dados)'
+  evidence: descrição do método e do que ele tem de diferente
+  sources:
+  - Frascati §2.17
+  - IT MIMIT §1.1.3.2
+  routing:
+  - evidencias/metodo.md#2
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Verifique se o §2 descreve um método novo para uma tarefa comum. Se sim → sustenta (polaridade
+
+    POSITIVA — evita viés de rejeição). Cite o trecho do método. Sem método novo → sem evidência.'
+- id: CRI-D7
+  criterion: criatividade
+  block: documento
+  mode: llm
+  what: Quem afirma a criatividade/avanço é profissional competente na área, não alguém só com interesse
+    no tema
+  evidence: currículo / justificativa assinada
+  sources:
+  - HMRC GfC3 parte 3
+  routing:
+  - evidencias/revisao_tecnica.md
+  polarity_hint: positive
+  scoring_role: mean
+  status: parcial
+  status_reason: 'parcial: mesma limitação da CRI-D3; revisao_tecnica.md dá só a função ''revisão técnica'',
+    sem titulação'
+  absorbed_into: null
+- id: CRI-D8
+  criterion: criatividade
+  block: documento
+  mode: regra+llm
+  what: O mecanismo está especificado com regra de decisão e parâmetros concretos (limiares, pesos, janelas,
+    empate), não só nome de técnica; null → indeterminada
+  evidence: 'metodo.md#2, #4 e configuracao.json (parâmetros não nulos)'
+  sources:
+  - Históricos PRJ02, 03, 13 × PRJ08, 10, 17
+  routing:
+  - evidencias/metodo.md#2
+  - evidencias/metodo.md#4
+  - evidencias/configuracao.json
+  chk: CHK-VERSOES
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Duas partes: (1) REGRA — CHK-VERSOES (tool chk_resultado): parâmetros-chave não nulos no
+
+    configuracao.json? (2) LLM — o §2/§4 traz regra de decisão com limiares/empate concretos? Parâmetros
+
+    concretos + regra → sustenta; null/só nome de técnica → neutra (indeterminada).'
+- id: CRI-D10
+  criterion: criatividade
+  block: documento
+  mode: llm+regra
+  what: 'A criatividade não exige inventar primitiva: pode estar em acoplamento/combinação original testada
+    contra os conhecidos; renomear técnica conhecida não conta'
+  evidence: mecanismo vs. comparadores nomeados no §1
+  sources:
+  - Históricos PRJ05, PRJ07, PRJ03
+  - Frascati Tab. 2.1(b)
+  routing:
+  - evidencias/metodo.md#1
+  - evidencias/metodo.md#2
+  chk: CHK-VERSOES
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Use CHK-VERSOES (comparadores rodados) + o §1. A combinação foi testada contra os conhecidos?
+
+    Combinação original testada → sustenta; renomear técnica conhecida → contrária.'
+- id: INC-W1
+  criterion: incerteza
+  block: web
+  mode: web
+  what: A solução da barreira já estava disponível ou era facilmente dedutível por profissional competente
+    na data de início?
+  evidence: resultados de busca sobre a barreira (com data)
+  sources:
+  - UK DSIT ¶13–14
+  - CRA SR&ED
+  - AU R&DTI
+  - IE TDM §3.4
+  - HMRC GfC3 parte 2 passo 4
+  routing: []
+  polarity_hint: negative
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Busque a SOLUÇÃO DA BARREIRA declarada (não o produto). Query sobre como resolver o problema
+    técnico.
+
+    Achado anterior à data de referência que resolve a barreira → contrária. Nada → registra ausência
+
+    com peso menor.'
+  query_family: solução da barreira
+- id: INC-W2
+  criterion: incerteza
+  block: web
+  mode: web
+  what: 'Não saber internamente não é incerteza: se a solução era razoavelmente acessível (publicada,
+    consultoria, especialista), a falta de know-how não conta'
+  evidence: evidência de que a solução não estava publicada nem disponível
+  sources:
+  - IE TDM §3.4
+  - IT MIMIT 2024 §1.1.3.3
+  - CRA SR&ED
+  routing: []
+  polarity_hint: negative
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Busque (1–2 queries) se a solução da barreira estava acessível (artigo, consultoria, especialista).
+
+    Acessível → contrária. Nada → ausência com peso menor.'
+  query_family: acessibilidade da solução
+- id: INC-W3
+  criterion: incerteza
+  block: web
+  mode: web
+  what: A literatura ou documentação técnica relata o problema como em aberto ou aponta limitações das
+    soluções existentes
+  evidence: trechos de artigos/issues/relatórios que descrevem a limitação
+  sources:
+  - Guia MCTI 2020 §6.2
+  - INPI item 5.57
+  routing: []
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Busque (1–2 queries) artigos/issues/relatórios descrevendo a limitação técnica que o projeto
+    ataca
+
+    como problema em aberto. Achado → sustenta citando o trecho.'
+  query_family: problema relatado em aberto
+- id: INC-W4
+  criterion: incerteza
+  block: web
+  mode: web
+  what: 'Maturidade da tecnologia no setor como indício: quanto mais baixo o TRL, maior a incerteza (heurística)'
+  evidence: TRL estimado com base no que foi encontrado
+  sources:
+  - Guia MCTI 2020 §6.2
+  - ISO 16290:2013
+  - NASA TRL
+  routing: []
+  polarity_hint: positive
+  scoring_role: informativa
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Com base nos achados web, estime o TRL da técnica (artigo ≈ 2–4; biblioteca madura ≈ 7–8; produto
+
+    comercial = 9) com justificativa. Registra como indício (informativa), não prova.'
+  query_family: TRL
+- id: INC-D1
+  criterion: incerteza
+  block: documento
+  mode: llm
+  what: A incerteza é técnica/científica e intrínseca — não de mercado, financiamento, prazo comercial
+    nem regra de negócio ou política
+  evidence: descrição do risco e da sua causa; origem das divergências
+  sources:
+  - FAQ MCTI P4(b)
+  - IT MIMIT §1.1.3.3
+  - IE TDM §3.5
+  - Jalonen 2011
+  - Histórico PRJ20
+  routing:
+  - evidencias/metodo.md#2
+  - evidencias/revisao_tecnica.md
+  - evidencias/observacoes.csv
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Analise se a incerteza declarada (§2, revisão técnica, observações) é técnica/científica. Risco
+
+    descrito como mercado/prazo/orçamento/política → contrária. Incerteza técnica → sustenta citando
+
+    o trecho. A transcrição da entrevista é DEPOIMENTO — use só como contexto, nunca como evidência.'
+- id: INC-D2
+  criterion: incerteza
+  block: documento
+  mode: regra+llm
+  what: A incerteza está formulada como pergunta técnica específica
+  evidence: lista nominal das incertezas
+  sources:
+  - IE TDM §3.5(a)-(b)
+  - UK DSIT ¶13
+  - HMRC GfC3 parte 2 passo 3
+  - Guia MCTI 2020 §6.3
+  routing:
+  - atividades.csv
+  - dossie_projeto.pdf
+  - evidencias/metodo.md#2
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Duas partes: (1) REGRA — há padrão ''Pergunta:'' na coluna resultado_ou_saida do atividades.csv?
+
+    (tool buscar_em_arquivos). (2) LLM — a pergunta é técnica (não de negócio)? Pergunta técnica
+
+    registrada → sustenta citando-a; pergunta de negócio → contrária; sem pergunta → sem evidência.'
+- id: INC-D3
+  criterion: incerteza
+  block: documento
+  mode: llm
+  what: O projeto explica por que um profissional competente não resolveria aquilo com o conhecimento
+    disponível
+  evidence: justificativa técnica
+  sources:
+  - HMRC GfC3 parte 2 passo 4
+  - UK DSIT ¶14
+  routing:
+  - evidencias/metodo.md#1
+  - evidencias/metodo.md#2
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'No §1/§2, o projeto explica por que o conhecimento disponível não resolvia? Justificativa presente
+    →
+
+    sustenta citando-a. Ausente → sem evidência (não contrária).'
+- id: INC-D4
+  criterion: incerteza
+  block: documento
+  mode: regra+llm
+  what: 'Há sinais de que o resultado não era previsível: atrasos, falhas, reprojetos — desde que falhas
+    EXPERIMENTAIS, não operacionais (INC-D9)'
+  evidence: relatórios de teste, registro de falhas
+  sources:
+  - IT MIMIT §1.1.3.3
+  - Guia MCTI 2020 §6.3
+  - IE TDM §3.1
+  - T4
+  routing:
+  - evidencias/resultados.csv
+  - evidencias/observacoes.csv
+  chk: CHK-FALHAS
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Use CHK-FALHAS (tool chk_resultado): só falha EXPERIMENTAL conta; ''v1 falhou → v2 corrigiu''
+
+    sozinho NÃO prova incerteza (os 7 não elegíveis têm esse padrão). Falha experimental registrada →
+
+    sustenta citando o registro; falha só operacional → neutra; sem falha → sem evidência.'
+- id: INC-D5
+  criterion: incerteza
+  block: documento
+  mode: llm
+  what: 'A incerteza foi enfrentada, não contornada: se o time desviou do problema usando conhecimento
+    disponível (workaround), não conta'
+  evidence: decisão técnica registrada
+  sources:
+  - CRA SR&ED
+  - IE TDM §3.1
+  routing:
+  - evidencias/observacoes.csv
+  - evidencias/metodo.md#2
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Nas observações e no §2, a barreira foi enfrentada ou contornada? Enfrentada com registro →
+    sustenta;
+
+    contornada (workaround) → contrária; sem registro → sem evidência.'
+- id: INC-D6
+  criterion: incerteza
+  block: documento
+  mode: llm
+  what: Integração de sistemas só tem incerteza se não era dedutível como combinar os componentes
+  evidence: descrição do problema de integração
+  sources:
+  - UK DSIT ¶29–30
+  - Frascati §2.73
+  routing:
+  - evidencias/metodo.md#2
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Só para projetos de integração: o §2 descreve problema de integração não dedutível? Dedutível/padrão
+
+    estabelecido → contrária; não dedutível → sustenta; não é projeto de integração → sem evidência.'
+- id: INC-D7
+  criterion: incerteza
+  block: documento
+  mode: llm
+  what: Protótipo/piloto testa conceito técnico arriscado; unidade pré-produção, produção-teste ou ajuste
+    fino não é P&D
+  evidence: finalidade do protótipo e o que foi testado
+  sources:
+  - Frascati §2.18, §2.49–2.50, Tab. 2.3, §2.55–2.56
+  routing:
+  - evidencias/metodo.md#3
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Pouco aplicável na massa (quase não há protótipos físicos). Se o §3 descreve protótipo: conceito
+
+    técnico arriscado → sustenta; homologação/ajuste fino → contrária; sem protótipo → sem evidência.'
+- id: INC-D8
+  criterion: incerteza
+  block: documento
+  mode: regra
+  what: 'Dá para delimitar início e fim da P&D: começa quando o trabalho sobre a incerteza começa; termina
+    quando ela é resolvida, abandonada ou o conhecimento é codificado'
+  evidence: datas de início/fim da etapa incerta
+  sources:
+  - UK DSIT ¶33–34
+  - HMRC GfC3 parte 2 passos 6–7
+  - FAQ MCTI P4(c)
+  routing:
+  - evidencias/cronologia.csv
+  chk: CHK-TEMPO
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+- id: INC-D9
+  criterion: incerteza
+  block: documento
+  mode: llm+regra
+  what: Correção de bugs, troubleshooting, otimização e ajuste fino que não mexem na tecnologia de base
+    NÃO são incerteza; só a falha experimental indica incerteza
+  evidence: natureza das tarefas; o que mudou entre v1 e v2 e por quê
+  sources:
+  - Frascati §2.57, §2.72
+  - UK DSIT ¶14 ¶35
+  - Históricos PRJ01, 04, 09, 11, 12
+  routing:
+  - evidencias/metodo.md#2
+  - evidencias/cronologia.csv
+  chk: CHK-FALHAS
+  polarity_hint: negative
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Use CHK-CONFIG + CHK-FALHAS (tools chk_resultado) — NÃO use natureza_informada_pela_equipe.
+
+    Falha operacional (parâmetro, permissão, cadastro, receita do fornecedor) → contrária (rotina).
+
+    Falha experimental → neutra para esta regra (conta na INC-D4).'
+- id: INC-D10
+  criterion: incerteza
+  block: documento
+  mode: llm
+  what: Incerteza de custo/tempo conta quando decorre da técnica (meta técnica como critério prévio);
+    custo alto por motivo comercial não conta
+  evidence: ligação entre a meta de custo e a questão técnica
+  sources:
+  - Frascati §2.18
+  - IT MIMIT §1.1.3.3
+  - IE TDM §3.5
+  - Histórico PRJ18 latência ≤ 10%
+  routing:
+  - evidencias/metodo.md#2
+  - evidencias/metodo.md#3
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'No §2/§3, há meta técnica como critério prévio (ex.: latência ≤ 10%)? Meta técnica registrada
+    →
+
+    sustenta citando-a; só custo comercial → contrária; nada → sem evidência.'
+- id: INC-D12
+  criterion: incerteza
+  block: documento
+  mode: regra+llm
+  what: A incerteza só é 'investigada' quando a hipótese foi executada e confrontada com os comparadores
+    conhecidos, com registro do resultado; só plano/diagrama → alegada
+  evidence: ensaios por versão em medicoes.csv cobrindo a hipótese e os comparadores
+  sources:
+  - Históricos PRJ02, 03, 13–16 × PRJ08, 10, 17
+  routing:
+  - evidencias/medicoes.csv
+  - evidencias/cronologia.csv
+  chk: CHK-VERSOES
+  polarity_hint: positive
+  scoring_role: gate
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Use CHK-VERSOES (tool chk_resultado): a hipótese do §2 tem versão com ensaio em medicoes.csv,
+    ao
+
+    lado dos comparadores? Executada + registrada → sustenta; só plano/diagrama/memorando → contrária
+
+    (''alegada, não verificável'').'
+- id: SIS-D1
+  criterion: sistematizacao
+  block: documento
+  mode: regra
+  what: O projeto tem objetivo, escopo e datas de início e fim
+  evidence: termo de abertura, plano, campos 3.1.11–3.1.12
+  sources:
+  - FAQ MCTI P4(d)-(e)
+  - Frascati §2.12
+  - IT MIMIT 2024 §1.1.3.4
+  routing:
+  - evidencias/cronologia.csv
+  chk: CHK-TEMPO
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+- id: SIS-D2
+  criterion: sistematizacao
+  block: documento
+  mode: regra
+  what: 'Há plano: etapas, cronograma, marcos e indicadores de sucesso definidos no início'
+  evidence: plano de projeto datado (Registro do problema e das referências ANTERIOR aos ensaios)
+  sources:
+  - Guia MCTI 2020 Ap. B.4
+  - IE TDM §8.1(f)
+  - IT MIMIT §1.1.3.4
+  routing:
+  - evidencias/cronologia.csv
+  chk: CHK-TEMPO
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+- id: SIS-D3
+  criterion: sistematizacao
+  block: documento
+  mode: regra
+  what: 'Recursos próprios identificados: equipe adequada, orçamento e fonte de financiamento'
+  evidence: tabela de RH do projeto, currículos, orçamento aprovado
+  sources:
+  - Frascati §2.19
+  - FORMP&D seção de RH
+  - IE TDM §8.1(g)-(h)
+  routing:
+  - atividades.csv
+  polarity_hint: positive
+  scoring_role: mean
+  status: parcial
+  status_reason: 'parcial: orçamento/dispêndios fora do escopo do guia; equipe só por função (responsavel_por_funcao),
+    sem titulação'
+  absorbed_into: null
+- id: SIS-D4
+  criterion: sistematizacao
+  block: documento
+  mode: regra
+  what: 'Dispêndios rastreáveis ao projeto: contas contábeis específicas e apontamento de horas'
+  evidence: plano de contas, timesheets
+  sources:
+  - Lei 11.196 art. 22 I
+  - Decreto 5.798 art. 10 I
+  - Portaria 9.563 art. 6º II
+  - FAQ MCTI P2
+  routing: []
+  polarity_hint: positive
+  scoring_role: mean
+  status: na
+  status_reason: N/A — o guia do desafio exclui explicitamente horas/despesas/requisitos fiscais
+  absorbed_into: null
+- id: SIS-D5
+  criterion: sistematizacao
+  block: documento
+  mode: llm+regra
+  what: A metodologia é de pesquisa/experimentação — hipótese → experimento → observação → avaliação →
+    conclusão —, não gestão e NEM teste de aceite; comparadores nas mesmas entradas, referência fixada
+    antes, critérios prévios
+  evidence: descrição do método + protocolo (metodo.md#3), versões dos comparadores em cronologia.csv,
+    ensaios em medicoes.csv
+  sources:
+  - Guia MCTI 2020 §6.4
+  - FAQ MCTI P4
+  - CRA SR&ED
+  - AU R&DTI
+  - 26 CFR §1.41-4(a)(5)
+  - IE TDM §3.6
+  - Históricos PRJ02, 13, 14, 16 × PRJ04, 09, 12
+  routing:
+  - evidencias/metodo.md#3
+  - evidencias/cronologia.csv
+  - evidencias/medicoes.csv
+  chk: CHK-VERSOES
+  polarity_hint: positive
+  scoring_role: gate
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Experimento × aceite. Use CHK-VERSOES (tool chk_resultado) e o §3: comparadores rodados nas
+
+    mesmas entradas? referência fixada antes? critérios definidos antes da rodada? Experimento → sustenta
+
+    citando o protocolo; roteiros com resultado esperado repetidos até passar (aceite) → contrária;
+
+    NÃO use natureza_informada_pela_equipe.'
+- id: SIS-D7
+  criterion: sistematizacao
+  block: documento
+  mode: llm
+  what: 'Estão registrados os desvios: caminhos que falharam e por que se mudou de rumo'
+  evidence: registro de decisões, relatório de experimentos sem sucesso
+  sources:
+  - IE TDM §3.1
+  - IT MIMIT §1.1.3.4
+  routing:
+  - evidencias/observacoes.csv
+  - evidencias/metodo.md#6
+  chk: CHK-FALHAS
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Use CHK-FALHAS (tool chk_resultado) + observacoes.csv. Desvios/versões que falharam registrados
+    →
+
+    sustenta citando o registro; sem desvio → neutra (aceite perfeito pode ser rotina — T13).'
+- id: SIS-D10
+  criterion: sistematizacao
+  block: documento
+  mode: design
+  what: A documentação fica guardada e acessível durante o prazo prescricional
+  evidence: onde e por quanto tempo os documentos ficam guardados
+  sources:
+  - Decreto 5.798 art. 14 §1º
+  - IE TDM §8.4
+  routing: []
+  polarity_hint: positive
+  scoring_role: informativa
+  status: na
+  status_reason: 'N/A como input do pacote; satisfeita no output: dossiê versionado com autor/data (efeito
+    do design da ferramenta)'
+  absorbed_into: null
+- id: SIS-D12
+  criterion: sistematizacao
+  block: documento
+  mode: regra
+  what: 'A execução está registrada por versão: cada versão alegada tem ensaio (ensaio_id) em medicoes.csv;
+    parâmetros null/só entrega → parcial'
+  evidence: cronologia.csv × medicoes.csv × configuracao.json
+  sources:
+  - Históricos PRJ08, 10, 17
+  routing:
+  - evidencias/cronologia.csv
+  - evidencias/medicoes.csv
+  - evidencias/configuracao.json
+  chk: CHK-VERSOES
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+- id: SIS-D13
+  criterion: sistematizacao
+  block: documento
+  mode: llm
+  what: 'Controles de desenho experimental são indícios fortes (não obrigatórios): estratos, repetições,
+    ordem contrabalançada, atraso de rótulo'
+  evidence: metodo.md#3 e configuracao.json
+  sources:
+  - Históricos PRJ02, 13, 15, 16
+  routing:
+  - evidencias/metodo.md#3
+  - evidencias/configuracao.json
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'No §3 e no configuracao.json, há controles de desenho experimental (estratos, repetições, ordem
+
+    contrabalançada, atraso de rótulo)? Presentes → sustenta citando; ausentes → neutra (não obrigatórios).'
+- id: SIS-D14
+  criterion: sistematizacao
+  block: documento
+  mode: regra
+  what: Contagem de entrega (quantas linhas/fichas) NÃO é desempenho e não prova execução; desempenho
+    exige operação e base explícitas
+  evidence: coluna natureza e taxa_percentual de resultados.csv
+  sources:
+  - LEIA_ME
+  - Históricos PRJ08, 10, 17
+  routing:
+  - evidencias/resultados.csv
+  chk: CHK-RECALC
+  polarity_hint: negative
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+- id: REP-D1
+  criterion: reprodutibilidade
+  block: documento
+  mode: regra+llm
+  what: O conhecimento gerado está codificado num registro, não só no know-how
+  evidence: relatório técnico datado
+  sources:
+  - Frascati §2.20
+  - IPCTN 2020 Anexo I
+  - Nonaka 1994
+  routing:
+  - evidencias/metodo.md#4
+  - evidencias/configuracao.json
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'REGRA: configuracao.json presente e completo? LLM: o §4 ''Parâmetros, versões e execução''
+    traz
+
+    parâmetros concretos suficientes para repetir? Cite o trecho. Codificado → sustenta.'
+- id: REP-D2
+  criterion: reprodutibilidade
+  block: documento
+  mode: llm+regra
+  what: O registro traz método, dados, configuração e resultados com detalhe suficiente para outro profissional
+    repetir
+  evidence: §4 + §5 Leitura e reconstrução + base recalculável
+  sources:
+  - Frascati §2.20
+  - UK DSIT ¶34
+  - NASEM 2019
+  routing:
+  - evidencias/metodo.md#4
+  - evidencias/metodo.md#5
+  chk: CHK-RECALC
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Use CHK-RECALC (tool chk_resultado) — a base é recalculável? — e leia o §5 ''Leitura e reconstrução''.
+
+    Detalhe suficiente → sustenta citando o §5; base não recalculável → contrária.'
+- id: REP-D3
+  criterion: reprodutibilidade
+  block: documento
+  mode: regra
+  what: Resultados negativos e hipóteses refutadas também estão documentados
+  evidence: linhas de falha experimental em medicoes/resultados
+  sources:
+  - Frascati §2.20
+  - Guia MCTI 2020 §6.2
+  - IT MIMIT §1.1.3.5
+  - T4
+  routing:
+  - evidencias/resultados.csv
+  - evidencias/medicoes.csv
+  chk: CHK-FALHAS
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+- id: REP-D4
+  criterion: reprodutibilidade
+  block: documento
+  mode: regra
+  what: 'Os artefatos estão preservados e versionados: especificação + configuracao.json + registros por
+    versão (consistência cronologia ↔ medicoes ↔ configuracao)'
+  evidence: consistência dos identificadores de versão
+  sources:
+  - Gundersen & Kjensmo 2018
+  - Wilkinson et al. 2016
+  - Histórico PRJ16
+  routing:
+  - evidencias/cronologia.csv
+  - evidencias/medicoes.csv
+  - evidencias/configuracao.json
+  chk: CHK-VERSOES
+  polarity_hint: positive
+  scoring_role: mean
+  status: parcial
+  status_reason: 'parcial: o pacote não tem código executável; o artefato é especificação + configuracao.json
+    + registros por versão'
+  absorbed_into: null
+- id: REP-D5
+  criterion: reprodutibilidade
+  block: documento
+  mode: regra
+  what: 'Existe ao menos um mecanismo de transferência: patente, registro, publicação, documentação interna,
+    treinamento'
+  evidence: nº de pedido/registro, DOI, documento interno
+  sources:
+  - Frascati Tab. 2.1(d)
+  - Decreto 5.798 art. 2º II 'd'
+  - IT MIMIT §1.1.3.5
+  routing: []
+  polarity_hint: positive
+  scoring_role: mean
+  status: na
+  status_reason: N/A no pacote — não há patentes, registros ou publicações; a 'Continuidade' (§7) não
+    é transferência
+  absorbed_into: null
+- id: REP-D6
+  criterion: reprodutibilidade
+  block: documento
+  mode: regra
+  what: 'O registro é coerente com a sistematização: a cadeia plano → resultado fecha (cronologia.fonte
+    → metodo.md#n; resultados.fonte → medicoes.csv#Snn)'
+  evidence: grafo de referências nativo do pacote
+  sources:
+  - IT MIMIT §1.1.3.5
+  - REP-D6 da nota
+  routing:
+  - evidencias/cronologia.csv
+  - evidencias/resultados.csv
+  chk: CHK-VERSOES
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+- id: REP-D7
+  criterion: reprodutibilidade
+  block: documento
+  mode: llm+regra
+  what: 'A conclusão declara o limite de escopo: excluído desde o início (sem ressalva) × lacuna dentro
+    da pretensão (ressalva)'
+  evidence: 'metodo.md#6/#7, revisao_tecnica.md, flags ..._executado: false'
+  sources:
+  - Históricos PRJ03, 14, 15, 16 × PRJ05, 06, 07, 18
+  - GUIA_DO_PARTICIPANTE
+  routing:
+  - evidencias/metodo.md#6
+  - evidencias/metodo.md#7
+  - evidencias/revisao_tecnica.md
+  - evidencias/configuracao.json
+  chk: CHK-ESCOPO
+  polarity_hint: positive
+  scoring_role: gate
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Use CHK-ESCOPO (tool chk_resultado) + §6/§7. Limite excluído desde o início → neutra (sem
+
+    ressalva). Lacuna dentro da pretensão original → contrária com a ressalva técnica concreta
+
+    (recorte + limitação + evidência necessária).'
+- id: REP-D8
+  criterion: reprodutibilidade
+  block: documento
+  mode: llm
+  what: Documentação completa de uma configuração reproduz a configuração, não um conhecimento novo
+  evidence: natureza do que está documentado
+  sources:
+  - Históricos PRJ01, 04, 09, 11, 12, 19, 20
+  routing:
+  - evidencias/metodo.md#4
+  - evidencias/configuracao.json
+  chk: CHK-CONFIG
+  polarity_hint: negative
+  scoring_role: gate
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+  prompt: 'Use CHK-CONFIG (tool chk_resultado): o que está documentado é a configuração de um produto?
+
+    Documentação de configuração → contrária (''documentada para a configuração'').'
+- id: REP-D9
+  criterion: reprodutibilidade
+  block: documento
+  mode: regra
+  what: Os números são recalculáveis do registro primário (medicoes.csv → resultados.csv) e ligados a
+    ensaio e versão
+  evidence: recálculo a partir de medicoes.csv
+  sources:
+  - LEIA_ME
+  - Históricos PRJ02, 13, 15
+  routing:
+  - evidencias/medicoes.csv
+  - evidencias/resultados.csv
+  chk: CHK-RECALC
+  polarity_hint: positive
+  scoring_role: mean
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+- id: NOV-D7
+  criterion: novidade
+  block: documento
+  mode: regra
+  what: Absorvida → T2 (plurianual)
+  evidence: —
+  sources:
+  - Revisão de redundância 08/10/2026
+  routing: []
+  polarity_hint: positive
+  scoring_role: informativa
+  status: absorvida
+  status_reason: Absorvida em T2 (plurianual)
+  absorbed_into: T2
+- id: NOV-D9
+  criterion: novidade
+  block: documento
+  mode: regra
+  what: Absorvida → NOV-D2 (estado da arte)
+  evidence: —
+  sources:
+  - Revisão de redundância 08/10/2026
+  routing: []
+  polarity_hint: positive
+  scoring_role: informativa
+  status: absorvida
+  status_reason: Absorvida em NOV-D2
+  absorbed_into: NOV-D2
+- id: CRI-D9
+  criterion: criatividade
+  block: documento
+  mode: regra
+  what: Absorvida → CRI-D5 (mudança não rotineira)
+  evidence: —
+  sources:
+  - Revisão de redundância 08/10/2026
+  routing: []
+  polarity_hint: positive
+  scoring_role: informativa
+  status: absorvida
+  status_reason: Absorvida em CRI-D5
+  absorbed_into: CRI-D5
+- id: INC-D11
+  criterion: incerteza
+  block: documento
+  mode: regra
+  what: Absorvida → INC-D9 (falha operacional)
+  evidence: —
+  sources:
+  - Revisão de redundância 08/10/2026
+  routing: []
+  polarity_hint: positive
+  scoring_role: informativa
+  status: absorvida
+  status_reason: Absorvida em INC-D9
+  absorbed_into: INC-D9
+- id: INC-D13
+  criterion: incerteza
+  block: documento
+  mode: regra
+  what: Absorvida → INC-D1 (incerteza técnica)
+  evidence: —
+  sources:
+  - Revisão de redundância 08/10/2026
+  routing: []
+  polarity_hint: positive
+  scoring_role: informativa
+  status: absorvida
+  status_reason: Absorvida em INC-D1
+  absorbed_into: INC-D1
+- id: SIS-D6
+  criterion: sistematizacao
+  block: documento
+  mode: regra
+  what: Absorvida → T5 (contemporâneo > reconstruído)
+  evidence: —
+  sources:
+  - Revisão de redundância 08/10/2026
+  routing: []
+  polarity_hint: positive
+  scoring_role: informativa
+  status: absorvida
+  status_reason: Absorvida em T5
+  absorbed_into: T5
+- id: SIS-D8
+  criterion: sistematizacao
+  block: documento
+  mode: regra
+  what: Absorvida → T2 (plurianual)
+  evidence: —
+  sources:
+  - Revisão de redundância 08/10/2026
+  routing: []
+  polarity_hint: positive
+  scoring_role: informativa
+  status: absorvida
+  status_reason: Absorvida em T2
+  absorbed_into: T2
+- id: SIS-D9
+  criterion: sistematizacao
+  block: documento
+  mode: regra
+  what: Absorvida → CRI-D3 (pesquisador) e SIS-D3 (equipe)
+  evidence: —
+  sources:
+  - Revisão de redundância 08/10/2026
+  routing: []
+  polarity_hint: positive
+  scoring_role: informativa
+  status: absorvida
+  status_reason: Absorvida em CRI-D3 + SIS-D3
+  absorbed_into: CRI-D3
+- id: SIS-D11
+  criterion: sistematizacao
+  block: documento
+  mode: regra
+  what: Absorvida → SIS-D5 (metodologia experimental)
+  evidence: —
+  sources:
+  - Revisão de redundância 08/10/2026
+  routing: []
+  polarity_hint: positive
+  scoring_role: informativa
+  status: absorvida
+  status_reason: Absorvida em SIS-D5
+  absorbed_into: SIS-D5
+- id: T1
+  criterion: transversal
+  block: transversal
+  mode: regra
+  what: Critérios cumulativos, verificados por projeto
+  evidence: unidade = pasta do projeto
+  sources:
+  - Tabela estado → classe
+  routing: []
+  polarity_hint: positive
+  scoring_role: informativa
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+- id: T2
+  criterion: transversal
+  block: transversal
+  mode: regra
+  what: 'Plurianual: cada ano-base separado'
+  evidence: flag se a cronologia atravessar mais de um ano-base
+  sources:
+  - Revisão 08/10
+  routing:
+  - evidencias/cronologia.csv
+  polarity_hint: positive
+  scoring_role: informativa
+  status: na
+  status_reason: N/A no pacote (janela única por projeto) — flag se a cronologia atravessar mais de um
+    ano-base
+  absorbed_into: null
+- id: T3
+  criterion: transversal
+  block: transversal
+  mode: regra
+  what: Comparação sempre na data de início
+  evidence: CHK-TEMPO
+  sources:
+  - Fluxo do Backend passo 3
+  routing:
+  - evidencias/cronologia.csv
+  chk: CHK-TEMPO
+  polarity_hint: positive
+  scoring_role: informativa
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+- id: T4
+  criterion: transversal
+  block: transversal
+  mode: regra
+  what: Resultado negativo não desqualifica
+  evidence: 'CHK-FALHAS: falha experimental com polaridade positiva'
+  sources:
+  - Histórico PRJ18
+  routing:
+  - evidencias/resultados.csv
+  chk: CHK-FALHAS
+  polarity_hint: positive
+  scoring_role: informativa
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+- id: T5
+  criterion: transversal
+  block: transversal
+  mode: regra
+  what: Contemporâneo > reconstruído
+  evidence: 'CHK-TEMPO: datas progressivas; documento reconstruído no fim → flag'
+  sources:
+  - SIS-D6 absorvida
+  routing:
+  - evidencias/cronologia.csv
+  chk: CHK-TEMPO
+  polarity_hint: positive
+  scoring_role: informativa
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+- id: T6
+  criterion: transversal
+  block: transversal
+  mode: design
+  what: Query web sem dado sigiloso (sanitização)
+  evidence: queries sanitizadas + log original × sanitizada
+  sources:
+  - Módulo web
+  routing: []
+  polarity_hint: positive
+  scoring_role: informativa
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+- id: T7
+  criterion: transversal
+  block: transversal
+  mode: design
+  what: Ferramenta sinaliza, analista decide
+  evidence: nó de evidência sempre com citação; combinação mista vai ao analista
+  sources:
+  - Design
+  routing: []
+  polarity_hint: positive
+  scoring_role: informativa
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+- id: T8
+  criterion: transversal
+  block: transversal
+  mode: design
+  what: Software só é P&D com avanço + incerteza sistemática
+  evidence: 'gate de domínio: NOV-D5 (exclusões) + INC-D9 (rotina) implementam'
+  sources:
+  - Frascati §2.68
+  routing:
+  - evidencias/metodo.md#2
+  polarity_hint: positive
+  scoring_role: informativa
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+- id: T9
+  criterion: transversal
+  block: transversal
+  mode: regra
+  what: Hierarquia de prova; entrevista nunca sustenta sozinha
+  evidence: nós vindos da transcrição levam natureza=depoimento e não fecham critério
+  sources:
+  - Camada 1
+  routing:
+  - transcricao_entrevista_tecnica.pdf
+  chk: CHK-DIVERG
+  polarity_hint: positive
+  scoring_role: informativa
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+- id: T10
+  criterion: transversal
+  block: transversal
+  mode: regra
+  what: Divergência entrevista × registro registrada
+  evidence: CHK-DIVERG
+  sources:
+  - T10
+  routing:
+  - transcricao_entrevista_tecnica.pdf
+  - evidencias/resultados.csv
+  chk: CHK-DIVERG
+  polarity_hint: positive
+  scoring_role: informativa
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+- id: T11
+  criterion: transversal
+  block: transversal
+  mode: regra
+  what: Versão, escopo, unidade, denominador; operação e base explícitas
+  evidence: CHK-RECALC + CHK-DIVERG antes de qualquer comparação numérica
+  sources:
+  - Camada 1
+  routing:
+  - evidencias/resultados.csv
+  chk: CHK-RECALC
+  polarity_hint: positive
+  scoring_role: informativa
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+- id: T12
+  criterion: transversal
+  block: transversal
+  mode: regra
+  what: '''Localizada'' = presente, não provado'
+  evidence: tabela de disponibilidade probatória (inventário × conteúdo real)
+  sources:
+  - Camada 1
+  routing:
+  - inventario_evidencias.csv
+  polarity_hint: positive
+  scoring_role: informativa
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+- id: T13
+  criterion: transversal
+  block: transversal
+  mode: design
+  what: Aceite perfeito pode ser rotina; natureza declarada não decide
+  evidence: nenhuma regra usa natureza_informada_pela_equipe, nº de testes ou taxa de aprovação como sinal
+  sources:
+  - Design
+  routing:
+  - atividades.csv
+  polarity_hint: positive
+  scoring_role: informativa
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+- id: T14
+  criterion: transversal
+  block: transversal
+  mode: design
+  what: Evidências favoráveis, contrárias, ausentes e contraditórias
+  evidence: cada nó do grafo tem polaridade; regra sem evidência sai como 'ausente', nunca some
+  sources:
+  - Design
+  routing: []
+  polarity_hint: positive
+  scoring_role: informativa
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+- id: T15
+  criterion: transversal
+  block: transversal
+  mode: design
+  what: Históricos = calibração, não gabarito por semelhança
+  evidence: PRJ01–20 servem para testar a ferramenta contra o gabarito
+  sources:
+  - Design
+  routing: []
+  polarity_hint: positive
+  scoring_role: informativa
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+- id: CHK-TEMPO
+  criterion: compartilhada
+  block: shared
+  mode: regra
+  what: Linha do tempo, data de referência, ordem hipótese→ensaios, datas progressivas
+  evidence: cronologia.csv + datas de medicoes/configuracao
+  sources:
+  - Camada 1
+  routing:
+  - evidencias/cronologia.csv
+  polarity_hint: positive
+  scoring_role: informativa
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+- id: CHK-RECALC
+  criterion: compartilhada
+  block: shared
+  mode: regra
+  what: Recompute medicoes → resultados (contagem, diferenca_maior_menor, percentil_95, indicador_precalculado,
+    valor_observado); batendo/não batendo/vazio; soma só no mesmo ensaio
+  evidence: medicoes.csv + resultados.csv
+  sources:
+  - Camada 1
+  routing:
+  - evidencias/medicoes.csv
+  - evidencias/resultados.csv
+  polarity_hint: positive
+  scoring_role: informativa
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+- id: CHK-VERSOES
+  criterion: compartilhada
+  block: shared
+  mode: regra
+  what: Consistência cronologia ↔ medicoes ↔ configuracao.json; parâmetros-chave não nulos; comparadores
+    do §1
+  evidence: cronologia.csv, medicoes.csv, configuracao.json, metodo.md §1–§4
+  sources:
+  - Camada 1
+  routing:
+  - evidencias/cronologia.csv
+  - evidencias/medicoes.csv
+  - evidencias/configuracao.json
+  polarity_hint: positive
+  scoring_role: informativa
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+- id: CHK-FALHAS
+  criterion: compartilhada
+  block: shared
+  mode: regra
+  what: 'Versões com falha ou piora e o tipo: operacional × experimental'
+  evidence: resultados.csv por versão, observacoes.csv, metodo.md §2/§6
+  sources:
+  - Camada 1
+  routing:
+  - evidencias/resultados.csv
+  - evidencias/observacoes.csv
+  polarity_hint: positive
+  scoring_role: informativa
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+- id: CHK-CONFIG
+  criterion: compartilhada
+  block: shared
+  mode: regra
+  what: A referência anterior (manual/catálogo/produto contratado, datado antes) já fornece a função?
+    O mecanismo é configurar/ativar/mapear/ajustar dentro da faixa suportada?
+  evidence: metodo.md §1 e §2, configuracao.json, cronologia.csv
+  sources:
+  - Camada 1
+  routing:
+  - evidencias/metodo.md#1
+  - evidencias/metodo.md#2
+  - evidencias/configuracao.json
+  polarity_hint: positive
+  scoring_role: informativa
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+- id: CHK-ESCOPO
+  criterion: compartilhada
+  block: shared
+  mode: regra
+  what: 'Limite da conclusão: excluído desde o início × lacuna dentro da pretensão (flags ..._executado:
+    false)'
+  evidence: metodo.md §6/§7, revisao_tecnica.md, configuracao.json
+  sources:
+  - Camada 1
+  routing:
+  - evidencias/metodo.md#6
+  - evidencias/revisao_tecnica.md
+  - evidencias/configuracao.json
+  polarity_hint: positive
+  scoring_role: informativa
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+- id: CHK-DIVERG
+  criterion: compartilhada
+  block: shared
+  mode: regra
+  what: Números da transcrição × registros (mesma versão, ensaio, denominador)
+  evidence: transcricao_entrevista_tecnica.pdf, resultados.csv, medicoes.csv
+  sources:
+  - Camada 1
+  routing:
+  - transcricao_entrevista_tecnica.pdf
+  - evidencias/resultados.csv
+  polarity_hint: positive
+  scoring_role: informativa
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null

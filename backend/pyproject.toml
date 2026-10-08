@@ -9,6 +9,12 @@ authors = [
 requires-python = ">=3.13"
 dependencies = [
     "fastapi[standard]>=0.142.2",
+    "ollama>=0.6.3",
+    "openpyxl>=3.1.5",
+    "pypdf>=6.19.0",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "pyyaml>=6.0.3",
 ]
 
 [project.scripts]
