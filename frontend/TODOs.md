@@ -41,13 +41,10 @@ Pontos deixados para depois. Separados em dois grupos:
 
 ### Visual e técnico
 
-- [ ] Aplicar o visual de alta fidelidade nas telas restantes. Feito: cabeçalho, tela
-      do grafo de evidências e projetos (esta derivada do design system, sem tela no
-      Figma). Falta: documento de decisão, e login e chatbot (o designer entrega o Figma
-      dessas duas). Conferir a tela de projetos com o designer.
-- [ ] Documento de decisão: incluir na trilha as notas do analista por regra e a
-      triagem de evidências (confirmadas/descartadas).
-- [x] Fontes: Heebo (e Source Serif 4 no documento) carregadas do Google Fonts.
+- [x] Visual de alta fidelidade aplicado em todas as telas. Do Figma: cabeçalho e grafo de
+      evidências. Derivadas do design system (sem tela no Figma): projetos, upload,
+      documento de decisão, login e chatbot. **Conferir essas cinco com o designer.**
+- [x] Fontes: Heebo carregada do Google Fonts (o documento de decisão também usa Heebo).
 - [ ] Bundle passa de 500 kB por causa do React Flow: carregar as telas sob demanda
       (`React.lazy` nas rotas de análise e decisão).
 
