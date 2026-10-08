@@ -25,10 +25,22 @@ npm run dev        # Vite em http://localhost:5173
 npm test           # Vitest (vitest run)
 npm run lint       # oxlint
 npm run build      # tsc -b && vite build
+npm run test:e2e   # Playwright (e2e/), sobe o Vite na porta 5180
 ```
 
-Antes de considerar uma tarefa pronta: `npm test`, `npm run lint` sem avisos, `npm run build`
-e conferir a tela no navegador (login de demonstração: qualquer analista, qualquer senha).
+Antes de considerar uma tarefa pronta: `npm test`, `npm run lint` sem avisos, `npm run build`,
+`npm run test:e2e` e conferir a tela no navegador (login de demonstração: qualquer analista,
+qualquer senha).
+
+### Testes ponta a ponta (`e2e/`)
+
+- Escreva como uma pessoa testaria: localize por papel e texto visíveis (`getByRole`,
+  `getByLabel`), digite com `typeLikeAPerson`, não pule etapas por URL nas jornadas.
+- Use `test` e `expect` de `e2e/fixtures.ts`: o teste falha se a página registrar erro
+  no console. Sessão sem passar pelo login: `signInAs(page, USERS.ana)`.
+- A lista de projetos mantém a página anterior enquanto carrega e o grafo anima: espere
+  o resultado esperado (`expect.poll`, `toHaveCount`), nunca leia a tela logo após um clique.
+- Mudou um texto ou rótulo da interface? Atualize os testes que o usam.
 
 ## Stack
 

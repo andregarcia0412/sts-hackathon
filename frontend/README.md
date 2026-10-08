@@ -16,7 +16,21 @@ npm run dev        # http://localhost:5173
 npm test           # Vitest (funções puras: árvore, grafo)
 npm run lint       # oxlint
 npm run build      # tsc + vite build
+npm run test:e2e   # Playwright: jornadas de usuário no navegador (sobe o Vite na porta 5180)
 ```
+
+Na primeira vez, instale o navegador dos testes: `npx playwright install chromium`.
+`npm run test:e2e:ui` abre o modo visual (passo a passo, com prints) e
+`npm run test:e2e:report` mostra o relatório da última execução.
+
+### Testes ponta a ponta (`e2e/`)
+
+- `journeys.spec.ts`: jornadas como uma pessoa faria à mão, usando só o que aparece na tela
+  (primeira análise até o PDF, contestação e reanálise, upload, triagem da fila, mapa
+  geral com o mouse, só teclado e celular).
+- `login`, `projects`, `analysis`, `decision`: verificações pontuais de cada tela.
+- Todo teste começa com dados de demonstração limpos (contexto novo do navegador) e falha
+  se a página registrar erro no console.
 
 Stack: Vite 8, React 19 (React Compiler ligado), TypeScript, Tailwind v4,
 React Router 7 (modo declarativo), TanStack Query, React Flow + dagre,
