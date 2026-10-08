@@ -13,6 +13,7 @@ import {
 } from "@/features/decision/AnalysisReport";
 import { DecisionForm } from "@/features/decision/DecisionForm";
 import { DecisionTrail } from "@/features/decision/DecisionTrail";
+import { useRegisterAssistantContext } from "@/features/assistant/assistantState";
 import { paths } from "@/routes/paths";
 import { NotFoundError } from "@/services/api";
 import { useAnalysis, useDecisions, useProject } from "@/services/queries";
@@ -81,6 +82,7 @@ const DecisionDocument = ({ project, analysis, decisions }: DecisionDocumentProp
     documentTitle: `Decisao_${project.name}_${analysis.id}`.replace(/[^\w-]+/g, "_"),
   });
   const index = indexAnalysis(analysis);
+  useRegisterAssistantContext({ screen: "decision", analysis, selectedNodeId: null });
 
   return (
     <div className="flex-1 bg-surface-muted print:bg-white">

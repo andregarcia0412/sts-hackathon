@@ -29,6 +29,10 @@ react-resizable-panels, react-dropzone, react-to-print, lucide-react.
 | `/projetos/:id/analise?no=<nó>` | Árvore + detalhe + grafo Critério → Regra → Evidência |
 | `/projetos/:id/decisao` | Documento de decisão, formulário do analista, trilha e PDF |
 
+Nas telas de análise e decisão há um **assistente** (botão no canto inferior direito)
+que explica notas, evidências e rastreabilidade. Ele entende o item selecionado, números
+(`3.1.1`), códigos (`PROJ-13`) e nomes de critério, e cada resposta traz links para os nós.
+
 O nó selecionado fica na URL (`?no=crit-uncertainty.rule-proj-13.ev-1`): voltar/avançar
 funciona e dá para compartilhar um link que aponta para uma evidência.
 
@@ -38,16 +42,20 @@ funciona e dá para compartilhar um link que aponta para uma evidência.
 src/
   domain/      tipos (contrato provisório), faixas de nota (score.ts), árvore numerada (tree.ts)
   mocks/       projetos e análises FICTÍCIOS
-  services/    api.ts (camada única de dados) + queries.ts (hooks do React Query)
+  services/    api.ts (camada única de dados, inclusive askAssistant) + queries.ts
   features/
     projects/  tabela, modal de novo projeto, dropzone
     analysis/  useAnalysisExplorer (seleção + expansão), tree/, detail/, graph/
     decision/  relatório imprimível, formulário, trilha
+    assistant/ chatbot: provider (conversa por projeto) e widget
   components/  layout e UI compartilhada (ScoreBadge, PolarityTag, ReferenceLink, estados)
   pages/       uma pasta por rota
   index.css    tokens do tema (@theme) e CSS de impressão
 ```
 
+- **Assistente real:** trocar o corpo de `askAssistant` em `src/services/api.ts`. O
+  contrato está em `src/domain/assistant.ts`; a versão mock (regras, sem IA) fica em
+  `src/mocks/assistantEngine.ts`.
 - **Trocar mocks pela API real:** só `src/services/api.ts`. As telas consomem apenas
   essas funções. Os tipos esperados estão em `src/domain/types.ts`.
 - **Visual do designer:** cores e fontes são tokens em `src/index.css` (`--color-score-strong`,

@@ -30,7 +30,8 @@ export const AppLayout = () => {
           Análise preliminar · apoio à decisão
         </span>
       </header>
-      <main className="flex min-h-0 flex-1 flex-col overflow-auto print:block print:overflow-visible">
+      {/* relative: absolutely positioned descendants (e.g. sr-only) must not overflow the document */}
+      <main className="relative flex min-h-0 flex-1 flex-col overflow-auto print:block print:overflow-visible">
         <Outlet />
       </main>
     </div>

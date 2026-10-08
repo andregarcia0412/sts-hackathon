@@ -11,6 +11,7 @@ import type { AnalysisFlowNode } from "@/features/analysis/graph/graphTypes";
 import { useFrameGraph } from "@/features/analysis/graph/useFrameGraph";
 import { AnalysisTree } from "@/features/analysis/tree/AnalysisTree";
 import { useAnalysisExplorer } from "@/features/analysis/useAnalysisExplorer";
+import { useRegisterAssistantContext } from "@/features/assistant/assistantState";
 import { useMediaQuery } from "@/lib/useMediaQuery";
 import { paths } from "@/routes/paths";
 
@@ -31,6 +32,11 @@ export const AnalysisWorkspace = (props: AnalysisWorkspaceProps) => (
 
 const WorkspaceContent = ({ project, analysis }: AnalysisWorkspaceProps) => {
   const explorer = useAnalysisExplorer(analysis);
+  useRegisterAssistantContext({
+    screen: "analysis",
+    analysis,
+    selectedNodeId: explorer.selectedId,
+  });
   const frameGraph = useFrameGraph();
   const { getNodes } = useReactFlow<AnalysisFlowNode>();
   // Desktop first: side by side; on small screens the graph goes below

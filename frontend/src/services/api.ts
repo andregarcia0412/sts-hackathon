@@ -6,6 +6,8 @@ import type {
   Project,
   ProjectSummary,
 } from "@/domain/types";
+import type { AssistantAnswer, AssistantContext } from "@/domain/assistant";
+import { answerQuestion } from "@/mocks/assistantEngine";
 import {
   analysisTemplate,
   mockAnalyses,
@@ -21,6 +23,7 @@ import {
 
 const LATENCY_MS = 400;
 const MOCK_PROCESSING_MS = 5000;
+const ASSISTANT_LATENCY_MS = 700;
 
 export class NotFoundError extends Error {
   constructor(what: string) {
@@ -201,4 +204,17 @@ export const saveDecision = async (
   project.status = "decided";
   persist();
   return structuredClone(decision);
+};
+
+/**
+ * Analysis assistant (chatbot). MOCK: rule-based answers from the analysis on
+ * screen. To integrate, send `question` + `context` to the ai-microservice and
+ * keep the same AssistantAnswer shape (blocks + sources + suggestions).
+ */
+export const askAssistant = async (
+  question: string,
+  context: AssistantContext,
+): Promise<AssistantAnswer> => {
+  await delay(ASSISTANT_LATENCY_MS);
+  return answerQuestion(question, context);
 };

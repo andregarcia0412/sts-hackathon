@@ -224,7 +224,7 @@ const NodeHeading = ({
     <div className="flex items-start justify-between gap-3">
       <Tag
         id={`no-${nodeId}`}
-        className={`flex flex-wrap items-center gap-2 font-sans ${HEADING_CLASSES[level]}`}
+        className={`flex scroll-mt-20 flex-wrap items-center gap-2 rounded font-sans ${HEADING_CLASSES[level]}`}
       >
         {children}
       </Tag>

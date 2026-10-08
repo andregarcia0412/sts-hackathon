@@ -130,6 +130,7 @@ export const AnalysisGraph = ({ explorer }: { explorer: AnalysisExplorer }) => {
       minZoom={0.15}
       maxZoom={1.75}
       ariaLabelConfig={ARIA_LABELS}
+      attributionPosition="bottom-center"
       className="bg-canvas"
     >
       <Background gap={24} />
@@ -138,6 +139,8 @@ export const AnalysisGraph = ({ explorer }: { explorer: AnalysisExplorer }) => {
         pannable
         zoomable
         position="bottom-right"
+        // Leaves room for the assistant button in the corner
+        style={{ marginBottom: 84 }}
         className="max-md:hidden"
         nodeColor={minimapNodeColor}
       />
