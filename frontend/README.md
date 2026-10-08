@@ -2,7 +2,8 @@
 
 Front-end do Hackathon STS 2026 (desafio BNB). O visual de alta fidelidade vem do Figma
 do designer (identidade do BNB: Heebo, vinho `#A6193C`) e está sendo aplicado tela a
-tela; a tela do grafo de evidências já está no visual final.
+tela. Já no visual final: grafo de evidências e projetos (esta derivada do design
+system, pois não há tela no Figma).
 
 > A ferramenta **apoia** a decisão, não decide. As notas são **força da evidência**
 > (0–100), nunca "probabilidade de aprovação".

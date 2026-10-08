@@ -41,9 +41,10 @@ Pontos deixados para depois. Separados em dois grupos:
 
 ### Visual e técnico
 
-- [ ] Aplicar o visual de alta fidelidade nas telas restantes. Feito: cabeçalho e tela
-      do grafo de evidências. Falta: projetos, documento de decisão, e login e chatbot
-      (o designer entrega o Figma dessas duas).
+- [ ] Aplicar o visual de alta fidelidade nas telas restantes. Feito: cabeçalho, tela
+      do grafo de evidências e projetos (esta derivada do design system, sem tela no
+      Figma). Falta: documento de decisão, e login e chatbot (o designer entrega o Figma
+      dessas duas). Conferir a tela de projetos com o designer.
 - [ ] Documento de decisão: incluir na trilha as notas do analista por regra e a
       triagem de evidências (confirmadas/descartadas).
 - [x] Fontes: Heebo (e Source Serif 4 no documento) carregadas do Google Fonts.
