@@ -41,17 +41,19 @@ Pontos deixados para depois. Separados em dois grupos:
 
 ### Visual e técnico
 
-- [ ] Aplicar o visual de alta fidelidade do designer (tokens em `src/index.css`,
-      cards do grafo em `src/features/analysis/graph/GraphNodes.tsx`).
-- [ ] Fontes: os tokens citam Inter e Source Serif, mas elas não são carregadas
-      (o navegador usa a fonte do sistema). Resolver junto com o design final.
+- [ ] Aplicar o visual de alta fidelidade nas telas restantes. Feito: cabeçalho e tela
+      do grafo de evidências. Falta: projetos, documento de decisão, e login e chatbot
+      (o designer entrega o Figma dessas duas).
+- [ ] Documento de decisão: incluir na trilha as notas do analista por regra e a
+      triagem de evidências (confirmadas/descartadas).
+- [x] Fontes: Heebo (e Source Serif 4 no documento) carregadas do Google Fonts.
 - [ ] Bundle passa de 500 kB por causa do React Flow: carregar as telas sob demanda
       (`React.lazy` nas rotas de análise e decisão).
 
 ### Fora do front-end (avisar o time)
 
-- [ ] O commit inicial do `ai-microservice` incluiu arquivos `__pycache__/*.pyc`;
-      ajustar o `.gitignore` de lá.
+- [ ] O commit inicial do microserviço de IA (hoje em `backend/src/ai_microservice`)
+      incluiu arquivos `__pycache__/*.pyc`; ajustar o `.gitignore` de lá.
 
 ---
 

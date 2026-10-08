@@ -1,7 +1,7 @@
 # AGENTS.md: front-end
 
 Guia para agentes de IA (e pessoas) que forem mexer nesta pasta. Para a visão geral do
-produto e das telas, leia o `README.md`. O que ficou para depois está no `PENDENCIAS.md`.
+produto e das telas, leia o `README.md`. O que ficou para depois está no `TODOs.md`.
 
 ## O produto em 3 regras
 
@@ -57,12 +57,14 @@ lucide-react. Gerenciador: **npm**. Não troque nem adicione dependências sem c
 ```
 src/
   domain/        tipos (contrato provisório com o back-end) e funções puras
-                 types.ts · tree.ts · score.ts · frameworks.ts · contestations.ts · assistant.ts
+                 types.ts · tree.ts · score.ts · qualitative.ts · reviews.ts · evidence.ts
+                 frameworks.ts · contestations.ts · assistant.ts
   mocks/         dados FICTÍCIOS e motores mockados (chatbot, debate, reanálise, explicação
                  da nota, ~400 projetos gerados, filtros da lista)
   services/      api.ts = ÚNICA camada de dados · queries.ts = hooks do TanStack Query
-  features/      projects · analysis (tree, detail, graph) · decision · assistant · auth
-  components/    layout e UI compartilhada (ScoreBadge, ReviewTag, ScoreBreakdown…)
+  features/      projects · analysis (detail, graph) · decision · assistant · auth
+  components/    layout (AppLayout, ProjectHeader), icons/ (Material do Figma) e UI
+                 compartilhada (Tag, SegmentedControl, ReviewTag, ScoreBreakdown…)
   pages/         uma pasta por rota
   routes/        AppRouter.tsx e paths.ts (montagem de URLs)
 ```
@@ -78,15 +80,36 @@ src/
   análise e aparecem na URL. A numeração 1 / 1.1 / 1.1.1 vem de `indexAnalysis()` e é a
   mesma na árvore, no grafo e no documento de decisão.
 - **Estado na URL**: `?metodo=` (árvore/método) e `?no=` (nó selecionado) na análise; os
-  filtros da lista de projetos também. É a fonte de verdade da seleção.
+  filtros da lista de projetos também. É a fonte de verdade da seleção: o painel de
+  detalhamento abre o critério, a regra e a evidência a partir dela.
 - **Um projeto tem uma análise por método** (`FRAMEWORKS` em `domain/frameworks.ts`). Para
   incluir um método, adicione-o ali e nos mocks/back-end.
 - **Faixas de nota** só em `scoreBand()` (`domain/score.ts`).
 - **Contestação**: `open` → reanálise → `resolved` (`accepted` ajusta a análise via
   `applyAdjustments`; `maintained` não muda nada). As análises devolvidas pela API já vêm
   com os ajustes aplicados.
-- O grafo mostra **todos os critérios**. Ao abrir a tela, tudo aparece expandido e depois
-  recolhe para os critérios (decisão do time).
+- **Rótulos qualitativos** (Sustentado, Parcialmente, Contraditório, Sem evidência…) só em
+  `domain/qualitative.ts`, derivados da nota e das evidências. O número 0–100 continua
+  visível no detalhamento (decisão do time).
+- **Grafo**: visão "Critério" (padrão: um critério inteiro, como no Figma) e "Mapa geral"
+  (os 5 critérios; na primeira abertura expande tudo e depois recolhe).
+- **Decisão do analista por regra** (`RuleDecision`) e **triagem de evidência**
+  (`EvidenceReview`, descartar pede motivo): só acrescentadas; a mais recente por nó vale
+  (`domain/reviews.ts`). Um critério está "decidido" quando todas as regras têm nota.
+
+## Design system (Figma)
+
+- Tokens em `src/index.css` com o nome da variável do Figma em comentário (`neutro/900`,
+  `marca/primaria`, `estado/positiva`…). Use os nomes semânticos (`text-fg`, `bg-action`,
+  `text-state-positive`), nunca hex solto.
+- Fonte **Heebo** (Google Fonts, `index.html`). Ícones grandes (24px) são Material,
+  copiados do Figma para `components/icons/MaterialIcons.tsx`; os pequenos (12–14px) são
+  Lucide. O designer usa MUI no Figma, mas **não** instalamos a lib: os componentes são
+  simples e reproduzidos com Tailwind.
+- "Etiqueta" = `<Tag tone label size>` (sempre ícone + texto). Botões: `.btn-primary`
+  (pílula vinho), `.btn-secondary`, `.btn-chip`, `.btn-link`.
+- Texto cinza claro do Figma (`#979797`) não tem contraste suficiente para texto: usamos
+  `text-fg-muted` (`#646464`) nesses casos.
 
 ## Mocks e dados de demonstração
 
@@ -116,5 +139,5 @@ src/
 ## Escopo
 
 É um projeto de hackathon de 3 dias: prefira a solução simples que funciona na demo. Ideias
-maiores vão para `PENDENCIAS.md`, na seção **"Escopo maior"**; o que falta para o app
+maiores vão para `TODOs.md`, na seção **"Escopo maior"**; o que falta para o app
 funcionar vai em **"Essenciais"**.
