@@ -101,8 +101,14 @@ src/
   `applyAdjustments`; `maintained` não muda nada). As análises devolvidas pela API já vêm
   com os ajustes aplicados.
 - **Rótulos qualitativos** (Sustentado, Parcialmente, Contraditório, Sem evidência…) só em
-  `domain/qualitative.ts`, derivados da nota e das evidências. O número 0–100 continua
-  visível no detalhamento (decisão do time).
+  `domain/qualitative.ts`, derivados da nota e das evidências. Critérios usam a palavra de
+  cada um, como no design (`criterionStatusInfo`: "Demonstrada no recorte", "Investigada",
+  "Documentada"…); para um critério novo, inclua a chave em `CRITERION_WORDS`. O número
+  0–100 continua visível no detalhamento (decisão do time).
+- **Decisão final**: `eligible` / `with_reservations` / `not_eligible` → Elegível / Com
+  ressalvas / Não elegível.
+- **Lista de projetos**: os cards de situação são o filtro de status; a barra tem critério
+  mais fraco, decisão, período de envio e ordem (o botão redondo conta e limpa os filtros).
 - **Grafo**: visão "Critério" (padrão: um critério inteiro, como no Figma) e "Mapa geral"
   (os 5 critérios; na primeira abertura expande tudo e depois recolhe).
 - **Decisão do analista por regra** (`RuleDecision`) e **triagem de evidência**
@@ -122,6 +128,8 @@ src/
   (pílula vinho), `.btn-secondary`, `.btn-chip`, `.btn-link`.
 - Texto cinza claro do Figma (`#979797`) não tem contraste suficiente para texto: usamos
   `text-fg-muted` (`#646464`) nesses casos.
+- Os cards de situação da lista usam cores próprias do design (laranja, azul, verde:
+  `--color-card-*`), fora da paleta da marca, por decisão do time.
 
 ## Mocks e dados de demonstração
 

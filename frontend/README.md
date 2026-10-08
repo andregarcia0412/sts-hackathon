@@ -41,7 +41,7 @@ react-resizable-panels, react-dropzone, react-to-print, lucide-react.
 | Rota | Tela |
 |---|---|
 | `/login` | Login (mock: analistas de demonstração, qualquer senha) |
-| `/projetos?q=&status=&banda=&decisao=&de=&ate=&ordem=&pagina=&novo=1` | Meus projetos: resumo por status, filtros, paginação + "Novo projeto" (`novo=1` abre o upload) |
+| `/projetos?q=&status=&banda=&decisao=&de=&ate=&ordem=&pagina=&novo=1` | Meus projetos: cards por situação (também filtram), filtros (critério mais fraco, decisão, período, ordem), busca, situação de cada projeto e "Reenviar arquivo"; "Novo projeto" (`novo=1` abre o upload) |
 | `/projetos/:id/analise?metodo=<método>&no=<nó>` | Grafo de evidências: detalhamento (critérios em acordeão) + grafo Critério → Regra → Evidência + decisão do analista por regra |
 | `/projetos/:id/decisao?metodo=<método>` | Documento de decisão (todos os métodos) com as notas do analista por regra e a triagem de evidências, formulário da decisão final, trilha e PDF |
 
@@ -79,7 +79,13 @@ src/
   botões são `.btn-primary`, `.btn-secondary` e `.btn-chip`. Os cards do grafo ficam em
   `features/analysis/graph/GraphNodes.tsx`.
 - **Rótulos qualitativos** ("Sustentado", "Parcialmente", "Contraditório"...): vêm da nota e
-  das evidências em `src/domain/qualitative.ts`. O número 0–100 continua no detalhamento.
+  das evidências em `src/domain/qualitative.ts`. Cada critério usa a palavra do design
+  ("Demonstrada no recorte", "Investigada", "Documentada", "Com limite"…). O número 0–100
+  continua no detalhamento.
+- **Decisão final:** Elegível / Com ressalvas / Não elegível (`src/domain/labels.ts`).
+- **Upload (simulado):** tipo de documento reconhecido pelo nome (`src/domain/documents.ts`),
+  progresso por arquivo, pastas inteiras, PDF/DOCX/TXT/MD/CSV/XLSX/JSON e o consentimento
+  para buscar trabalhos similares na web. Nada sai do navegador até existir o back-end.
 - **Faixas de nota:** `src/domain/score.ts` (`scoreBand()`); o resto da UI segue.
 
 ## Funcionalidades de apoio ao analista
