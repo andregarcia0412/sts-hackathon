@@ -48,7 +48,7 @@ test("critério mais fraco + ordenação", async ({ page }) => {
   await expect
     .poll(async () => {
       const weakest = await page.locator("tbody td:nth-child(4)").allTextContents();
-      return weakest.length > 0 && weakest.every((t) => /Não (demonstrad|documentad|investigad|descrit)/.test(t));
+      return weakest.length > 0 && weakest.every((t) => /Não (demonstrad|documentad|investigad)/.test(t));
     })
     .toBe(true);
 });

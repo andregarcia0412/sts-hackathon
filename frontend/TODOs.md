@@ -52,9 +52,7 @@ Pontos deixados para depois. Separados em dois grupos:
 
 - [x] Visual de alta fidelidade aplicado em todas as telas. Do Figma: cabeçalho, grafo de
       evidências, projetos e upload. Derivadas do design system (sem tela no Figma):
-      documento de decisão, login e chatbot. **Conferir essas três com o designer.**
-- [ ] Rótulos por critério do Formulário MCTI (`CRITERION_WORDS` em
-      `src/domain/qualitative.ts`): o design só mostra os de Frascati; confirmar com o designer.
+      documento de decisão, login e chatbot. Login e chatbot ganham tela no Figma em breve.
 - [x] Fontes: Heebo carregada do Google Fonts (o documento de decisão também usa Heebo).
 - [ ] Bundle passa de 500 kB por causa do React Flow: carregar as telas sob demanda
       (`React.lazy` nas rotas de análise e decisão).

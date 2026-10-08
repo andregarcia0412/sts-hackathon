@@ -193,7 +193,7 @@ test("analista faz a triagem da fila com filtros e volta pelo navegador", async 
     await expect(page).toHaveURL(/status=ready/);
     await expect(page).toHaveURL(/banda=weak/);
     const weakest = page.locator("tbody td:nth-child(4)");
-    await expect(weakest.first()).toContainText(/Não (demonstrad|documentad|investigad|descrit)/);
+    await expect(weakest.first()).toContainText(/Não (demonstrad|documentad|investigad)/);
   });
 
   await test.step("abre a análise e volta: os filtros continuam lá", async () => {
