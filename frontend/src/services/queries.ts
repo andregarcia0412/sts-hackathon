@@ -7,7 +7,7 @@ import type {
 import {
   createContestation,
   createProject,
-  getAnalysis,
+  getAnalyses,
   getProject,
   listContestations,
   listDecisions,
@@ -20,7 +20,7 @@ const PROCESSING_POLL_MS = 2000;
 export const queryKeys = {
   projects: ["projects"] as const,
   project: (projectId: string) => ["projects", projectId] as const,
-  analysis: (projectId: string) => ["projects", projectId, "analysis"] as const,
+  analyses: (projectId: string) => ["projects", projectId, "analyses"] as const,
   decisions: (projectId: string) =>
     ["projects", projectId, "decisions"] as const,
   contestations: (projectId: string) =>
@@ -46,10 +46,11 @@ export const useProject = (projectId: string) =>
       query.state.data?.status === "processing" ? PROCESSING_POLL_MS : false,
   });
 
-export const useAnalysis = (projectId: string) =>
+/** All analyses of a project (one per method); null while processing */
+export const useAnalyses = (projectId: string) =>
   useQuery({
-    queryKey: queryKeys.analysis(projectId),
-    queryFn: () => getAnalysis(projectId),
+    queryKey: queryKeys.analyses(projectId),
+    queryFn: () => getAnalyses(projectId),
     refetchInterval: (query) =>
       query.state.data === null ? PROCESSING_POLL_MS : false,
   });

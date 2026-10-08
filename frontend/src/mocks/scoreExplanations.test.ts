@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { reconciliationAnalysis } from "@/mocks/analysis-reconciliation";
 import { soilSensorAnalysis } from "@/mocks/analysis-soil-sensor";
+import { soilSensorMctiAnalysis } from "@/mocks/analysis-soil-sensor-mcti";
 import { withScoreExplanations } from "@/mocks/scoreExplanations";
 import type { ScoreExplanation } from "@/domain/types";
 
@@ -10,6 +11,7 @@ const total = (e: ScoreExplanation) =>
 describe.each([
   ["soil sensor", soilSensorAnalysis],
   ["reconciliation", reconciliationAnalysis],
+  ["soil sensor, MCTI form", soilSensorMctiAnalysis],
 ])("withScoreExplanations (%s)", (_, analysis) => {
   const explained = withScoreExplanations(analysis);
 

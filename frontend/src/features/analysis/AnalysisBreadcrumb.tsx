@@ -1,5 +1,5 @@
 import { ChevronRight } from "lucide-react";
-import { FRAMEWORK_LABELS } from "@/domain/labels";
+import { FRAMEWORKS } from "@/domain/frameworks";
 import { getNodePath, getNodeTitle } from "@/domain/tree";
 import type { Framework } from "@/domain/types";
 import type { AnalysisExplorer } from "@/features/analysis/useAnalysisExplorer";
@@ -26,9 +26,9 @@ export const AnalysisBreadcrumb = ({
             type="button"
             className="btn-ghost px-1.5 py-1 font-semibold text-fg"
             onClick={() => explorer.select(null)}
-            title="Conjunto de critérios em uso"
+            title={`Método em uso: ${FRAMEWORKS[framework].name}`}
           >
-            {FRAMEWORK_LABELS[framework]}
+            {FRAMEWORKS[framework].label}
           </button>
         </li>
         {path.map((node, i) => {

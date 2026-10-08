@@ -12,11 +12,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import type { AssistantAction, AssistantAnswer, ChatMessage } from "@/domain/assistant";
 import { CONTESTATION_REASON_LABELS } from "@/domain/labels";
 import type { ContestationReason } from "@/domain/types";
+import { FRAMEWORKS } from "@/domain/frameworks";
 import { getNodeTitle, indexAnalysis } from "@/domain/tree";
 import { ContestationForm } from "@/features/assistant/ContestationForm";
 import { useAssistant } from "@/features/assistant/assistantState";
 import { starterSuggestions } from "@/mocks/assistantEngine";
-import { paths } from "@/routes/paths";
+import { paths, reportAnchorId } from "@/routes/paths";
 
 const PANEL_ID = "analysis-assistant";
 
@@ -184,7 +185,7 @@ const AssistantPanel = ({ onClose }: { onClose: () => void }) => {
             {selected
               ? `${selected.number} ${getNodeTitle(selected)}`
               : pageContext.screen === "decision"
-                ? "o documento de decisão (cite um número, ex.: 3.1.1)"
+                ? `documento de decisão · ${FRAMEWORKS[pageContext.analysis.framework].label} (cite um número, ex.: 3.1.1)`
                 : "toda a análise (selecione um item para focar)"}
           </span>
         </p>
@@ -404,10 +405,11 @@ const useOpenNode = () => {
 
   return (nodeId: string) => {
     if (pageContext?.screen === "analysis") {
-      navigate(paths.analysis(projectId, nodeId));
+      navigate(paths.analysis(projectId, nodeId, pageContext.analysis.framework));
       return;
     }
-    const target = document.getElementById(`no-${nodeId}`);
+    if (!pageContext) return;
+    const target = document.getElementById(reportAnchorId(pageContext.analysis, nodeId));
     target?.scrollIntoView({ behavior: "smooth", block: "start" });
     target?.animate(
       [{ backgroundColor: "var(--color-accent-soft)" }, { backgroundColor: "transparent" }],

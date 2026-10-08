@@ -1,10 +1,11 @@
 import { ArrowLeft, Printer } from "lucide-react";
 import { useRef } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
 import { ErrorState, LoadingState } from "@/components/ui/states";
-import { indexAnalysis } from "@/domain/tree";
+import { FRAMEWORKS } from "@/domain/frameworks";
 import type { Analysis, Contestation, Decision, Project } from "@/domain/types";
+import { useRegisterAssistantContext } from "@/features/assistant/assistantState";
 import {
   ReportDetails,
   ReportHeader,
@@ -13,11 +14,10 @@ import {
 } from "@/features/decision/AnalysisReport";
 import { DecisionForm } from "@/features/decision/DecisionForm";
 import { DecisionTrail } from "@/features/decision/DecisionTrail";
-import { useRegisterAssistantContext } from "@/features/assistant/assistantState";
-import { paths } from "@/routes/paths";
+import { FRAMEWORK_PARAM, paths } from "@/routes/paths";
 import { NotFoundError } from "@/services/api";
 import {
-  useAnalysis,
+  useAnalyses,
   useContestations,
   useDecisions,
   useProject,
@@ -26,23 +26,25 @@ import {
 export const DecisionPage = () => {
   const { projectId = "" } = useParams();
   const project = useProject(projectId);
-  const analysis = useAnalysis(projectId);
+  const analyses = useAnalyses(projectId);
   const decisions = useDecisions(projectId);
   const contestations = useContestations(projectId);
 
-  if (project.isPending || analysis.isPending || decisions.isPending || contestations.isPending) {
+  const backToProjects = (
+    <Link to={paths.projects()} className="btn-secondary">
+      Voltar para os projetos
+    </Link>
+  );
+
+  if (project.isPending || analyses.isPending || decisions.isPending || contestations.isPending) {
     return <LoadingState label="Carregando documento de decisão…" />;
   }
 
-  if (project.isError || analysis.isError || decisions.isError || contestations.isError) {
-    const error = project.error ?? analysis.error ?? decisions.error ?? contestations.error;
+  if (project.isError || analyses.isError || decisions.isError || contestations.isError) {
+    const error = project.error ?? analyses.error ?? decisions.error ?? contestations.error;
     return (
       <ErrorState
-        action={
-          <Link to={paths.projects()} className="btn-secondary">
-            Voltar para os projetos
-          </Link>
-        }
+        action={backToProjects}
         title={
           error instanceof NotFoundError
             ? "Projeto não encontrado"
@@ -52,14 +54,10 @@ export const DecisionPage = () => {
     );
   }
 
-  if (analysis.data === null) {
+  if (analyses.data === null) {
     return (
       <ErrorState
-        action={
-          <Link to={paths.projects()} className="btn-secondary">
-            Voltar para os projetos
-          </Link>
-        }
+        action={backToProjects}
         title="A análise deste projeto ainda não está pronta"
         error={new Error("O documento de decisão fica disponível quando a análise terminar.")}
       />
@@ -69,42 +67,73 @@ export const DecisionPage = () => {
   return (
     <DecisionDocument
       project={project.data}
-      analysis={analysis.data}
+      analyses={analyses.data}
       decisions={decisions.data}
-      contestations={contestations.data.filter((c) => c.analysisId === analysis.data?.id)}
+      contestations={contestations.data}
     />
   );
 };
 
 interface DecisionDocumentProps {
   project: Project;
-  analysis: Analysis;
+  /** One analysis per method; the first is the primary one */
+  analyses: Analysis[];
   decisions: Decision[];
   contestations: Contestation[];
 }
 
 const DecisionDocument = ({
   project,
-  analysis,
+  analyses,
   decisions,
   contestations,
 }: DecisionDocumentProps) => {
   const documentRef = useRef<HTMLElement>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
   const print = useReactToPrint({
     contentRef: documentRef,
-    documentTitle: `Decisao_${project.name}_${analysis.id}`.replace(/[^\w-]+/g, "_"),
+    documentTitle: `Decisao_${project.name}_${analyses[0].id}`.replace(/[^\w-]+/g, "_"),
   });
-  const index = indexAnalysis(analysis);
-  useRegisterAssistantContext({ screen: "decision", analysis, selectedNodeId: null });
+
+  // The assistant answers about the method in ?metodo= (default: the first)
+  const focused =
+    analyses.find((a) => a.framework === searchParams.get(FRAMEWORK_PARAM)) ?? analyses[0];
+  useRegisterAssistantContext({ screen: "decision", analysis: focused, selectedNodeId: null });
+
+  const goToMethod = (analysis: Analysis) => {
+    setSearchParams({ [FRAMEWORK_PARAM]: analysis.framework }, { replace: true });
+    document
+      .getElementById(`detalhamento-${analysis.framework}`)
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const contestedIdsOf = (analysis: Analysis) =>
+    new Set(contestations.filter((c) => c.analysisId === analysis.id).map((c) => c.nodeId));
 
   return (
     <div className="flex-1 bg-surface-muted print:bg-white">
       <div className="sticky top-0 z-10 border-b border-border bg-surface/95 backdrop-blur print:hidden">
-        <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-6 py-2">
-          <Link to={paths.analysis(project.id)} className="btn-ghost">
+        <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-6 py-2">
+          <Link to={paths.analysis(project.id, undefined, focused.framework)} className="btn-ghost">
             <ArrowLeft className="size-4" aria-hidden />
             Voltar para a análise
           </Link>
+          {analyses.length > 1 && (
+            <nav aria-label="Detalhamento por método" className="flex items-center gap-1 text-sm">
+              <span className="text-xs text-fg-muted">Ir para:</span>
+              {analyses.map((analysis) => (
+                <button
+                  key={analysis.id}
+                  type="button"
+                  className={`btn-ghost px-2 py-1 ${analysis.id === focused.id ? "text-fg" : ""}`}
+                  aria-current={analysis.id === focused.id ? "true" : undefined}
+                  onClick={() => goToMethod(analysis)}
+                >
+                  {FRAMEWORKS[analysis.framework].label}
+                </button>
+              ))}
+            </nav>
+          )}
           <button type="button" className="btn-primary" onClick={() => print()}>
             <Printer className="size-4" aria-hidden />
             Exportar PDF
@@ -116,23 +145,29 @@ const DecisionDocument = ({
         ref={documentRef}
         className="mx-auto my-8 max-w-4xl space-y-10 bg-surface px-8 py-10 font-serif leading-relaxed shadow-sm sm:px-14 print:my-0 print:max-w-none print:px-0 print:py-0 print:shadow-none"
       >
-        <ReportHeader project={project} analysis={analysis} />
-        <ReportSummary analysis={analysis} />
-        <ReportDetails
-          project={project}
-          analysis={analysis}
-          contestedIds={new Set(contestations.map((c) => c.nodeId))}
-        />
+        <ReportHeader project={project} analyses={analyses} />
+        <ReportSection title="Resumo">
+          {analyses.map((analysis) => (
+            <ReportSummary key={analysis.id} analysis={analysis} />
+          ))}
+        </ReportSection>
+        {analyses.map((analysis) => (
+          <ReportDetails
+            key={analysis.id}
+            project={project}
+            analysis={analysis}
+            contestedIds={contestedIdsOf(analysis)}
+          />
+        ))}
         {/* The form is not printed: the trail below carries the current decision */}
         <ReportSection title="Decisão do analista" className="print:hidden">
-          <DecisionForm analysis={analysis} hasPrevious={decisions.length > 0} />
+          <DecisionForm analyses={analyses} hasPrevious={decisions.length > 0} />
         </ReportSection>
         <ReportSection title="Trilha de decisão">
           <DecisionTrail
             decisions={decisions}
             contestations={contestations}
-            analysis={analysis}
-            index={index}
+            analyses={analyses}
           />
         </ReportSection>
       </article>

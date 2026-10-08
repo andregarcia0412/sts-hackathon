@@ -8,6 +8,7 @@ import {
   soilSensorAnalysis,
   soilSensorDocuments,
 } from "@/mocks/analysis-soil-sensor";
+import { soilSensorMctiAnalysis } from "@/mocks/analysis-soil-sensor-mcti";
 
 /* EXEMPLOS FICTÍCIOS: nenhum projeto, empresa ou pessoa aqui é real. */
 
@@ -57,10 +58,11 @@ export const mockProjects: Project[] = [
 
 export const mockAnalyses: Analysis[] = [
   soilSensorAnalysis,
+  soilSensorMctiAnalysis,
   reconciliationAnalysis,
 ];
 
 export const mockDecisions: Decision[] = [...reconciliationDecisions];
 
-/** Template used when a mock-created project finishes "processing" */
-export const analysisTemplate: Analysis = soilSensorAnalysis;
+/** Templates used when a mock-created project finishes "processing" (one per method) */
+export const analysisTemplates: Analysis[] = [soilSensorAnalysis, soilSensorMctiAnalysis];

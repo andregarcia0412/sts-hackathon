@@ -1,15 +1,16 @@
 import { LoaderCircle } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { ErrorState, LoadingState } from "@/components/ui/states";
 import { AnalysisWorkspace } from "@/features/analysis/AnalysisWorkspace";
-import { paths } from "@/routes/paths";
+import { FRAMEWORK_PARAM, paths } from "@/routes/paths";
 import { NotFoundError } from "@/services/api";
-import { useAnalysis, useProject } from "@/services/queries";
+import { useAnalyses, useProject } from "@/services/queries";
 
 export const AnalysisPage = () => {
   const { projectId = "" } = useParams();
   const project = useProject(projectId);
-  const analysis = useAnalysis(projectId);
+  const analysis = useAnalyses(projectId);
+  const [searchParams] = useSearchParams();
 
   if (project.isPending || analysis.isPending) {
     return <LoadingState label="Carregando análise…" />;
@@ -76,5 +77,17 @@ export const AnalysisPage = () => {
     );
   }
 
-  return <AnalysisWorkspace project={project.data} analysis={analysis.data} />;
+  // One tree per method: ?metodo= picks it, the first method is the default
+  const requested = searchParams.get(FRAMEWORK_PARAM);
+  const current =
+    analysis.data.find((a) => a.framework === requested) ?? analysis.data[0];
+
+  return (
+    <AnalysisWorkspace
+      key={current.id}
+      project={project.data}
+      analysis={current}
+      analyses={analysis.data}
+    />
+  );
 };

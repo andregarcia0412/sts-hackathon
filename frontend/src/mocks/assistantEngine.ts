@@ -1,4 +1,5 @@
-import { FRAMEWORK_LABELS, POLARITY_LABELS } from "@/domain/labels";
+import { FRAMEWORKS } from "@/domain/frameworks";
+import { POLARITY_LABELS } from "@/domain/labels";
 import {
   SCORE_BANDS,
   SCORE_BAND_LABELS,
@@ -249,7 +250,11 @@ const explainEvidence = (index: AnalysisIndex, node: EvidenceNode): AssistantAns
   };
 };
 
-const explainTraceability = (index: AnalysisIndex, node?: AnalysisNode): AssistantAnswer => {
+const explainTraceability = (
+  index: AnalysisIndex,
+  node: AnalysisNode | undefined,
+  rootLabel: string,
+): AssistantAnswer => {
   const base: AnswerBlock = {
     type: "text",
     text: "Toda nota leva, em até dois cliques, à regra que a gerou, ao trecho do documento do projeto e à referência normativa (lei, decreto, Manual de Frascati).",
@@ -282,7 +287,7 @@ const explainTraceability = (index: AnalysisIndex, node?: AnalysisNode): Assista
       base,
       {
         type: "text",
-        text: `Caminho de ${node.number}: ${["Frascati", ...path.map((n) => `${n.number} ${getNodeTitle(n)}`)].join(" › ")}.`,
+        text: `Caminho de ${node.number}: ${[rootLabel, ...path.map((n) => `${n.number} ${getNodeTitle(n)}`)].join(" › ")}.`,
       },
       ...(references.length > 0
         ? ([
@@ -301,7 +306,11 @@ const explainTraceability = (index: AnalysisIndex, node?: AnalysisNode): Assista
   };
 };
 
-const weakestPoints = (index: AnalysisIndex, node?: AnalysisNode): AssistantAnswer => {
+const weakestPoints = (
+  index: AnalysisIndex,
+  node: AnalysisNode | undefined,
+  allRequired: boolean,
+): AssistantAnswer => {
   if (node?.kind === "criterion") {
     const rules = children<RuleNode>(index, node).sort((a, b) => a.rule.score - b.rule.score);
     return {
@@ -326,7 +335,9 @@ const weakestPoints = (index: AnalysisIndex, node?: AnalysisNode): AssistantAnsw
     blocks: [
       {
         type: "text",
-        text: "Os cinco critérios precisam ser atendidos juntos, então vale olhar primeiro para os de evidência mais fraca:",
+        text: allRequired
+          ? "Todos os critérios precisam ser atendidos juntos, então vale olhar primeiro para os de evidência mais fraca:"
+          : "Os critérios com evidência mais fraca são:",
       },
       {
         type: "list",
@@ -375,7 +386,7 @@ const negativeEvidences = (index: AnalysisIndex, node?: AnalysisNode): Assistant
   };
 };
 
-const noVerdict = (index: AnalysisIndex): AssistantAnswer => ({
+const noVerdict = (index: AnalysisIndex, allRequired: boolean): AssistantAnswer => ({
   blocks: [
     {
       type: "text",
@@ -384,7 +395,9 @@ const noVerdict = (index: AnalysisIndex): AssistantAnswer => ({
     { type: "list", items: criteriaOverview(index) },
     {
       type: "text",
-      text: "Os cinco critérios precisam ser atendidos juntos; os de evidência fraca merecem mais atenção na justificativa.",
+      text: allRequired
+        ? "Todos os critérios precisam ser atendidos juntos; os de evidência fraca merecem mais atenção na justificativa."
+        : "Os critérios de evidência fraca merecem mais atenção na justificativa.",
     },
   ],
   sources: [],
@@ -410,7 +423,7 @@ const help = (context: AssistantContext): AssistantAnswer => ({
   blocks: [
     {
       type: "text",
-      text: `Sou um assistente para a análise preliminar (critérios de ${FRAMEWORK_LABELS[context.analysis.framework]}). Posso explicar como cada nota se forma, de onde vem cada evidência e qual a base normativa. Não decido pelo analista.`,
+      text: `Sou um assistente para a análise preliminar (método: ${FRAMEWORKS[context.analysis.framework].name}). Posso explicar como cada nota se forma, de onde vem cada evidência e qual a base normativa. Não decido pelo analista.`,
     },
     {
       type: "text",
@@ -464,15 +477,17 @@ export const answerQuestion = (
   const target = resolveTargetNode(question, index, context.selectedNodeId);
 
   if (/(aprovad|reprovad|vai passar|veredito|posso aprovar|e enquadravel|sera enquadrad|deve ser enquadrad)/.test(q)) {
-    return noVerdict(index);
+    return noVerdict(index, FRAMEWORKS[context.analysis.framework].allCriteriaRequired);
   }
   if (/(o que (e|significa)|significado|como interpretar).*(forca|faixa|nota|escore)/.test(q)) {
     return scoreConcept();
   }
   if (/(contra|negativ)/.test(q)) return negativeEvidences(index, target);
-  if (/(fraco|fraca|pior|atencao|melhorar|lacuna)/.test(q)) return weakestPoints(index, target);
+  if (/(fraco|fraca|pior|atencao|melhorar|lacuna)/.test(q)) {
+    return weakestPoints(index, target, FRAMEWORKS[context.analysis.framework].allCriteriaRequired);
+  }
   if (/(rastreab|fonte|referencia|norma|base legal|frascati)/.test(q)) {
-    return explainTraceability(index, target);
+    return explainTraceability(index, target, FRAMEWORKS[context.analysis.framework].label);
   }
   if (/(evidencia|trecho|formad|origem|de onde|pagina)/.test(q)) {
     if (target?.kind === "evidence") return explainEvidence(index, target);

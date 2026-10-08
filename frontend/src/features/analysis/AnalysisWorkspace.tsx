@@ -1,7 +1,8 @@
 import { ReactFlowProvider, useReactFlow } from "@xyflow/react";
 import { ArrowRight, Crosshair, ListCollapse, ListTree } from "lucide-react";
 import { Group, Panel, Separator } from "react-resizable-panels";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { FRAMEWORKS } from "@/domain/frameworks";
 import { SUGGESTED_CATEGORY_LABELS } from "@/domain/labels";
 import type { Analysis, Project } from "@/domain/types";
 import { AnalysisBreadcrumb } from "@/features/analysis/AnalysisBreadcrumb";
@@ -18,7 +19,10 @@ import { paths } from "@/routes/paths";
 
 interface AnalysisWorkspaceProps {
   project: Project;
+  /** Analysis (method) on screen */
   analysis: Analysis;
+  /** Every analysis of the project, one per method */
+  analyses: Analysis[];
 }
 
 const separatorClass =
@@ -31,7 +35,8 @@ export const AnalysisWorkspace = (props: AnalysisWorkspaceProps) => (
   </ReactFlowProvider>
 );
 
-const WorkspaceContent = ({ project, analysis }: AnalysisWorkspaceProps) => {
+const WorkspaceContent = ({ project, analysis, analyses }: AnalysisWorkspaceProps) => {
+  const navigate = useNavigate();
   const explorer = useAnalysisExplorer(analysis);
   useRegisterAssistantContext({
     screen: "analysis",
@@ -58,7 +63,35 @@ const WorkspaceContent = ({ project, analysis }: AnalysisWorkspaceProps) => {
               <> · Classificação sugerida: {SUGGESTED_CATEGORY_LABELS[analysis.suggestedCategory]}</>
             )}
           </p>
-          <AnalysisBreadcrumb explorer={explorer} framework={analysis.framework} />
+          <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
+            {analyses.length > 1 && (
+              <nav
+                aria-label="Método de análise"
+                className="flex shrink-0 rounded-md border border-border bg-surface-muted p-0.5"
+              >
+                {analyses.map((a) => (
+                  <button
+                    key={a.id}
+                    type="button"
+                    aria-pressed={a.id === analysis.id}
+                    title={FRAMEWORKS[a.framework].description}
+                    onClick={() =>
+                      a.id !== analysis.id &&
+                      navigate(paths.analysis(project.id, undefined, a.framework))
+                    }
+                    className={`rounded px-2.5 py-1 text-xs font-medium transition-colors ${
+                      a.id === analysis.id
+                        ? "bg-surface text-fg shadow-sm"
+                        : "text-fg-muted hover:text-fg"
+                    }`}
+                  >
+                    {FRAMEWORKS[a.framework].label}
+                  </button>
+                ))}
+              </nav>
+            )}
+            <AnalysisBreadcrumb explorer={explorer} framework={analysis.framework} />
+          </div>
         </div>
         <div className="flex flex-wrap items-center gap-1">
           <button type="button" className="btn-ghost" onClick={explorer.collapseAll}>
@@ -83,7 +116,7 @@ const WorkspaceContent = ({ project, analysis }: AnalysisWorkspaceProps) => {
             <Crosshair className="size-4" aria-hidden />
             Centralizar
           </button>
-          <Link to={paths.decision(project.id)} className="btn-primary ml-2">
+          <Link to={paths.decision(project.id, analysis.framework)} className="btn-primary ml-2">
             Ir para a decisão
             <ArrowRight className="size-4" aria-hidden />
           </Link>

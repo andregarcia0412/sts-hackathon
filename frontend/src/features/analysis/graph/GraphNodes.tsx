@@ -85,7 +85,9 @@ export const CriterionGraphNode = ({ data, selected }: NodeProps<AnalysisFlowNod
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             <p className="text-xs text-fg-muted">Critério {number}</p>
-            <p className="truncate text-base font-semibold">{criterion.name}</p>
+            <p className="line-clamp-2 text-sm leading-tight font-semibold" title={criterion.name}>
+              {criterion.name}
+            </p>
           </div>
           <ScoreBadge score={criterion.score} />
         </div>

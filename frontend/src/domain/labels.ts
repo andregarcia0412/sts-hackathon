@@ -2,7 +2,6 @@ import type {
   ContestationReason,
   DecisionOutcome,
   EvidencePolarity,
-  Framework,
   ProjectStatus,
   SuggestedCategory,
 } from "@/domain/types";
@@ -17,10 +16,6 @@ export const PROJECT_STATUS_LABELS: Record<ProjectStatus, string> = {
 export const POLARITY_LABELS: Record<EvidencePolarity, string> = {
   positive: "Positiva",
   negative: "Negativa",
-};
-
-export const FRAMEWORK_LABELS: Record<Framework, string> = {
-  frascati: "Frascati",
 };
 
 export const SUGGESTED_CATEGORY_LABELS: Record<SuggestedCategory, string> = {

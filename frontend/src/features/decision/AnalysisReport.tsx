@@ -5,14 +5,15 @@ import { PolarityTag } from "@/components/ui/PolarityTag";
 import { ReferenceLink } from "@/components/ui/ReferenceLink";
 import { ScoreBadge } from "@/components/ui/ScoreBadge";
 import { APP_DISCLAIMER } from "@/config/app";
-import { FRAMEWORK_LABELS, SUGGESTED_CATEGORY_LABELS } from "@/domain/labels";
+import { FRAMEWORKS } from "@/domain/frameworks";
+import { SUGGESTED_CATEGORY_LABELS } from "@/domain/labels";
 import { SCORE_BAND_LABELS, scoreBand } from "@/domain/score";
 import { indexAnalysis } from "@/domain/tree";
 import type { AnalysisIndex } from "@/domain/tree";
 import type { Analysis, Project } from "@/domain/types";
 import { formatDateTime } from "@/lib/format";
 import { breakdownFormula } from "@/lib/scoreFormat";
-import { paths } from "@/routes/paths";
+import { paths, reportAnchorId } from "@/routes/paths";
 
 /*
  * Everything that is in the graph, as a readable/printable document.
@@ -25,7 +26,7 @@ interface AnalysisReportProps {
   analysis: Analysis;
 }
 
-export const ReportHeader = ({ project, analysis }: AnalysisReportProps) => (
+export const ReportHeader = ({ project, analyses }: { project: Project; analyses: Analysis[] }) => (
   <header className="space-y-4">
     <div>
       <p className="font-sans text-xs font-semibold tracking-wide text-fg-muted uppercase">
@@ -58,18 +59,29 @@ export const ReportHeader = ({ project, analysis }: AnalysisReportProps) => (
           )}
         </ul>
       </dd>
-      <dt className="text-fg-muted">Data da análise</dt>
-      <dd>{formatDateTime(analysis.generatedAt)}</dd>
-      <dt className="text-fg-muted">Identificador da análise</dt>
-      <dd className="font-mono text-xs leading-5">{analysis.id}</dd>
-      <dt className="text-fg-muted">Critérios usados</dt>
-      <dd>Manual de {FRAMEWORK_LABELS[analysis.framework]} (5 critérios, MCTI)</dd>
+      <dt className="text-fg-muted">
+        {analyses.length > 1 ? "Análises (uma por método)" : "Análise"}
+      </dt>
+      <dd>
+        <ul className="space-y-1">
+          {analyses.map((analysis) => (
+            <li key={analysis.id}>
+              {FRAMEWORKS[analysis.framework].name}
+              <span className="block text-xs text-fg-muted">
+                <span className="font-mono">{analysis.id}</span> · gerada em{" "}
+                {formatDateTime(analysis.generatedAt)}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </dd>
     </dl>
   </header>
 );
 
 export const ReportSummary = ({ analysis }: { analysis: Analysis }) => (
-  <ReportSection title="Resumo">
+  <section className="space-y-3">
+    <h3 className="font-sans text-lg font-semibold">{FRAMEWORKS[analysis.framework].name}</h3>
     <table className="w-full border-collapse font-sans text-sm">
       <thead>
         <tr className="border-b border-border-strong text-left text-xs text-fg-muted uppercase">
@@ -99,10 +111,11 @@ export const ReportSummary = ({ analysis }: { analysis: Analysis }) => (
         : "não fornecida"}
     </p>
     <p className="text-sm text-fg-muted">
-      Os cinco critérios precisam ser atendidos em conjunto. Uma nota baixa em
-      qualquer um deles merece atenção na decisão.
+      {FRAMEWORKS[analysis.framework].allCriteriaRequired
+        ? "Todos os critérios deste método precisam ser atendidos em conjunto. Uma nota baixa em qualquer um deles merece atenção na decisão."
+        : FRAMEWORKS[analysis.framework].description}
     </p>
-  </ReportSection>
+  </section>
 );
 
 export const ReportDetails = ({
@@ -113,13 +126,13 @@ export const ReportDetails = ({
   const index = indexAnalysis(analysis);
 
   return (
-    <ReportSection title="Detalhamento por critério">
+    <ReportSection title={`Detalhamento · ${FRAMEWORKS[analysis.framework].label}`} id={`detalhamento-${analysis.framework}`}>
       {[...index.values()].map((node) => {
         if (node.kind !== "criterion") return null;
         const { criterion } = node;
         return (
           <section key={node.id} className="space-y-4 border-t border-border pt-4">
-            <NodeHeading level={3} index={index} nodeId={node.id} projectId={project.id} contested={contestedIds.has(node.id)}>
+            <NodeHeading level={3} index={index} analysis={analysis} nodeId={node.id} projectId={project.id} contested={contestedIds.has(node.id)}>
               {node.number}. {criterion.name}
               <ScoreBadge score={criterion.score} showLabel size="sm" />
             </NodeHeading>
@@ -131,7 +144,7 @@ export const ReportDetails = ({
               />
             )}
             {node.childIds.map((ruleId) => (
-              <RuleBlock key={ruleId} index={index} ruleId={ruleId} projectId={project.id} contestedIds={contestedIds} />
+              <RuleBlock key={ruleId} index={index} analysis={analysis} ruleId={ruleId} projectId={project.id} contestedIds={contestedIds} />
             ))}
           </section>
         );
@@ -142,11 +155,13 @@ export const ReportDetails = ({
 
 const RuleBlock = ({
   index,
+  analysis,
   ruleId,
   projectId,
   contestedIds,
 }: {
   index: AnalysisIndex;
+  analysis: Analysis;
   ruleId: string;
   projectId: string;
   contestedIds: ReadonlySet<string>;
@@ -157,7 +172,7 @@ const RuleBlock = ({
 
   return (
     <div className="space-y-3 pl-4">
-      <NodeHeading level={4} index={index} nodeId={ruleId} projectId={projectId} contested={contestedIds.has(ruleId)}>
+      <NodeHeading level={4} index={index} analysis={analysis} nodeId={ruleId} projectId={projectId} contested={contestedIds.has(ruleId)}>
         {node.number} {rule.code} · {rule.name}
         <ScoreBadge score={rule.score} size="sm" />
       </NodeHeading>
@@ -182,7 +197,7 @@ const RuleBlock = ({
               key={evidenceId}
               className="space-y-2 rounded-md border border-border p-3 break-inside-avoid"
             >
-              <NodeHeading level={5} index={index} nodeId={evidenceId} projectId={projectId} contested={contestedIds.has(evidenceId)}>
+              <NodeHeading level={5} index={index} analysis={analysis} nodeId={evidenceId} projectId={projectId} contested={contestedIds.has(evidenceId)}>
                 {evidenceNode.number} {evidence.title}
                 <PolarityTag polarity={evidence.polarity} />
               </NodeHeading>
@@ -236,6 +251,7 @@ const HEADING_CLASSES = {
 const NodeHeading = ({
   level,
   index,
+  analysis,
   nodeId,
   projectId,
   contested = false,
@@ -243,6 +259,7 @@ const NodeHeading = ({
 }: {
   level: 3 | 4 | 5;
   index: AnalysisIndex;
+  analysis: Analysis;
   nodeId: string;
   projectId: string;
   /** Flag the item: an analyst contested it (details in the trail) */
@@ -254,7 +271,7 @@ const NodeHeading = ({
   return (
     <div className="flex items-start justify-between gap-3">
       <Tag
-        id={`no-${nodeId}`}
+        id={reportAnchorId(analysis, nodeId)}
         className={`flex scroll-mt-20 flex-wrap items-center gap-2 rounded font-sans ${HEADING_CLASSES[level]}`}
       >
         {children}
@@ -266,7 +283,7 @@ const NodeHeading = ({
         )}
       </Tag>
       <Link
-        to={paths.analysis(projectId, nodeId)}
+        to={paths.analysis(projectId, nodeId, analysis.framework)}
         className="btn-ghost shrink-0 px-1.5 py-0.5 text-xs print:hidden"
         aria-label={`Ver ${node?.number ?? ""} no grafo`}
       >
@@ -280,14 +297,16 @@ const NodeHeading = ({
 /* Document sections are not numbered: 1 / 1.1 / 1.1.1 belongs to the analysis tree */
 export const ReportSection = ({
   title,
+  id,
   className = "",
   children,
 }: {
   title: string;
+  id?: string;
   className?: string;
   children: ReactNode;
 }) => (
-  <section className={`space-y-4 ${className}`}>
+  <section id={id} className={`scroll-mt-16 space-y-4 ${className}`}>
     <h2 className="border-b-2 border-fg pb-1 font-sans text-2xl font-semibold">{title}</h2>
     {children}
   </section>

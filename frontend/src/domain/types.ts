@@ -31,7 +31,10 @@ export interface CriterionScoreSummary {
 
 /** Project as shown in the list, with a score overview when an analysis exists */
 export interface ProjectSummary extends Project {
+  /** Scores of the primary method's analysis (first in FRAMEWORK_ORDER) */
   scoreSummary?: CriterionScoreSummary[];
+  /** Methods with an analysis available for this project */
+  frameworks?: Framework[];
 }
 
 /** Referência normativa ou web que sustenta uma regra ou evidência */
@@ -96,12 +99,11 @@ export interface Rule {
   scoreExplanation?: ScoreExplanation;
 }
 
-export type CriterionKey =
-  | "novelty"
-  | "creativity"
-  | "uncertainty"
-  | "systematic"
-  | "transferability";
+/**
+ * Stable key of a criterion inside its method, e.g. Frascati's "novelty",
+ * "uncertainty"... Free string because each method has its own criteria.
+ */
+export type CriterionKey = string;
 
 export interface Criterion {
   id: string;
@@ -113,7 +115,8 @@ export interface Criterion {
   scoreExplanation?: ScoreExplanation;
 }
 
-export type Framework = "frascati";
+/** Method that generated an analysis tree; metadata in domain/frameworks.ts */
+export type Framework = "frascati" | "mcti_form";
 
 export type SuggestedCategory = "PB" | "PA" | "DE";
 
@@ -129,13 +132,19 @@ export interface Analysis {
 export type DecisionOutcome = "eligible" | "not_eligible" | "needs_review";
 
 export interface RuleOverride {
+  /** Node id of the rule in its analysis tree */
   ruleId: string;
   note: string;
+  /** Analysis the rule belongs to (defaults to the decision's analysisId) */
+  analysisId?: string;
 }
 
 export interface Decision {
   projectId: string;
+  /** Primary analysis (first method) */
   analysisId: string;
+  /** Every analysis (one per method) the analyst had in front of them */
+  analysisIds?: string[];
   outcome: DecisionOutcome;
   justification: string;
   analystName: string;

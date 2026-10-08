@@ -12,8 +12,9 @@ import type { AssistantAnswer, AssistantContext } from "@/domain/assistant";
 import { answerQuestion } from "@/mocks/assistantEngine";
 import { debateOpening, debateReply } from "@/mocks/debateEngine";
 import { withScoreExplanations } from "@/mocks/scoreExplanations";
+import { sortByFramework } from "@/domain/frameworks";
 import {
-  analysisTemplate,
+  analysisTemplates,
   mockAnalyses,
   mockDecisions,
   mockProjects,
@@ -42,7 +43,7 @@ export class NotFoundError extends Error {
  * start over from the fictitious examples.
  */
 // Bump the version when src/mocks changes, or browsers keep the old copy
-const STORAGE_KEY = "lei-do-bem:mock-db:v2";
+const STORAGE_KEY = "lei-do-bem:mock-db:v3";
 
 interface MockDb {
   projects: Project[];
@@ -99,12 +100,14 @@ const settleProcessing = () => {
     if (until > now) continue;
     const project = db.projects.find((p) => p.id === projectId);
     if (project?.status === "processing") {
-      db.analyses.push({
-        ...structuredClone(analysisTemplate),
-        id: newId("an"),
-        projectId,
-        generatedAt: new Date(until).toISOString(),
-      });
+      for (const template of analysisTemplates) {
+        db.analyses.push({
+          ...structuredClone(template),
+          id: newId("an"),
+          projectId,
+          generatedAt: new Date(until).toISOString(),
+        });
+      }
       project.status = "ready";
     }
     delete db.processingUntil[projectId];
@@ -121,10 +124,15 @@ const delay = async (ms = LATENCY_MS) => {
 const newId = (prefix: string) =>
   `${prefix}-${crypto.randomUUID().slice(0, 8)}`;
 
+const analysesOf = (projectId: string) =>
+  sortByFramework(db.analyses.filter((a) => a.projectId === projectId));
+
 const toSummary = (project: Project): ProjectSummary => {
-  const analysis = db.analyses.find((a) => a.projectId === project.id);
+  const analyses = analysesOf(project.id);
+  const analysis = analyses[0];
   return {
     ...project,
+    frameworks: analyses.map((a) => a.framework),
     scoreSummary: analysis?.criteria.map((c) => ({
       criterionKey: c.key,
       name: c.name,
@@ -181,15 +189,18 @@ export const createProject = async (
   return structuredClone(project);
 };
 
-/** Resolves to null while the project is still being processed */
-export const getAnalysis = async (
-  projectId: string,
-): Promise<Analysis | null> => {
+/**
+ * Every analysis of a project, one per method, in FRAMEWORK_ORDER.
+ * Resolves to null while the project is still being processed.
+ */
+export const getAnalyses = async (projectId: string): Promise<Analysis[] | null> => {
   await delay();
   findProject(projectId);
-  const analysis = db.analyses.find((a) => a.projectId === projectId);
+  const analyses = analysesOf(projectId);
   // Mock: the real back-end will send scoreExplanation itself
-  return analysis ? withScoreExplanations(structuredClone(analysis)) : null;
+  return analyses.length > 0
+    ? analyses.map((a) => withScoreExplanations(structuredClone(a)))
+    : null;
 };
 
 /** Decision trail, oldest first. Every save adds a new entry (never edits). */

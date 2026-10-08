@@ -2,21 +2,31 @@ import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { DECISION_OUTCOME_LABELS } from "@/domain/labels";
+import { FRAMEWORKS } from "@/domain/frameworks";
 import { indexAnalysis } from "@/domain/tree";
+import type { RuleNode } from "@/domain/tree";
 import type { Analysis, DecisionOutcome, RuleOverride } from "@/domain/types";
 import { useSaveDecision } from "@/services/queries";
 
 const OUTCOMES: DecisionOutcome[] = ["eligible", "not_eligible", "needs_review"];
 
+/** Override value in the select: rules of different methods may share ids */
+const overrideKey = (analysisId: string, ruleId: string) => `${analysisId}::${ruleId}`;
+
 interface DecisionFormProps {
-  analysis: Analysis;
+  /** Every analysis of the project; the first is the primary one */
+  analyses: Analysis[];
   /** A decision already exists: this form records a new one in the trail */
   hasPrevious: boolean;
 }
 
-export const DecisionForm = ({ analysis, hasPrevious }: DecisionFormProps) => {
+export const DecisionForm = ({ analyses, hasPrevious }: DecisionFormProps) => {
   const saveDecision = useSaveDecision();
-  const rules = [...indexAnalysis(analysis).values()].filter((n) => n.kind === "rule");
+  const primary = analyses[0];
+  const rulesByAnalysis = analyses.map((analysis) => ({
+    analysis,
+    rules: [...indexAnalysis(analysis).values()].filter((n): n is RuleNode => n.kind === "rule"),
+  }));
 
   const [outcome, setOutcome] = useState<DecisionOutcome | null>(null);
   const [justification, setJustification] = useState("");
@@ -42,14 +52,19 @@ export const DecisionForm = ({ analysis, hasPrevious }: DecisionFormProps) => {
     if (hasErrors || outcome === null) return;
     saveDecision.mutate(
       {
-        projectId: analysis.projectId,
-        analysisId: analysis.id,
+        projectId: primary.projectId,
+        analysisId: primary.id,
+        analysisIds: analyses.map((a) => a.id),
         outcome,
         justification: justification.trim(),
         analystName: analystName.trim(),
         ruleOverrides: overrides
           .filter((o) => o.ruleId && o.note.trim())
-          .map((o) => ({ ...o, note: o.note.trim() })),
+          .map((o) => ({
+            ruleId: o.ruleId,
+            analysisId: o.analysisId ?? primary.id,
+            note: o.note.trim(),
+          })),
       },
       {
         onSuccess: () => {
@@ -131,17 +146,22 @@ export const DecisionForm = ({ analysis, hasPrevious }: DecisionFormProps) => {
               <select
                 aria-label={`Regra da ressalva ${i + 1}`}
                 className="input w-auto max-w-64"
-                value={override.ruleId}
-                onChange={(e) => updateOverride(i, { ruleId: e.target.value })}
+                value={override.ruleId ? overrideKey(override.analysisId ?? primary.id, override.ruleId) : ""}
+                onChange={(e) => {
+                  const [analysisId, ruleId] = e.target.value.split("::");
+                  updateOverride(i, { analysisId, ruleId: ruleId ?? "" });
+                }}
               >
                 <option value="">Escolha a regra…</option>
-                {rules.map((node) =>
-                  node.kind === "rule" ? (
-                    <option key={node.id} value={node.id}>
-                      {node.number} {node.rule.code} · {node.rule.name}
-                    </option>
-                  ) : null,
-                )}
+                {rulesByAnalysis.map(({ analysis, rules }) => (
+                  <optgroup key={analysis.id} label={FRAMEWORKS[analysis.framework].label}>
+                    {rules.map((node) => (
+                      <option key={node.id} value={overrideKey(analysis.id, node.id)}>
+                        {node.number} {node.rule.code} · {node.rule.name}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
               </select>
               <input
                 aria-label={`Ressalva ${i + 1}`}
