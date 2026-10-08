@@ -96,7 +96,7 @@ test("analista faz a primeira análise, decide e gera o documento", async ({ pag
 test("analista discorda do modelo, contesta e vê a reanálise na trilha", async ({ page }) => {
   await test.step("entra pelo formulário de login", async () => {
     await page.goto("/login");
-    await typeLikeAPerson(page.getByLabel("E-mail"), USERS.ana.email);
+    await typeLikeAPerson(page.getByLabel("Email"), USERS.ana.email);
     await typeLikeAPerson(page.getByLabel("Senha"), "123");
     await page.keyboard.press("Enter");
     await expect(page.getByRole("heading", { name: "Meus projetos" })).toBeVisible();
@@ -250,7 +250,7 @@ test("analista explora o mapa geral com o mouse", async ({ page }) => {
 test("analista usa só o teclado", async ({ page }) => {
   await test.step("faz login com Tab e Enter", async () => {
     await page.goto("/login");
-    await page.getByLabel("E-mail").focus();
+    await page.getByLabel("Email").focus();
     await page.keyboard.type(USERS.ana.email);
     await page.keyboard.press("Tab");
     await page.keyboard.type("x");

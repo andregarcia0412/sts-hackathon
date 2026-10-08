@@ -79,6 +79,8 @@ interface MockDb {
   contestations: Contestation[];
   ruleDecisions: RuleDecision[];
   evidenceReviews: EvidenceReview[];
+  /** Analysts created on the "Cadastro" tab (demo: no password is kept) */
+  users: User[];
   /** Mock-created projects become "ready" after this timestamp (ms) */
   processingUntil: Record<string, number>;
 }
@@ -90,6 +92,7 @@ const seedDb = (): MockDb => ({
   contestations: [],
   ruleDecisions: [],
   evidenceReviews: [],
+  users: [],
   processingUntil: {},
 });
 
@@ -297,16 +300,33 @@ export const listDemoUsers = async (): Promise<User[]> => {
   return structuredClone(mockUsers);
 };
 
+const allUsers = () => [...mockUsers, ...db.users];
+
+const sameEmail = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
+
 export const login = async (email: string, password: string): Promise<User> => {
   await delay();
-  const user = mockUsers.find((u) => u.email.toLowerCase() === email.trim().toLowerCase());
+  const user = allUsers().find((u) => sameEmail(u.email, email));
   if (!user || !password) throw new AuthError();
+  return structuredClone(user);
+};
+
+/** MOCK sign-up: creates the analyst (with no projects) and signs in; any password works */
+export const registerUser = async (name: string, email: string, password: string): Promise<User> => {
+  await delay();
+  if (!name.trim() || !email.trim() || !password) throw new AuthError("Preencha nome, e-mail e senha");
+  if (allUsers().some((u) => sameEmail(u.email, email))) {
+    throw new AuthError("Já existe uma conta com este e-mail");
+  }
+  const user: User = { id: newId("u"), name: name.trim(), email: email.trim().toLowerCase() };
+  db.users.push(user);
+  persist();
   return structuredClone(user);
 };
 
 export const getUser = async (userId: string): Promise<User> => {
   await delay(100);
-  const user = mockUsers.find((u) => u.id === userId);
+  const user = allUsers().find((u) => u.id === userId);
   if (!user) throw new AuthError("Sessão expirada");
   return structuredClone(user);
 };

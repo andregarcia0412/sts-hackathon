@@ -51,8 +51,8 @@ Pontos deixados para depois. Separados em dois grupos:
 ### Visual e técnico
 
 - [x] Visual de alta fidelidade aplicado em todas as telas. Do Figma: cabeçalho, grafo de
-      evidências, projetos e upload. Derivadas do design system (sem tela no Figma):
-      documento de decisão, login e chatbot. Login e chatbot ganham tela no Figma em breve.
+      evidências, projetos, upload e login. Derivados do design system (sem tela no Figma):
+      documento de decisão e chatbot. O documento já tem tela no Figma: aplicar.
 - [x] Fontes: Heebo carregada do Google Fonts (o documento de decisão também usa Heebo).
 - [ ] Bundle passa de 500 kB por causa do React Flow: carregar as telas sob demanda
       (`React.lazy` nas rotas de análise e decisão).
@@ -66,7 +66,8 @@ Pontos deixados para depois. Separados em dois grupos:
 
 ## Escopo maior (se o projeto continuar)
 
-- [ ] **Login real** (hoje: mock com sessão no `localStorage`, `src/features/auth`).
+- [ ] **Login e cadastro reais** (hoje: mock com sessão no `localStorage`, `src/features/auth`;
+      o cadastro cria a conta no banco mockado e aceita qualquer senha, sem guardá-la).
 - [ ] **Permissões:** hoje um analista consegue abrir o projeto de outro por link direto
       (só a lista é individual). Definir regras de acesso e uma **visão de coordenação**
       com os projetos de toda a equipe.

@@ -2,164 +2,192 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
+import loginCorner from "@/assets/login-corner.svg";
+import headquarters from "@/assets/login-bnb-sede.webp";
 import logoBnb from "@/assets/logo-bnb.svg";
-import { KeyboardArrowRightIcon } from "@/components/icons/MaterialIcons";
-import { Tag } from "@/components/ui/Tag";
-import { APP_DISCLAIMER, APP_NAME } from "@/config/app";
-import type { Tone } from "@/domain/qualitative";
+import { APP_DISCLAIMER, PRODUCT_NAME } from "@/config/app";
 import type { User } from "@/domain/types";
 import { useAuth } from "@/features/auth/authState";
-import { initials } from "@/lib/format";
 import { paths } from "@/routes/paths";
-import { listDemoUsers, login } from "@/services/api";
+import { listDemoUsers, login, registerUser } from "@/services/api";
 
 /** Only same-app paths are accepted as "next", never another origin */
 const safeNext = (next: string | null) =>
   next && next.startsWith("/") && !next.startsWith("//") ? next : paths.projects();
 
-const HIGHLIGHTS: { tone: Tone; text: string }[] = [
-  { tone: "positive", text: "Grafo de evidências por critério, regra e documento" },
-  { tone: "attention", text: "Divergências apontadas, nunca resolvidas pelo sistema" },
-  { tone: "neutral", text: "A decisão é sempre do analista, com trilha completa" },
-];
+type Mode = "login" | "signup";
+
+const pillInput =
+  "h-12 w-full rounded-full border border-border-strong bg-surface px-4 text-base leading-5 placeholder:text-fg-muted focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-action";
 
 export const LoginPage = () => {
   const { user, signIn } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const next = safeNext(searchParams.get("next"));
+  const [mode, setMode] = useState<Mode>("login");
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const demoUsers = useQuery({ queryKey: ["demo-users"], queryFn: listDemoUsers });
+  const enter = (signedIn: User) => {
+    signIn(signedIn);
+    navigate(next, { replace: true });
+  };
   const signInMutation = useMutation({
-    mutationFn: ({ email, password }: { email: string; password: string }) => login(email, password),
-    onSuccess: (signedIn: User) => {
-      signIn(signedIn);
-      navigate(next, { replace: true });
-    },
+    mutationFn: (credentials: { email: string; password: string }) =>
+      login(credentials.email, credentials.password),
+    onSuccess: enter,
+  });
+  const signUpMutation = useMutation({
+    mutationFn: () => registerUser(name, email, password),
+    onSuccess: enter,
   });
 
   if (user) return <Navigate to={next} replace />;
 
+  const pending = signInMutation.isPending || signUpMutation.isPending;
+  const error = mode === "login" ? signInMutation.error : signUpMutation.error;
+
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
-    signInMutation.mutate({ email, password });
+    if (mode === "login") signInMutation.mutate({ email, password });
+    else signUpMutation.mutate();
+  };
+
+  const switchTo = (next: Mode) => {
+    setMode(next);
+    signInMutation.reset();
+    signUpMutation.reset();
   };
 
   return (
-    <div className="relative isolate flex min-h-dvh items-center justify-center overflow-hidden bg-canvas p-4 sm:p-10">
-      {/* Same background glows as the app */}
+    <div className="relative isolate flex min-h-dvh flex-col justify-center overflow-hidden bg-surface-sunken p-4 sm:p-10 lg:flex-row lg:items-center">
+      {/* Background: BNB headquarters, a white glow behind the form and a dark fade at the bottom */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -top-60 -left-96 size-[594px] rounded-full bg-action opacity-60 blur-[180px]" />
-        <div className="absolute -right-96 -bottom-80 size-[594px] rounded-full bg-brand-orange opacity-60 blur-[180px]" />
+        <img src={headquarters} alt="" className="size-full object-cover object-left" />
+        <div className="absolute -top-[308px] -right-[380px] h-[552px] w-[997px] rounded-full bg-white opacity-80 blur-[160px]" />
+        <div className="absolute inset-x-0 bottom-0 h-[34%] bg-gradient-to-b from-transparent to-black" />
+        <img src={loginCorner} alt="" width={306} height={371} className="absolute top-0 right-[-7%] max-lg:hidden" />
+        <img src={loginCorner} alt="" width={306} height={371} className="absolute bottom-0 -left-[90px] rotate-180 max-lg:hidden" />
       </div>
 
-      <div className="grid w-full max-w-5xl items-center gap-10 lg:grid-cols-[1fr_440px]">
-        <section className="flex flex-col gap-6">
-          <img src={logoBnb} alt="Banco do Nordeste" width={101} height={36} />
-          <div className="flex flex-col gap-3">
-            <p className="caps-label text-accent">{APP_NAME}</p>
-            <h1 className="max-w-lg text-[28px] leading-9 font-semibold sm:text-[32px] sm:leading-10">
-              Análise preliminar de enquadramento na Lei do Bem, com cada nota rastreável até a
-              evidência.
-            </h1>
-          </div>
-          <ul className="flex flex-col gap-3 text-sm leading-5 text-fg-secondary">
-            {HIGHLIGHTS.map(({ tone, text }) => (
-              <li key={text} className="flex items-center gap-3">
-                <Tag tone={tone} label={text} iconOnly />
-                {text}
-              </li>
-            ))}
-          </ul>
-        </section>
+      <div className="mx-auto flex w-full max-w-[508px] flex-col items-start gap-10 rounded-3xl max-lg:bg-white/75 max-lg:p-6 max-lg:backdrop-blur-md lg:mr-0 lg:ml-[56%] lg:w-auto">
+        <img src={logoBnb} alt="Banco do Nordeste" width={202} height={72} className="h-auto w-[160px] p-1.5 sm:w-[223px]" />
 
-        <div className="flex flex-col gap-4">
-          <form
-            onSubmit={handleSubmit}
-            className="flex flex-col gap-5 rounded-2xl border border-border bg-white/80 p-6 shadow-card sm:p-8"
-          >
-            <div className="flex flex-col gap-1">
-              <h2 className="text-xl leading-6 font-semibold">Entrar</h2>
-              <p className="text-sm leading-5 text-fg-muted">
-                Cada analista vê e organiza os próprios projetos.
-              </p>
+        <h1 className="max-w-[329px] text-4xl leading-[1.3] font-semibold tracking-[-0.01em] text-fg sm:text-5xl sm:leading-[63px]">
+          Seja muito bem-vindo ao <span className="text-action">{PRODUCT_NAME}</span>!
+        </h1>
+
+        <form
+          onSubmit={handleSubmit}
+          className="flex w-full flex-col gap-10 rounded-2xl bg-surface p-5 shadow-[0_4px_24px_rgb(136_211_177/0.25)]"
+        >
+          <div className="flex flex-col gap-2">
+            <div role="tablist" aria-label="Acesso" className="flex gap-3.5">
+              {(
+                [
+                  ["signup", "Cadastro"],
+                  ["login", "Login"],
+                ] as const
+              ).map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  role="tab"
+                  aria-selected={mode === value}
+                  onClick={() => switchTo(value)}
+                  className={mode === value ? "btn-primary" : "btn-secondary"}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
+            <h2 className="text-[28px] font-semibold text-action">{mode === "login" ? "Login" : "Cadastro"}</h2>
+          </div>
+
+          <div className="flex flex-col gap-4">
+            {mode === "signup" && (
+              <div className="flex flex-col gap-2">
+                <label htmlFor="signup-name" className="text-base leading-6 font-semibold text-fg-soft">
+                  Nome
+                </label>
+                <input
+                  id="signup-name"
+                  autoComplete="name"
+                  className={pillInput}
+                  placeholder="Digite o seu nome..."
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+              </div>
+            )}
             <div className="flex flex-col gap-2">
-              <label htmlFor="login-email" className="label mb-0">
-                E-mail
+              <label htmlFor="login-email" className="text-base leading-6 font-semibold text-fg-soft">
+                Email
               </label>
               <input
                 id="login-email"
                 type="email"
-                autoComplete="username"
-                className="input"
+                autoComplete={mode === "login" ? "username" : "email"}
+                className={pillInput}
+                placeholder="Digite o seu e-mail..."
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label htmlFor="login-password" className="label mb-0">
+              <label htmlFor="login-password" className="text-base leading-6 font-semibold text-fg-soft">
                 Senha
               </label>
               <input
                 id="login-password"
                 type="password"
-                autoComplete="current-password"
-                className="input"
+                autoComplete={mode === "login" ? "current-password" : "new-password"}
+                className={pillInput}
+                placeholder="Digite a sua senha..."
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
             </div>
-            {signInMutation.isError && (
+            {error && (
               <p role="alert" className="text-sm text-danger">
-                {signInMutation.error.message}
+                {error.message}
               </p>
             )}
-            <button type="submit" className="btn-primary w-full" disabled={signInMutation.isPending}>
-              {signInMutation.isPending ? "Entrando…" : "Entrar"}
-            </button>
-          </form>
+          </div>
 
-          <section className="flex flex-col gap-3 rounded-2xl border border-dashed border-border-strong bg-white/50 p-4">
-            <div>
-              <h2 className="caps-label text-fg-muted">Ambiente de demonstração</h2>
-              <p className="text-xs leading-4 text-fg-muted">
-                Login simulado: escolha um analista fictício (qualquer senha funciona).
-              </p>
-            </div>
-            <ul className="flex flex-col gap-2">
-              {demoUsers.data?.map((demo) => (
-                <li key={demo.id}>
+          <div className="flex flex-col gap-3">
+            <button type="submit" className="btn-primary w-full" disabled={pending}>
+              {pending ? "Entrando…" : mode === "login" ? "Entrar" : "Criar conta e entrar"}
+            </button>
+            <p className="text-center text-xs leading-5 text-fg-muted">
+              Demonstração (qualquer senha): entre como{" "}
+              {demoUsers.data?.map((demo, i, all) => (
+                <span key={demo.id}>
                   <button
                     type="button"
-                    className="flex w-full items-center gap-3 rounded-full border border-border-strong bg-surface py-1.5 pr-4 pl-1.5 text-left transition-colors hover:border-action hover:bg-accent-soft disabled:opacity-50"
-                    disabled={signInMutation.isPending}
+                    className="btn-link"
+                    disabled={pending}
                     onClick={() => signInMutation.mutate({ email: demo.email, password: "demo" })}
                   >
-                    <span
-                      aria-hidden
-                      className="flex size-9 shrink-0 items-center justify-center rounded-full bg-surface-sunken text-xs font-semibold text-fg-secondary"
-                    >
-                      {initials(demo.name)}
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-sm leading-5 font-semibold">{demo.name}</span>
-                      <span className="block truncate text-xs leading-4 text-fg-muted">{demo.email}</span>
-                    </span>
-                    <KeyboardArrowRightIcon className="size-5 shrink-0 text-fg-secondary" />
+                    {demo.name}
                   </button>
-                </li>
+                  {i < all.length - 2 ? ", " : i === all.length - 2 ? " ou " : "."}
+                </span>
               ))}
-            </ul>
-          </section>
-
-          <p className="text-center text-xs leading-4 text-fg-muted">{APP_DISCLAIMER}</p>
-        </div>
+            </p>
+          </div>
+        </form>
       </div>
+
+      <p className="mt-6 text-center text-xs text-white/85 lg:absolute lg:inset-x-0 lg:bottom-4 lg:mt-0 lg:px-4">
+        {APP_DISCLAIMER}
+      </p>
     </div>
   );
 };
