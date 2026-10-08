@@ -74,3 +74,10 @@ def test_adding_a_document_with_same_name_supersedes_never_deletes(client, auth_
 
 def test_projects_require_auth(client):
     assert client.get("/projects").status_code == 401
+
+
+def test_openapi_marks_uploads_as_binary_for_swagger(client):
+    """Swagger UI only renders a file picker for `format: binary`; OpenAPI 3.1 alone gives a text box."""
+    schemas = client.get("/openapi.json").json()["components"]["schemas"]
+    assert schemas["Body_create_projects_post"]["properties"]["files"]["items"]["format"] == "binary"
+    assert schemas["Body_upload_batch_batches_upload_post"]["properties"]["file"]["format"] == "binary"

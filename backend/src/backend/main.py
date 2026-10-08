@@ -79,6 +79,28 @@ app.include_router(assistant_router)
 app.include_router(benchmark_router)
 
 
+def _mark_binary(node) -> None:
+    if isinstance(node, dict):
+        if node.get("type") == "string" and node.get("contentMediaType") == "application/octet-stream":
+            node["format"] = "binary"
+        for value in node.values():
+            _mark_binary(value)
+    elif isinstance(node, list):
+        for value in node:
+            _mark_binary(value)
+
+
+def openapi() -> dict:
+    """Swagger UI renders an upload as a file picker only with `format: binary`; FastAPI's OpenAPI 3.1
+    emits just `contentMediaType`, so arrays of files show up as text boxes."""
+    if app.openapi_schema is None:
+        _mark_binary(FastAPI.openapi(app))
+    return app.openapi_schema
+
+
+app.openapi = openapi
+
+
 @app.get("/")
 def read_root():
     return {"status": "ok"}
