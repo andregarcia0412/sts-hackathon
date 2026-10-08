@@ -4,6 +4,7 @@ import logoBnb from "@/assets/logo-bnb.svg";
 import { KeyboardArrowRightIcon } from "@/components/icons/MaterialIcons";
 import { APP_NAME } from "@/config/app";
 import { useAuth } from "@/features/auth/authState";
+import { initials } from "@/lib/format";
 import { NEW_PROJECT_PARAM, paths } from "@/routes/paths";
 
 type StepKey = "projects" | "upload" | "analysis" | "decision";
@@ -82,15 +83,6 @@ const Stepper = () => {
     </nav>
   );
 };
-
-const initials = (name: string) =>
-  name
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((part) => part[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
 
 export const AppLayout = () => {
   const { user, signOut } = useAuth();
