@@ -1,4 +1,5 @@
-import { FileText, Upload, X } from "lucide-react";
+import { CloudUpload, X } from "lucide-react";
+import { ArticleIcon } from "@/components/icons/MaterialIcons";
 import { useDropzone } from "react-dropzone";
 import type { FileRejection } from "react-dropzone";
 import { useState } from "react";
@@ -40,16 +41,18 @@ export const FileDropzone = ({ files, onChange }: FileDropzoneProps) => {
     <div className="space-y-2">
       <div
         {...getRootProps({
-          className: `flex cursor-pointer flex-col items-center gap-1 rounded-lg border-2 border-dashed px-4 py-6 text-center transition-colors ${
+          className: `flex cursor-pointer flex-col items-center gap-2 rounded-2xl border-2 border-dashed px-4 py-8 text-center transition-colors ${
             isDragActive
-              ? "border-accent bg-accent-soft"
-              : "border-border-strong hover:bg-surface-muted"
+              ? "border-action bg-accent-soft"
+              : "border-border-strong bg-surface-muted hover:border-action hover:bg-accent-soft"
           }`,
         })}
       >
         <input {...getInputProps()} aria-label="Selecionar arquivos" />
-        <Upload className="size-6 text-fg-muted" aria-hidden />
-        <p className="text-sm font-medium">
+        <span className="flex size-12 items-center justify-center rounded-full bg-accent-soft text-accent">
+          <CloudUpload className="size-6" aria-hidden />
+        </span>
+        <p className="text-base leading-5 font-semibold">
           {isDragActive
             ? "Solte os arquivos aqui"
             : "Arraste arquivos ou clique para selecionar"}
@@ -73,13 +76,13 @@ export const FileDropzone = ({ files, onChange }: FileDropzoneProps) => {
       )}
 
       {files.length > 0 && (
-        <ul className="divide-y divide-border rounded-md border border-border">
+        <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border">
           {files.map((file) => (
             <li
               key={`${file.name}-${file.size}-${file.lastModified}`}
-              className="flex items-center gap-2 px-3 py-2 text-sm"
+              className="flex items-center gap-2 bg-surface-muted px-3 py-2 text-sm"
             >
-              <FileText className="size-4 shrink-0 text-fg-muted" aria-hidden />
+              <ArticleIcon className="size-4 shrink-0 text-fg-secondary" />
               <span className="min-w-0 flex-1 truncate">{file.name}</span>
               <span className="text-xs text-fg-muted tabular-nums">
                 {formatFileSize(file.size)}

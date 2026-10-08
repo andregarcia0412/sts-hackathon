@@ -1,7 +1,8 @@
 import { Search, X } from "lucide-react";
 import { useEffect, useEffectEvent, useState } from "react";
 import { DECISION_OUTCOME_LABELS } from "@/domain/labels";
-import { SCORE_BAND_LABELS, SCORE_BANDS } from "@/domain/score";
+import { BAND_CRITERION_STATUS, CRITERION_STATUS } from "@/domain/qualitative";
+import { SCORE_BANDS } from "@/domain/score";
 import type { DecisionOutcome, ProjectSort } from "@/domain/types";
 import type { ProjectFilters } from "@/features/projects/useProjectFilters";
 
@@ -11,7 +12,7 @@ const SORT_LABELS: Record<ProjectSort, string> = {
   recent: "Mais recentes",
   oldest: "Mais antigos",
   name: "Nome (A–Z)",
-  weakest: "Menor nota primeiro",
+  weakest: "Critério mais fraco primeiro",
 };
 
 interface ProjectFilterBarProps {
@@ -35,18 +36,18 @@ export const ProjectFilterBar = ({ filters, update, clear, activeCount }: Projec
   }, [search]);
 
   return (
-    <div role="search" aria-label="Filtrar projetos" className="flex flex-wrap items-end gap-3">
+    <div role="search" aria-label="Filtrar projetos" className="card flex flex-wrap items-end gap-3 p-4">
       <div className="min-w-56 flex-1">
-        <label htmlFor="filter-search" className="mb-1 block text-xs font-medium text-fg-muted">
+        <label htmlFor="filter-search" className="field-label">
           Buscar
         </label>
         <div className="relative">
-          <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-fg-muted" aria-hidden />
+          <Search className="pointer-events-none absolute top-1/2 left-3.5 size-5 -translate-y-1/2 text-fg-muted" aria-hidden />
           <input
             id="filter-search"
             type="search"
-            className="input pl-8"
-            placeholder="Nome do projeto ou empresa"
+            className="input pl-11"
+            placeholder="Projeto ou empresa"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -54,12 +55,12 @@ export const ProjectFilterBar = ({ filters, update, clear, activeCount }: Projec
       </div>
 
       <div>
-        <label htmlFor="filter-band" className="mb-1 block text-xs font-medium text-fg-muted">
-          Menor nota
+        <label htmlFor="filter-band" className="field-label">
+          Critério mais fraco
         </label>
         <select
           id="filter-band"
-          className="input w-auto"
+          className="select w-auto"
           value={filters.weakestBand ?? ""}
           onChange={(e) =>
             update({ weakestBand: (e.target.value || undefined) as ProjectFilters["weakestBand"] })
@@ -67,18 +68,20 @@ export const ProjectFilterBar = ({ filters, update, clear, activeCount }: Projec
         >
           <option value="">Qualquer</option>
           {SCORE_BANDS.map((band) => (
-            <option key={band} value={band}>{SCORE_BAND_LABELS[band]}</option>
+            <option key={band} value={band}>
+              {CRITERION_STATUS[BAND_CRITERION_STATUS[band]].label}
+            </option>
           ))}
         </select>
       </div>
 
       <div>
-        <label htmlFor="filter-outcome" className="mb-1 block text-xs font-medium text-fg-muted">
+        <label htmlFor="filter-outcome" className="field-label">
           Decisão
         </label>
         <select
           id="filter-outcome"
-          className="input w-auto"
+          className="select w-auto"
           value={filters.outcome ?? ""}
           onChange={(e) =>
             update({ outcome: (e.target.value || undefined) as DecisionOutcome | "none" | undefined })
@@ -93,7 +96,7 @@ export const ProjectFilterBar = ({ filters, update, clear, activeCount }: Projec
       </div>
 
       <fieldset className="flex items-end gap-1.5">
-        <legend className="mb-1 block text-xs font-medium text-fg-muted">Enviado entre</legend>
+        <legend className="field-label">Enviado entre</legend>
         <input
           type="date"
           aria-label="Enviado a partir de"
@@ -102,7 +105,7 @@ export const ProjectFilterBar = ({ filters, update, clear, activeCount }: Projec
           max={filters.to}
           onChange={(e) => update({ from: e.target.value || undefined })}
         />
-        <span className="pb-2 text-xs text-fg-muted">e</span>
+        <span className="pb-3.5 text-xs text-fg-muted">e</span>
         <input
           type="date"
           aria-label="Enviado até"
@@ -114,12 +117,12 @@ export const ProjectFilterBar = ({ filters, update, clear, activeCount }: Projec
       </fieldset>
 
       <div>
-        <label htmlFor="filter-sort" className="mb-1 block text-xs font-medium text-fg-muted">
+        <label htmlFor="filter-sort" className="field-label">
           Ordenar por
         </label>
         <select
           id="filter-sort"
-          className="input w-auto"
+          className="select w-auto"
           value={filters.sort}
           onChange={(e) => update({ sort: e.target.value as ProjectSort, page: filters.page })}
         >
@@ -132,7 +135,7 @@ export const ProjectFilterBar = ({ filters, update, clear, activeCount }: Projec
       {activeCount > 0 && (
         <button
           type="button"
-          className="btn-ghost mb-0.5"
+          className="btn-ghost mb-1.5"
           onClick={() => {
             setSearch("");
             clear();

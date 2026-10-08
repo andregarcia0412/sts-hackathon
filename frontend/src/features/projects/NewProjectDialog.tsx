@@ -24,7 +24,7 @@ export const NewProjectDialog = ({ open, onClose }: NewProjectDialogProps) => {
       ref={dialogRef}
       onClose={onClose}
       aria-labelledby="new-project-title"
-      className="m-auto w-[min(40rem,calc(100vw-2rem))] rounded-xl bg-surface p-0 text-fg shadow-xl backdrop:bg-fg/40"
+      className="m-auto w-[min(40rem,calc(100vw-2rem))] rounded-2xl bg-surface p-0 text-fg shadow-xl backdrop:bg-brand-deep/40 backdrop:backdrop-blur-sm"
     >
       {/* Remount on every open so the form starts empty */}
       {open && <NewProjectForm onDone={onClose} />}
@@ -55,19 +55,20 @@ const NewProjectForm = ({ onDone }: { onDone: () => void }) => {
 
   return (
     <form onSubmit={handleSubmit} noValidate>
-      <header className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
-        <div>
-          <h2 id="new-project-title" className="text-lg font-semibold">
+      <header className="flex items-start justify-between gap-4 border-b border-border px-6 pt-6 pb-4">
+        <div className="flex flex-col gap-1">
+          <p className="caps-label text-accent">Upload de arquivos</p>
+          <h2 id="new-project-title" className="text-xl leading-6 font-semibold">
             Novo projeto
           </h2>
-          <p className="text-sm text-fg-muted">
+          <p className="text-sm leading-5 text-fg-muted">
             Envie os documentos do projeto, descreva-o em texto livre, ou os
             dois.
           </p>
         </div>
         <button
           type="button"
-          className="btn-ghost p-1"
+          className="btn-ghost p-2"
           aria-label="Fechar"
           onClick={onDone}
         >
@@ -75,11 +76,11 @@ const NewProjectForm = ({ onDone }: { onDone: () => void }) => {
         </button>
       </header>
 
-      <div className="max-h-[70dvh] space-y-4 overflow-y-auto px-5 py-4">
+      <div className="flex max-h-[70dvh] flex-col gap-5 overflow-y-auto px-6 py-5">
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="project-name" className="label">
-              Nome do projeto <span className="text-danger">*</span>
+              Nome do projeto <span className="text-action">*</span>
             </label>
             <input
               id="project-name"
@@ -93,7 +94,7 @@ const NewProjectForm = ({ onDone }: { onDone: () => void }) => {
               autoFocus
             />
             {submitted && nameMissing && (
-              <p id="project-name-error" className="mt-1 text-xs text-danger">
+              <p id="project-name-error" className="mt-1.5 text-xs text-danger">
                 Informe o nome do projeto.
               </p>
             )}
@@ -141,7 +142,7 @@ const NewProjectForm = ({ onDone }: { onDone: () => void }) => {
         )}
       </div>
 
-      <footer className="flex justify-end gap-2 border-t border-border px-5 py-3">
+      <footer className="flex flex-wrap justify-end gap-3 border-t border-border px-6 py-4">
         <button type="button" className="btn-secondary" onClick={onDone}>
           Cancelar
         </button>
