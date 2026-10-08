@@ -30,3 +30,4 @@ blob-report
 
 # Vercel
 .vercel
+.env*
