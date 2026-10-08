@@ -104,9 +104,14 @@ src/
   `domain/qualitative.ts`, derivados da nota e das evidências. Critérios usam a palavra de
   cada um, como no design (`criterionStatusInfo`: "Demonstrada no recorte", "Investigada",
   "Documentada"…); para um critério novo, inclua a chave em `CRITERION_WORDS`. O número
-  0–100 continua visível no detalhamento (decisão do time).
-- **Decisão final**: `eligible` / `with_reservations` / `not_eligible` → Elegível / Com
-  ressalvas / Não elegível.
+  0–100 aparece só na árvore de evidências; o documento de decisão segue o design, sem número.
+- **Decisão final**: `eligible` / `with_reservations` / `not_eligible` /
+  `insufficient_evidence` → Elegível / Com ressalvas / Não elegível / Evidência insuficiente
+  (ordem em `DECISION_OUTCOMES`, `domain/labels.ts`). Uma decisão cobre o projeto (todos os métodos).
+- **Documento de decisão**: um método por vez (`?metodo=`); `?no=` abre o critério/regra na
+  sanfona (ausente: o 1º critério; vazio: tudo fechado). As pendências vêm de
+  `pendenciesOf()` (`domain/report.ts`): regras contraditórias, parciais, sem evidência,
+  contestações abertas e busca na web não aprovada.
 - **Lista de projetos**: os cards de situação são o filtro de status; a barra tem critério
   mais fraco, decisão, período de envio e ordem (o botão redondo conta e limpa os filtros).
 - **Árvore de evidências** (na interface; no código é `graph`, pasta `analysis/graph`): visão "Critério" (padrão: um critério inteiro, como no Figma) e "Mapa geral"

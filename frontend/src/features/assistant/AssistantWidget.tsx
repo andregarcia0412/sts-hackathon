@@ -12,7 +12,7 @@ import { getNodeTitle, indexAnalysis } from "@/domain/tree";
 import { ContestationForm } from "@/features/assistant/ContestationForm";
 import { useAssistant } from "@/features/assistant/assistantState";
 import { starterSuggestions } from "@/mocks/assistantEngine";
-import { paths, reportAnchorId } from "@/routes/paths";
+import { paths } from "@/routes/paths";
 
 const PANEL_ID = "analysis-assistant";
 
@@ -473,8 +473,8 @@ const AnswerView = ({
 };
 
 /**
- * Sources are clickable: on the analysis screen they select the node (graph,
- * tree and detail follow the URL); on the decision document they scroll to it.
+ * Sources are clickable: they select the node in the URL, so the analysis
+ * screen (tree, detail) and the decision document (accordion) open it.
  */
 const useOpenNode = () => {
   const { pageContext } = useAssistant();
@@ -482,16 +482,13 @@ const useOpenNode = () => {
   const { projectId = "" } = useParams();
 
   return (nodeId: string) => {
-    if (pageContext?.screen === "analysis") {
-      navigate(paths.analysis(projectId, nodeId, pageContext.analysis.framework));
-      return;
-    }
     if (!pageContext) return;
-    const target = document.getElementById(reportAnchorId(pageContext.analysis, nodeId));
-    target?.scrollIntoView({ behavior: "smooth", block: "start" });
-    target?.animate(
-      [{ backgroundColor: "var(--color-accent-soft)" }, { backgroundColor: "transparent" }],
-      { duration: 1600, easing: "ease-out" },
+    const { framework } = pageContext.analysis;
+    navigate(
+      pageContext.screen === "analysis"
+        ? paths.analysis(projectId, nodeId, framework)
+        : paths.decision(projectId, framework, nodeId),
+      { replace: pageContext.screen === "decision" },
     );
   };
 };

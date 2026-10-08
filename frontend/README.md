@@ -3,7 +3,7 @@
 Front-end do Hackathon STS 2026 (desafio BNB). O visual de alta fidelidade vem do Figma
 do designer (identidade do BNB: Heebo, vinho `#A6193C`) e está sendo aplicado tela a
 tela. Árvore de evidências, projetos, upload, login e o assistente ("IA Assistente") seguem
-o Figma; o documento de decisão ainda usa a versão derivada do design system.
+o Figma, assim como o documento de decisão.
 
 > A ferramenta **apoia** a decisão, não decide. As notas são **força da evidência**
 > (0–100), nunca "probabilidade de aprovação".
@@ -43,7 +43,7 @@ react-resizable-panels, react-dropzone, react-to-print, lucide-react.
 | `/login` | Login e Cadastro do **Lastro** (mock: analistas de demonstração ou conta criada na hora, qualquer senha) |
 | `/projetos?q=&status=&banda=&decisao=&de=&ate=&ordem=&pagina=&novo=1` | Meus projetos: cards por situação (também filtram), filtros (critério mais fraco, decisão, período, ordem), busca, situação de cada projeto e "Reenviar arquivo"; "Novo projeto" (`novo=1` abre o upload) |
 | `/projetos/:id/analise?metodo=<método>&no=<nó>` | Árvore de evidências: detalhamento (critérios em acordeão) + grafo Critério → Regra → Evidência + decisão do analista por regra |
-| `/projetos/:id/decisao?metodo=<método>` | Documento de decisão (todos os métodos) com as notas do analista por regra e a triagem de evidências, formulário da decisão final, trilha e PDF |
+| `/projetos/:id/decisao?metodo=<método>&no=<nó>` | Documento de decisão de um método por vez: resumo, pendências antes de decidir (divergências, limites, lacunas), detalhamento em sanfona (`no` abre o critério/regra), classificação final (4 opções), trilha e PDF (sai tudo aberto) |
 
 Nas telas de análise e decisão há um **assistente** (botão no canto inferior direito)
 que explica notas, evidências e rastreabilidade. Ele entende o item selecionado, números

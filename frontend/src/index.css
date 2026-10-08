@@ -189,6 +189,8 @@
 
   body {
     background: white;
+    /* Keep the document's colors (summary highlight, pendencies) on paper */
+    print-color-adjust: exact;
   }
 
   h2,

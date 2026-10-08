@@ -101,7 +101,7 @@ const WorkspaceContent = ({ project, analysis, analyses }: AnalysisWorkspaceProp
         meta={meta}
         progress={`${decided} de ${analysis.criteria.length} critérios decididos pelo analista`}
         action={
-          <Link to={paths.decision(project.id, analysis.framework)} className="btn-primary">
+          <Link to={paths.decision(project.id, analysis.framework, explorer.selectedId ?? undefined)} className="btn-primary">
             Gerar documento de decisão
           </Link>
         }

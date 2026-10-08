@@ -50,11 +50,13 @@ Pontos deixados para depois. Separados em dois grupos:
 
 ### Visual e técnico
 
-- [x] Visual de alta fidelidade aplicado em todas as telas. Do Figma: cabeçalho, árvore de
-      evidências, projetos, upload, login e assistente ("IA Assistente", com animação de
-      abrir/fechar). Derivado do design system: documento de decisão.
-- [ ] Documento de decisão: aplicar as telas novas do Figma ("Tela de documento" e
-      "Documento de decisão — PRJ37").
+- [x] Visual de alta fidelidade aplicado em todas as telas, todas do Figma: cabeçalho,
+      árvore de evidências, projetos, upload, login, assistente ("IA Assistente", com
+      animação de abrir/fechar) e documento de decisão (um método por vez, pendências,
+      sanfona, 4 classificações).
+- [ ] Busca da lista perdeu letras uma vez no e2e (campo ficou com "s" em vez de "sensor"),
+      só com os testes rodando em dobro e em paralelo (`--repeat-each=2`). Não reproduzido
+      em uso normal; investigar se o campo é recriado durante o carregamento da lista.
 - [x] Fontes: Heebo carregada do Google Fonts (o documento de decisão também usa Heebo).
 - [ ] Bundle passa de 500 kB por causa do React Flow: carregar as telas sob demanda
       (`React.lazy` nas rotas de análise e decisão).

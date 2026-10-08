@@ -13,10 +13,12 @@ interface ProjectHeaderProps {
   progress?: string;
   /** Main action of the screen */
   action?: ReactNode;
+  /** The decision document shows no status tag (as in the design) */
+  showStatus?: boolean;
 }
 
 /** "Projeto em análise" band: identification on the left, status and action on the right */
-export const ProjectHeader = ({ project, meta, progress, action }: ProjectHeaderProps) => (
+export const ProjectHeader = ({ project, meta, progress, action, showStatus = true }: ProjectHeaderProps) => (
   <PageHeader
     eyebrow={<span className="btn-chip cursor-default hover:bg-surface">Projeto {projectCode(project.id)}</span>}
     title={project.name}
@@ -36,10 +38,12 @@ export const ProjectHeader = ({ project, meta, progress, action }: ProjectHeader
     }
     aside={
       <>
-        <div className="flex flex-col items-end gap-1">
-          <StatusBadge status={project.status} size="md" />
-          {progress && <p className="text-xs leading-4 text-fg-muted">{progress}</p>}
-        </div>
+        {(showStatus || progress) && (
+          <div className="flex flex-col items-end gap-1">
+            {showStatus && <StatusBadge status={project.status} size="md" />}
+            {progress && <p className="text-xs leading-4 text-fg-muted">{progress}</p>}
+          </div>
+        )}
         {action}
       </>
     }

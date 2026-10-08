@@ -38,6 +38,28 @@ test("projeto gerado: decisão é salva (cópia na escrita) e sobrevive ao reloa
   await expect(page.locator("#trilha")).toContainText("Teste de projeto gerado.");
 });
 
+test("evidência insuficiente é uma classificação e filtra a lista", async ({ page }) => {
+  await page.goto("/projetos/p2/decisao");
+  await page.getByText("Evidência insuficiente", { exact: true }).first().click();
+  await page.getByLabel(/^Justificativa/).fill("Faltam os registros de calibração: solicitar à equipe.");
+  await page.getByRole("button", { name: "Registrar decisão" }).click();
+  await expect(page.locator("#trilha ol > li").first()).toContainText("Evidência insuficiente");
+  await page.goto("/projetos?decisao=insufficient_evidence");
+  await expect(page.getByLabel("Decisão", { exact: true })).toHaveValue("insufficient_evidence");
+  await expect(page.locator("tbody")).toContainText("Evidência insuficiente");
+});
+
+test("documento alterna o método e abre o item pela URL", async ({ page }) => {
+  await page.goto("/projetos/p1/decisao");
+  await expect(page.getByRole("heading", { name: "Detalhamento · Frascati" })).toBeVisible();
+  await page.getByRole("group", { name: "Método do documento" }).getByRole("button", { name: "Formulário MCTI" }).click();
+  await expect(page.getByRole("heading", { name: "Detalhamento · Formulário MCTI" })).toBeVisible();
+  // A pendency opens its rule in the details
+  await page.locator("#pendencias li button").first().click();
+  await expect(page).toHaveURL(/no=/);
+  await expect(page.locator('#detalhamento button[aria-expanded="true"]')).toHaveCount(2);
+});
+
 test("análise em processamento não tem documento", async ({ page }) => {
   await page.goto("/projetos/p3/decisao");
   await expect(page.getByText(/ainda não está pronta/)).toBeVisible();

@@ -16,8 +16,9 @@ export const paths = {
   projects: () => "/projetos",
   analysis: (projectId: string, nodeId?: string, framework?: Framework) =>
     `/projetos/${projectId}/analise${query({ [FRAMEWORK_PARAM]: framework, [SELECTED_NODE_PARAM]: nodeId })}`,
-  decision: (projectId: string, framework?: Framework) =>
-    `/projetos/${projectId}/decisao${query({ [FRAMEWORK_PARAM]: framework })}`,
+  /** `nodeId` opens that criterion / rule in the document */
+  decision: (projectId: string, framework?: Framework, nodeId?: string) =>
+    `/projetos/${projectId}/decisao${query({ [FRAMEWORK_PARAM]: framework, [SELECTED_NODE_PARAM]: nodeId })}`,
 };
 
 /** Anchor of a node in the decision document; the method keeps different trees apart */

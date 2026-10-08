@@ -1,34 +1,33 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { TONE_ICONS, TONE_STYLES } from "@/components/ui/toneStyles";
 import { FRAMEWORKS } from "@/domain/frameworks";
-import { DECISION_OUTCOME_LABELS, DECISION_OUTCOME_TONES } from "@/domain/labels";
+import { DECISION_OUTCOMES, DECISION_OUTCOME_LABELS } from "@/domain/labels";
 import { latestByNode } from "@/domain/reviews";
 import type { Analysis, DecisionOutcome, RuleDecision } from "@/domain/types";
 import { useCurrentUser } from "@/features/auth/authState";
 import { paths } from "@/routes/paths";
 import { useSaveDecision } from "@/services/queries";
 
-const OUTCOMES: DecisionOutcome[] = ["eligible", "with_reservations", "not_eligible"];
-
+/** What each classification means (text from the design) */
 const OUTCOME_HINTS: Record<DecisionOutcome, string> = {
-  eligible: "O projeto atende aos critérios",
-  with_reservations: "Atende, com pontos a acompanhar",
-  not_eligible: "O projeto não atende aos critérios",
+  eligible: "As evidências caracterizam P&D no escopo definido.",
+  with_reservations: "Há prova de P&D, mas uma limitação concreta restringe parte da conclusão.",
+  not_eligible: "O mecanismo documentado é rotina, configuração ou aplicação conhecida.",
+  insufficient_evidence: "Falta informação essencial para concluir entre P&D e rotina.",
 };
 
 interface DecisionFormProps {
-  /** Every analysis of the project; the first is the primary one */
+  /** Every analysis of the project: the decision covers all of them */
   analyses: Analysis[];
+  /** Method on screen: its rule ratings and criteria version are shown */
+  focused: Analysis;
   /** Analyst's rule ratings (all analyses), to show what is still pending */
   ruleDecisions: RuleDecision[];
-  /** A decision already exists: this form records a new one in the trail */
-  hasPrevious: boolean;
 }
 
-/** Final decision on the project: outcome + justification, recorded in the trail */
-export const DecisionForm = ({ analyses, ruleDecisions, hasPrevious }: DecisionFormProps) => {
+/** Final decision on the project: classification + justification, recorded in the trail */
+export const DecisionForm = ({ analyses, focused, ruleDecisions }: DecisionFormProps) => {
   const saveDecision = useSaveDecision();
   const user = useCurrentUser();
   const primary = analyses[0];
@@ -39,11 +38,9 @@ export const DecisionForm = ({ analyses, ruleDecisions, hasPrevious }: DecisionF
   const errors = { outcome: outcome === null, justification: justification.trim() === "" };
   const showError = (field: keyof typeof errors) => submitted && errors[field];
 
-  const progress = analyses.map((analysis) => {
-    const rated = latestByNode(ruleDecisions, analysis.id);
-    const total = analysis.criteria.reduce((sum, c) => sum + c.rules.length, 0);
-    return { analysis, rated: rated.size, total };
-  });
+  const rated = latestByNode(ruleDecisions, focused.id).size;
+  const total = focused.criteria.reduce((sum, c) => sum + c.rules.length, 0);
+  const criteriaVersion = FRAMEWORKS[focused.framework].version.split(" · ").at(-1)?.replace("critérios ", "");
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
@@ -72,93 +69,77 @@ export const DecisionForm = ({ analyses, ruleDecisions, hasPrevious }: DecisionF
     <form
       onSubmit={handleSubmit}
       noValidate
-      className="flex flex-col gap-5 rounded-2xl border border-border bg-surface-muted p-5 print:hidden"
+      aria-labelledby="decisao-titulo"
+      className="flex flex-col gap-5 rounded-3xl border border-border bg-surface p-6 print:hidden"
     >
-      <p className="text-sm leading-5 text-fg-muted">
-        {hasPrevious
-          ? "Registrar uma nova decisão não apaga as anteriores: ela entra na trilha abaixo."
-          : "A decisão é do analista. O sistema só organiza as evidências."}
-      </p>
-
-      <div className="flex flex-col gap-2 rounded-xl bg-surface p-3 text-sm leading-5">
-        <p className="caps-label text-fg-muted">Notas do analista por regra</p>
-        <ul className="flex flex-col gap-1">
-          {progress.map(({ analysis, rated, total }) => (
-            <li key={analysis.id} className="flex flex-wrap items-center justify-between gap-2">
-              <span>
-                {FRAMEWORKS[analysis.framework].label}:{" "}
-                <strong className="font-semibold tabular-nums">
-                  {rated} de {total}
-                </strong>{" "}
-                regras com nota
-              </span>
-              {rated < total && (
-                <Link to={paths.analysis(analysis.projectId, undefined, analysis.framework)} className="btn-link">
-                  Dar notas na árvore
-                </Link>
-              )}
-            </li>
-          ))}
-        </ul>
-        {progress.some((p) => p.rated < p.total) && (
-          <p className="text-xs leading-4 text-fg-muted">
-            Regras sem nota aparecem no documento só com a leitura sugerida pelo sistema.
-          </p>
-        )}
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+        <h2 id="decisao-titulo" className="text-xl leading-7 font-semibold">
+          Decisão do analista
+        </h2>
+        <p className="text-sm leading-5 text-fg-muted">Registrar uma decisão nova não apaga as anteriores.</p>
       </div>
 
-      <fieldset className="flex flex-col gap-2">
-        <legend className="label">
-          Resultado <span className="text-action">*</span>
+      <p className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-2xl bg-surface-sunken px-4 py-3 text-sm leading-5">
+        <span>
+          Notas do analista por regra ({FRAMEWORKS[focused.framework].label}):{" "}
+          <strong className="font-semibold tabular-nums">
+            {rated} de {total}
+          </strong>
+          .{" "}
+          {rated < total && "Regras sem nota entram no documento só com a leitura sugerida pelo sistema."}
+        </span>
+        {rated < total && (
+          <Link to={paths.analysis(focused.projectId, undefined, focused.framework)} className="btn-link">
+            Dar notas na árvore
+          </Link>
+        )}
+      </p>
+
+      <fieldset className="flex flex-col gap-3">
+        <legend className="mb-3 text-base leading-6 font-semibold">
+          Classificação <span className="text-action">*</span>
         </legend>
-        <div className="grid gap-2 sm:grid-cols-3">
-          {OUTCOMES.map((value) => {
-            const tone = DECISION_OUTCOME_TONES[value];
-            const Icon = TONE_ICONS[tone];
-            return (
-              <label
-                key={value}
-                className="flex cursor-pointer items-start gap-2 rounded-2xl border-2 border-border bg-surface p-3 transition-colors has-checked:border-action has-focus-visible:outline-2 has-focus-visible:outline-action hover:border-border-strong"
-              >
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {DECISION_OUTCOMES.map((value) => (
+            <label
+              key={value}
+              className="flex cursor-pointer flex-col gap-1.5 rounded-3xl border border-border-strong bg-surface p-4 transition-colors has-checked:border-action has-checked:bg-accent-soft/40 has-focus-visible:outline-2 has-focus-visible:outline-action hover:border-fg-faint"
+            >
+              <span className="flex items-center gap-2 text-base leading-6 font-semibold">
                 <input
                   type="radio"
                   name="outcome"
                   value={value}
                   checked={outcome === value}
                   onChange={() => setOutcome(value)}
-                  className="sr-only"
+                  className="size-4 shrink-0 accent-action"
                 />
-                <span
-                  className={`flex size-8 shrink-0 items-center justify-center rounded-full ${TONE_STYLES[tone].soft} ${TONE_STYLES[tone].icon}`}
-                >
-                  <Icon className="size-6" aria-hidden />
-                </span>
-                <span className="flex flex-col">
-                  <span className="text-base leading-5 font-semibold">{DECISION_OUTCOME_LABELS[value]}</span>
-                  <span className="text-xs leading-4 text-fg-muted">{OUTCOME_HINTS[value]}</span>
-                </span>
-              </label>
-            );
-          })}
+                {DECISION_OUTCOME_LABELS[value]}
+              </span>
+              <span className="text-xs leading-[18px] text-fg-secondary">{OUTCOME_HINTS[value]}</span>
+            </label>
+          ))}
         </div>
-        {showError("outcome") && <p className="text-xs text-danger">Escolha um resultado.</p>}
+        <p className="text-xs leading-4 text-fg-muted">
+          Com ressalvas pede o recorte sustentado, a limitação e a evidência necessária. Evidência
+          insuficiente pede o elo ausente e o que solicitar.
+        </p>
+        {showError("outcome") && <p className="text-xs text-danger">Escolha uma classificação.</p>}
       </fieldset>
 
       <div className="flex flex-col gap-2">
-        <label htmlFor="justification" className="label mb-0">
+        <label htmlFor="justification" className="text-base leading-6 font-semibold">
           Justificativa <span className="text-action">*</span>
         </label>
         <textarea
           id="justification"
-          className="input min-h-32 resize-y"
-          placeholder="Explique a decisão com base nos critérios, regras e evidências acima (cite a numeração, ex.: 3.1.1)."
+          className="input min-h-24 resize-y rounded-3xl px-4"
+          placeholder="Qual evidência sustenta a conclusão, quais pesam contra e qual prevalece nas divergências."
           value={justification}
           onChange={(e) => setJustification(e.target.value)}
           aria-invalid={showError("justification")}
         />
-        {showError("justification") && (
-          <p className="text-xs text-danger">A justificativa é obrigatória.</p>
-        )}
+        {showError("justification") && <p className="text-xs text-danger">A justificativa é obrigatória.</p>}
       </div>
 
       {saveDecision.isError && (
@@ -168,9 +149,9 @@ export const DecisionForm = ({ analyses, ruleDecisions, hasPrevious }: DecisionF
       )}
 
       <div className="flex flex-wrap items-center justify-end gap-3">
-        <p className="min-w-0 flex-1 text-xs leading-4 text-fg-muted">
-          Será registrada em nome de <strong className="font-semibold text-fg">{user.name}</strong>,
-          com data e hora automáticas.
+        <p className="min-w-0 flex-1 text-sm leading-5 text-fg-muted">
+          Será registrada em nome de {user.name}, com data, hora e a versão dos critérios
+          {criteriaVersion && ` (${criteriaVersion})`}.
         </p>
         <button type="submit" className="btn-primary" disabled={saveDecision.isPending}>
           {saveDecision.isPending ? "Registrando…" : "Registrar decisão"}

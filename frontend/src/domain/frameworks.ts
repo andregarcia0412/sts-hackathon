@@ -15,6 +15,8 @@ export interface FrameworkInfo {
   allCriteriaRequired: boolean;
   /** Edition of the method and of our criteria set, recorded in the decision document */
   version: string;
+  /** How the criteria combine, below the summary of the decision document */
+  summaryNote: string;
 }
 
 export const FRAMEWORKS: Record<Framework, FrameworkInfo> = {
@@ -25,6 +27,8 @@ export const FRAMEWORKS: Record<Framework, FrameworkInfo> = {
       "Os 5 critérios que o MCTI usa como régua para P&D: novidade, criatividade, incerteza, sistematização e transferibilidade.",
     allCriteriaRequired: true,
     version: "Manual de Frascati 2015 · critérios v1.0",
+    summaryNote:
+      "Os cinco critérios são verificados em conjunto (Frascati 2015, §2.13): a leitura mais fraca puxa o resultado, sem média nem pesos. Todas as leituras são sugestões do sistema até a nota do analista.",
   },
   mcti_form: {
     label: "Formulário MCTI",
@@ -33,6 +37,8 @@ export const FRAMEWORKS: Record<Framework, FrameworkInfo> = {
       "Os campos do formulário que o avaliador do MCTI lê: elemento novo, barreira tecnológica, metodologia, descrição/escopo e cronograma.",
     allCriteriaRequired: false,
     version: "FORMP&D · critérios v1.0",
+    summaryNote:
+      "São os campos que o avaliador do MCTI lê no formulário; cada um é lido por si, sem média entre eles. Todas as leituras são sugestões do sistema até a nota do analista.",
   },
 };
 

@@ -1,8 +1,5 @@
-import { CircleCheckBig, CircleX, Flag, Gavel, PenLine, RefreshCcw } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { Tag } from "@/components/ui/Tag";
-import { TONE_STYLES } from "@/components/ui/toneStyles";
 import { FRAMEWORKS } from "@/domain/frameworks";
 import {
   CONTESTATION_REASON_LABELS,
@@ -10,7 +7,6 @@ import {
   DECISION_OUTCOME_TONES,
 } from "@/domain/labels";
 import { RULE_RATING } from "@/domain/qualitative";
-import type { Tone } from "@/domain/qualitative";
 import { indexAnalysis } from "@/domain/tree";
 import type { AnalysisIndex } from "@/domain/tree";
 import type {
@@ -29,6 +25,8 @@ interface DecisionTrailProps {
   evidenceReviews: EvidenceReview[];
   /** Every analysis of the project (one per method) */
   analyses: Analysis[];
+  /** Files the analyses read ("14 arquivos lidos") */
+  filesRead: number;
 }
 
 /** Analysis + its index, to resolve node numbers in any method */
@@ -39,7 +37,8 @@ type TrailEvent =
   | { kind: "contestation"; at: string; contestation: Contestation }
   | { kind: "reanalysis"; at: string; contestation: Contestation }
   | { kind: "rule"; at: string; rating: RuleDecision }
-  | { kind: "evidence"; at: string; review: EvidenceReview };
+  | { kind: "evidence"; at: string; review: EvidenceReview }
+  | { kind: "analysis"; at: string; analysis: Analysis };
 
 /**
  * Who decided, rated, triaged or contested what, when, and based on what: the
@@ -51,6 +50,7 @@ export const DecisionTrail = ({
   ruleDecisions,
   evidenceReviews,
   analyses,
+  filesRead,
 }: DecisionTrailProps) => {
   const lookup: AnalysisLookup = new Map(
     analyses.map((analysis) => [analysis.id, { analysis, index: indexAnalysis(analysis) }]),
@@ -71,31 +71,34 @@ export const DecisionTrail = ({
       })),
     ...ruleDecisions.map((rating) => ({ kind: "rule" as const, at: rating.createdAt, rating })),
     ...evidenceReviews.map((review) => ({ kind: "evidence" as const, at: review.createdAt, review })),
+    ...analyses.map((analysis) => ({ kind: "analysis" as const, at: analysis.generatedAt, analysis })),
   ].sort((a, b) => b.at.localeCompare(a.at));
   const currentDecision = events.find((e) => e.kind === "decision");
 
-  if (events.length === 0) {
-    return (
-      <p className="text-sm text-fg-muted">
-        Nenhuma decisão, nota, triagem ou contestação registrada ainda.
-      </p>
-    );
-  }
-
   return (
     <ol className="flex flex-col">
+      {!currentDecision && (
+        <li className="relative flex gap-3 pb-5 break-inside-avoid">
+          <TimelineLine />
+          <Dot variant="empty" />
+          <Body
+            kind="Nenhuma decisão registrada"
+            meta="Cada decisão entra aqui com autor, data, versão dos critérios e justificativa. Decisões anteriores nunca são editadas."
+          />
+        </li>
+      )}
       {events.map((event, i) => (
         <li key={`${event.kind}-${event.at}-${i}`} className="relative flex gap-3 pb-5 break-inside-avoid last:pb-0">
-          {/* Timeline line between markers */}
-          {i < events.length - 1 && (
-            <span aria-hidden className="absolute top-9 bottom-0 left-4 w-px bg-border-strong" />
-          )}
-          <Entry event={event} lookup={lookup} current={event === currentDecision} />
+          {i < events.length - 1 && <TimelineLine />}
+          <Entry event={event} lookup={lookup} current={event === currentDecision} filesRead={filesRead} />
         </li>
       ))}
     </ol>
   );
 };
+
+/** Line between markers */
+const TimelineLine = () => <span aria-hidden className="absolute top-3 bottom-0 left-[5px] w-px bg-border-strong" />;
 
 /** "1.4 O novo é o conhecimento" with the current number, or the snapshot */
 const nodeName = (lookup: AnalysisLookup, analysisId: string, nodeId: string, snapshot: string) => {
@@ -105,12 +108,16 @@ const nodeName = (lookup: AnalysisLookup, analysisId: string, nodeId: string, sn
   return `${method}${node ? `${node.number} ` : ""}${snapshot.replace(/^[\d.]+ /, "")}`;
 };
 
-const Marker = ({ Icon, tone }: { Icon: LucideIcon; tone: Tone }) => (
-  <span
-    className={`relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full ${TONE_STYLES[tone].soft} ${TONE_STYLES[tone].icon}`}
-  >
-    <Icon className="size-4" aria-hidden />
-  </span>
+const DOT_STYLES = {
+  system: "bg-brand-deep",
+  decision: "bg-action",
+  review: "bg-fg-faint",
+  empty: "border border-dashed border-fg-faint bg-surface",
+};
+
+/** Timeline marker, as in the design: filled for what happened, dashed for what is missing */
+const Dot = ({ variant }: { variant: keyof typeof DOT_STYLES }) => (
+  <span aria-hidden className={`relative z-10 mt-1.5 size-[11px] shrink-0 rounded-full ${DOT_STYLES[variant]}`} />
 );
 
 const Body = ({
@@ -120,16 +127,16 @@ const Body = ({
   children,
 }: {
   kind: string;
-  title: ReactNode;
+  title?: ReactNode;
   meta: ReactNode;
   children?: ReactNode;
 }) => (
-  <div className="flex min-w-0 flex-1 flex-col gap-1 pt-1 text-sm leading-5">
+  <div className="flex min-w-0 flex-1 flex-col gap-1 text-sm leading-5">
     <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
-      <span className="caps-label text-fg-muted">{kind}</span>
+      <span className="text-base leading-6 font-semibold">{kind}</span>
       {title}
     </p>
-    <p className="text-xs leading-4 text-fg-muted">{meta}</p>
+    <p className="text-sm leading-5 text-fg-muted">{meta}</p>
     {children}
   </div>
 );
@@ -138,17 +145,37 @@ const Entry = ({
   event,
   lookup,
   current,
+  filesRead,
 }: {
   event: TrailEvent;
   lookup: AnalysisLookup;
   current: boolean;
+  filesRead: number;
 }) => {
+  if (event.kind === "analysis") {
+    const { analysis } = event;
+    return (
+      <>
+        <Dot variant="system" />
+        <Body
+          kind="Análise gerada pelo sistema"
+          meta={
+            <>
+              {analysis.id} · {FRAMEWORKS[analysis.framework].version} ·{" "}
+              {filesRead} {filesRead === 1 ? "arquivo lido" : "arquivos lidos"} · {formatDateTime(analysis.generatedAt)}
+            </>
+          }
+        />
+      </>
+    );
+  }
+
   if (event.kind === "decision") {
     const { decision } = event;
     const basedOn = decision.analysisIds ?? [decision.analysisId];
     return (
       <>
-        <Marker Icon={Gavel} tone={DECISION_OUTCOME_TONES[decision.outcome]} />
+        <Dot variant="decision" />
         <Body
           kind="Decisão"
           title={
@@ -204,7 +231,7 @@ const Entry = ({
     const info = RULE_RATING[rating.rating];
     return (
       <>
-        <Marker Icon={PenLine} tone="neutral" />
+        <Dot variant="review" />
         <Body
           kind="Nota da regra"
           title={
@@ -234,7 +261,7 @@ const Entry = ({
     const confirmed = review.verdict === "confirmed";
     return (
       <>
-        <Marker Icon={confirmed ? CircleCheckBig : CircleX} tone={confirmed ? "positive" : "neutral"} />
+        <Dot variant="review" />
         <Body
           kind={confirmed ? "Evidência confirmada" : "Evidência descartada"}
           title={
@@ -257,7 +284,7 @@ const Entry = ({
     const resolution = contestation.resolution!;
     return (
       <>
-        <Marker Icon={RefreshCcw} tone={resolution.verdict === "accepted" ? "positive" : "neutral"} />
+        <Dot variant="system" />
         <Body
           kind="Reanálise do modelo"
           title={
@@ -280,7 +307,7 @@ const Entry = ({
 
   return (
     <>
-      <Marker Icon={Flag} tone="attention" />
+      <Dot variant="review" />
       <Body
         kind="Contestação"
         title={

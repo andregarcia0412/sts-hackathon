@@ -57,7 +57,11 @@ test("analista faz a primeira análise, decide e gera o documento", async ({ pag
   await test.step("gera o documento e encontra a nota dada", async () => {
     await page.getByRole("link", { name: "Gerar documento de decisão" }).click();
     await expect(page.getByRole("heading", { name: "Resumo" })).toBeVisible();
-    await expect(page.getByText("A comparação com o estado da arte (1.1.1) é direta.").first()).toBeVisible();
+    // Opens at the rule that was selected in the tree (1.2), with its note
+    const details = page.locator("#detalhamento");
+    await expect(details.getByText("Parte da solução usa tecnologia de amplo domínio.")).toBeVisible();
+    await details.getByRole("button", { name: /^1\.1 / }).click();
+    await expect(details.getByText("A comparação com o estado da arte (1.1.1) é direta.")).toBeVisible();
   });
 
   await test.step("registra a decisão final", async () => {
@@ -66,7 +70,7 @@ test("analista faz a primeira análise, decide e gera o documento", async ({ pag
       .getByRole("button", { name: "Decisão do analista" })
       .click();
     await page.getByRole("button", { name: "Registrar decisão" }).click();
-    await expect(page.getByText("Escolha um resultado.")).toBeVisible();
+    await expect(page.getByText("Escolha uma classificação.")).toBeVisible();
     await page.getByText("Com ressalvas", { exact: true }).click();
     await typeLikeAPerson(page.getByLabel(/^Justificativa/), "Transferibilidade fraca: pedir registros reproduzíveis.");
     await page.getByRole("button", { name: "Registrar decisão" }).click();
@@ -83,7 +87,7 @@ test("analista faz a primeira análise, decide e gera o documento", async ({ pag
         (window as unknown as { printCalls: number }).printCalls++;
       };
     });
-    await page.getByRole("button", { name: "Exportar PDF" }).click();
+    await page.getByRole("button", { name: "Baixar documento" }).click();
   });
 
   await test.step("volta para a lista e vê o projeto decidido", async () => {
@@ -189,7 +193,7 @@ test("analista faz a triagem da fila com filtros e volta pelo navegador", async 
   await test.step("filtra pelos cards e pelo critério mais fraco", async () => {
     await page.getByRole("button", { name: /Em análise/ }).click();
     await page.getByLabel("Força da evidência do critério mais fraco").selectOption("weak");
-    await page.getByLabel("Ordenar por").selectOption({ label: "Critério mais fraco primeiro" });
+    await page.getByLabel("Ordenar por").selectOption({ label: "Mais fraco primeiro" });
     await expect(page).toHaveURL(/status=ready/);
     await expect(page).toHaveURL(/banda=weak/);
     const weakest = page.locator("tbody td:nth-child(4)");
@@ -267,13 +271,17 @@ test("analista usa só o teclado", async ({ page }) => {
     expect(reached).toBe(true);
     await page.keyboard.press("Enter");
     await expect(page).toHaveURL(/status=ready/);
+    // The previous (unfiltered) page stays on screen while the filtered one loads
+    await expect(page.getByText(/^Mostrando 1–\d+ de 48/)).toBeVisible();
   });
 
   await test.step("chega ao primeiro 'Abrir análise' com Tab", async () => {
     let reached = false;
     for (let i = 0; i < 80 && !reached; i++) {
       await page.keyboard.press("Tab");
-      reached = await page.evaluate(() => document.activeElement?.textContent?.includes("Abrir análise") ?? false);
+      reached = await page.evaluate(
+        () => document.activeElement?.tagName === "A" && document.activeElement.textContent?.includes("Abrir análise"),
+      );
     }
     expect(reached).toBe(true);
     await page.keyboard.press("Enter");

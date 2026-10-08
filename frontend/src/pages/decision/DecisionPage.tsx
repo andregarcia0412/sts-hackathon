@@ -1,32 +1,37 @@
-import { Printer } from "lucide-react";
-import { useRef } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
 import { ProjectHeader } from "@/components/layout/ProjectHeader";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { ErrorState, LoadingState } from "@/components/ui/states";
 import { reviewMarkers } from "@/domain/contestations";
 import { FRAMEWORKS } from "@/domain/frameworks";
 import { DECISION_OUTCOME_LABELS } from "@/domain/labels";
-import { decidedCriteriaCount, latestByNode } from "@/domain/reviews";
+import { pendenciesOf } from "@/domain/report";
+import { latestByNode } from "@/domain/reviews";
 import type {
   Analysis,
   Contestation,
   Decision,
   EvidenceReview,
+  Framework,
   Project,
   RuleDecision,
 } from "@/domain/types";
+import { useCurrentUser } from "@/features/auth/authState";
 import { useRegisterAssistantContext } from "@/features/assistant/assistantState";
 import {
   ReportDetails,
   ReportHeader,
+  ReportPendencies,
   ReportSection,
   ReportSummary,
 } from "@/features/decision/AnalysisReport";
 import { DecisionForm } from "@/features/decision/DecisionForm";
 import { DecisionTrail } from "@/features/decision/DecisionTrail";
+import { openStateOf, toggledNode } from "@/features/decision/reportState";
 import { formatDate, pluralize } from "@/lib/format";
-import { FRAMEWORK_PARAM, paths } from "@/routes/paths";
+import { FRAMEWORK_PARAM, SELECTED_NODE_PARAM, paths, reportAnchorId } from "@/routes/paths";
 import { NotFoundError } from "@/services/api";
 import {
   useAnalyses,
@@ -122,6 +127,17 @@ interface DecisionDocumentProps {
   evidenceReviews: EvidenceReview[];
 }
 
+/** Sections of the document, in order (index + scroll spy) */
+const SECTIONS = [
+  { id: "resumo", label: "Resumo" },
+  { id: "pendencias", label: "Pendências" },
+  { id: "detalhamento", label: "Detalhamento" },
+  { id: "decisao", label: "Decisão do analista" },
+  { id: "trilha", label: "Trilha de decisão" },
+] as const;
+
+type SectionId = (typeof SECTIONS)[number]["id"];
+
 const DecisionDocument = ({
   project,
   analyses,
@@ -131,135 +147,222 @@ const DecisionDocument = ({
   evidenceReviews,
 }: DecisionDocumentProps) => {
   const documentRef = useRef<HTMLElement>(null);
+  const user = useCurrentUser();
   const [searchParams, setSearchParams] = useSearchParams();
-  const print = useReactToPrint({
-    contentRef: documentRef,
-    documentTitle: `Decisao_${project.name}_${analyses[0].id}`.replace(/[^\w-]+/g, "_"),
-  });
-
-  // The assistant answers about the method in ?metodo= (default: the first)
+  // One method at a time (?metodo=, default: the first); the decision covers all of them
   const focused =
     analyses.find((a) => a.framework === searchParams.get(FRAMEWORK_PARAM)) ?? analyses[0];
+  const framework = FRAMEWORKS[focused.framework];
+  const nodeParam = searchParams.get(SELECTED_NODE_PARAM);
+  const open = openStateOf(focused, nodeParam);
+  const print = useReactToPrint({
+    contentRef: documentRef,
+    documentTitle: `Decisao_${project.name}_${focused.id}`.replace(/[^\w-]+/g, "_"),
+  });
   useRegisterAssistantContext({ screen: "decision", analysis: focused, selectedNodeId: null });
 
-  const reviewsOf = (analysis: Analysis) => ({
-    decisions: latestByNode(ruleDecisions, analysis.id),
-    evidence: latestByNode(evidenceReviews, analysis.id),
-  });
+  const reviews = {
+    decisions: latestByNode(ruleDecisions, focused.id),
+    evidence: latestByNode(evidenceReviews, focused.id),
+  };
+  const pendencies = pendenciesOf(focused, project, contestations);
+  const current = decisions.at(-1);
+  const evidenceCount = focused.criteria.reduce(
+    (sum, c) => sum + c.rules.reduce((n, r) => n + r.evidences.length, 0),
+    0,
+  );
 
+  /** Header clicks change the open node without moving the page */
+  const toggledHere = useRef<string | null>(null);
+  const setNode = (nodeId: string, { scroll }: { scroll: boolean }) => {
+    toggledHere.current = scroll ? null : nodeId;
+    setSearchParams(
+      (params) => {
+        params.set(SELECTED_NODE_PARAM, nodeId);
+        return params;
+      },
+      { replace: true },
+    );
+  };
+  const openNode = (nodeId: string) => setNode(nodeId, { scroll: true });
+  const toggle = (nodeId: string, parentId?: string) =>
+    setNode(toggledNode(open, nodeId, parentId), { scroll: false });
+
+  const setMethod = (value: Framework) =>
+    setSearchParams({ [FRAMEWORK_PARAM]: value }, { replace: true });
+
+  // A node chosen elsewhere (summary, pendency, assistant, link from the tree): bring it into view
+  const reveal = useEffectEvent((nodeId: string) => {
+    if (toggledHere.current === nodeId) return;
+    const target = document.getElementById(reportAnchorId(focused, nodeId));
+    target?.scrollIntoView({ behavior: "smooth", block: "start" });
+    target?.animate(
+      [{ backgroundColor: "var(--color-accent-soft)" }, { backgroundColor: "transparent" }],
+      { duration: 1600, easing: "ease-out" },
+    );
+  });
+  useEffect(() => {
+    if (nodeParam) reveal(nodeParam);
+  }, [nodeParam]);
+
+  const active = useActiveSection();
   const scrollTo = (id: string) =>
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 
-  const goToMethod = (analysis: Analysis) => {
-    setSearchParams({ [FRAMEWORK_PARAM]: analysis.framework }, { replace: true });
-    scrollTo(`detalhamento-${analysis.framework}`);
-  };
-
-  const current = decisions.at(-1);
-  const sections = [
-    { id: "resumo", label: "Resumo" },
-    ...analyses.map((a) => ({
-      id: `detalhamento-${a.framework}`,
-      label: `Detalhamento · ${FRAMEWORKS[a.framework].label}`,
-      analysis: a,
-    })),
-    { id: "decisao", label: "Decisão do analista" },
-    { id: "trilha", label: "Trilha de decisão" },
-  ];
+  const treeLink = paths.analysis(project.id, undefined, focused.framework);
+  const methodControl =
+    analyses.length > 1 ? (
+      <SegmentedControl
+        label="Método do documento"
+        value={focused.framework}
+        onChange={setMethod}
+        options={analyses.map((a) => ({ value: a.framework, label: FRAMEWORKS[a.framework].label }))}
+      />
+    ) : null;
 
   return (
     <div className="flex flex-1 flex-col print:block">
       <ProjectHeader
         project={project}
+        showStatus={false}
         meta={[
-          `Empresa: ${project.company ?? "não informada"}`,
-          `Enviado em ${formatDate(project.createdAt)}`,
+          `Equipe: ${project.company ?? "não informada"}`,
+          project.cutoffDate ? `Corte: ${formatDate(project.cutoffDate)}` : `Enviado em ${formatDate(project.createdAt)}`,
           pluralize(project.documents.length, "documento", "documentos"),
-          pluralize(analyses.length, "método analisado", "métodos analisados"),
+          `${pluralize(evidenceCount, "evidência localizada", "evidências localizadas")} (${framework.label})`,
           current
             ? `Decisão vigente: ${DECISION_OUTCOME_LABELS[current.outcome]} (${formatDate(current.decidedAt)})`
             : "Sem decisão registrada",
         ]}
-        progress={`${decidedCriteriaCount(focused, ruleDecisions)} de ${focused.criteria.length} critérios decididos pelo analista · ${FRAMEWORKS[focused.framework].label}`}
         action={
-          <>
-            <Link to={paths.analysis(project.id, undefined, focused.framework)} className="btn-secondary">
-              Voltar para a árvore
-            </Link>
-            <button type="button" className="btn-primary" onClick={() => print()}>
-              <Printer className="size-5" aria-hidden />
-              Exportar PDF
-            </button>
-          </>
+          <a href="#decisao" className="btn-primary" onClick={(e) => (e.preventDefault(), scrollTo("decisao"))}>
+            Registrar decisão
+          </a>
         }
       />
 
-      <div className="mx-auto flex w-full max-w-[1440px] flex-1 items-start gap-6 p-4 sm:px-10 sm:py-6 print:block print:p-0">
-        <nav
-          aria-label="Seções do documento"
-          className="card sticky top-6 hidden w-64 shrink-0 flex-col gap-1 p-3 lg:flex print:hidden"
-        >
-          <p className="caps-label px-2 pb-1 text-fg-muted">Neste documento</p>
-          {sections.map((section) => {
-            const active = "analysis" in section && section.analysis?.id === focused.id;
-            return (
+      <div className="mx-auto flex w-full max-w-[1440px] flex-1 items-start gap-4 p-4 sm:py-4 print:block print:p-0">
+        <aside className="sticky top-4 hidden w-60 shrink-0 flex-col gap-4 rounded-3xl bg-surface p-4 shadow-card lg:flex print:hidden">
+          {methodControl}
+          <nav aria-label="Seções do documento" className="flex flex-col gap-1">
+            <p className="px-3 pb-1 text-xs leading-4 font-medium text-fg-muted">Neste documento</p>
+            {SECTIONS.map((section) => (
               <button
                 key={section.id}
                 type="button"
-                aria-current={active ? "true" : undefined}
-                onClick={() =>
-                  "analysis" in section && section.analysis
-                    ? goToMethod(section.analysis)
-                    : scrollTo(section.id)
-                }
-                className={`rounded-lg px-2 py-1.5 text-left text-sm leading-5 transition-colors hover:bg-surface-sunken ${
-                  active ? "bg-accent-soft font-semibold text-accent" : "text-fg-secondary"
+                aria-current={active === section.id ? "true" : undefined}
+                onClick={() => scrollTo(section.id)}
+                className={`flex items-center justify-between gap-2 rounded-2xl px-3 py-2.5 text-left text-base leading-6 transition-colors hover:bg-surface-sunken ${
+                  active === section.id ? "bg-accent-soft font-semibold text-accent" : "text-fg"
                 }`}
               >
-                {section.label}
+                {section.id === "detalhamento" ? `Detalhamento · ${framework.label}` : section.label}
+                {section.id === "pendencias" && pendencies.length > 0 && (
+                  <span className="text-xs font-semibold text-state-attention-strong tabular-nums">
+                    {pendencies.length}
+                    <span className="sr-only"> pendências</span>
+                  </span>
+                )}
               </button>
-            );
-          })}
-        </nav>
-
-        <article
-          ref={documentRef}
-          className="flex min-w-0 flex-1 flex-col gap-12 rounded-2xl bg-surface px-6 py-8 shadow-card sm:px-14 sm:py-12 print:rounded-none print:px-0 print:py-0 print:shadow-none"
-        >
-          <ReportHeader project={project} analyses={analyses} />
-          <ReportSection title="Resumo" id="resumo">
-            {analyses.map((analysis) => (
-              <ReportSummary key={analysis.id} analysis={analysis} reviews={reviewsOf(analysis)} />
             ))}
-          </ReportSection>
-          {analyses.map((analysis) => (
-            <ReportDetails
-              key={analysis.id}
+          </nav>
+          <hr className="border-border-strong" />
+          <div className="flex flex-col gap-2">
+            <button type="button" className="btn-primary w-full" onClick={() => print()}>
+              Baixar documento
+            </button>
+            <Link to={treeLink} className="btn-secondary w-full border-transparent">
+              Voltar à árvore
+            </Link>
+          </div>
+        </aside>
+
+        <div className="flex min-w-0 flex-1 flex-col gap-4 print:block">
+          {/* Phones and tablets: the side panel's controls */}
+          <div className="flex flex-wrap items-center gap-2 lg:hidden print:hidden">
+            {methodControl}
+            <button type="button" className="btn-primary ml-auto" onClick={() => print()}>
+              Baixar documento
+            </button>
+            <Link to={treeLink} className="btn-secondary">
+              Voltar à árvore
+            </Link>
+          </div>
+
+          <article
+            ref={documentRef}
+            className="flex flex-col gap-12 rounded-3xl bg-surface px-5 py-8 shadow-card sm:px-12 sm:py-12 print:rounded-none print:px-0 print:py-0 print:shadow-none"
+          >
+            <ReportHeader
               project={project}
-              analysis={analysis}
-              markers={reviewMarkers(analysis, contestations)}
-              reviews={reviewsOf(analysis)}
+              analysis={focused}
+              analyst={
+                current
+                  ? {
+                      name: current.analystName,
+                      note: `${DECISION_OUTCOME_LABELS[current.outcome]} · ${formatDate(current.decidedAt)}`,
+                    }
+                  : { name: user.name, note: "Sem decisão registrada" }
+              }
             />
-          ))}
-          {/* The form is not printed: the trail below carries the current decision */}
-          <ReportSection title="Decisão do analista" id="decisao" className="print:hidden">
-            <DecisionForm
-              analyses={analyses}
-              ruleDecisions={ruleDecisions}
-              hasPrevious={decisions.length > 0}
-            />
-          </ReportSection>
-          <ReportSection title="Trilha de decisão" id="trilha">
-            <DecisionTrail
-              decisions={decisions}
-              contestations={contestations}
-              ruleDecisions={ruleDecisions}
-              evidenceReviews={evidenceReviews}
-              analyses={analyses}
-            />
-          </ReportSection>
-        </article>
+            <ReportSection title="Resumo" id="resumo">
+              <ReportSummary analysis={focused} reviews={reviews} pendencies={pendencies} onOpen={openNode} />
+            </ReportSection>
+            <ReportSection title="Pendências antes de decidir" id="pendencias">
+              <ReportPendencies pendencies={pendencies} onOpen={openNode} />
+            </ReportSection>
+            <ReportSection title={`Detalhamento · ${framework.label}`} id="detalhamento">
+              <ReportDetails
+                project={project}
+                analysis={focused}
+                markers={reviewMarkers(focused, contestations)}
+                reviews={reviews}
+                open={open}
+                onToggle={toggle}
+              />
+            </ReportSection>
+            {/* The form is not printed: the trail below carries the current decision */}
+            <section id="decisao" className="scroll-mt-6 print:hidden">
+              <DecisionForm analyses={analyses} focused={focused} ruleDecisions={ruleDecisions} />
+            </section>
+            <ReportSection title="Trilha de decisão" id="trilha">
+              <DecisionTrail
+                decisions={decisions}
+                contestations={contestations}
+                ruleDecisions={ruleDecisions}
+                evidenceReviews={evidenceReviews}
+                analyses={analyses}
+                filesRead={project.documents.length}
+              />
+            </ReportSection>
+          </article>
+        </div>
       </div>
     </div>
   );
+};
+
+/** Section the analyst is reading (highlighted in the index) */
+const useActiveSection = (): SectionId => {
+  const [active, setActive] = useState<SectionId>("resumo");
+  useEffect(() => {
+    const visible = new Set<string>();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) visible.add(entry.target.id);
+          else visible.delete(entry.target.id);
+        }
+        const first = SECTIONS.find((s) => visible.has(s.id));
+        if (first) setActive(first.id);
+      },
+      { rootMargin: "-15% 0px -55% 0px" },
+    );
+    for (const section of SECTIONS) {
+      const element = document.getElementById(section.id);
+      if (element) observer.observe(element);
+    }
+    return () => observer.disconnect();
+  }, []);
+  return active;
 };
