@@ -1,26 +1,22 @@
 import { useSearchParams } from "react-router-dom";
 import { paths } from "@/routes/paths";
-import type {
-  DecisionOutcome,
-  ProjectQuery,
-  ProjectSort,
-  ProjectStatus,
-} from "@/domain/types";
+import type { ProjectQuery, ProjectSort, ProjectStatus } from "@/domain/types";
 
-export const PAGE_SIZE = 20;
+export const PAGE_SIZE = 8;
 
-/** Filters editable in the UI (owner and page size come from elsewhere) */
-export type ProjectFilters = Omit<ProjectQuery, "ownerId" | "pageSize">;
+/**
+ * Filters editable in the UI (owner and page size come from elsewhere).
+ * The status is the main filter; the API also takes outcome and dates, but the
+ * screen keeps only what helps triage (team decision).
+ */
+export type ProjectFilters = Omit<ProjectQuery, "ownerId" | "pageSize" | "outcome" | "from" | "to">;
 
 const STATUSES: ProjectStatus[] = ["processing", "ready", "decided", "error"];
 const BANDS = ["strong", "moderate", "weak"] as const;
-const OUTCOMES: (DecisionOutcome | "none")[] = ["eligible", "not_eligible", "needs_review", "none"];
 const SORTS: ProjectSort[] = ["recent", "oldest", "name", "weakest"];
 
 const oneOf = <T extends string>(value: string | null, allowed: readonly T[]) =>
   allowed.includes(value as T) ? (value as T) : undefined;
-
-const DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 const parseFilters = (params: URLSearchParams): ProjectFilters => ({
   search: params.get("q") ?? undefined,
@@ -29,9 +25,6 @@ const parseFilters = (params: URLSearchParams): ProjectFilters => ({
     .map((s) => oneOf(s, STATUSES))
     .filter((s): s is ProjectStatus => !!s),
   weakestBand: oneOf(params.get("banda"), BANDS),
-  outcome: oneOf(params.get("decisao"), OUTCOMES),
-  from: DATE.test(params.get("de") ?? "") ? params.get("de")! : undefined,
-  to: DATE.test(params.get("ate") ?? "") ? params.get("ate")! : undefined,
   sort: oneOf(params.get("ordem"), SORTS) ?? "recent",
   page: Math.max(1, Number(params.get("pagina")) || 1),
 });
@@ -41,9 +34,6 @@ const serializeFilters = (filters: ProjectFilters) => {
     ["q", filters.search?.trim() || undefined],
     ["status", filters.statuses?.length ? filters.statuses.join(",") : undefined],
     ["banda", filters.weakestBand],
-    ["decisao", filters.outcome],
-    ["de", filters.from],
-    ["ate", filters.to],
     ["ordem", filters.sort !== "recent" ? filters.sort : undefined],
     ["pagina", filters.page > 1 ? String(filters.page) : undefined],
   ];
@@ -51,7 +41,7 @@ const serializeFilters = (filters: ProjectFilters) => {
 };
 
 /**
- * Project list filters live in the URL (?q=&status=&banda=&decisao=&de=&ate=&ordem=&pagina=),
+ * Project list filters live in the URL (?q=&status=&banda=&ordem=&pagina=),
  * so a filtered list can be shared and the back button works.
  */
 export const useProjectFilters = () => {
@@ -78,14 +68,8 @@ export const useProjectFilters = () => {
     );
   };
 
-  const activeCount = [
-    filters.search,
-    filters.statuses?.length,
-    filters.weakestBand,
-    filters.outcome,
-    filters.from,
-    filters.to,
-  ].filter(Boolean).length;
+  // The status tabs are the main filter, always visible: not counted here
+  const activeCount = [filters.search, filters.weakestBand].filter(Boolean).length;
 
   const clear = () => setParams(new URLSearchParams());
 

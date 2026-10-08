@@ -5,6 +5,9 @@ interface PaginationProps {
   pageSize: number;
   total: number;
   onChange: (page: number) => void;
+  /** Appended to "Mostrando 1–8 de 40" */
+  note?: string;
+  className?: string;
 }
 
 /** Page numbers to show: first, last, current ±1, with gaps ("…") */
@@ -17,16 +20,17 @@ const visiblePages = (page: number, pageCount: number): (number | "gap")[] => {
 const arrowClass =
   "flex size-9 items-center justify-center rounded-full text-fg-secondary transition-colors hover:bg-surface-sunken disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent";
 
-export const Pagination = ({ page, pageSize, total, onChange }: PaginationProps) => {
+export const Pagination = ({ page, pageSize, total, onChange, note, className = "" }: PaginationProps) => {
   const pageCount = Math.max(1, Math.ceil(total / pageSize));
   const first = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const last = Math.min(total, page * pageSize);
 
   return (
-    <nav aria-label="Paginação" className="flex flex-wrap items-center justify-between gap-3 text-sm">
+    <nav aria-label="Paginação" className={`flex flex-wrap items-center justify-between gap-3 text-[13px] ${className}`}>
       <p className="text-fg-muted">
-        Mostrando <span className="font-semibold text-fg tabular-nums">{first}–{last}</span> de{" "}
-        <span className="font-semibold text-fg tabular-nums">{total}</span>
+        Mostrando <span className="tabular-nums">{first}–{last}</span> de{" "}
+        <span className="tabular-nums">{total}</span>
+        {note && ` · ${note}`}
       </p>
       {pageCount > 1 && (
         <ul className="flex items-center gap-1">

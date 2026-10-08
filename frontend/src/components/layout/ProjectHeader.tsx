@@ -2,6 +2,7 @@ import { Fragment } from "react";
 import type { ReactNode } from "react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { projectCode } from "@/domain/projects";
 import type { Project } from "@/domain/types";
 
 interface ProjectHeaderProps {
@@ -17,7 +18,7 @@ interface ProjectHeaderProps {
 /** "Projeto em análise" band: identification on the left, status and action on the right */
 export const ProjectHeader = ({ project, meta, progress, action }: ProjectHeaderProps) => (
   <PageHeader
-    eyebrow={<span className="btn-chip cursor-default hover:bg-surface">Projeto {project.id.toUpperCase()}</span>}
+    eyebrow={<span className="btn-chip cursor-default hover:bg-surface">Projeto {projectCode(project.id)}</span>}
     title={project.name}
     description={
       <p className="flex flex-wrap gap-y-1">

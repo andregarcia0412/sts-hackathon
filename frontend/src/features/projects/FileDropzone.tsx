@@ -1,101 +1,98 @@
-import { CloudUpload, X } from "lucide-react";
-import { ArticleIcon } from "@/components/icons/MaterialIcons";
+import { CloudUpload } from "lucide-react";
+import { useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import type { FileRejection } from "react-dropzone";
-import { useState } from "react";
+import { MAX_FILE_BYTES, isAcceptedFile } from "@/domain/documents";
+import { ACCEPTED_FILE_TYPES } from "@/features/projects/acceptedFiles";
 import { formatFileSize } from "@/lib/format";
 
-const ACCEPTED_FILES = {
-  "application/pdf": [".pdf"],
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [
-    ".docx",
-  ],
-  "text/plain": [".txt"],
-};
-
-const MAX_FILE_SIZE = 20 * 1024 * 1024;
-
-const sameFile = (a: File, b: File) =>
-  a.name === b.name && a.size === b.size && a.lastModified === b.lastModified;
-
 interface FileDropzoneProps {
-  files: File[];
-  onChange: (files: File[]) => void;
+  onFiles: (files: File[]) => void;
+  /** "Arraste mais arquivos…" once there are files */
+  hasFiles: boolean;
 }
 
-export const FileDropzone = ({ files, onChange }: FileDropzoneProps) => {
-  const [rejections, setRejections] = useState<FileRejection[]>([]);
+/** Drop area for files and whole folders (react-dropzone walks dropped folders) */
+export const FileDropzone = ({ onFiles, hasFiles }: FileDropzoneProps) => {
+  const [rejections, setRejections] = useState<string[]>([]);
+  const folderInput = useRef<HTMLInputElement>(null);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    accept: ACCEPTED_FILES,
-    maxSize: MAX_FILE_SIZE,
+    accept: ACCEPTED_FILE_TYPES,
+    maxSize: MAX_FILE_BYTES,
     multiple: true,
-    onDrop: (accepted, rejected) => {
-      const added = accepted.filter((f) => !files.some((e) => sameFile(e, f)));
-      onChange([...files, ...added]);
-      setRejections(rejected);
+    onDrop: (accepted, rejected: FileRejection[]) => {
+      onFiles(accepted);
+      setRejections(
+        rejected.map(({ file, errors }) =>
+          `${file.name}: ${errors[0]?.code === "file-too-large" ? "arquivo maior que o limite" : "formato não aceito"}`,
+        ),
+      );
     },
   });
 
+  const onFolder = (files: FileList | null) => {
+    const all = [...(files ?? [])];
+    // A folder brings everything: keep the accepted formats, report the others
+    onFiles(all.filter((f) => isAcceptedFile(f.name) && f.size <= MAX_FILE_BYTES));
+    setRejections(
+      all
+        .filter((f) => !isAcceptedFile(f.name) || f.size > MAX_FILE_BYTES)
+        .map((f) => `${f.webkitRelativePath || f.name}: ${f.size > MAX_FILE_BYTES ? "arquivo maior que o limite" : "formato não aceito"}`),
+    );
+  };
+
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2">
       <div
         {...getRootProps({
-          className: `flex cursor-pointer flex-col items-center gap-2 rounded-2xl border-2 border-dashed px-4 py-8 text-center transition-colors ${
-            isDragActive
-              ? "border-action bg-accent-soft"
-              : "border-border-strong bg-surface-muted hover:border-action hover:bg-accent-soft"
+          className: `flex min-h-[139px] cursor-pointer flex-col items-center justify-center gap-2 rounded-[18px] border border-dashed border-action px-4 py-3.5 text-center transition-colors ${
+            isDragActive ? "bg-accent-soft" : "bg-surface hover:bg-accent-soft/50"
           }`,
         })}
       >
         <input {...getInputProps()} aria-label="Selecionar arquivos" />
-        <span className="flex size-12 items-center justify-center rounded-full bg-accent-soft text-accent">
+        <span className="flex size-12 items-center justify-center rounded-full bg-brand-blush text-accent">
           <CloudUpload className="size-6" aria-hidden />
         </span>
-        <p className="text-base leading-5 font-semibold">
+        <p className="text-base font-semibold">
           {isDragActive
-            ? "Solte os arquivos aqui"
-            : "Arraste arquivos ou clique para selecionar"}
+            ? "Solte os arquivos ou pastas aqui"
+            : hasFiles
+              ? "Arraste mais arquivos ou clique para selecionar"
+              : "Arraste arquivos ou clique para selecionar"}
         </p>
         <p className="text-xs text-fg-muted">
-          PDF, DOCX ou TXT · até {formatFileSize(MAX_FILE_SIZE)} por arquivo
+          PDF, DOCX, TXT, MD, CSV, XLSX ou JSON · até {formatFileSize(MAX_FILE_BYTES)} por arquivo ·
+          pastas inteiras são aceitas{" "}
+          <button
+            type="button"
+            className="btn-link"
+            onClick={(e) => {
+              e.stopPropagation();
+              folderInput.current?.click();
+            }}
+          >
+            (selecionar pasta)
+          </button>
         </p>
       </div>
-
+      <input
+        ref={folderInput}
+        type="file"
+        multiple
+        hidden
+        aria-label="Selecionar uma pasta"
+        {...{ webkitdirectory: "" }}
+        onChange={(e) => {
+          onFolder(e.target.files);
+          e.target.value = "";
+        }}
+      />
       {rejections.length > 0 && (
-        <ul role="alert" className="space-y-0.5 text-xs text-danger">
-          {rejections.map(({ file, errors }) => (
-            <li key={file.name}>
-              {file.name}:{" "}
-              {errors[0]?.code === "file-too-large"
-                ? "arquivo maior que o limite"
-                : "formato não aceito"}
-            </li>
-          ))}
-        </ul>
-      )}
-
-      {files.length > 0 && (
-        <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border">
-          {files.map((file) => (
-            <li
-              key={`${file.name}-${file.size}-${file.lastModified}`}
-              className="flex items-center gap-2 bg-surface-muted px-3 py-2 text-sm"
-            >
-              <ArticleIcon className="size-4 shrink-0 text-fg-secondary" />
-              <span className="min-w-0 flex-1 truncate">{file.name}</span>
-              <span className="text-xs text-fg-muted tabular-nums">
-                {formatFileSize(file.size)}
-              </span>
-              <button
-                type="button"
-                className="btn-ghost p-1"
-                aria-label={`Remover ${file.name}`}
-                onClick={() => onChange(files.filter((f) => f !== file))}
-              >
-                <X className="size-4" aria-hidden />
-              </button>
-            </li>
+        <ul role="alert" className="flex flex-col gap-0.5 text-xs text-danger">
+          {rejections.map((text) => (
+            <li key={text}>{text}</li>
           ))}
         </ul>
       )}

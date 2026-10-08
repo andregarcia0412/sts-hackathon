@@ -4,17 +4,21 @@ import { useSearchParams } from "react-router-dom";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Pagination } from "@/components/ui/Pagination";
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui/states";
+import type { ProjectSummary } from "@/domain/types";
 import { useCurrentUser } from "@/features/auth/authState";
 import { NewProjectDialog } from "@/features/projects/NewProjectDialog";
-import { ProjectFilterBar } from "@/features/projects/ProjectFilterBar";
-import { ProjectOverview } from "@/features/projects/ProjectOverview";
+import { ListToolbar } from "@/features/projects/ListToolbar";
+import { ProjectSearch } from "@/features/projects/ProjectSearch";
 import { ProjectTable } from "@/features/projects/ProjectTable";
+import { ResendFileDialog } from "@/features/projects/ResendFileDialog";
+import { StatusTabs } from "@/features/projects/StatusTabs";
 import { PAGE_SIZE, useProjectFilters } from "@/features/projects/useProjectFilters";
 import { NEW_PROJECT_PARAM } from "@/routes/paths";
 import { useProjects } from "@/services/queries";
 
 export const ProjectsPage = () => {
   const user = useCurrentUser();
+  const [resending, setResending] = useState<ProjectSummary | null>(null);
   const { filters, update, clear, activeCount } = useProjectFilters();
   const projects = useProjects({ ...filters, ownerId: user.id, pageSize: PAGE_SIZE });
   // "Upload de arquivos" in the header links here with ?novo=1
@@ -37,7 +41,7 @@ export const ProjectsPage = () => {
 
   const newProjectButton = (
     <button type="button" className="btn-primary" onClick={() => setDialogOpen(true)}>
-      <Plus className="size-5" aria-hidden />
+      <Plus className="size-6" aria-hidden />
       Novo projeto
     </button>
   );
@@ -48,17 +52,23 @@ export const ProjectsPage = () => {
   return (
     <div className="flex flex-1 flex-col">
       <PageHeader
-        eyebrow={<span className="btn-chip cursor-default hover:bg-surface">Analista: {user.name}</span>}
-        title="Meus projetos"
-        description={
-          <p>
-            Projetos para análise preliminar de enquadramento na Lei do Bem · dados de
-            demonstração, fictícios.
-          </p>
-        }
+        title="Meus Projetos"
+        description={<p>Análise preliminar de enquadramento na Lei do Bem · {user.name} · dados fictícios de demonstração</p>}
         aside={newProjectButton}
-      />
-      <div className="mx-auto flex w-full max-w-[1440px] flex-1 flex-col gap-4 p-4 sm:px-10 sm:py-6">
+      >
+        {data && !ownsNothing && (
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <StatusTabs
+              counts={data.statusCounts}
+              selected={filters.statuses ?? []}
+              onSelect={(statuses) => update({ statuses })}
+            />
+            <ProjectSearch value={filters.search ?? ""} onSearch={(search) => update({ search })} />
+          </div>
+        )}
+      </PageHeader>
+
+      <div className="mx-auto flex w-full max-w-[1440px] flex-1 flex-col p-4">
         {projects.isError && !data ? (
           <ErrorState
             title="Não foi possível carregar os projetos"
@@ -74,19 +84,14 @@ export const ProjectsPage = () => {
             action={newProjectButton}
           />
         ) : (
-          <>
-            <ProjectOverview
-              counts={data.statusCounts}
-              selected={filters.statuses ?? []}
-              onSelect={(statuses) => update({ statuses })}
-            />
-            <ProjectFilterBar filters={filters} update={update} clear={clear} activeCount={activeCount} />
-            {/* Dim while a new page/filter loads; the previous page stays visible */}
-            <div
-              className={`flex flex-col gap-4 transition-opacity ${projects.isPlaceholderData ? "opacity-60" : ""}`}
-              aria-busy={projects.isFetching}
-            >
-              {data.items.length === 0 ? (
+          // Dim while a new page/filter loads; the previous page stays visible
+          <div
+            className={`transition-opacity ${projects.isPlaceholderData ? "opacity-60" : ""}`}
+            aria-busy={projects.isFetching}
+          >
+            {data.items.length === 0 ? (
+              <div className="rounded-3xl bg-white/80 shadow-[0_4px_16px_rgb(0_0_0/0.1)]">
+                <ListToolbar filters={filters} update={update} clear={clear} activeCount={activeCount} />
                 <EmptyState
                   title="Nenhum projeto com esses filtros"
                   description="Ajuste ou limpe os filtros para ver mais projetos."
@@ -96,22 +101,31 @@ export const ProjectsPage = () => {
                     </button>
                   }
                 />
-              ) : (
-                <>
-                  <ProjectTable projects={data.items} />
+              </div>
+            ) : (
+              <ProjectTable
+                projects={data.items}
+                onResend={setResending}
+                toolbar={
+                  <ListToolbar filters={filters} update={update} clear={clear} activeCount={activeCount} />
+                }
+                footer={
                   <Pagination
+                    className="px-6 py-4"
                     page={data.page}
                     pageSize={data.pageSize}
                     total={data.total}
+                    note="a leitura do sistema é sugestão até a decisão do analista"
                     onChange={(page) => update({ page })}
                   />
-                </>
-              )}
-            </div>
-          </>
+                }
+              />
+            )}
+          </div>
         )}
       </div>
       <NewProjectDialog open={dialogOpen} onClose={closeDialog} />
+      <ResendFileDialog project={resending} onClose={() => setResending(null)} />
     </div>
   );
 };
