@@ -74,6 +74,23 @@
   --shadow-card: 0 4px 8px rgb(0 0 0 / 0.1);
   --shadow-card-accent: 0 4px 8px rgb(119 0 37 / 0.2);
   --shadow-dock: 0 -4px 12px rgb(22 22 22 / 0.08);
+  --shadow-float: 0 4px 24px rgb(136 211 177 / 0.25); /* "sombra": login card, assistant */
+
+  --animate-assistant-in: assistant-in 220ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+  --animate-assistant-out: assistant-out 160ms ease-in both;
+
+  @keyframes assistant-in {
+    from {
+      opacity: 0;
+      transform: translateY(16px) scale(0.92);
+    }
+  }
+  @keyframes assistant-out {
+    to {
+      opacity: 0;
+      transform: translateY(16px) scale(0.92);
+    }
+  }
 }
 
 @layer base {
@@ -154,6 +171,13 @@
 /* React Flow: nodes are clickable even though built-in selection is off */
 .react-flow__node {
   cursor: pointer;
+}
+
+/* Assistant open/close: still fires animationend (the panel unmounts on it) */
+@media (prefers-reduced-motion: reduce) {
+  .assistant-motion {
+    animation-duration: 1ms !important;
+  }
 }
 
 /* Print / PDF export of the decision document */

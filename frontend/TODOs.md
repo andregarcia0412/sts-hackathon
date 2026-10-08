@@ -51,10 +51,10 @@ Pontos deixados para depois. Separados em dois grupos:
 ### Visual e técnico
 
 - [x] Visual de alta fidelidade aplicado em todas as telas. Do Figma: cabeçalho, árvore de
-      evidências, projetos, upload e login. Derivados do design system (sem tela no Figma):
-      documento de decisão e chatbot.
+      evidências, projetos, upload, login e assistente ("IA Assistente", com animação de
+      abrir/fechar). Derivado do design system: documento de decisão.
 - [ ] Documento de decisão: aplicar as telas novas do Figma ("Tela de documento" e
-      "Documento de decisão — PRJ37"). Chatbot: aguardando a tela do designer.
+      "Documento de decisão — PRJ37").
 - [x] Fontes: Heebo carregada do Google Fonts (o documento de decisão também usa Heebo).
 - [ ] Bundle passa de 500 kB por causa do React Flow: carregar as telas sob demanda
       (`React.lazy` nas rotas de análise e decisão).

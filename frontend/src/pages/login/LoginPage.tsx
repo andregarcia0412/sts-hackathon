@@ -83,7 +83,7 @@ export const LoginPage = () => {
 
         <form
           onSubmit={handleSubmit}
-          className="flex w-full flex-col gap-10 rounded-2xl bg-surface p-5 shadow-[0_4px_24px_rgb(136_211_177/0.25)]"
+          className="flex w-full flex-col gap-10 rounded-2xl bg-surface p-5 shadow-float"
         >
           <div className="flex flex-col gap-2">
             <div role="tablist" aria-label="Acesso" className="flex gap-3.5">
