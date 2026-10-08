@@ -13,7 +13,9 @@ import type {
   RuleNode,
 } from "@/domain/tree";
 import { CONTESTATION_REASON_LABELS } from "@/domain/labels";
-import type { Contestation, ProjectExcerpt } from "@/domain/types";
+import type { Analysis, AnalysisChange, Contestation, ProjectExcerpt } from "@/domain/types";
+import { ReviewTag } from "@/components/ui/ReviewTag";
+import { useRequestReanalysis } from "@/services/queries";
 import { useAssistant } from "@/features/assistant/assistantState";
 import { formatDateTime } from "@/lib/format";
 import type { AnalysisExplorer } from "@/features/analysis/useAnalysisExplorer";
@@ -25,11 +27,13 @@ import type { AnalysisExplorer } from "@/features/analysis/useAnalysisExplorer";
 
 interface NodeDetailProps {
   explorer: AnalysisExplorer;
+  /** Analysis on screen (with adjustments from accepted contestations) */
+  analysis: Analysis;
   /** Contestations of this analysis (all nodes) */
   contestations: Contestation[];
 }
 
-export const NodeDetail = ({ explorer, contestations }: NodeDetailProps) => {
+export const NodeDetail = ({ explorer, analysis, contestations }: NodeDetailProps) => {
   const { selectedNode } = explorer;
   const { startDebate, debateNodeId } = useAssistant();
 
@@ -60,6 +64,9 @@ export const NodeDetail = ({ explorer, contestations }: NodeDetailProps) => {
         <Flag className="size-3.5 text-score-moderate" aria-hidden />
         Questionar
       </button>
+      <RevisionNote
+        changes={(analysis.adjustments ?? []).filter((a) => a.nodeId === selectedNode.id)}
+      />
       {selectedNode.kind === "criterion" && (
         <CriterionDetail node={selectedNode} explorer={explorer} />
       )}
@@ -376,31 +383,82 @@ const EvidenceImpact = ({
   );
 };
 
-/** Contestations recorded by analysts for the selected node */
+const changeValue = (value: AnalysisChange["before"]) =>
+  value === "positive" ? "positiva" : value === "negative" ? "negativa" : String(value);
+
+/** "Revisado após contestação: 80 → 96" for nodes changed by accepted contestations */
+const RevisionNote = ({ changes }: { changes: AnalysisChange[] }) => {
+  if (changes.length === 0) return null;
+  const first = changes[0];
+  const last = changes.at(-1)!;
+  return (
+    <p className="mr-24 flex flex-wrap items-center gap-1.5 rounded-md bg-accent-soft px-2.5 py-1.5 text-xs">
+      <ReviewTag marker="revised" size="xs" />
+      {first.field === "polarity" ? "Polaridade" : "Nota"} revisada após contestação acatada:{" "}
+      <strong className="tabular-nums">
+        {changeValue(first.before)} → {changeValue(last.after)}
+      </strong>
+    </p>
+  );
+};
+
+/** Contestations of the selected node, with status and reanalysis */
 const ContestationList = ({ items }: { items: Contestation[] }) => {
+  const reanalysis = useRequestReanalysis();
   if (items.length === 0) return null;
+
   return (
     <Section title={`Contestações (${items.length})`}>
       <ul className="space-y-2">
-        {items.map((c) => (
-          <li
-            key={c.id}
-            className="rounded-md border border-score-moderate bg-score-moderate-soft/60 p-2.5"
-          >
-            <p className="flex items-center gap-1.5 text-xs font-medium">
-              <Flag className="size-3.5 text-score-moderate" aria-hidden />
-              {CONTESTATION_REASON_LABELS[c.reason]}
-              {c.suggestedScore !== undefined && ` · nota sugerida ${c.suggestedScore}`}
-              {c.suggestedPolarity &&
-                ` · sugere ${c.suggestedPolarity === "positive" ? "positiva" : "negativa"}`}
-            </p>
-            <p className="mt-1 whitespace-pre-line">{c.argument}</p>
-            <p className="mt-1 text-xs text-fg-muted">
-              {c.author} · {formatDateTime(c.createdAt)}
-            </p>
-          </li>
-        ))}
+        {items.map((c) => {
+          const pending = reanalysis.isPending && reanalysis.variables === c.id;
+          return (
+            <li
+              key={c.id}
+              className={`space-y-1.5 rounded-md border p-2.5 ${
+                c.status === "open"
+                  ? "border-score-moderate bg-score-moderate-soft/60"
+                  : "border-border bg-surface-muted"
+              }`}
+            >
+              <div className="flex flex-wrap items-center gap-1.5 text-xs font-medium">
+                <ReviewTag marker={c.status === "open" ? "open" : "resolved"} size="xs" />
+                {CONTESTATION_REASON_LABELS[c.reason]}
+                {c.suggestedScore !== undefined && ` · nota sugerida ${c.suggestedScore}`}
+                {c.suggestedPolarity &&
+                  ` · sugere ${c.suggestedPolarity === "positive" ? "positiva" : "negativa"}`}
+              </div>
+              <p className="whitespace-pre-line">{c.argument}</p>
+              <p className="text-xs text-fg-muted">
+                {c.author} · {formatDateTime(c.createdAt)}
+              </p>
+              {c.status === "open" ? (
+                <button
+                  type="button"
+                  className="btn-secondary w-full py-1.5 text-xs"
+                  disabled={reanalysis.isPending}
+                  onClick={() => reanalysis.mutate(c.id)}
+                >
+                  {pending ? "Reanalisando…" : "Solicitar reanálise ao modelo"}
+                </button>
+              ) : (
+                c.resolution && (
+                  <div className="space-y-1 border-t border-border pt-1.5 text-xs">
+                    <p className="font-medium">
+                      Reanálise · {c.resolution.verdict === "accepted" ? "acatada" : "leitura mantida"}
+                      <span className="font-normal text-fg-muted"> · {formatDateTime(c.resolution.resolvedAt)}</span>
+                    </p>
+                    <p>{c.resolution.explanation}</p>
+                  </div>
+                )
+              )}
+            </li>
+          );
+        })}
       </ul>
+      {reanalysis.isError && (
+        <p role="alert" className="text-xs text-danger">Não foi possível reanalisar. Tente novamente.</p>
+      )}
     </Section>
   );
 };

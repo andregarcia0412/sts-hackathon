@@ -99,6 +99,7 @@ export const AssistantProvider = ({ children }: { children: ReactNode }) => {
         debateNodeId,
         startDebate,
         endDebate,
+        respondWith: respond,
       }}
     >
       {children}

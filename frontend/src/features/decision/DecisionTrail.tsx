@@ -1,4 +1,4 @@
-import { Flag, History } from "lucide-react";
+import { Flag, History, RefreshCcw } from "lucide-react";
 import { FRAMEWORKS } from "@/domain/frameworks";
 import { CONTESTATION_REASON_LABELS, DECISION_OUTCOME_LABELS } from "@/domain/labels";
 import { indexAnalysis } from "@/domain/tree";
@@ -18,7 +18,8 @@ type AnalysisLookup = Map<string, { analysis: Analysis; index: AnalysisIndex }>;
 
 type TrailEvent =
   | { kind: "decision"; at: string; decision: Decision }
-  | { kind: "contestation"; at: string; contestation: Contestation };
+  | { kind: "contestation"; at: string; contestation: Contestation }
+  | { kind: "reanalysis"; at: string; contestation: Contestation };
 
 /**
  * Who decided or contested what, when, and based on what (rule DOC-13): the
@@ -35,6 +36,13 @@ export const DecisionTrail = ({ decisions, contestations, analyses }: DecisionTr
       at: contestation.createdAt,
       contestation,
     })),
+    ...contestations
+      .filter((c) => c.resolution)
+      .map((contestation) => ({
+        kind: "reanalysis" as const,
+        at: contestation.resolution!.resolvedAt,
+        contestation,
+      })),
   ].sort((a, b) => b.at.localeCompare(a.at));
   const currentDecision = events.find((e) => e.kind === "decision");
 
@@ -59,8 +67,10 @@ export const DecisionTrail = ({ decisions, contestations, analyses }: DecisionTr
               lookup={lookup}
               current={event === currentDecision}
             />
-          ) : (
+          ) : event.kind === "contestation" ? (
             <ContestationEntry contestation={event.contestation} lookup={lookup} />
+          ) : (
+            <ReanalysisEntry contestation={event.contestation} lookup={lookup} />
           )}
         </li>
       ))}
@@ -151,6 +161,10 @@ const ContestationEntry = ({
         <strong>{node ? `${node.number} ` : ""}{contestation.nodeLabel.replace(/^[\d.]+ /, "")}</strong>
         {" · "}
         {CONTESTATION_REASON_LABELS[contestation.reason]}
+        {" · "}
+        <span className="text-xs text-fg-muted">
+          {contestation.status === "open" ? "aberta, aguardando reanálise" : "resolvida"}
+        </span>
       </p>
       <p className="font-sans text-xs text-fg-muted">
         {contestation.author} · {formatDateTime(contestation.createdAt)}
@@ -159,6 +173,32 @@ const ContestationEntry = ({
           ` · polaridade sugerida: ${contestation.suggestedPolarity === "positive" ? "positiva" : "negativa"}`}
       </p>
       <p className="whitespace-pre-line">{contestation.argument}</p>
+    </>
+  );
+};
+
+const ReanalysisEntry = ({
+  contestation,
+  lookup,
+}: {
+  contestation: Contestation;
+  lookup: AnalysisLookup;
+}) => {
+  const resolution = contestation.resolution!;
+  const entry = lookup.get(contestation.analysisId);
+  const node = entry?.index.get(contestation.nodeId);
+  return (
+    <>
+      <RefreshCcw className={`${markerClass} text-accent`} aria-hidden />
+      <p className="font-sans text-sm">
+        <span className="text-xs text-fg-muted uppercase">Reanálise do modelo · </span>
+        <strong>{resolution.verdict === "accepted" ? "Contestação acatada" : "Leitura mantida"}</strong>
+        {" · "}
+        {node ? `${node.number} ` : ""}
+        {contestation.nodeLabel.replace(/^[\d.]+ /, "")}
+      </p>
+      <p className="font-sans text-xs text-fg-muted">{formatDateTime(resolution.resolvedAt)}</p>
+      <p>{resolution.explanation}</p>
     </>
   );
 };

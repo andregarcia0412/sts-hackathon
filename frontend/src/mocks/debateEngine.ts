@@ -12,12 +12,11 @@ import { getNodeTitle, indexAnalysis } from "@/domain/tree";
 import type {
   AnalysisIndex,
   AnalysisNode,
-  CriterionNode,
   EvidenceNode,
-  RuleNode,
 } from "@/domain/tree";
 import type { ContestationReason } from "@/domain/types";
-import { formatPoints, formatScore } from "@/lib/scoreFormat";
+import { formatPoints } from "@/lib/scoreFormat";
+import { contestationChanges } from "@/mocks/reanalysis";
 
 /*
  * MOCK debate: the analyst contests a node and the "model" defends or
@@ -123,42 +122,27 @@ export const debateOpening = (context: AssistantContext, nodeId: string): Assist
 
 // ---------------------------------------------------------------------------
 
-/** What happens to the rule and criterion if this evidence had the other polarity */
-const simulatePolarityFlip = (index: AnalysisIndex, node: EvidenceNode) => {
-  const factor = node.rule.scoreExplanation?.factors.find((f) => f.refId === node.evidence.id);
-  if (!factor) return undefined;
-  const rule = index.get(node.parentId!) as RuleNode;
-  const criterion = index.get(rule.parentId!) as CriterionNode;
-  const newRuleScore = Math.max(0, Math.min(100, node.rule.score - 2 * factor.points));
-  const weight = criterion.criterion.scoreExplanation?.factors.find((f) => f.refId === node.rule.id)?.weight;
-  const newCriterionScore =
-    weight !== undefined
-      ? Math.round((criterion.criterion.score + weight * (newRuleScore - node.rule.score)) * 10) / 10
-      : undefined;
-  return { rule, criterion, newRuleScore, newCriterionScore };
-};
-
-const replyPolarity = (index: AnalysisIndex, node: AnalysisNode): AnswerBlock[] => {
+const replyPolarity = (context: AssistantContext, node: AnalysisNode): AnswerBlock[] => {
   if (node.kind !== "evidence") {
     return [{ type: "text", text: "Polaridade vale para evidências. Escolha uma evidência específica para contestar se ela conta a favor ou contra." }];
   }
   const flipped = node.evidence.polarity === "positive" ? "negativa" : "positiva";
-  const simulation = simulatePolarityFlip(index, node);
+  // Same calculation the reanalysis applies if the contestation is accepted
+  const changes = contestationChanges(context.analysis, { nodeId: node.id, reason: "polarity" });
+  const scoreChanges = changes.filter((c) => c.field === "score");
   return [
     {
       type: "text",
       text: `Posso ter lido errado. Mantive como ${node.evidence.polarity === "positive" ? "positiva" : "negativa"} porque: ${node.evidence.explanation}`,
     },
-    simulation
+    scoreChanges.length
       ? {
           type: "text",
-          text: `Simulação: se ela fosse ${flipped}, a regra ${simulation.rule.number} ${simulation.rule.rule.code} iria de ${simulation.rule.rule.score} para ${simulation.newRuleScore}${
-            simulation.newCriterionScore !== undefined
-              ? ` e o critério ${simulation.criterion.number}. ${simulation.criterion.criterion.name} de ${simulation.criterion.criterion.score} para ${formatScore(simulation.newCriterionScore)} (${band(simulation.newCriterionScore)})`
-              : ""
-          }.`,
+          text: `Simulação: se ela fosse ${flipped}, ${scoreChanges
+            .map((c) => `${c.nodeLabel} iria de ${c.before} para ${c.after} (${band(c.after as number)})`)
+            .join(" e ")}.`,
         }
-      : { type: "text", text: "Não consigo simular o efeito: a composição da nota desta regra não está disponível." },
+      : { type: "text", text: "Não consigo simular o efeito desta mudança na nota." },
   ];
 };
 
@@ -235,7 +219,7 @@ export const debateReply = (message: string, context: AssistantContext): Assista
   const reason = detectReason(message, node.kind);
 
   const replies: Record<ContestationReason, () => AnswerBlock[]> = {
-    polarity: () => replyPolarity(index, node),
+    polarity: () => replyPolarity(context, node),
     score_too_high: () => replyScore(index, node, "high"),
     score_too_low: () => replyScore(index, node, "low"),
     wrong_excerpt: () => replyExcerpt(index, node),

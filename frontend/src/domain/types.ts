@@ -46,6 +46,7 @@ export interface ProjectSummary extends Project {
   /** Current (latest) decision, if any */
   lastDecision?: Pick<Decision, "outcome" | "decidedAt" | "analystName">;
   contestationCount?: number;
+  openContestationCount?: number;
 }
 
 export type ProjectSort = "recent" | "oldest" | "name" | "weakest";
@@ -167,6 +168,8 @@ export interface Analysis {
   suggestedCategory?: SuggestedCategory;
   generatedAt: string;
   criteria: Criterion[];
+  /** Changes applied after accepted contestations (oldest first) */
+  adjustments?: (AnalysisChange & { contestationId: string })[];
 }
 
 export type DecisionOutcome = "eligible" | "not_eligible" | "needs_review";
@@ -214,8 +217,32 @@ export type ContestationReason =
   | "missing_evidence"
   | "other";
 
+export type ContestationStatus = "open" | "resolved";
+
+/** One value changed in the analysis by an accepted contestation */
+export interface AnalysisChange {
+  nodeId: string;
+  /** Snapshot like "3.1 PROJ-13 Barreira tecnológica" */
+  nodeLabel: string;
+  field: "score" | "polarity";
+  before: number | EvidencePolarity;
+  after: number | EvidencePolarity;
+}
+
+/** Outcome of the model's reanalysis of a contestation */
+export interface ContestationResolution {
+  /** accepted: the analysis changes (or the point is taken); maintained: the model keeps its reading */
+  verdict: "accepted" | "maintained";
+  explanation: string;
+  /** What changed in the analysis (empty when nothing quantitative changes) */
+  changes: AnalysisChange[];
+  resolvedAt: string;
+}
+
 export interface Contestation {
   id: string;
+  status: ContestationStatus;
+  resolution?: ContestationResolution;
   projectId: string;
   analysisId: string;
   /** Path id of the node in the analysis tree */
@@ -230,4 +257,7 @@ export interface Contestation {
   createdAt: string;
 }
 
-export type NewContestationInput = Omit<Contestation, "id" | "createdAt">;
+export type NewContestationInput = Omit<
+  Contestation,
+  "id" | "createdAt" | "status" | "resolution"
+>;

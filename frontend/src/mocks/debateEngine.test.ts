@@ -43,14 +43,14 @@ describe("debateOpening", () => {
 describe("debateReply", () => {
   it("simulates flipping an evidence's polarity on its rule and criterion", () => {
     // 3.1.3 is negative (−8) in PROJ-13 (80); flipping gives +8 → 96.
-    // PROJ-13 weighs 60% in Incerteza (72) → 72 + 0.6 × 16 = 81.6
+    // PROJ-13 weighs 60% in Incerteza (72) → 72 + 0.6 × 16 = 81.6 ≈ 82
     const answer = debateReply(
       "Polaridade errada (a favor × contra)",
       debating("crit-uncertainty.rule-proj-13.ev-3"),
     );
 
-    expect(allText(answer)).toContain("iria de 80 para 96");
-    expect(allText(answer)).toContain("de 72 para 81,6");
+    expect(allText(answer)).toContain("3.1 PROJ-13 Barreira tecnológica iria de 80 para 96");
+    expect(allText(answer)).toContain("3 Incerteza iria de 72 para 82");
     expect(answer.actions).toEqual([
       { type: "record-contestation", nodeId: "crit-uncertainty.rule-proj-13.ev-3", reason: "polarity" },
     ]);

@@ -1,6 +1,7 @@
 import {
   Bot,
   Flag,
+  RefreshCcw,
   MessageCircleQuestion,
   RotateCcw,
   SendHorizontal,
@@ -11,7 +12,8 @@ import type { FormEvent, KeyboardEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import type { AssistantAction, AssistantAnswer, ChatMessage } from "@/domain/assistant";
 import { CONTESTATION_REASON_LABELS } from "@/domain/labels";
-import type { ContestationReason } from "@/domain/types";
+import type { Contestation, ContestationReason } from "@/domain/types";
+import { useRequestReanalysis } from "@/services/queries";
 import { FRAMEWORKS } from "@/domain/frameworks";
 import { getNodeTitle, indexAnalysis } from "@/domain/tree";
 import { ContestationForm } from "@/features/assistant/ContestationForm";
@@ -62,8 +64,37 @@ export const AssistantWidget = () => {
 
 type Recording = Extract<AssistantAction, { type: "record-contestation" }>;
 
+/** The model's reanalysis, told as an assistant answer */
+const reanalysisAnswer = (contestation: Contestation): AssistantAnswer => {
+  const resolution = contestation.resolution;
+  if (!resolution) {
+    return { blocks: [{ type: "text", text: "A reanálise não terminou." }], sources: [], suggestions: [] };
+  }
+  return {
+    blocks: [
+      {
+        type: "text",
+        text: resolution.verdict === "accepted" ? "Reanálise concluída: contestação acatada." : "Reanálise concluída: mantive a leitura.",
+      },
+      { type: "text", text: resolution.explanation },
+      ...(resolution.changes.length
+        ? [{ type: "text" as const, text: "A árvore, o grafo e o documento de decisão já mostram os valores revisados." }]
+        : []),
+    ],
+    sources: [
+      { nodeId: contestation.nodeId, label: contestation.nodeLabel },
+      ...resolution.changes
+        .filter((c) => c.nodeId !== contestation.nodeId)
+        .map((c) => ({ nodeId: c.nodeId, label: c.nodeLabel })),
+    ],
+    suggestions: [],
+  };
+};
+
 const AssistantPanel = ({ onClose }: { onClose: () => void }) => {
-  const { messages, pending, send, clear, pageContext, debateNodeId, endDebate } = useAssistant();
+  const { messages, pending, send, clear, pageContext, debateNodeId, endDebate, respondWith } =
+    useAssistant();
+  const reanalysis = useRequestReanalysis();
   const [draft, setDraft] = useState("");
   const [recording, setRecording] = useState<Recording | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -115,7 +146,7 @@ const AssistantPanel = ({ onClose }: { onClose: () => void }) => {
   const debateReason = (fallback: ContestationReason) =>
     debateMessages
       .flatMap((m) => (m.role === "assistant" ? m.answer.actions ?? [] : []))
-      .map((a) => a.reason)
+      .flatMap((a) => (a.type === "record-contestation" ? [a.reason] : []))
       .filter((r) => r !== "other")
       .at(-1) ?? fallback;
 
@@ -206,7 +237,13 @@ const AssistantPanel = ({ onClose }: { onClose: () => void }) => {
           <Message
             key={message.id}
             message={message}
-            onAction={(action) => setRecording(action)}
+            onAction={(action) => {
+              if (action.type === "record-contestation") {
+                setRecording(action);
+              } else {
+                respondWith(reanalysis.mutateAsync(action.contestationId).then(reanalysisAnswer));
+              }
+            }}
             actionsEnabled={message === last && !recording}
           />
         ))}
@@ -230,9 +267,24 @@ const AssistantPanel = ({ onClose }: { onClose: () => void }) => {
             initialReason={debateReason(recording.reason)}
             initialArgument={debateArgument()}
             onCancel={() => setRecording(null)}
-            onRecorded={(label) => {
+            onRecorded={(contestation) => {
               setRecording(null);
-              endDebate(`Contestação de ${label} registrada na trilha`);
+              endDebate(`Contestação de ${contestation.nodeLabel} registrada na trilha`);
+              respondWith(
+                Promise.resolve({
+                  blocks: [
+                    {
+                      type: "text",
+                      text: "Contestação registrada como aberta. Posso reanalisar agora: se o seu argumento indicar uma fonte verificável, eu acato e ajusto a análise; senão, explico por que mantenho a leitura.",
+                    },
+                  ],
+                  sources: [{ nodeId: contestation.nodeId, label: contestation.nodeLabel }],
+                  suggestions: [],
+                  actions: [
+                    { type: "request-reanalysis", contestationId: contestation.id, nodeId: contestation.nodeId },
+                  ],
+                }),
+              );
             }}
           />
         )}
@@ -297,7 +349,7 @@ const Message = ({
   actionsEnabled,
 }: {
   message: ChatMessage;
-  onAction: (action: Recording) => void;
+  onAction: (action: AssistantAction) => void;
   actionsEnabled: boolean;
 }) => {
   if (message.role === "user") {
@@ -335,7 +387,7 @@ const AnswerView = ({
   actionsEnabled,
 }: {
   answer: AssistantAnswer;
-  onAction: (action: Recording) => void;
+  onAction: (action: AssistantAction) => void;
   actionsEnabled: boolean;
 }) => {
   const openNode = useOpenNode();
@@ -386,8 +438,17 @@ const AnswerView = ({
           className="btn-secondary w-full border-score-moderate py-1.5"
           onClick={() => onAction(action)}
         >
-          <Flag className="size-4 text-score-moderate" aria-hidden />
-          Registrar contestação
+          {action.type === "record-contestation" ? (
+            <>
+              <Flag className="size-4 text-score-moderate" aria-hidden />
+              Registrar contestação
+            </>
+          ) : (
+            <>
+              <RefreshCcw className="size-4 text-accent" aria-hidden />
+              Reanalisar agora
+            </>
+          )}
         </button>
       ))}
     </div>

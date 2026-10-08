@@ -12,6 +12,7 @@ import type {
   ProjectQuery,
 } from "@/domain/types";
 import {
+  requestReanalysis,
   createContestation,
   createProject,
   getAnalyses,
@@ -108,5 +109,14 @@ export const useCreateContestation = () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.contestations(contestation.projectId),
       }),
+  });
+};
+
+/** Reanalysis changes the contestation and, if accepted, the analysis and the list */
+export const useRequestReanalysis = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (contestationId: string) => requestReanalysis(contestationId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.projects }),
   });
 };

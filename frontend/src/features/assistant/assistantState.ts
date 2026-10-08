@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect } from "react";
-import type { AssistantContext, ChatMessage } from "@/domain/assistant";
+import type { AssistantAnswer, AssistantContext, ChatMessage } from "@/domain/assistant";
 
 export interface AssistantState {
   open: boolean;
@@ -15,6 +15,8 @@ export interface AssistantState {
   debateNodeId: string | null;
   startDebate: (nodeId: string) => void;
   endDebate: (note?: string) => void;
+  /** Appends the answer of a request (e.g. a reanalysis) as an assistant message */
+  respondWith: (request: Promise<AssistantAnswer>) => void;
 }
 
 export const AssistantStateContext = createContext<AssistantState | null>(null);

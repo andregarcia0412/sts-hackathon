@@ -3,6 +3,7 @@ import { useRef } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
 import { ErrorState, LoadingState } from "@/components/ui/states";
+import { reviewMarkers } from "@/domain/contestations";
 import { FRAMEWORKS } from "@/domain/frameworks";
 import type { Analysis, Contestation, Decision, Project } from "@/domain/types";
 import { useRegisterAssistantContext } from "@/features/assistant/assistantState";
@@ -107,8 +108,7 @@ const DecisionDocument = ({
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const contestedIdsOf = (analysis: Analysis) =>
-    new Set(contestations.filter((c) => c.analysisId === analysis.id).map((c) => c.nodeId));
+
 
   return (
     <div className="flex-1 bg-surface-muted print:bg-white">
@@ -156,7 +156,7 @@ const DecisionDocument = ({
             key={analysis.id}
             project={project}
             analysis={analysis}
-            contestedIds={contestedIdsOf(analysis)}
+            markers={reviewMarkers(analysis, contestations)}
           />
         ))}
         {/* The form is not printed: the trail below carries the current decision */}

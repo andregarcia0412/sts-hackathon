@@ -1,4 +1,7 @@
-import { ChevronRight, Flag } from "lucide-react";
+import { ChevronRight } from "lucide-react";
+import { REVIEW_MARKER_STYLES } from "@/components/ui/reviewStyles";
+import { REVIEW_MARKER_LABELS } from "@/domain/contestations";
+import type { ReviewMarker } from "@/domain/contestations";
 import { useEffect, useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
 import { POLARITY_ICONS, POLARITY_STYLES } from "@/components/ui/polarityStyles";
@@ -22,11 +25,11 @@ const DEPTH: Record<AnalysisNode["kind"], number> = {
  */
 export const AnalysisTree = ({
   explorer,
-  contestedIds,
+  reviewMarkers,
 }: {
   explorer: AnalysisExplorer;
-  /** Nodes with a recorded contestation (flagged) */
-  contestedIds: ReadonlySet<string>;
+  /** Contested / revised / resolved nodes */
+  reviewMarkers: ReadonlyMap<string, ReviewMarker>;
 }) => {
   const { index, expanded, selectedId, introActive, activate, toggle } = explorer;
   const visible = getVisibleNodes(index, expanded);
@@ -135,12 +138,7 @@ export const AnalysisTree = ({
             <span className="min-w-0 flex-1 truncate" title={getNodeTitle(node)}>
               {getNodeTitle(node)}
             </span>
-            {contestedIds.has(node.id) && (
-              <Flag
-                className="size-3.5 shrink-0 text-score-moderate"
-                aria-label="Contestado pelo analista"
-              />
-            )}
+            <ReviewIcon marker={reviewMarkers.get(node.id)} />
             <NodeIndicator node={node} />
           </li>
         );
@@ -174,5 +172,17 @@ const NodeIndicator = ({ node }: { node: AnalysisNode }) => {
       {score}
       <span className="sr-only">({SCORE_BAND_LABELS[band]})</span>
     </span>
+  );
+};
+
+const ReviewIcon = ({ marker }: { marker?: ReviewMarker }) => {
+  if (!marker) return null;
+  const { Icon, icon } = REVIEW_MARKER_STYLES[marker];
+  return (
+    <Icon
+      className={`size-3.5 shrink-0 ${icon}`}
+      aria-label={REVIEW_MARKER_LABELS[marker]}
+      role="img"
+    />
   );
 };

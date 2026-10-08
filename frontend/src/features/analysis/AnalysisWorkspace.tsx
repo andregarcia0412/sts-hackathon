@@ -14,6 +14,7 @@ import { AnalysisTree } from "@/features/analysis/tree/AnalysisTree";
 import { useAnalysisExplorer } from "@/features/analysis/useAnalysisExplorer";
 import { useRegisterAssistantContext } from "@/features/assistant/assistantState";
 import { useMediaQuery } from "@/lib/useMediaQuery";
+import { reviewMarkers } from "@/domain/contestations";
 import { useContestations } from "@/services/queries";
 import { paths } from "@/routes/paths";
 
@@ -50,7 +51,8 @@ const WorkspaceContent = ({ project, analysis, analyses }: AnalysisWorkspaceProp
   const contestations = (useContestations(project.id).data ?? []).filter(
     (c) => c.analysisId === analysis.id,
   );
-  const contestedIds = new Set(contestations.map((c) => c.nodeId));
+  const markers = reviewMarkers(analysis, contestations);
+  const adjustedNodes = new Set((analysis.adjustments ?? []).map((a) => a.nodeId)).size;
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -61,6 +63,9 @@ const WorkspaceContent = ({ project, analysis, analyses }: AnalysisWorkspaceProp
             {project.name}
             {analysis.suggestedCategory && (
               <> · Classificação sugerida: {SUGGESTED_CATEGORY_LABELS[analysis.suggestedCategory]}</>
+            )}
+            {adjustedNodes > 0 && (
+              <> · {adjustedNodes} {adjustedNodes === 1 ? "item revisado" : "itens revisados"} após contestação</>
             )}
           </p>
           <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
@@ -135,17 +140,17 @@ const WorkspaceContent = ({ project, analysis, analyses }: AnalysisWorkspaceProp
         >
           <Group orientation="vertical" className="h-full bg-surface">
             <Panel defaultSize="45%" minSize="120px" className="overflow-y-auto">
-              <AnalysisTree explorer={explorer} contestedIds={contestedIds} />
+              <AnalysisTree explorer={explorer} reviewMarkers={markers} />
             </Panel>
             <Separator className={`h-px ${separatorClass}`} />
             <Panel minSize="120px" className="overflow-y-auto">
-              <NodeDetail explorer={explorer} contestations={contestations} />
+              <NodeDetail explorer={explorer} analysis={analysis} contestations={contestations} />
             </Panel>
           </Group>
         </Panel>
         <Separator className={`${isWide ? "w-px" : "h-px"} ${separatorClass}`} />
         <Panel minSize={isWide ? "30%" : "20%"}>
-          <AnalysisGraph explorer={explorer} contestedIds={contestedIds} />
+          <AnalysisGraph explorer={explorer} reviewMarkers={markers} />
         </Panel>
       </Group>
     </div>

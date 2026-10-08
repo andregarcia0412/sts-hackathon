@@ -1,12 +1,13 @@
 import type { Edge, Node } from "@xyflow/react";
+import type { ReviewMarker } from "@/domain/contestations";
 import type { AnalysisNode } from "@/domain/tree";
 
 export type GraphNodeData = {
   node: AnalysisNode;
   /** Children currently visible in the graph */
   expanded: boolean;
-  /** An analyst recorded a contestation for this node */
-  contested: boolean;
+  /** Contested / revised / resolved, if any */
+  review?: ReviewMarker;
 };
 
 export type AnalysisFlowNode = Node<GraphNodeData, AnalysisNode["kind"]>;

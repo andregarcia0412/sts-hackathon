@@ -6,7 +6,12 @@ import {
 } from "@/domain/labels";
 import { getNodeTitle } from "@/domain/tree";
 import type { AnalysisNode } from "@/domain/tree";
-import type { Analysis, ContestationReason, EvidencePolarity } from "@/domain/types";
+import type {
+  Analysis,
+  Contestation,
+  ContestationReason,
+  EvidencePolarity,
+} from "@/domain/types";
 import { useCurrentUser } from "@/features/auth/authState";
 import { useCreateContestation } from "@/services/queries";
 
@@ -16,7 +21,7 @@ interface ContestationFormProps {
   initialReason: ContestationReason;
   /** What the analyst wrote during the debate, used as a starting argument */
   initialArgument: string;
-  onRecorded: (label: string) => void;
+  onRecorded: (contestation: Contestation) => void;
   onCancel: () => void;
 }
 
@@ -68,7 +73,7 @@ export const ContestationForm = ({
         suggestedPolarity,
         author: user.name,
       },
-      { onSuccess: () => onRecorded(label) },
+      { onSuccess: onRecorded },
     );
   };
 

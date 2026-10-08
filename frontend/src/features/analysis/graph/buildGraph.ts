@@ -1,4 +1,5 @@
 import { Graph, layout } from "@dagrejs/dagre";
+import type { ReviewMarker } from "@/domain/contestations";
 import { getVisibleNodes } from "@/domain/tree";
 import type { AnalysisIndex } from "@/domain/tree";
 import { NODE_SIZES } from "@/features/analysis/graph/graphTypes";
@@ -17,7 +18,7 @@ const NODE_SEPARATION = 14;
 export const buildGraph = (
   index: AnalysisIndex,
   expanded: ReadonlySet<string>,
-  contestedIds: ReadonlySet<string> = new Set(),
+  reviewMarkers: ReadonlyMap<string, ReviewMarker> = new Map(),
 ): { nodes: AnalysisFlowNode[]; edges: AnalysisFlowEdge[] } => {
   const nodes: AnalysisFlowNode[] = getVisibleNodes(index, expanded).map(
     (node) => ({
@@ -28,7 +29,7 @@ export const buildGraph = (
       data: {
         node,
         expanded: expanded.has(node.id),
-        contested: contestedIds.has(node.id),
+        review: reviewMarkers.get(node.id),
       },
     }),
   );

@@ -17,6 +17,7 @@ import { debateOpening, debateReply } from "@/mocks/debateEngine";
 import { generatedProjects, synthesizeAnalyses } from "@/mocks/generatedProjects";
 import type { GeneratedProject } from "@/mocks/generatedProjects";
 import { applyProjectQuery } from "@/mocks/projectQuery";
+import { applyAdjustments, reanalyze } from "@/mocks/reanalysis";
 import { withScoreExplanations } from "@/mocks/scoreExplanations";
 import { mockUsers } from "@/mocks/users";
 import { sortByFramework } from "@/domain/frameworks";
@@ -36,6 +37,7 @@ import {
 const LATENCY_MS = 400;
 const MOCK_PROCESSING_MS = 5000;
 const ASSISTANT_LATENCY_MS = 700;
+const REANALYSIS_LATENCY_MS = 1500;
 
 export class NotFoundError extends Error {
   constructor(what: string) {
@@ -173,11 +175,19 @@ const storedProject = (projectId: string): Project => {
   return copy;
 };
 
+/** Contestations as stored, with defaults for records saved before "status" existed */
+const contestationsOf = (projectId: string): Contestation[] =>
+  db.contestations
+    .filter((c) => c.projectId === projectId)
+    .map((c) => ({ ...c, status: c.status ?? "open" }));
+
+/** Analyses as the analyst sees them: with accepted contestations applied */
 const analysesOf = (projectId: string): Analysis[] => {
   const stored = db.analyses.filter((a) => a.projectId === projectId);
-  if (stored.length) return sortByFramework(stored);
   const generated = generatedById().get(projectId);
-  return generated ? sortByFramework(synthesizeAnalyses(generated)) : [];
+  const base = stored.length ? stored : generated ? synthesizeAnalyses(generated) : [];
+  const contestations = contestationsOf(projectId);
+  return sortByFramework(base.map((a) => applyAdjustments(a, contestations)));
 };
 
 const decisionsOf = (projectId: string): Decision[] => {
@@ -199,14 +209,18 @@ const generatedScoreSummary = (g: GeneratedProject) =>
     : undefined;
 
 const toSummary = (project: Project, generated?: GeneratedProject): ProjectSummary => {
+  const contestations = contestationsOf(project.id);
   const stored = db.analyses.filter((a) => a.projectId === project.id);
-  const primary = sortByFramework(stored)[0];
+  // Full (adjusted) analyses only when needed: stored ones, or accepted contestations
+  const needsFull =
+    stored.length > 0 || contestations.some((c) => c.resolution?.verdict === "accepted");
+  const primary = needsFull ? analysesOf(project.id)[0] : undefined;
   const decisions = decisionsOf(project.id);
   const last = decisions.at(-1);
   return {
     ...project,
-    frameworks: stored.length
-      ? sortByFramework(stored).map((a) => a.framework)
+    frameworks: needsFull
+      ? analysesOf(project.id).map((a) => a.framework)
       : generated && generatedScoreSummary(generated)
         ? analysisTemplates.map((t) => t.framework)
         : [],
@@ -218,7 +232,8 @@ const toSummary = (project: Project, generated?: GeneratedProject): ProjectSumma
       decidedAt: last.decidedAt,
       analystName: last.analystName,
     },
-    contestationCount: db.contestations.filter((c) => c.projectId === project.id).length,
+    contestationCount: contestations.length,
+    openContestationCount: contestations.filter((c) => c.status === "open").length,
   };
 };
 
@@ -328,9 +343,7 @@ export const saveDecision = async (
 export const listContestations = async (projectId: string): Promise<Contestation[]> => {
   await delay();
   return structuredClone(
-    db.contestations
-      .filter((c) => c.projectId === projectId)
-      .sort((a, b) => a.createdAt.localeCompare(b.createdAt)),
+    contestationsOf(projectId).sort((a, b) => a.createdAt.localeCompare(b.createdAt)),
   );
 };
 
@@ -342,11 +355,32 @@ export const createContestation = async (
   const contestation: Contestation = {
     ...input,
     id: newId("ct"),
+    status: "open",
     createdAt: new Date().toISOString(),
   };
   db.contestations.push(contestation);
   persist();
   return structuredClone(contestation);
+};
+
+/**
+ * Asks the model to reanalyse a contestation. MOCK: see src/mocks/reanalysis.ts.
+ * The contestation becomes "resolved" (accepted or maintained); accepted
+ * changes show up in the analysis from then on.
+ */
+export const requestReanalysis = async (contestationId: string): Promise<Contestation> => {
+  await delay(REANALYSIS_LATENCY_MS);
+  const stored = db.contestations.find((c) => c.id === contestationId);
+  if (!stored) throw new NotFoundError("Contestação");
+  const current = { ...stored, status: stored.status ?? "open" };
+  if (current.status === "resolved") return structuredClone(current);
+
+  const analysis = analysesOf(current.projectId).find((a) => a.id === current.analysisId);
+  if (!analysis) throw new NotFoundError("Análise");
+  stored.status = "resolved";
+  stored.resolution = reanalyze(analysis, current, new Date().toISOString());
+  persist();
+  return structuredClone(stored);
 };
 
 // ---------------------------------------------------------------------------

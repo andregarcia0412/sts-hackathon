@@ -69,9 +69,13 @@ src/
   (ponto de partida, contribuição de cada evidência/regra e ajustes). É **mockada**
   (`src/mocks/scoreExplanations.ts`) até o time definir o cálculo; o contrato é
   `scoreExplanation` em `src/domain/types.ts`.
-- **Contestação:** "Questionar" no detalhe de qualquer nó abre o assistente em modo debate.
-  O modelo mostra a base, simula o efeito (ex.: inverter a polaridade de uma evidência) e o
-  analista registra a contestação, que aparece na árvore, no grafo, no documento e na trilha.
+- **Contestação e reanálise:** "Questionar" no detalhe de qualquer nó abre o assistente em
+  modo debate. O modelo mostra a base, simula o efeito (ex.: inverter a polaridade de uma
+  evidência) e o analista registra a contestação (status **aberta**). Ao pedir a
+  **reanálise** (no chat ou no detalhe do nó), ela vira **resolvida**: *acatada* (a análise
+  é ajustada, e os itens aparecem como "revisado") ou *leitura mantida*. No mock, o modelo
+  acata quando o argumento cita uma fonte verificável (página, arquivo, tabela, anexo)
+  (`src/mocks/reanalysis.ts`). Tudo entra na trilha de decisão.
 - **Vários métodos:** cada projeto tem uma análise por método (`src/domain/frameworks.ts`).
   Hoje: Manual de Frascati e Formulário MCTI. Para incluir outro, adicione-o ali e nos mocks.
 

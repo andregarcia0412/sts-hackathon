@@ -20,6 +20,7 @@ import { nodeTypes } from "@/features/analysis/graph/nodeTypes";
 import { useAnimatedNodes } from "@/features/analysis/graph/useAnimatedNodes";
 import { useFrameGraph } from "@/features/analysis/graph/useFrameGraph";
 import type { AnalysisExplorer } from "@/features/analysis/useAnalysisExplorer";
+import type { ReviewMarker } from "@/domain/contestations";
 
 const ARIA_LABELS: Partial<AriaLabelConfig> = {
   "controls.ariaLabel": "Controles do grafo",
@@ -52,15 +53,15 @@ const minimapNodeColor = (node: AnalysisFlowNode) => {
  */
 export const AnalysisGraph = ({
   explorer,
-  contestedIds,
+  reviewMarkers,
 }: {
   explorer: AnalysisExplorer;
-  contestedIds: ReadonlySet<string>;
+  reviewMarkers: ReadonlyMap<string, ReviewMarker>;
 }) => {
   const { index, expanded, selectedId, frameRequest, activate } = explorer;
   const frameGraph = useFrameGraph();
 
-  const { nodes: visibleNodes, edges: visibleEdges } = buildGraph(index, expanded, contestedIds);
+  const { nodes: visibleNodes, edges: visibleEdges } = buildGraph(index, expanded, reviewMarkers);
   const target = layoutGraph(visibleNodes, visibleEdges);
 
   const { nodes: animatedNodes } = useAnimatedNodes(target);

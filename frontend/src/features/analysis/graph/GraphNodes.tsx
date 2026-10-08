@@ -1,6 +1,10 @@
 import { Handle, NodeToolbar, Position } from "@xyflow/react";
 import type { NodeProps } from "@xyflow/react";
-import { ChevronRight, Flag } from "lucide-react";
+import { ChevronRight } from "lucide-react";
+import { ReviewTag } from "@/components/ui/ReviewTag";
+import { REVIEW_MARKER_STYLES } from "@/components/ui/reviewStyles";
+import { REVIEW_MARKER_LABELS } from "@/domain/contestations";
+import type { ReviewMarker } from "@/domain/contestations";
 import { useState } from "react";
 import type { ReactNode } from "react";
 import { ScoreBadge } from "@/components/ui/ScoreBadge";
@@ -39,17 +43,10 @@ const ExpandHint = ({ expanded, count, noun }: { expanded: boolean; count: numbe
   </span>
 );
 
-const ContestedTag = () => (
-  <span className="inline-flex items-center gap-1 rounded-full bg-score-moderate-soft px-1.5 py-0.5 text-[11px] font-medium text-fg">
-    <Flag className="size-3 text-score-moderate" aria-hidden />
-    contestado
-  </span>
-);
-
-const Footer = ({ children, contested }: { children: ReactNode; contested: boolean }) => (
+const Footer = ({ children, review }: { children: ReactNode; review?: ReviewMarker }) => (
   <div className="flex items-center justify-between gap-2">
     {children}
-    {contested && <ContestedTag />}
+    {review && <ReviewTag marker={review} size="xs" />}
   </div>
 );
 
@@ -91,7 +88,7 @@ export const CriterionGraphNode = ({ data, selected }: NodeProps<AnalysisFlowNod
           </div>
           <ScoreBadge score={criterion.score} />
         </div>
-        <Footer contested={data.contested}>
+        <Footer review={data.review}>
           <ExpandHint
             expanded={data.expanded}
             count={childIds.length}
@@ -122,7 +119,7 @@ export const RuleGraphNode = ({ data, selected }: NodeProps<AnalysisFlowNode>) =
           </div>
           <ScoreBadge score={rule.score} size="sm" />
         </div>
-        <Footer contested={data.contested}>
+        <Footer review={data.review}>
           <ExpandHint
             expanded={data.expanded}
             count={childIds.length}
@@ -181,10 +178,13 @@ export const EvidenceGraphNode = ({ data, selected }: NodeProps<AnalysisFlowNode
             {evidence.title}
           </span>
         </span>
-        {data.contested && (
-          <Flag className="size-4 shrink-0 text-score-moderate" aria-label="Contestado pelo analista" />
-        )}
+        {data.review && <ReviewIcon marker={data.review} />}
       </div>
     </>
   );
+};
+
+const ReviewIcon = ({ marker }: { marker: ReviewMarker }) => {
+  const { Icon, icon } = REVIEW_MARKER_STYLES[marker];
+  return <Icon className={`size-4 shrink-0 ${icon}`} aria-label={REVIEW_MARKER_LABELS[marker]} role="img" />;
 };

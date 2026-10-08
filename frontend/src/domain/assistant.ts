@@ -25,11 +25,9 @@ export interface AnswerSource {
 }
 
 /** Something the analyst can do from an answer, rendered as a button */
-export type AssistantAction = {
-  type: "record-contestation";
-  nodeId: string;
-  reason: ContestationReason;
-};
+export type AssistantAction =
+  | { type: "record-contestation"; nodeId: string; reason: ContestationReason }
+  | { type: "request-reanalysis"; contestationId: string; nodeId: string };
 
 export interface AssistantAnswer {
   blocks: AnswerBlock[];

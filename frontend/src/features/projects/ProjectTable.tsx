@@ -77,6 +77,8 @@ export const ProjectTable = ({ projects }: { projects: ProjectSummary[] }) => {
                             <span className="ml-2 inline-flex items-center gap-0.5 text-fg">
                               <Flag className="size-3 text-score-moderate" aria-hidden />
                               {pluralize(project.contestationCount, "contestação", "contestações")}
+                              {!!project.openContestationCount &&
+                                ` (${project.openContestationCount} ${project.openContestationCount === 1 ? "aberta" : "abertas"})`}
                             </span>
                           )}
                         </p>

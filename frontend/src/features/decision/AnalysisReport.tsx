@@ -1,4 +1,6 @@
-import { FileText, Flag, Network, PenLine } from "lucide-react";
+import { FileText, Network, PenLine } from "lucide-react";
+import { ReviewTag } from "@/components/ui/ReviewTag";
+import type { ReviewMarker } from "@/domain/contestations";
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { PolarityTag } from "@/components/ui/PolarityTag";
@@ -121,8 +123,8 @@ export const ReportSummary = ({ analysis }: { analysis: Analysis }) => (
 export const ReportDetails = ({
   project,
   analysis,
-  contestedIds = new Set(),
-}: AnalysisReportProps & { contestedIds?: ReadonlySet<string> }) => {
+  markers = new Map(),
+}: AnalysisReportProps & { markers?: ReadonlyMap<string, ReviewMarker> }) => {
   const index = indexAnalysis(analysis);
 
   return (
@@ -132,7 +134,7 @@ export const ReportDetails = ({
         const { criterion } = node;
         return (
           <section key={node.id} className="space-y-4 border-t border-border pt-4">
-            <NodeHeading level={3} index={index} analysis={analysis} nodeId={node.id} projectId={project.id} contested={contestedIds.has(node.id)}>
+            <NodeHeading level={3} index={index} analysis={analysis} nodeId={node.id} projectId={project.id} review={markers.get(node.id)}>
               {node.number}. {criterion.name}
               <ScoreBadge score={criterion.score} showLabel size="sm" />
             </NodeHeading>
@@ -144,7 +146,7 @@ export const ReportDetails = ({
               />
             )}
             {node.childIds.map((ruleId) => (
-              <RuleBlock key={ruleId} index={index} analysis={analysis} ruleId={ruleId} projectId={project.id} contestedIds={contestedIds} />
+              <RuleBlock key={ruleId} index={index} analysis={analysis} ruleId={ruleId} projectId={project.id} markers={markers} />
             ))}
           </section>
         );
@@ -158,13 +160,13 @@ const RuleBlock = ({
   analysis,
   ruleId,
   projectId,
-  contestedIds,
+  markers,
 }: {
   index: AnalysisIndex;
   analysis: Analysis;
   ruleId: string;
   projectId: string;
-  contestedIds: ReadonlySet<string>;
+  markers: ReadonlyMap<string, ReviewMarker>;
 }) => {
   const node = index.get(ruleId);
   if (node?.kind !== "rule") return null;
@@ -172,7 +174,7 @@ const RuleBlock = ({
 
   return (
     <div className="space-y-3 pl-4">
-      <NodeHeading level={4} index={index} analysis={analysis} nodeId={ruleId} projectId={projectId} contested={contestedIds.has(ruleId)}>
+      <NodeHeading level={4} index={index} analysis={analysis} nodeId={ruleId} projectId={projectId} review={markers.get(ruleId)}>
         {node.number} {rule.code} · {rule.name}
         <ScoreBadge score={rule.score} size="sm" />
       </NodeHeading>
@@ -197,7 +199,7 @@ const RuleBlock = ({
               key={evidenceId}
               className="space-y-2 rounded-md border border-border p-3 break-inside-avoid"
             >
-              <NodeHeading level={5} index={index} analysis={analysis} nodeId={evidenceId} projectId={projectId} contested={contestedIds.has(evidenceId)}>
+              <NodeHeading level={5} index={index} analysis={analysis} nodeId={evidenceId} projectId={projectId} review={markers.get(evidenceId)}>
                 {evidenceNode.number} {evidence.title}
                 <PolarityTag polarity={evidence.polarity} />
               </NodeHeading>
@@ -254,7 +256,7 @@ const NodeHeading = ({
   analysis,
   nodeId,
   projectId,
-  contested = false,
+  review,
   children,
 }: {
   level: 3 | 4 | 5;
@@ -262,8 +264,8 @@ const NodeHeading = ({
   analysis: Analysis;
   nodeId: string;
   projectId: string;
-  /** Flag the item: an analyst contested it (details in the trail) */
-  contested?: boolean;
+  /** Contested / revised / resolved (details in the trail) */
+  review?: ReviewMarker;
   children: ReactNode;
 }) => {
   const Tag = `h${level}` as const;
@@ -275,12 +277,7 @@ const NodeHeading = ({
         className={`flex scroll-mt-20 flex-wrap items-center gap-2 rounded font-sans ${HEADING_CLASSES[level]}`}
       >
         {children}
-        {contested && (
-          <span className="inline-flex items-center gap-1 rounded-full bg-score-moderate-soft px-2 py-0.5 text-xs font-medium">
-            <Flag className="size-3 text-score-moderate" aria-hidden />
-            contestado
-          </span>
-        )}
+        {review && <ReviewTag marker={review} />}
       </Tag>
       <Link
         to={paths.analysis(projectId, nodeId, analysis.framework)}
