@@ -1,10 +1,10 @@
 import { LogOut } from "lucide-react";
-import { Link, Outlet, useMatch } from "react-router-dom";
+import { Link, Outlet, useLocation, useMatch } from "react-router-dom";
 import logoBnb from "@/assets/logo-bnb.svg";
 import { KeyboardArrowRightIcon } from "@/components/icons/MaterialIcons";
 import { APP_NAME } from "@/config/app";
 import { useAuth } from "@/features/auth/authState";
-import { paths } from "@/routes/paths";
+import { NEW_PROJECT_PARAM, paths } from "@/routes/paths";
 
 type StepKey = "projects" | "upload" | "analysis" | "decision";
 
@@ -20,12 +20,17 @@ const useSteps = (): { steps: Step[]; current: StepKey | null } => {
   const analysis = useMatch("/projetos/:projectId/analise");
   const decision = useMatch("/projetos/:projectId/decisao");
   const projects = useMatch("/projetos");
+  const { search } = useLocation();
   const projectId = (analysis ?? decision)?.params.projectId;
+
+  // On the list, opening the upload keeps the filters in the URL
+  const uploadSearch = new URLSearchParams(projects ? search : "");
+  uploadSearch.set(NEW_PROJECT_PARAM, "1");
 
   return {
     steps: [
       { key: "projects", label: "Projetos", to: paths.projects() },
-      { key: "upload", label: "Upload de arquivos", to: paths.newProject() },
+      { key: "upload", label: "Upload de arquivos", to: `${paths.projects()}?${uploadSearch}` },
       {
         key: "analysis",
         label: "Grafo de evidências",

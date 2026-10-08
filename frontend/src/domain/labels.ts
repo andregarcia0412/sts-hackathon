@@ -1,3 +1,4 @@
+import type { Tone } from "@/domain/qualitative";
 import type {
   ContestationReason,
   DecisionOutcome,
@@ -8,9 +9,16 @@ import type {
 
 export const PROJECT_STATUS_LABELS: Record<ProjectStatus, string> = {
   processing: "Processando",
-  ready: "Pronto para análise",
+  ready: "Em análise",
   decided: "Decidido",
   error: "Erro",
+};
+
+export const PROJECT_STATUS_TONES: Record<ProjectStatus, Tone> = {
+  processing: "neutral",
+  ready: "neutral",
+  decided: "positive",
+  error: "negative",
 };
 
 export const POLARITY_LABELS: Record<EvidencePolarity, string> = {
@@ -28,6 +36,13 @@ export const DECISION_OUTCOME_LABELS: Record<DecisionOutcome, string> = {
   eligible: "Enquadrável",
   not_eligible: "Não enquadrável",
   needs_review: "Precisa de revisão",
+};
+
+/** The analyst's decision (never an automatic verdict) */
+export const DECISION_OUTCOME_TONES: Record<DecisionOutcome, Tone> = {
+  eligible: "positive",
+  not_eligible: "negative",
+  needs_review: "attention",
 };
 
 export const CONTESTATION_REASON_LABELS: Record<ContestationReason, string> = {

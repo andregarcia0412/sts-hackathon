@@ -106,6 +106,24 @@
     @apply w-full rounded-2xl border border-border-strong bg-surface px-3 py-3 text-base leading-5 placeholder:text-fg-muted focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-action;
   }
 
+  /* Native select drawn like the design's "Seletor" (arrow = Material keyboard_arrow_down) */
+  .select {
+    @apply w-full cursor-pointer appearance-none rounded-2xl border border-border-strong bg-surface bg-no-repeat py-3 pr-11 pl-3 text-base leading-5 focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-action;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234a4a4a'%3E%3Cpath d='M12 14.975q-.2 0-.388-.075t-.312-.2l-4.6-4.6q-.275-.275-.275-.7t.275-.7t.7-.275t.7.275L12 12.6l3.9-3.9q.275-.275.7-.275t.7.275t.275.7t-.275.7l-4.6 4.6q-.15.15-.325.213t-.375.062'/%3E%3C/svg%3E");
+    background-position: right 12px center;
+    background-size: 24px;
+  }
+
+  /* Small label above filters ("Detalhe/12 Medium") */
+  .field-label {
+    @apply mb-1 block text-xs leading-4 font-medium text-fg-muted;
+  }
+
+  /* Translucent card of the design (panels, tables, filter bar) */
+  .card {
+    @apply rounded-2xl border border-border bg-white/80;
+  }
+
   .label {
     @apply mb-2 block text-base leading-4 font-semibold text-fg-soft;
   }

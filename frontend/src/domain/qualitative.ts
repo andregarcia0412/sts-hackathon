@@ -1,4 +1,5 @@
 import { scoreBand } from "@/domain/score";
+import type { ScoreBand } from "@/domain/score";
 import type { Criterion, EvidencePolarity, Rule, RuleRating } from "@/domain/types";
 
 /*
@@ -57,10 +58,15 @@ export const ruleStatus = (rule: Rule): RuleStatus => {
   return band === "moderate" ? "partial" : "not_sustained";
 };
 
-export const criterionStatus = (criterion: Criterion): CriterionStatus =>
-  ({ strong: "demonstrated", moderate: "limited", weak: "not_demonstrated" } as const)[
-    scoreBand(criterion.score)
-  ];
+/** Criterion reading of each score band (also used by the project list filter) */
+export const BAND_CRITERION_STATUS: Record<ScoreBand, CriterionStatus> = {
+  strong: "demonstrated",
+  moderate: "limited",
+  weak: "not_demonstrated",
+};
+
+export const criterionStatus = (criterion: Pick<Criterion, "score">): CriterionStatus =>
+  BAND_CRITERION_STATUS[scoreBand(criterion.score)];
 
 interface StatusInfo {
   label: string;
