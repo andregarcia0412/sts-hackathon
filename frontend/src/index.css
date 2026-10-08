@@ -16,6 +16,7 @@
   --color-border: #e4e4e4; /* neutro/200 */
   --color-border-strong: #cfcfcf; /* neutro/300 */
   --color-divider: #f1eded; /* list rows */
+  --color-guide: #cccccc; /* neutros/400: tree guide lines in the detail panel */
   --color-track: #eeeaea; /* progress track, list header line */
   --color-strip: #bdb8b8; /* list: criteria strip */
   --color-fg: #161616; /* neutro/900 */
@@ -31,6 +32,7 @@
   --color-accent-soft: #fbeff2; /* marca/primaria-suave */
   --color-action: #df2c59; /* vinhos/050: primary buttons, selection */
   --color-brand-deep: #770025; /* vinhos/200: criterion card */
+  --color-brand-number: rgb(32 5 12 / 0.32); /* vermelhos/150: criterion number circle */
   --color-brand-blush: #ffc9cc; /* vermelhos/050 */
   --color-brand-orange: #f68b1f; /* background glow */
   --color-danger: #b3261e;

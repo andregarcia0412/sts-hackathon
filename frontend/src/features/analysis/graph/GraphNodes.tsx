@@ -3,15 +3,14 @@ import type { NodeProps } from "@xyflow/react";
 import { REVIEW_MARKER_STYLES } from "@/components/ui/reviewStyles";
 import { SOURCE_ICONS } from "@/components/ui/sourceIcons";
 import { Tag } from "@/components/ui/Tag";
-import { TONE_STYLES } from "@/components/ui/toneStyles";
+import { TONE_SMALL_ICONS, TONE_STYLES } from "@/components/ui/toneStyles";
 import { REVIEW_MARKER_LABELS } from "@/domain/contestations";
 import type { ReviewMarker } from "@/domain/contestations";
 import { evidenceSource } from "@/domain/evidence";
 import {
-  CRITERION_STATUS,
   POLARITY_STATUS,
   RULE_STATUS,
-  criterionStatus,
+  criterionStatusInfo,
   ruleStatus,
 } from "@/domain/qualitative";
 import { NODE_SIZES } from "@/features/analysis/graph/graphTypes";
@@ -61,29 +60,28 @@ const ReviewIcon = ({ marker, className = "" }: { marker?: ReviewMarker; classNa
 export const CriterionGraphNode = ({ data, selected }: NodeProps<AnalysisFlowNode>) => {
   if (data.node.kind !== "criterion") return null;
   const { criterion, number, childIds } = data.node;
-  const status = CRITERION_STATUS[criterionStatus(criterion)];
+  const status = criterionStatusInfo(criterion);
 
   return (
     <>
       <Handles target={false} source={childIds.length > 0} />
       <div
         style={NODE_SIZES.criterion}
-        className={`relative flex flex-col justify-between rounded-xl bg-brand-deep p-3.5 text-white transition-shadow ${
+        className={`relative flex flex-col justify-center gap-2 rounded-xl bg-brand-deep p-3.5 text-white transition-shadow ${
           selected ? "ring-2 ring-action ring-offset-2" : "hover:shadow-card-accent"
         }`}
       >
-        <div className="flex min-w-0 flex-col gap-2">
-          <p className="flex items-center gap-1.5 text-xs leading-4 tracking-[0.06em] text-brand-blush uppercase">
-            Critério {number}
-            <ReviewIcon marker={data.review} className="text-brand-blush" />
-          </p>
-          <p className="line-clamp-2 text-xl leading-6 font-semibold" title={criterion.name}>
-            {criterion.name}
-          </p>
-        </div>
-        <div className="flex flex-col items-start gap-2">
-          <p className="text-xs leading-4 text-brand-blush">Nota sugerida:</p>
-          <Tag tone={status.tone} label={status.label} />
+        <p className="flex items-center gap-1.5 text-xs leading-4 tracking-[0.06em] text-brand-blush uppercase">
+          Critério {number}
+          <ReviewIcon marker={data.review} className="text-brand-blush" />
+        </p>
+        <p className="line-clamp-2 text-xl leading-7 font-semibold" title={criterion.name}>
+          {criterion.name}
+        </p>
+        <hr className="border-brand-blush" />
+        <div className="flex flex-col gap-2 leading-4">
+          <p className="text-xs text-brand-blush">Nota sugerida:</p>
+          <p className="text-sm font-medium">{status.label}</p>
         </div>
         {!data.expanded && childIds.length > 0 && (
           <CollapsedHint count={childIds.length} noun={childIds.length === 1 ? "regra" : "regras"} />
@@ -103,27 +101,25 @@ export const RuleGraphNode = ({ data, selected }: NodeProps<AnalysisFlowNode>) =
       <Handles source={childIds.length > 0} />
       <div
         style={NODE_SIZES.rule}
-        className={`relative flex flex-col gap-1.5 rounded-2xl p-3 transition-shadow ${
+        className={`relative flex flex-col items-start gap-1.5 rounded-2xl p-3 transition-shadow ${
           selected
             ? "bg-action text-white shadow-card-accent"
             : "bg-surface-muted text-fg shadow-card hover:shadow-card-accent"
         }`}
       >
-        <div className="flex items-center justify-between gap-2">
-          <p
-            className={`flex min-w-0 items-center gap-1.5 text-xs leading-4 tracking-[0.06em] uppercase ${
-              selected ? "text-brand-blush" : "text-fg-subtle"
-            }`}
-            title={rule.code}
-          >
-            <span className="truncate">Regra {number}</span>
-            <ReviewIcon marker={data.review} className={selected ? "text-white" : ""} />
-          </p>
-          <Tag tone={status.tone} label={status.short} />
-        </div>
+        <p
+          className={`flex min-w-0 items-center gap-1.5 text-xs leading-4 tracking-[0.06em] uppercase ${
+            selected ? "text-brand-blush" : "text-fg-subtle"
+          }`}
+          title={rule.code}
+        >
+          <span className="truncate">Regra {number}</span>
+          <ReviewIcon marker={data.review} className={selected ? "text-white" : ""} />
+        </p>
         <p className="line-clamp-2 text-base leading-5 font-semibold" title={rule.name}>
           {rule.name}
         </p>
+        <Tag tone={status.tone} label={status.short} size="plain" inverted={selected} />
         {!data.expanded && childIds.length > 0 && (
           <CollapsedHint
             count={childIds.length}
@@ -139,6 +135,7 @@ export const EvidenceGraphNode = ({ data, selected }: NodeProps<AnalysisFlowNode
   if (data.node.kind !== "evidence") return null;
   const { evidence } = data.node;
   const status = POLARITY_STATUS[evidence.polarity];
+  const StatusIcon = TONE_SMALL_ICONS[status.tone];
   const source = evidenceSource(evidence);
   const SourceIcon = SOURCE_ICONS[source.kind];
 
@@ -147,27 +144,29 @@ export const EvidenceGraphNode = ({ data, selected }: NodeProps<AnalysisFlowNode
       <Handles source={false} />
       <div
         style={NODE_SIZES.evidence}
-        className={`flex items-center gap-2 overflow-hidden rounded-2xl px-4 py-2 shadow-card transition-colors ${
-          selected ? "bg-brand-blush" : "bg-surface-muted hover:bg-surface"
+        className={`flex flex-col justify-center gap-2 overflow-hidden rounded-2xl border-2 px-4 py-2 shadow-card transition-colors ${
+          selected
+            ? "border-action bg-accent-soft"
+            : data.highlighted
+              ? "border-action bg-surface-muted"
+              : "border-transparent bg-surface-muted hover:bg-surface"
         }`}
       >
-        <Tag tone={status.tone} label={`Evidência ${status.label.toLowerCase()}`} iconOnly />
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <p className="truncate text-base leading-5 font-semibold text-fg" title={evidence.title}>
-            {evidence.title}
-          </p>
-          <p className="flex min-w-0 items-center gap-1 text-xs leading-4">
-            <span className={TONE_STYLES[status.tone].text}>{status.label}</span>
-            <span className="text-fg-faint" aria-hidden>
-              ·
-            </span>
-            <SourceIcon className="size-4 shrink-0 text-fg-secondary" aria-hidden />
-            <span className="truncate text-fg-muted" title={source.label}>
-              {source.label}
-            </span>
-            <ReviewIcon marker={data.review} />
-          </p>
-        </div>
+        <p className="truncate text-base leading-5 font-semibold text-fg" title={evidence.title}>
+          {evidence.title}
+        </p>
+        <p className="flex min-w-0 items-center gap-1 text-xs leading-4">
+          <StatusIcon className={`size-3 shrink-0 stroke-[2.5] ${TONE_STYLES[status.tone].text}`} aria-hidden />
+          <span className={TONE_STYLES[status.tone].text}>{status.label}</span>
+          <span className="text-fg-faint" aria-hidden>
+            ·
+          </span>
+          <SourceIcon className="size-4 shrink-0 text-fg-secondary" aria-hidden />
+          <span className="truncate text-fg-muted" title={source.label}>
+            {source.label}
+          </span>
+          <ReviewIcon marker={data.review} />
+        </p>
       </div>
     </>
   );

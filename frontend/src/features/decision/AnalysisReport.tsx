@@ -11,11 +11,10 @@ import type { ReviewMarker } from "@/domain/contestations";
 import { FRAMEWORKS } from "@/domain/frameworks";
 import { SUGGESTED_CATEGORY_LABELS } from "@/domain/labels";
 import {
-  CRITERION_STATUS,
   POLARITY_STATUS,
   RULE_RATING,
   RULE_STATUS,
-  criterionStatus,
+  criterionStatusInfo,
   ruleStatus,
 } from "@/domain/qualitative";
 import { indexAnalysis, ruleNodeId } from "@/domain/tree";
@@ -86,6 +85,7 @@ export const ReportHeader = ({ project, analyses }: { project: Project; analyses
             <li key={analysis.id}>
               {FRAMEWORKS[analysis.framework].name}
               <span className="block text-xs leading-4 text-fg-muted">
+                {FRAMEWORKS[analysis.framework].version} ·{" "}
                 <span className="font-mono">{analysis.id}</span> · gerada em{" "}
                 {formatDateTime(analysis.generatedAt)}
               </span>
@@ -113,7 +113,7 @@ export const ReportSummary = ({ analysis, reviews }: { analysis: Analysis; revie
         </thead>
         <tbody className="divide-y divide-border">
           {analysis.criteria.map((criterion, i) => {
-            const status = CRITERION_STATUS[criterionStatus(criterion)];
+            const status = criterionStatusInfo(criterion);
             const rated = criterion.rules.filter((r) =>
               reviews.decisions.has(ruleNodeId(criterion, r)),
             ).length;
@@ -174,7 +174,7 @@ export const ReportDetails = ({
       {[...index.values()].map((node) => {
         if (node.kind !== "criterion") return null;
         const { criterion } = node;
-        const status = CRITERION_STATUS[criterionStatus(criterion)];
+        const status = criterionStatusInfo(criterion);
         return (
           <section key={node.id} className="flex flex-col gap-4 border-t border-border pt-6 first-of-type:border-t-0 first-of-type:pt-0">
             <NodeHeading

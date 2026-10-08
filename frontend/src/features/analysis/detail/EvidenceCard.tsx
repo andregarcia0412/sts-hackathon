@@ -56,78 +56,78 @@ export const EvidenceCard = ({
     <article
       id={`evidencia-${node.id}`}
       aria-label={`Evidência ${node.number}`}
-      className={`flex flex-col gap-1.5 rounded-md border bg-surface p-2.5 ${
-        selected ? "border-action ring-1 ring-action" : "border-border"
-      }`}
+      className={`flex items-start gap-2 p-2.5 ${selected ? "rounded-2xl bg-accent-soft" : ""}`}
     >
-      <button
-        type="button"
-        onClick={onSelect}
-        aria-expanded={selected}
-        className="flex w-full items-start gap-2 text-left"
-      >
-        <span className="text-xs leading-4 font-semibold text-fg-muted tabular-nums">{node.number}</span>
-        <span
-          className={`flex-1 text-sm leading-5 font-medium ${discarded ? "text-fg-muted line-through" : "text-fg"}`}
+      <Tag tone={status.tone} label={`Evidência ${status.label.toLowerCase()}`} size="plain" iconOnly />
+      <div className="flex min-w-0 flex-1 flex-col gap-2 py-1">
+        <button
+          type="button"
+          onClick={onSelect}
+          aria-expanded={selected}
+          className="flex w-full items-start gap-2 text-left"
         >
-          {evidence.title}
-        </span>
-        <Tag tone={status.tone} label={status.label} size="sm" />
-      </button>
+          <span
+            className={`flex-1 text-sm leading-5 font-medium ${discarded ? "text-fg-muted line-through" : "text-fg"}`}
+          >
+            {evidence.title}
+          </span>
+          <span className="text-xs leading-5 text-fg-muted tabular-nums">{node.number}</span>
+        </button>
 
-      {evidence.projectExcerpt && (
-        <blockquote className="text-xs leading-4 text-fg-soft">“{evidence.projectExcerpt.excerpt}”</blockquote>
-      )}
-      <p className="flex items-start gap-1 text-xs leading-4 text-fg-muted">
-        <SourceIcon className="mt-px size-3.5 shrink-0" aria-hidden />
-        {source.label}
-      </p>
+        {evidence.projectExcerpt && (
+          <blockquote className="text-xs leading-4 text-fg-soft">“{evidence.projectExcerpt.excerpt}”</blockquote>
+        )}
+        <p className="flex items-start gap-1 text-xs leading-4 text-fg-muted">
+          <SourceIcon className="size-4 shrink-0 text-fg-secondary" aria-hidden />
+          {source.label}
+        </p>
 
-      {selected && (
-        <div className="flex flex-col gap-2 border-t border-border pt-2 text-xs leading-4">
-          <RevisionNote changes={changes} />
-          <p className="text-sm leading-5">{evidence.explanation}</p>
-          {impact && (
-            <p className="text-fg-muted">
-              Impacto na nota da regra:{" "}
-              <strong className="font-semibold text-fg tabular-nums">
-                {formatPoints(impact.points)} {Math.abs(impact.points) === 1 ? "ponto" : "pontos"}
-              </strong>
-            </p>
-          )}
-          {evidence.references.length > 0 && (
-            <ul className="flex flex-col gap-1">
-              {evidence.references.map((reference) => (
-                <li key={reference.label} className="flex items-start gap-1">
-                  <BookOpen className="mt-px size-3.5 shrink-0 text-fg-muted" aria-hidden />
-                  {reference.url ? (
-                    <a
-                      href={reference.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1 font-medium text-accent hover:underline"
-                    >
-                      {reference.label}
-                      <ExternalLink className="size-3 shrink-0" aria-hidden />
-                      <span className="sr-only">(abre em nova aba)</span>
-                    </a>
-                  ) : (
-                    <span className="font-medium">{reference.label}</span>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )}
-          <ContestationList items={contestations} />
-        </div>
-      )}
+        {selected && (
+          <div className="flex flex-col gap-2 border-t border-border pt-2 text-xs leading-4">
+            <RevisionNote changes={changes} />
+            <p className="text-sm leading-5">{evidence.explanation}</p>
+            {impact && (
+              <p className="text-fg-muted">
+                Impacto na nota da regra:{" "}
+                <strong className="font-semibold text-fg tabular-nums">
+                  {formatPoints(impact.points)} {Math.abs(impact.points) === 1 ? "ponto" : "pontos"}
+                </strong>
+              </p>
+            )}
+            {evidence.references.length > 0 && (
+              <ul className="flex flex-col gap-1">
+                {evidence.references.map((reference) => (
+                  <li key={reference.label} className="flex items-start gap-1">
+                    <BookOpen className="mt-px size-3.5 shrink-0 text-fg-muted" aria-hidden />
+                    {reference.url ? (
+                      <a
+                        href={reference.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 font-medium text-accent hover:underline"
+                      >
+                        {reference.label}
+                        <ExternalLink className="size-3 shrink-0" aria-hidden />
+                        <span className="sr-only">(abre em nova aba)</span>
+                      </a>
+                    ) : (
+                      <span className="font-medium">{reference.label}</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+            <ContestationList items={contestations} />
+          </div>
+        )}
 
-      <EvidenceTriage
-        node={node}
-        projectId={projectId}
-        analysisId={analysisId}
-        review={review}
-      />
+        <EvidenceTriage
+          node={node}
+          projectId={projectId}
+          analysisId={analysisId}
+          review={review}
+        />
+      </div>
     </article>
   );
 };
@@ -204,36 +204,50 @@ const EvidenceTriage = ({
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs leading-4">
-      <p className="min-w-0 flex-1 text-fg-muted">
-        {review ? (
-          <>
-            <span className={review.verdict === "confirmed" ? "font-medium text-state-positive" : "font-medium text-fg-secondary"}>
-              {review.verdict === "confirmed" ? "Confirmada" : "Descartada"}
-            </span>{" "}
-            · {review.author}, {formatDateTime(review.createdAt)}
-            {review.note && <span className="block">“{review.note}”</span>}
-          </>
-        ) : (
-          "Sugerida · não confirmada"
-        )}
+    <div className="flex flex-col gap-2 text-xs leading-4">
+      <p className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-fg-muted">
+        <span>
+          {review ? (
+            <>
+              <span
+                className={
+                  review.verdict === "confirmed"
+                    ? "font-medium text-state-positive"
+                    : "font-medium text-fg-secondary"
+                }
+              >
+                {review.verdict === "confirmed" ? "Confirmada" : "Descartada"}
+              </span>{" "}
+              · {review.author}, {formatDateTime(review.createdAt)}
+              {review.note && <span className="block">“{review.note}”</span>}
+            </>
+          ) : (
+            "Sugerida · não confirmada"
+          )}
+        </span>
+        <QuestionButton nodeId={node.id} />
       </p>
-      <QuestionButton nodeId={node.id} />
-      {review?.verdict !== "confirmed" && (
-        <button
-          type="button"
-          className="btn-link"
-          disabled={create.isPending}
-          onClick={() => save("confirmed")}
-        >
-          Confirmar
-        </button>
-      )}
-      {review?.verdict !== "discarded" && (
-        <button type="button" className="btn-link text-fg-secondary" onClick={() => setDiscarding(true)}>
-          Descartar
-        </button>
-      )}
+      <div className="flex gap-4">
+        {review?.verdict !== "confirmed" && (
+          <button
+            type="button"
+            className="flex-1 rounded-full bg-action px-6 py-1 text-xs leading-5 font-semibold text-white transition-[filter] hover:brightness-95 disabled:opacity-50"
+            disabled={create.isPending}
+            onClick={() => save("confirmed")}
+          >
+            Confirmar
+          </button>
+        )}
+        {review?.verdict !== "discarded" && (
+          <button
+            type="button"
+            className="flex-1 rounded-full border border-border-strong bg-surface px-6 py-1 text-xs leading-5 font-semibold text-fg transition-colors hover:bg-surface-muted"
+            onClick={() => setDiscarding(true)}
+          >
+            Descartar
+          </button>
+        )}
+      </div>
       {create.isError && (
         <p role="alert" className="w-full text-danger">
           Não foi possível registrar. Tente novamente.

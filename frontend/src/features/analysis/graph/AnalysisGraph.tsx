@@ -1,4 +1,4 @@
-import { Controls, Panel, ReactFlow } from "@xyflow/react";
+import { Panel, ReactFlow } from "@xyflow/react";
 import type { AriaLabelConfig } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useEffect, useEffectEvent, useRef } from "react";
@@ -11,6 +11,7 @@ import {
   layoutGraph,
 } from "@/features/analysis/graph/buildGraph";
 import { GraphLegend } from "@/features/analysis/graph/GraphLegend";
+import { ZoomControls } from "@/features/analysis/graph/ZoomControls";
 import type { AnalysisFlowEdge } from "@/features/analysis/graph/graphTypes";
 import { nodeTypes } from "@/features/analysis/graph/nodeTypes";
 import { useAnimatedNodes } from "@/features/analysis/graph/useAnimatedNodes";
@@ -121,7 +122,11 @@ export const AnalysisGraph = ({
   };
 
   const nodes = animatedNodes.map((n) =>
-    n.id === selectedId ? { ...n, selected: true } : n,
+    n.id === selectedId
+      ? { ...n, selected: true }
+      : selectedId && n.data.node.parentId === selectedId
+        ? { ...n, data: { ...n.data, highlighted: true } }
+        : n,
   );
 
   // Path of the selection in wine: criterion → rule → its evidences
@@ -151,7 +156,7 @@ export const AnalysisGraph = ({
       minZoom={0.15}
       maxZoom={1.75}
       ariaLabelConfig={ARIA_LABELS}
-      attributionPosition="top-left"
+      attributionPosition="bottom-right"
       className="!bg-transparent"
     >
       {toolbar && (
@@ -162,14 +167,9 @@ export const AnalysisGraph = ({
       <Panel position="bottom-left" className="max-md:hidden">
         <GraphLegend />
       </Panel>
-      <Controls
-        showInteractive={false}
-        position="bottom-right"
-        orientation="horizontal"
-        // Leaves room for the assistant button in the corner
-        style={{ marginBottom: 84 }}
-        className="overflow-hidden rounded-full !shadow-card"
-      />
+      <Panel position="top-left">
+        <ZoomControls onFit={() => frameGraph(target)} />
+      </Panel>
     </ReactFlow>
   );
 };

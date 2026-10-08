@@ -10,11 +10,11 @@ import { useCurrentUser } from "@/features/auth/authState";
 import { paths } from "@/routes/paths";
 import { useSaveDecision } from "@/services/queries";
 
-const OUTCOMES: DecisionOutcome[] = ["eligible", "needs_review", "not_eligible"];
+const OUTCOMES: DecisionOutcome[] = ["eligible", "with_reservations", "not_eligible"];
 
 const OUTCOME_HINTS: Record<DecisionOutcome, string> = {
   eligible: "O projeto atende aos critérios",
-  needs_review: "Faltam informações ou há divergências",
+  with_reservations: "Atende, com pontos a acompanhar",
   not_eligible: "O projeto não atende aos critérios",
 };
 

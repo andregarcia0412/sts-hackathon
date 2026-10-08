@@ -5,8 +5,10 @@ import type { Tone } from "@/domain/qualitative";
 interface TagProps {
   tone: Tone;
   label: string;
-  /** md: pill with 24px icon (graph, headers); sm: compact (lists) */
-  size?: "md" | "sm";
+  /** md: pill with 24px icon (headers); sm: compact (lists); plain: 24px icon + text, no background */
+  size?: "md" | "sm" | "plain";
+  /** plain on a colored card: icon and text in white */
+  inverted?: boolean;
   /** Only the icon (the label is read by screen readers and shown as a tooltip) */
   iconOnly?: boolean;
   /** Replaces the tone's icon (e.g. a spinner for "Processando") */
@@ -24,8 +26,24 @@ export const Tag = ({
   icon,
   iconClassName = "",
   className = "",
+  inverted = false,
 }: TagProps) => {
   const styles = TONE_STYLES[tone];
+
+  if (size === "plain") {
+    const Icon = icon ?? TONE_ICONS[tone];
+    return (
+      <span
+        className={`inline-flex shrink-0 items-center gap-1 text-xs leading-4 font-medium whitespace-nowrap ${
+          inverted ? "text-white" : styles.strongText
+        } ${className}`}
+        title={iconOnly ? label : undefined}
+      >
+        <Icon className={`size-6 ${inverted ? "text-white" : styles.icon} ${iconClassName}`} aria-hidden />
+        {iconOnly ? <span className="sr-only">{label}</span> : label}
+      </span>
+    );
+  }
 
   if (size === "sm") {
     const Icon = icon ?? TONE_SMALL_ICONS[tone];

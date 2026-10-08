@@ -86,7 +86,7 @@ export const RuleDecisionDock = ({ node, projectId, analysisId, current }: RuleD
           Nota da regra
         </label>
         {/* Native select for keyboard/screen readers, drawn as the design's tag */}
-        <div className="relative flex h-12 items-center justify-between rounded-2xl border border-border-strong bg-surface px-2 py-1 focus-within:outline-2 focus-within:outline-action">
+        <div className="relative flex h-12 items-center justify-between rounded-full border border-border-strong bg-surface px-2 py-1 focus-within:outline-2 focus-within:outline-action">
           {rating ? (
             <Tag tone={RULE_RATING[rating].tone} label={RULE_RATING[rating].label} />
           ) : (
@@ -128,7 +128,7 @@ export const RuleDecisionDock = ({ node, projectId, analysisId, current }: RuleD
           onChange={(e) => setJustification(e.target.value)}
           placeholder="Indique qual evidência prevalece e por quê."
           aria-invalid={showErrors && missingJustification}
-          className="input field-sizing-content max-h-32 min-h-12 resize-none"
+          className="input field-sizing-content max-h-32 min-h-12 resize-none rounded-3xl px-4"
         />
         {showErrors && missingJustification && (
           <p role="alert" className="text-xs text-danger">
@@ -137,19 +137,23 @@ export const RuleDecisionDock = ({ node, projectId, analysisId, current }: RuleD
         )}
       </div>
 
-      <div className="flex items-center gap-3">
-        <p className="min-w-0 flex-1 text-center text-xs leading-4 text-fg-muted" aria-live="polite">
+      <div className="flex items-center gap-4">
+        <p
+          className="flex min-h-11 min-w-0 flex-1 flex-col items-center justify-center rounded-full border border-border-strong bg-surface px-4 py-1.5 text-center text-sm leading-4 font-semibold"
+          aria-live="polite"
+        >
           {current ? (
             <>
-              Registrada: <strong className="font-semibold text-fg">{RULE_RATING[current.rating].label}</strong>
-              <br />
-              {current.author} · {formatDateTime(current.createdAt)}
+              <span>Registrada: {RULE_RATING[current.rating].label}</span>
+              <span className="text-[11px] font-normal text-fg-muted">
+                {current.author} · {formatDateTime(current.createdAt)}
+              </span>
             </>
           ) : (
             "Sem decisão registrada"
           )}
         </p>
-        <button type="submit" className="btn-primary" disabled={create.isPending}>
+        <button type="submit" className="btn-primary min-h-11 flex-1" disabled={create.isPending}>
           {create.isPending ? "Registrando…" : current ? "Registrar nova nota" : "Confirmar nota da regra"}
         </button>
       </div>
