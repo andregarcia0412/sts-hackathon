@@ -25,9 +25,10 @@ react-resizable-panels, react-dropzone, react-to-print, lucide-react.
 
 | Rota | Tela |
 |---|---|
-| `/projetos` | Lista de projetos + "Novo projeto" (arquivos e/ou texto livre) |
-| `/projetos/:id/analise?no=<nó>` | Árvore + detalhe + grafo Critério → Regra → Evidência |
-| `/projetos/:id/decisao` | Documento de decisão, formulário do analista, trilha e PDF |
+| `/login` | Login (mock: analistas de demonstração, qualquer senha) |
+| `/projetos?q=&status=&banda=&decisao=&de=&ate=&ordem=&pagina=` | Meus projetos: resumo por status, filtros, paginação + "Novo projeto" |
+| `/projetos/:id/analise?metodo=<método>&no=<nó>` | Árvore + detalhe + grafo Critério → Regra → Evidência, uma árvore por método |
+| `/projetos/:id/decisao?metodo=<método>` | Documento de decisão (todos os métodos), formulário, trilha e PDF |
 
 Nas telas de análise e decisão há um **assistente** (botão no canto inferior direito)
 que explica notas, evidências e rastreabilidade. Ele entende o item selecionado, números
@@ -62,12 +63,26 @@ src/
   `--color-evidence-negative`, ...). Os cards do grafo ficam em `features/analysis/graph/GraphNodes.tsx`.
 - **Faixas de nota:** `src/domain/score.ts` (`scoreBand()`); o resto da UI segue.
 
+## Funcionalidades de apoio ao analista
+
+- **Composição da nota:** cada critério e regra mostra, em gráfico, como a nota foi formada
+  (ponto de partida, contribuição de cada evidência/regra e ajustes). É **mockada**
+  (`src/mocks/scoreExplanations.ts`) até o time definir o cálculo; o contrato é
+  `scoreExplanation` em `src/domain/types.ts`.
+- **Contestação:** "Questionar" no detalhe de qualquer nó abre o assistente em modo debate.
+  O modelo mostra a base, simula o efeito (ex.: inverter a polaridade de uma evidência) e o
+  analista registra a contestação, que aparece na árvore, no grafo, no documento e na trilha.
+- **Vários métodos:** cada projeto tem uma análise por método (`src/domain/frameworks.ts`).
+  Hoje: Manual de Frascati e Formulário MCTI. Para incluir outro, adicione-o ali e nos mocks.
+
 ## Comportamentos já decididos
 
 - **Grafo mostra os 5 critérios.** Ao entrar na tela, tudo aparece expandido e depois
   recolhe para só os critérios. Clicar num critério ou regra expande; clicar de novo recolhe.
 - **Decisão nunca é sobrescrita.** Cada registro entra na trilha (quem, quando, com base
   em qual análise); a mais recente é a "vigente".
+- **Cada analista vê os próprios projetos.** Decisões e contestações são assinadas pelo
+  usuário logado.
 - **Mock persistente.** O banco mockado fica no `localStorage`, então uma demo sobrevive
   ao F5. Para voltar aos exemplos: `resetMockData()` no console (modo dev). Ao mudar
   `src/mocks`, troque a versão de `STORAGE_KEY` em `api.ts`.

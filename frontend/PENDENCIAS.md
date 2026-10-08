@@ -29,8 +29,20 @@ de fechar o app ou uma versão de demonstração.
       falar em "força da evidência" e sempre citar a fonte.
 - [ ] Upload real dos arquivos (hoje só os metadados são guardados).
 
+- [ ] **Login real** (hoje: mock com sessão no `localStorage`, `src/features/auth`).
+      Definir se um analista pode abrir projetos de outro por link direto (hoje pode;
+      a lista mostra só os próprios) e se haverá visão de coordenação com todos os projetos.
+- [ ] **Cálculo da nota:** substituir a composição mockada (`src/mocks/scoreExplanations.ts`)
+      pela explicação real do back-end, no formato `scoreExplanation`.
+- [ ] **Contestações:** definir o que acontece depois de registradas (reanálise? resposta do
+      modelo? status aberta/resolvida?). Hoje só são registradas e exibidas.
+- [ ] **Outros métodos de árvore:** confirmar quais métodos além de Frascati e Formulário MCTI
+      (ex.: Manual de Oslo) e revisar o conteúdo da árvore mockada do Formulário MCTI.
+
 ## Técnico
 
+- [ ] Os ~400 projetos gerados reaproveitam os textos do projeto-exemplo do sensor (só as
+      notas variam): servem para testar escala e filtros, não para ler conteúdo.
 - [ ] Bundle passa de 500 kB por causa do React Flow: carregar as telas sob demanda
       (`React.lazy` nas rotas de análise e decisão).
 - [ ] Fontes: os tokens citam Inter e Source Serif, mas elas não são carregadas
