@@ -1,0 +1,40 @@
+import { createContext, useContext, useEffect } from "react";
+import type { AssistantAnswer, AssistantContext, ChatMessage } from "@/domain/assistant";
+
+export interface AssistantState {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  messages: ChatMessage[];
+  pending: boolean;
+  send: (question: string) => void;
+  clear: () => void;
+  /** Context registered by the current screen (null on screens without it) */
+  pageContext: AssistantContext | null;
+  setPageContext: (context: AssistantContext | null) => void;
+  /** Node being contested (debate mode), if any */
+  debateNodeId: string | null;
+  startDebate: (nodeId: string) => void;
+  endDebate: (note?: string) => void;
+  /** Appends the answer of a request (e.g. a reanalysis) as an assistant message */
+  respondWith: (request: Promise<AssistantAnswer>) => void;
+}
+
+export const AssistantStateContext = createContext<AssistantState | null>(null);
+
+export const useAssistant = () => {
+  const state = useContext(AssistantStateContext);
+  if (!state) throw new Error("useAssistant must be used inside AssistantProvider");
+  return state;
+};
+
+/** Screens call this so the assistant knows what the analyst is looking at */
+export const useRegisterAssistantContext = (context: AssistantContext) => {
+  const { setPageContext } = useAssistant();
+  const { screen, analysis, selectedNodeId } = context;
+
+  useEffect(() => {
+    setPageContext({ screen, analysis, selectedNodeId });
+  }, [setPageContext, screen, analysis, selectedNodeId]);
+
+  useEffect(() => () => setPageContext(null), [setPageContext]);
+};

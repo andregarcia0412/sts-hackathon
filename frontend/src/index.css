@@ -1,1 +1,106 @@
 @import "tailwindcss";
+
+/*
+ * Design tokens (provisional).
+ * The designer's palette replaces only the values below; components use the
+ * semantic names (bg-surface, text-fg-muted, text-score-strong, ...).
+ */
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Source Serif 4", ui-serif, Georgia, serif;
+
+  --color-canvas: oklch(0.975 0.003 250);
+  --color-surface: oklch(1 0 0);
+  --color-surface-muted: oklch(0.955 0.005 250);
+  --color-border: oklch(0.9 0.008 250);
+  --color-border-strong: oklch(0.8 0.01 250);
+  --color-fg: oklch(0.22 0.02 255);
+  --color-fg-muted: oklch(0.48 0.02 255);
+  --color-accent: oklch(0.5 0.15 255);
+  --color-accent-fg: oklch(0.99 0 0);
+  --color-accent-soft: oklch(0.94 0.035 255);
+  --color-danger: oklch(0.55 0.19 27);
+
+  /* Score bands: evidence strength (not approval probability) */
+  --color-score-strong: oklch(0.52 0.13 155);
+  --color-score-strong-soft: oklch(0.95 0.04 155);
+  --color-score-moderate: oklch(0.6 0.13 75);
+  --color-score-moderate-soft: oklch(0.96 0.05 85);
+  --color-score-weak: oklch(0.55 0.17 30);
+  --color-score-weak-soft: oklch(0.95 0.035 30);
+
+  /* Evidence polarity */
+  --color-evidence-positive: oklch(0.52 0.13 155);
+  --color-evidence-positive-soft: oklch(0.95 0.04 155);
+  --color-evidence-negative: oklch(0.55 0.17 30);
+  --color-evidence-negative-soft: oklch(0.95 0.035 30);
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+
+  body {
+    @apply bg-canvas font-sans text-fg antialiased;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-accent;
+  }
+}
+
+/* Provisional primitives, restyled when the high-fidelity design arrives */
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-md bg-accent px-3.5 py-2 text-sm font-medium text-accent-fg transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-md border border-border-strong bg-surface px-3.5 py-2 text-sm font-medium text-fg transition-colors hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium text-fg-muted transition-colors hover:bg-surface-muted hover:text-fg disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .input {
+    @apply w-full rounded-md border border-border-strong bg-surface px-3 py-2 text-sm placeholder:text-fg-muted/70 focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-accent;
+  }
+
+  .label {
+    @apply mb-1 block text-sm font-medium;
+  }
+}
+
+/* React Flow: nodes are clickable even though built-in selection is off */
+.react-flow__node {
+  cursor: pointer;
+}
+
+/* Print / PDF export of the decision document */
+@media print {
+  @page {
+    size: A4;
+    margin: 18mm 16mm;
+  }
+
+  body {
+    background: white;
+  }
+
+  h2,
+  h3,
+  h4,
+  h5 {
+    break-after: avoid;
+  }
+
+  /* Paper has no hover: print where each reference points to */
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.75em;
+    word-break: break-all;
+    color: var(--color-fg-muted);
+  }
+}
