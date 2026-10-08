@@ -1,4 +1,5 @@
 import { useSearchParams } from "react-router-dom";
+import { paths } from "@/routes/paths";
 import type {
   DecisionOutcome,
   ProjectQuery,
@@ -62,7 +63,10 @@ export const useProjectFilters = () => {
    * Reads the live URL, not the last render: React Router applies navigations
    * in a transition, so two quick changes would otherwise overwrite each other.
    */
-  const update = (patch: Partial<ProjectFilters>) =>
+  const update = (patch: Partial<ProjectFilters>) => {
+    // A late update (e.g. the debounced search) must not pull the analyst back
+    // to the list after they already opened a project
+    if (window.location.pathname !== paths.projects()) return;
     setParams(
       serializeFilters({
         ...parseFilters(new URLSearchParams(window.location.search)),
@@ -72,6 +76,7 @@ export const useProjectFilters = () => {
       // Typing in the search box should not flood the history
       { replace: "search" in patch },
     );
+  };
 
   const activeCount = [
     filters.search,
