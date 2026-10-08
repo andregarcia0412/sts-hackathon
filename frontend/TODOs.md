@@ -15,8 +15,17 @@ Pontos deixados para depois. Separados em dois grupos:
 - [ ] Trocar os mocks pela API real em `src/services/api.ts` (projetos, análises,
       decisões, contestações). As telas só usam essas funções.
 - [ ] Confirmar com o back-end a **escala da nota** (hoje 0–100, faixas em
-      `src/domain/score.ts`) e os **formatos de upload** aceitos (hoje PDF, DOCX, TXT).
-- [ ] Upload real dos arquivos (hoje só os metadados são guardados).
+      `src/domain/score.ts`) e os **formatos de upload** aceitos (hoje PDF, DOCX, TXT, MD, CSV, XLSX e JSON).
+- [ ] Upload real dos arquivos (hoje só os metadados são guardados e o progresso é
+      simulado em `src/features/projects/uploadQueue.ts`).
+- [ ] **Reconhecimento do tipo de documento** pelo conteúdo (hoje só pelo nome, em
+      `src/domain/documents.ts`) e leitura de CSV, XLSX, JSON e MD.
+- [ ] **Busca de trabalhos similares na web** (Google Scholar e arXiv) com aprovação dos
+      termos pelo analista: hoje só o consentimento é guardado (`Project.webSearch`).
+- [ ] **Reenvio de arquivo ilegível** (`resendDocument`) e o nome do arquivo com erro
+      (`Project.readError`) vindos do back-end.
+- [ ] **Data de corte** do recorte analisado (`Project.cutoffDate`) e o progresso do
+      processamento (`processingProgress`) vindos do back-end.
 - [ ] **Cálculo da nota:** substituir a composição mockada (`src/mocks/scoreExplanations.ts`)
       pela explicação real do back-end, no formato `scoreExplanation`.
 - [ ] **Chatbot:** trocar as respostas mockadas (`askAssistant` em `src/services/api.ts`)
@@ -41,9 +50,11 @@ Pontos deixados para depois. Separados em dois grupos:
 
 ### Visual e técnico
 
-- [x] Visual de alta fidelidade aplicado em todas as telas. Do Figma: cabeçalho e grafo de
-      evidências. Derivadas do design system (sem tela no Figma): projetos, upload,
-      documento de decisão, login e chatbot. **Conferir essas cinco com o designer.**
+- [x] Visual de alta fidelidade aplicado em todas as telas. Do Figma: cabeçalho, grafo de
+      evidências, projetos e upload. Derivadas do design system (sem tela no Figma):
+      documento de decisão, login e chatbot. **Conferir essas três com o designer.**
+- [ ] Rótulos por critério do Formulário MCTI (`CRITERION_WORDS` em
+      `src/domain/qualitative.ts`): o design só mostra os de Frascati; confirmar com o designer.
 - [x] Fontes: Heebo carregada do Google Fonts (o documento de decisão também usa Heebo).
 - [ ] Bundle passa de 500 kB por causa do React Flow: carregar as telas sob demanda
       (`React.lazy` nas rotas de análise e decisão).
