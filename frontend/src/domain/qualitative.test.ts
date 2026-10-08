@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { criterionStatus, ruleStatus } from "@/domain/qualitative";
-import type { Criterion, Evidence, Rule } from "@/domain/types";
+import { criterionStatusInfo, ruleStatus } from "@/domain/qualitative";
+import type { Evidence, Rule } from "@/domain/types";
 
 const evidence = (id: string, polarity: Evidence["polarity"]): Evidence => ({
   id,
@@ -53,11 +53,22 @@ describe("ruleStatus", () => {
   });
 });
 
-describe("criterionStatus", () => {
-  it("follows the score band", () => {
-    const criterion = (score: number) => ({ score }) as Criterion;
-    expect(criterionStatus(criterion(78))).toBe("demonstrated");
-    expect(criterionStatus(criterion(55))).toBe("limited");
-    expect(criterionStatus(criterion(34))).toBe("not_demonstrated");
+describe("criterionStatusInfo", () => {
+  it("uses each criterion's own word, following the score band", () => {
+    expect(criterionStatusInfo({ key: "novelty", score: 78 }).label).toBe("Demonstrada no recorte");
+    expect(criterionStatusInfo({ key: "uncertainty", score: 78 }).label).toBe("Investigada");
+    expect(criterionStatusInfo({ key: "systematic", score: 55 }).label).toBe("Documentada com limite");
+    expect(criterionStatusInfo({ key: "transferability", score: 34 }).label).toBe("Não documentada");
+  });
+
+  it("gives the compact 'Com limite' and the tone", () => {
+    const limited = criterionStatusInfo({ key: "novelty", score: 55 });
+    expect(limited.short).toBe("Com limite");
+    expect(limited.tone).toBe("attention");
+    expect(criterionStatusInfo({ key: "novelty", score: 20 }).tone).toBe("negative");
+  });
+
+  it("falls back for a criterion key it does not know", () => {
+    expect(criterionStatusInfo({ key: "nova-chave", score: 90 }).label).toBe("Atendido");
   });
 });

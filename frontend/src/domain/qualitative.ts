@@ -1,6 +1,6 @@
 import { scoreBand } from "@/domain/score";
 import type { ScoreBand } from "@/domain/score";
-import type { Criterion, EvidencePolarity, Rule, RuleRating } from "@/domain/types";
+import type { Criterion, CriterionKey, EvidencePolarity, Rule, RuleRating } from "@/domain/types";
 
 /*
  * Qualitative reading of the scores, as shown by the high-fidelity design
@@ -20,7 +20,7 @@ export type RuleStatus =
   | "not_sustained"
   | "no_evidence";
 
-export type CriterionStatus = "demonstrated" | "limited" | "not_demonstrated";
+export type CriterionStatus = "met" | "limited" | "not_met";
 
 /**
  * Positive and negative evidences of comparable weight: the system does not
@@ -58,11 +58,11 @@ export const ruleStatus = (rule: Rule): RuleStatus => {
   return band === "moderate" ? "partial" : "not_sustained";
 };
 
-/** Criterion reading of each score band (also used by the project list filter) */
+/** Criterion reading of each score band */
 export const BAND_CRITERION_STATUS: Record<ScoreBand, CriterionStatus> = {
-  strong: "demonstrated",
+  strong: "met",
   moderate: "limited",
-  weak: "not_demonstrated",
+  weak: "not_met",
 };
 
 export const criterionStatus = (criterion: Pick<Criterion, "score">): CriterionStatus =>
@@ -83,10 +83,44 @@ export const RULE_STATUS: Record<RuleStatus, StatusInfo> = {
   no_evidence: { label: "Sem evidência", short: "Sem evidência", tone: "neutral" },
 };
 
-export const CRITERION_STATUS: Record<CriterionStatus, StatusInfo> = {
-  demonstrated: { label: "Demonstrado", short: "Demonstrado", tone: "positive" },
-  limited: { label: "Demonstrado com limite", short: "Com limite", tone: "attention" },
-  not_demonstrated: { label: "Não demonstrado", short: "Não demonstrado", tone: "negative" },
+const CRITERION_TONES: Record<CriterionStatus, Tone> = {
+  met: "positive",
+  limited: "attention",
+  not_met: "negative",
+};
+
+/*
+ * Each criterion is read with its own word, as in the design: Novidade is
+ * "Demonstrada no recorte", Incerteza is "Investigada", Sistematização is
+ * "Documentada"... Keyed by CriterionKey (Frascati and Formulário MCTI).
+ */
+const CRITERION_WORDS: Record<CriterionKey, Record<CriterionStatus, string>> = {
+  // Frascati
+  novelty: { met: "Demonstrada no recorte", limited: "Demonstrada com limite", not_met: "Não demonstrada" },
+  creativity: { met: "Demonstrada no recorte", limited: "Demonstrada com limite", not_met: "Não demonstrada" },
+  uncertainty: { met: "Investigada", limited: "Investigada com limite", not_met: "Não investigada" },
+  systematic: { met: "Documentada", limited: "Documentada com limite", not_met: "Não documentada" },
+  transferability: { met: "Documentada", limited: "Documentada com limite", not_met: "Não documentada" },
+  // Formulário MCTI
+  novel_element: { met: "Demonstrado no recorte", limited: "Demonstrado com limite", not_met: "Não demonstrado" },
+  technological_barrier: { met: "Investigada", limited: "Investigada com limite", not_met: "Não investigada" },
+  methodology: { met: "Documentada", limited: "Documentada com limite", not_met: "Não documentada" },
+  description_scope: { met: "Descrita", limited: "Descrita com limite", not_met: "Não descrita" },
+  schedule: { met: "Documentado", limited: "Documentado com limite", not_met: "Não documentado" },
+};
+
+/** Only for a criterion key this front-end does not know yet (new method from the back-end) */
+const UNKNOWN_CRITERION_WORDS: Record<CriterionStatus, string> = {
+  met: "Atendido",
+  limited: "Atendido com limite",
+  not_met: "Não atendido",
+};
+
+/** Label and tone of a criterion's reading; `short` is "Com limite" in compact places */
+export const criterionStatusInfo = (criterion: Pick<Criterion, "key" | "score">): StatusInfo => {
+  const status = criterionStatus(criterion);
+  const label = (CRITERION_WORDS[criterion.key] ?? UNKNOWN_CRITERION_WORDS)[status];
+  return { label, short: status === "limited" ? "Com limite" : label, tone: CRITERION_TONES[status] };
 };
 
 export const POLARITY_STATUS: Record<EvidencePolarity, StatusInfo> = {

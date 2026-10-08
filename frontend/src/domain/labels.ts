@@ -33,16 +33,16 @@ export const SUGGESTED_CATEGORY_LABELS: Record<SuggestedCategory, string> = {
 };
 
 export const DECISION_OUTCOME_LABELS: Record<DecisionOutcome, string> = {
-  eligible: "Enquadrável",
-  not_eligible: "Não enquadrável",
-  needs_review: "Precisa de revisão",
+  eligible: "Elegível",
+  with_reservations: "Com ressalvas",
+  not_eligible: "Não elegível",
 };
 
 /** The analyst's decision (never an automatic verdict) */
 export const DECISION_OUTCOME_TONES: Record<DecisionOutcome, Tone> = {
   eligible: "positive",
   not_eligible: "negative",
-  needs_review: "attention",
+  with_reservations: "attention",
 };
 
 export const CONTESTATION_REASON_LABELS: Record<ContestationReason, string> = {

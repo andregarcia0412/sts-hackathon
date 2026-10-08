@@ -19,6 +19,7 @@ import {
   createEvidenceReview,
   createProject,
   createRuleDecision,
+  resendDocument,
   getAnalyses,
   getProject,
   listContestations,
@@ -156,5 +157,15 @@ export const useCreateEvidenceReview = () => {
     mutationFn: (input: NewEvidenceReviewInput) => createEvidenceReview(input),
     onSuccess: (review) =>
       queryClient.invalidateQueries({ queryKey: queryKeys.evidenceReviews(review.projectId) }),
+  });
+};
+
+/** Replaces the unreadable file of a project; it goes back to "processing" */
+export const useResendDocument = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ projectId, file }: { projectId: string; file: File }) =>
+      resendDocument(projectId, file),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.projects }),
   });
 };

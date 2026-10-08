@@ -15,6 +15,9 @@
   --color-surface-sunken: #eeeeee; /* neutro/100 */
   --color-border: #e4e4e4; /* neutro/200 */
   --color-border-strong: #cfcfcf; /* neutro/300 */
+  --color-divider: #f1eded; /* list rows */
+  --color-track: #eeeaea; /* progress track, list header line */
+  --color-strip: #bdb8b8; /* list: criteria strip */
   --color-fg: #161616; /* neutro/900 */
   --color-fg-soft: #303030; /* neutro/800 */
   --color-fg-secondary: #4a4a4a; /* neutro/700 */
@@ -41,6 +44,8 @@
   --color-state-attention-soft: #fff1db;
   --color-state-negative: #b3261e;
   --color-state-negative-soft: #fcebea;
+  --color-state-attention-bar: #e8a64a; /* list: weakest-criterion strip */
+  --color-state-attention-mark: #c77700; /* list: weakest-criterion marker */
   --color-state-neutral: #4a4a4a;
   --color-state-neutral-soft: #eeeeee;
 
@@ -64,6 +69,11 @@
 }
 
 @layer base {
+  :root {
+    /* Material keyboard_arrow_down, for native selects */
+    --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234a4a4a'%3E%3Cpath d='M12 14.975q-.2 0-.388-.075t-.312-.2l-4.6-4.6q-.275-.275-.275-.7t.275-.7t.7-.275t.7.275L12 12.6l3.9-3.9q.275-.275.7-.275t.7.275t.275.7t-.275.7l-4.6 4.6q-.15.15-.325.213t-.375.062'/%3E%3C/svg%3E");
+  }
+
   html {
     color-scheme: light;
   }
@@ -108,7 +118,7 @@
   /* Native select drawn like the design's "Seletor" (arrow = Material keyboard_arrow_down) */
   .select {
     @apply w-full cursor-pointer appearance-none rounded-2xl border border-border-strong bg-surface bg-no-repeat py-3 pr-11 pl-3 text-base leading-5 focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-action;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234a4a4a'%3E%3Cpath d='M12 14.975q-.2 0-.388-.075t-.312-.2l-4.6-4.6q-.275-.275-.275-.7t.275-.7t.7-.275t.7.275L12 12.6l3.9-3.9q.275-.275.7-.275t.7.275t.275.7t-.275.7l-4.6 4.6q-.15.15-.325.213t-.375.062'/%3E%3C/svg%3E");
+    background-image: var(--select-arrow);
     background-position: right 12px center;
     background-size: 24px;
   }
