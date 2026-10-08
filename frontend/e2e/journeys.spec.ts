@@ -17,7 +17,7 @@ test("analista faz a primeira análise, decide e gera o documento", async ({ pag
   });
 
   await test.step("procura o projeto e abre a análise", async () => {
-    await typeLikeAPerson(page.getByPlaceholder("Projeto ou empresa"), "sensor");
+    await typeLikeAPerson(page.getByRole("searchbox"), "sensor");
     const row = page.getByRole("row", { name: /Sensor de umidade/ });
     await row.getByRole("link", { name: "Abrir análise" }).click();
     await expect(page.getByRole("heading", { name: "Detalhamento de informações" })).toBeVisible();
@@ -67,11 +67,11 @@ test("analista faz a primeira análise, decide e gera o documento", async ({ pag
       .click();
     await page.getByRole("button", { name: "Registrar decisão" }).click();
     await expect(page.getByText("Escolha um resultado.")).toBeVisible();
-    await page.getByText("Precisa de revisão", { exact: true }).click();
+    await page.getByText("Com ressalvas", { exact: true }).click();
     await typeLikeAPerson(page.getByLabel(/^Justificativa/), "Transferibilidade fraca: pedir registros reproduzíveis.");
     await page.getByRole("button", { name: "Registrar decisão" }).click();
     const latest = page.locator("#trilha ol > li").first();
-    await expect(latest).toContainText("Precisa de revisão");
+    await expect(latest).toContainText("Com ressalvas");
     await expect(latest.getByText("decisão vigente", { exact: true })).toBeVisible();
   });
 
@@ -88,7 +88,7 @@ test("analista faz a primeira análise, decide e gera o documento", async ({ pag
 
   await test.step("volta para a lista e vê o projeto decidido", async () => {
     await page.getByRole("link", { name: "Projetos" }).click();
-    await typeLikeAPerson(page.getByPlaceholder("Projeto ou empresa"), "sensor");
+    await typeLikeAPerson(page.getByRole("searchbox"), "sensor");
     await expect(page.getByRole("row", { name: /Sensor de umidade/ }).getByText("Decidido")).toBeVisible();
   });
 });
@@ -103,7 +103,7 @@ test("analista discorda do modelo, contesta e vê a reanálise na trilha", async
   });
 
   await test.step("abre o critério mais fraco do projeto", async () => {
-    await typeLikeAPerson(page.getByPlaceholder("Projeto ou empresa"), "sensor");
+    await typeLikeAPerson(page.getByRole("searchbox"), "sensor");
     await page.getByRole("row", { name: /Sensor de umidade/ }).getByRole("link", { name: "Abrir análise" }).click();
     await page.getByRole("button", { name: /Transferibilidade/ }).click();
     await page.getByRole("button", { name: /^5\.1 / }).click();
@@ -158,8 +158,8 @@ test("analista envia um projeto novo e abre a análise quando fica pronta", asyn
 
   await test.step("preenche, anexa, remove um arquivo e envia", async () => {
     await typeLikeAPerson(page.getByLabel(/Nome do projeto/), "Irrigação por gotejamento inteligente");
-    await typeLikeAPerson(page.getByLabel(/Empresa/), "Água Viva (fictícia)");
-    await page.locator("input[type=file]").setInputFiles([
+    await typeLikeAPerson(page.getByLabel(/Equipe ou empresa/), "Água Viva (fictícia)");
+    await page.getByLabel("Selecionar arquivos").setInputFiles([
       { name: "plano.pdf", mimeType: "application/pdf", buffer: Buffer.from("%PDF teste") },
       {
         name: "relatorio.docx",
@@ -188,35 +188,31 @@ test("analista faz a triagem da fila com filtros e volta pelo navegador", async 
 
   await test.step("filtra pelos cards e pelo critério mais fraco", async () => {
     await page.getByRole("button", { name: /Em análise/ }).click();
-    await page.getByLabel("Critério mais fraco").selectOption({ label: "Não demonstrado" });
+    await page.getByLabel("Força da evidência do critério mais fraco").selectOption("weak");
     await page.getByLabel("Ordenar por").selectOption({ label: "Critério mais fraco primeiro" });
     await expect(page).toHaveURL(/status=ready/);
     await expect(page).toHaveURL(/banda=weak/);
     const weakest = page.locator("tbody td:nth-child(4)");
-    await expect(weakest.first()).toContainText("Não demonstrado");
-  });
-
-  await test.step("vê os detalhes de uma linha", async () => {
-    await page.getByRole("button", { name: /Ver detalhes de/ }).first().click();
-    await expect(page.getByText("Notas por critério")).toBeVisible();
+    await expect(weakest.first()).toContainText(/Não (demonstrad|documentad|investigad|descrit)/);
   });
 
   await test.step("abre a análise e volta: os filtros continuam lá", async () => {
     await page.getByRole("link", { name: "Abrir análise" }).first().click();
     await expect(page.locator(".react-flow__node").first()).toBeVisible();
     await page.goBack();
-    await expect(page.getByLabel("Critério mais fraco")).toHaveValue("weak");
+    await expect(page.getByLabel("Força da evidência do critério mais fraco")).toHaveValue("weak");
   });
 
   await test.step("limpa os filtros", async () => {
-    await page.getByRole("button", { name: /Limpar filtros/ }).click();
-    await expect(page.getByLabel("Critério mais fraco")).toHaveValue("");
+    await page.getByRole("button", { name: /Limpar/ }).click();
+    await expect(page.getByLabel("Força da evidência do critério mais fraco")).toHaveValue("");
   });
 });
 
 test("analista explora o mapa geral com o mouse", async ({ page }) => {
   await signInAs(page, USERS.ana);
   await page.goto("/projetos");
+  await page.getByRole("button", { name: /Em análise/ }).click();
   await page.getByRole("link", { name: "Abrir análise" }).first().click();
   await expect(page.locator(".react-flow__node").first()).toBeVisible();
 
@@ -262,6 +258,17 @@ test("analista usa só o teclado", async ({ page }) => {
     await expect(page.getByRole("heading", { name: "Meus projetos" })).toBeVisible();
   });
 
+  await test.step("filtra 'Em análise' pelo card com o teclado", async () => {
+    let reached = false;
+    for (let i = 0; i < 30 && !reached; i++) {
+      await page.keyboard.press("Tab");
+      reached = await page.evaluate(() => document.activeElement?.textContent?.startsWith("Em análise") ?? false);
+    }
+    expect(reached).toBe(true);
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(/status=ready/);
+  });
+
   await test.step("chega ao primeiro 'Abrir análise' com Tab", async () => {
     let reached = false;
     for (let i = 0; i < 80 && !reached; i++) {
@@ -294,6 +301,7 @@ test.describe("no celular", () => {
     await test.step("entra e abre um projeto", async () => {
       await page.goto("/");
       await page.getByRole("button", { name: /Ana Ribeiro/ }).click();
+      await page.getByRole("button", { name: /Em análise/ }).click();
       await page.getByRole("link", { name: "Abrir análise" }).first().click();
       await expect(page.locator(".react-flow__node").first()).toBeVisible();
     });

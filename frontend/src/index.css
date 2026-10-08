@@ -51,6 +51,12 @@
   --color-state-neutral: #4a4a4a;
   --color-state-neutral-soft: #eeeeee;
 
+  /* Status cards of the project list (colors from the design) */
+  --color-card-orange: #f88a27;
+  --color-card-orange-strong: #e5620d;
+  --color-card-blue: #3690fa;
+  --color-card-green: #009036; /* verdes/100 */
+
   /* Score bands: evidence strength (not approval probability) */
   --color-score-strong: var(--color-state-positive);
   --color-score-strong-soft: var(--color-state-positive-soft);

@@ -14,15 +14,15 @@ test("projeto decidido mostra a decisão vigente e links para o grafo", async ({
 
 test("nova decisão vai para o topo da trilha e aparece na lista", async ({ page }) => {
   await page.goto("/projetos/p2/decisao");
-  await page.getByText("Precisa de revisão", { exact: true }).first().click();
+  await page.getByText("Com ressalvas", { exact: true }).first().click();
   await page.getByLabel(/^Justificativa/).fill("Revisar a transferibilidade.");
   await page.getByRole("button", { name: "Registrar decisão" }).click();
   const latest = page.locator("#trilha ol > li").first();
-  await expect(latest).toContainText("Precisa de revisão");
+  await expect(latest).toContainText("Com ressalvas");
   await expect(latest.getByText("decisão vigente", { exact: true })).toBeVisible();
-  await expect(page.getByText(/Decisão vigente: Precisa de revisão/)).toBeVisible();
-  await page.goto("/projetos?decisao=needs_review");
-  await expect(page.locator("tbody")).toContainText("Precisa de revisão");
+  await expect(page.getByText(/Decisão vigente: Com ressalvas/)).toBeVisible();
+  await page.goto("/projetos?decisao=with_reservations");
+  await expect(page.locator("tbody")).toContainText("Com ressalvas");
 });
 
 test("projeto gerado: decisão é salva (cópia na escrita) e sobrevive ao reload", async ({ page }) => {
@@ -30,7 +30,7 @@ test("projeto gerado: decisão é salva (cópia na escrita) e sobrevive ao reloa
   await page.goto("/projetos?status=ready&ordem=oldest");
   const href = await page.locator('tbody a[href^="/projetos/g"][href$="/analise"]').first().getAttribute("href");
   await page.goto(href!.replace("/analise", "/decisao"));
-  await page.getByText("Enquadrável", { exact: true }).first().click();
+  await page.getByText("Elegível", { exact: true }).first().click();
   await page.getByLabel(/^Justificativa/).fill("Teste de projeto gerado.");
   await page.getByRole("button", { name: "Registrar decisão" }).click();
   await expect(page.locator("#trilha")).toContainText("Teste de projeto gerado.");

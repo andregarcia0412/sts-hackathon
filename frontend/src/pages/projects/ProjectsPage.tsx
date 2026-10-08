@@ -7,11 +7,11 @@ import { EmptyState, ErrorState, LoadingState } from "@/components/ui/states";
 import type { ProjectSummary } from "@/domain/types";
 import { useCurrentUser } from "@/features/auth/authState";
 import { NewProjectDialog } from "@/features/projects/NewProjectDialog";
-import { ListToolbar } from "@/features/projects/ListToolbar";
 import { ProjectSearch } from "@/features/projects/ProjectSearch";
 import { ProjectTable } from "@/features/projects/ProjectTable";
 import { ResendFileDialog } from "@/features/projects/ResendFileDialog";
-import { StatusTabs } from "@/features/projects/StatusTabs";
+import { ProjectFilterBar } from "@/features/projects/ProjectFilterBar";
+import { StatCards } from "@/features/projects/StatCards";
 import { PAGE_SIZE, useProjectFilters } from "@/features/projects/useProjectFilters";
 import { NEW_PROJECT_PARAM } from "@/routes/paths";
 import { useProjects } from "@/services/queries";
@@ -53,18 +53,21 @@ export const ProjectsPage = () => {
     <div className="flex flex-1 flex-col">
       <PageHeader
         title="Meus Projetos"
-        description={<p>Análise preliminar de enquadramento na Lei do Bem · {user.name} · dados fictícios de demonstração</p>}
+        description={<p>Análise preliminar de enquadramento na Lei do Bem · dados fictícios de demonstração</p>}
         aside={newProjectButton}
       >
         {data && !ownsNothing && (
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <StatusTabs
+          <>
+            <StatCards
               counts={data.statusCounts}
               selected={filters.statuses ?? []}
               onSelect={(statuses) => update({ statuses })}
             />
-            <ProjectSearch value={filters.search ?? ""} onSearch={(search) => update({ search })} />
-          </div>
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <ProjectFilterBar filters={filters} update={update} clear={clear} activeCount={activeCount} />
+              <ProjectSearch value={filters.search ?? ""} onSearch={(search) => update({ search })} />
+            </div>
+          </>
         )}
       </PageHeader>
 
@@ -91,7 +94,6 @@ export const ProjectsPage = () => {
           >
             {data.items.length === 0 ? (
               <div className="rounded-3xl bg-white/80 shadow-[0_4px_16px_rgb(0_0_0/0.1)]">
-                <ListToolbar filters={filters} update={update} clear={clear} activeCount={activeCount} />
                 <EmptyState
                   title="Nenhum projeto com esses filtros"
                   description="Ajuste ou limpe os filtros para ver mais projetos."
@@ -106,9 +108,6 @@ export const ProjectsPage = () => {
               <ProjectTable
                 projects={data.items}
                 onResend={setResending}
-                toolbar={
-                  <ListToolbar filters={filters} update={update} clear={clear} activeCount={activeCount} />
-                }
                 footer={
                   <Pagination
                     className="px-6 py-4"

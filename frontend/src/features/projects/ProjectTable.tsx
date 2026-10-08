@@ -78,6 +78,7 @@ const Row = ({ project, onResend }: { project: ProjectSummary; onResend: (p: Pro
   const meta = [
     project.company,
     files ? pluralize(files, "arquivo", "arquivos") : project.freeText ? "descrição em texto" : undefined,
+    `enviado em ${formatDate(project.createdAt)}`,
     project.openContestationCount
       ? pluralize(project.openContestationCount, "contestação aberta", "contestações abertas")
       : undefined,
@@ -91,9 +92,7 @@ const Row = ({ project, onResend }: { project: ProjectSummary; onResend: (p: Pro
           <span className="shrink-0 rounded-full border border-border-strong bg-surface p-2 text-xs leading-3 font-semibold">
             Projeto {projectCode(project.id)}
           </span>
-          <span className="truncate text-xs text-fg-muted" title={meta.join(" · ")}>
-            {meta.join(" · ")}
-          </span>
+          <span className="min-w-0 text-xs leading-4 text-fg-muted">{meta.join(" · ")}</span>
         </div>
       </td>
       <td className="px-4 py-4 align-middle text-fg-secondary">
