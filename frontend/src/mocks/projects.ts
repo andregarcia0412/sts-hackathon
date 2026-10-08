@@ -15,6 +15,7 @@ import { soilSensorMctiAnalysis } from "@/mocks/analysis-soil-sensor-mcti";
 export const mockProjects: Project[] = [
   {
     id: "p1",
+    ownerId: "u1",
     name: "Sensor de umidade de solo para o semiárido (EXEMPLO FICTÍCIO)",
     company: "AgroSertão Tecnologia Ltda. (fictícia)",
     createdAt: "2026-09-28T13:12:00.000Z",
@@ -23,6 +24,7 @@ export const mockProjects: Project[] = [
   },
   {
     id: "p2",
+    ownerId: "u1",
     name: "Plataforma de conciliação financeira (EXEMPLO FICTÍCIO)",
     company: "Conta Fácil Sistemas (fictícia)",
     createdAt: "2026-09-15T10:02:00.000Z",
@@ -31,6 +33,7 @@ export const mockProjects: Project[] = [
   },
   {
     id: "p3",
+    ownerId: "u1",
     name: "Bioinsumo a partir de resíduos de caju (EXEMPLO FICTÍCIO)",
     company: "Caju Bio (fictícia)",
     createdAt: "2026-10-07T09:40:00.000Z",
@@ -41,6 +44,7 @@ export const mockProjects: Project[] = [
   },
   {
     id: "p4",
+    ownerId: "u1",
     name: "Dessalinizador solar compacto (EXEMPLO FICTÍCIO)",
     createdAt: "2026-10-02T16:20:00.000Z",
     status: "error",

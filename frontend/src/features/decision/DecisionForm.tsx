@@ -6,6 +6,7 @@ import { FRAMEWORKS } from "@/domain/frameworks";
 import { indexAnalysis } from "@/domain/tree";
 import type { RuleNode } from "@/domain/tree";
 import type { Analysis, DecisionOutcome, RuleOverride } from "@/domain/types";
+import { useCurrentUser } from "@/features/auth/authState";
 import { useSaveDecision } from "@/services/queries";
 
 const OUTCOMES: DecisionOutcome[] = ["eligible", "not_eligible", "needs_review"];
@@ -30,14 +31,13 @@ export const DecisionForm = ({ analyses, hasPrevious }: DecisionFormProps) => {
 
   const [outcome, setOutcome] = useState<DecisionOutcome | null>(null);
   const [justification, setJustification] = useState("");
-  const [analystName, setAnalystName] = useState("");
+  const user = useCurrentUser();
   const [overrides, setOverrides] = useState<RuleOverride[]>([]);
   const [submitted, setSubmitted] = useState(false);
 
   const errors = {
     outcome: outcome === null,
     justification: justification.trim() === "",
-    analystName: analystName.trim() === "",
   };
   const hasErrors = Object.values(errors).some(Boolean);
 
@@ -57,7 +57,7 @@ export const DecisionForm = ({ analyses, hasPrevious }: DecisionFormProps) => {
         analysisIds: analyses.map((a) => a.id),
         outcome,
         justification: justification.trim(),
-        analystName: analystName.trim(),
+        analystName: user.name,
         ruleOverrides: overrides
           .filter((o) => o.ruleId && o.note.trim())
           .map((o) => ({
@@ -191,27 +191,10 @@ export const DecisionForm = ({ analyses, hasPrevious }: DecisionFormProps) => {
         </button>
       </div>
 
-      <div className="flex flex-wrap items-end gap-4">
-        <div className="min-w-56 flex-1">
-          <label htmlFor="analyst-name" className="label">
-            Nome do analista <span className="text-danger">*</span>
-          </label>
-          <input
-            id="analyst-name"
-            className="input"
-            autoComplete="name"
-            value={analystName}
-            onChange={(e) => setAnalystName(e.target.value)}
-            aria-invalid={showError("analystName")}
-          />
-          {showError("analystName") && (
-            <p className="mt-1 text-xs text-danger">Informe seu nome.</p>
-          )}
-        </div>
-        <p className="pb-2 text-xs text-fg-muted">
-          Data e hora são registradas automaticamente ao salvar.
-        </p>
-      </div>
+      <p className="text-xs text-fg-muted">
+        Será registrada em nome de <strong className="text-fg">{user.name}</strong>, com data e
+        hora automáticas.
+      </p>
 
       {saveDecision.isError && (
         <p role="alert" className="text-sm text-danger">

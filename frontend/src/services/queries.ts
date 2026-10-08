@@ -1,8 +1,15 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { useCurrentUser } from "@/features/auth/authState";
 import type {
   NewContestationInput,
   NewDecisionInput,
   NewProjectInput,
+  ProjectQuery,
 } from "@/domain/types";
 import {
   createContestation,
@@ -27,13 +34,19 @@ export const queryKeys = {
     ["projects", projectId, "contestations"] as const,
 };
 
-export const useProjects = () =>
+/** A project sent minutes ago may still finish processing: worth polling */
+const RECENT_MS = 10 * 60 * 1000;
+
+export const useProjects = (query: ProjectQuery) =>
   useQuery({
-    queryKey: queryKeys.projects,
-    queryFn: listProjects,
-    // Keep polling while something is still being processed
-    refetchInterval: (query) =>
-      query.state.data?.some((p) => p.status === "processing")
+    queryKey: [...queryKeys.projects, "list", query],
+    queryFn: () => listProjects(query),
+    // Keep the current page on screen while the next one loads
+    placeholderData: keepPreviousData,
+    refetchInterval: (q) =>
+      q.state.data?.items.some(
+        (p) => p.status === "processing" && Date.now() - Date.parse(p.createdAt) < RECENT_MS,
+      )
         ? PROCESSING_POLL_MS
         : false,
   });
@@ -63,8 +76,9 @@ export const useDecisions = (projectId: string) =>
 
 export const useCreateProject = () => {
   const queryClient = useQueryClient();
+  const user = useCurrentUser();
   return useMutation({
-    mutationFn: (input: NewProjectInput) => createProject(input),
+    mutationFn: (input: NewProjectInput) => createProject(input, user.id),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: queryKeys.projects }),
   });

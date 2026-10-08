@@ -1,9 +1,12 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronRight, FileText, Flag, PenLine } from "lucide-react";
+import { Fragment, useState } from "react";
 import { Link } from "react-router-dom";
-import { ScoreBadge } from "@/components/ui/ScoreBadge";
+import { OutcomeBadge } from "@/components/ui/OutcomeBadge";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { FRAMEWORKS } from "@/domain/frameworks";
 import type { ProjectSummary } from "@/domain/types";
-import { formatDate, pluralize } from "@/lib/format";
+import { ScoreProfile } from "@/features/projects/ScoreProfile";
+import { formatDate, formatDateTime, pluralize } from "@/lib/format";
 import { paths } from "@/routes/paths";
 
 /** Where a project opens: analysis when ready, decision when decided */
@@ -17,7 +20,11 @@ const projectLink = (project: ProjectSummary) => {
   return null;
 };
 
+const COLUMNS = 6;
+
 export const ProjectTable = ({ projects }: { projects: ProjectSummary[] }) => {
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
   return (
     <div className="relative overflow-x-auto rounded-lg border border-border bg-surface">
       <table className="w-full text-left text-sm">
@@ -25,11 +32,9 @@ export const ProjectTable = ({ projects }: { projects: ProjectSummary[] }) => {
           <tr>
             <th scope="col" className="px-4 py-2.5 font-medium">Projeto</th>
             <th scope="col" className="px-4 py-2.5 font-medium">Enviado em</th>
-            <th scope="col" className="px-4 py-2.5 font-medium">Material</th>
             <th scope="col" className="px-4 py-2.5 font-medium">Status</th>
-            <th scope="col" className="px-4 py-2.5 font-medium">
-              Força da evidência por critério
-            </th>
+            <th scope="col" className="px-4 py-2.5 font-medium">Força da evidência</th>
+            <th scope="col" className="px-4 py-2.5 font-medium">Decisão</th>
             <th scope="col" className="px-4 py-2.5">
               <span className="sr-only">Ações</span>
             </th>
@@ -38,58 +43,86 @@ export const ProjectTable = ({ projects }: { projects: ProjectSummary[] }) => {
         <tbody className="divide-y divide-border">
           {projects.map((project) => {
             const link = projectLink(project);
+            const expanded = expandedId === project.id;
+            const detailsId = `detalhes-${project.id}`;
             return (
-              <tr key={project.id} className="align-top hover:bg-surface-muted/60">
-                <td className="max-w-80 px-4 py-3">
-                  {link ? (
-                    <Link to={link.to} className="font-medium hover:underline">
-                      {project.name}
-                    </Link>
-                  ) : (
-                    <span className="font-medium">{project.name}</span>
-                  )}
-                  {project.company && (
-                    <p className="text-xs text-fg-muted">{project.company}</p>
-                  )}
-                </td>
-                <td className="px-4 py-3 whitespace-nowrap text-fg-muted">
-                  {formatDate(project.createdAt)}
-                </td>
-                <td className="px-4 py-3 whitespace-nowrap text-fg-muted">
-                  {pluralize(project.documents.length, "documento", "documentos")}
-                  {project.freeText && (
-                    <span className="block text-xs">+ texto livre</span>
-                  )}
-                </td>
-                <td className="px-4 py-3">
-                  <StatusBadge status={project.status} />
-                </td>
-                <td className="px-4 py-3">
-                  {project.scoreSummary ? (
-                    <ul className="flex flex-wrap gap-1.5">
-                      {project.scoreSummary.map((item) => (
-                        <li
-                          key={item.criterionKey}
-                          className="flex items-center gap-1 text-xs text-fg-muted"
-                        >
-                          <span>{item.name}</span>
-                          <ScoreBadge score={item.score} size="sm" />
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <span className="text-xs text-fg-muted">—</span>
-                  )}
-                </td>
-                <td className="px-4 py-3 text-right">
-                  {link && (
-                    <Link to={link.to} className="btn-ghost whitespace-nowrap">
-                      {link.label}
-                      <ArrowRight className="size-4" aria-hidden />
-                    </Link>
-                  )}
-                </td>
-              </tr>
+              <Fragment key={project.id}>
+                <tr className="align-top hover:bg-surface-muted/60">
+                  <td className="max-w-96 px-4 py-3">
+                    <div className="flex items-start gap-1.5">
+                      <button
+                        type="button"
+                        className="btn-ghost -ml-1.5 p-0.5"
+                        aria-expanded={expanded}
+                        aria-controls={detailsId}
+                        aria-label={`${expanded ? "Ocultar" : "Ver"} detalhes de ${project.name}`}
+                        onClick={() => setExpandedId(expanded ? null : project.id)}
+                      >
+                        <ChevronRight
+                          className={`size-4 transition-transform ${expanded ? "rotate-90" : ""}`}
+                          aria-hidden
+                        />
+                      </button>
+                      <div className="min-w-0">
+                        {link ? (
+                          <Link to={link.to} className="font-medium hover:underline">
+                            {project.name}
+                          </Link>
+                        ) : (
+                          <span className="font-medium">{project.name}</span>
+                        )}
+                        <p className="text-xs text-fg-muted">
+                          {project.company ?? "Empresa não informada"}
+                          {!!project.contestationCount && (
+                            <span className="ml-2 inline-flex items-center gap-0.5 text-fg">
+                              <Flag className="size-3 text-score-moderate" aria-hidden />
+                              {pluralize(project.contestationCount, "contestação", "contestações")}
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 whitespace-nowrap text-fg-muted">
+                    {formatDate(project.createdAt)}
+                  </td>
+                  <td className="px-4 py-3">
+                    <StatusBadge status={project.status} />
+                  </td>
+                  <td className="px-4 py-3">
+                    {project.scoreSummary ? (
+                      <ScoreProfile scores={project.scoreSummary} />
+                    ) : (
+                      <span className="text-xs text-fg-muted">—</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
+                    {project.lastDecision ? (
+                      <>
+                        <OutcomeBadge outcome={project.lastDecision.outcome} />
+                        <p className="text-xs text-fg-muted">{formatDate(project.lastDecision.decidedAt)}</p>
+                      </>
+                    ) : (
+                      <span className="text-xs text-fg-muted">Sem decisão</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    {link && (
+                      <Link to={link.to} className="btn-ghost whitespace-nowrap">
+                        {link.label}
+                        <ArrowRight className="size-4" aria-hidden />
+                      </Link>
+                    )}
+                  </td>
+                </tr>
+                {expanded && (
+                  <tr id={detailsId} className="bg-surface-muted/50">
+                    <td colSpan={COLUMNS} className="px-4 py-4">
+                      <ProjectDetails project={project} />
+                    </td>
+                  </tr>
+                )}
+              </Fragment>
             );
           })}
         </tbody>
@@ -97,3 +130,72 @@ export const ProjectTable = ({ projects }: { projects: ProjectSummary[] }) => {
     </div>
   );
 };
+
+/** Useful information at a glance, without opening the project */
+const ProjectDetails = ({ project }: { project: ProjectSummary }) => (
+  <dl className="grid gap-x-8 gap-y-4 pl-6 text-sm sm:grid-cols-2 lg:grid-cols-4">
+    <div>
+      <dt className="text-xs font-medium text-fg-muted uppercase">Material</dt>
+      <dd>
+        <ul className="mt-1 space-y-0.5">
+          {project.documents.map((doc) => (
+            <li key={doc.id} className="flex items-center gap-1.5">
+              <FileText className="size-3.5 shrink-0 text-fg-muted" aria-hidden />
+              <span className="truncate">{doc.fileName}</span>
+            </li>
+          ))}
+          {project.freeText && (
+            <li className="flex items-center gap-1.5">
+              <PenLine className="size-3.5 shrink-0 text-fg-muted" aria-hidden />
+              Descrição em texto livre
+            </li>
+          )}
+          {project.documents.length === 0 && !project.freeText && <li className="text-fg-muted">—</li>}
+        </ul>
+      </dd>
+    </div>
+    <div>
+      <dt className="text-xs font-medium text-fg-muted uppercase">Métodos analisados</dt>
+      <dd className="mt-1">
+        {project.frameworks?.length
+          ? project.frameworks.map((f) => FRAMEWORKS[f].label).join(" · ")
+          : "Análise ainda não disponível"}
+      </dd>
+    </div>
+    <div>
+      <dt className="text-xs font-medium text-fg-muted uppercase">Notas por critério</dt>
+      <dd className="mt-1">
+        {project.scoreSummary ? (
+          <ul className="space-y-0.5">
+            {project.scoreSummary.map((s) => (
+              <li key={s.criterionKey} className="flex justify-between gap-3">
+                <span>{s.name}</span>
+                <span className="font-medium tabular-nums">{s.score}</span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          "—"
+        )}
+      </dd>
+    </div>
+    <div>
+      <dt className="text-xs font-medium text-fg-muted uppercase">Última decisão</dt>
+      <dd className="mt-1">
+        {project.lastDecision ? (
+          <>
+            <OutcomeBadge outcome={project.lastDecision.outcome} />
+            <p className="text-xs text-fg-muted">
+              {project.lastDecision.analystName} · {formatDateTime(project.lastDecision.decidedAt)}
+            </p>
+          </>
+        ) : (
+          "Nenhuma"
+        )}
+        {project.freeText && (
+          <p className="mt-2 line-clamp-3 text-xs text-fg-muted">“{project.freeText}”</p>
+        )}
+      </dd>
+    </div>
+  </dl>
+);

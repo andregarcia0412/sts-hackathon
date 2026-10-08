@@ -5,6 +5,12 @@
 
 export type ProjectStatus = "processing" | "ready" | "decided" | "error";
 
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
 export interface ProjectDocument {
   id: string;
   fileName: string;
@@ -15,6 +21,8 @@ export interface ProjectDocument {
 
 export interface Project {
   id: string;
+  /** Analyst who owns the project (each analyst sees their own list) */
+  ownerId: string;
   name: string;
   company?: string;
   createdAt: string;
@@ -35,6 +43,38 @@ export interface ProjectSummary extends Project {
   scoreSummary?: CriterionScoreSummary[];
   /** Methods with an analysis available for this project */
   frameworks?: Framework[];
+  /** Current (latest) decision, if any */
+  lastDecision?: Pick<Decision, "outcome" | "decidedAt" | "analystName">;
+  contestationCount?: number;
+}
+
+export type ProjectSort = "recent" | "oldest" | "name" | "weakest";
+
+/** Filters of the project list. Mirrors what a paginated back-end endpoint takes. */
+export interface ProjectQuery {
+  ownerId: string;
+  search?: string;
+  statuses?: ProjectStatus[];
+  /** Band of the project's weakest criterion (primary method) */
+  weakestBand?: "strong" | "moderate" | "weak";
+  /** Outcome of the current decision; "none" = no decision yet */
+  outcome?: DecisionOutcome | "none";
+  /** Submission date range, inclusive, "YYYY-MM-DD" */
+  from?: string;
+  to?: string;
+  sort: ProjectSort;
+  page: number;
+  pageSize: number;
+}
+
+export interface ProjectPage {
+  items: ProjectSummary[];
+  /** Matches for the filters (all pages) */
+  total: number;
+  page: number;
+  pageSize: number;
+  /** Owner's projects per status, ignoring the other filters (for the overview) */
+  statusCounts: Record<ProjectStatus, number>;
 }
 
 /** Referência normativa ou web que sustenta uma regra ou evidência */

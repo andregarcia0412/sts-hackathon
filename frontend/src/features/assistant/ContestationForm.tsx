@@ -7,17 +7,8 @@ import {
 import { getNodeTitle } from "@/domain/tree";
 import type { AnalysisNode } from "@/domain/tree";
 import type { Analysis, ContestationReason, EvidencePolarity } from "@/domain/types";
+import { useCurrentUser } from "@/features/auth/authState";
 import { useCreateContestation } from "@/services/queries";
-
-const ANALYST_NAME_KEY = "lei-do-bem:analyst-name";
-
-const readSavedName = () => {
-  try {
-    return localStorage.getItem(ANALYST_NAME_KEY) ?? "";
-  } catch {
-    return "";
-  }
-};
 
 interface ContestationFormProps {
   analysis: Analysis;
@@ -39,6 +30,7 @@ export const ContestationForm = ({
   onCancel,
 }: ContestationFormProps) => {
   const createContestation = useCreateContestation();
+  const user = useCurrentUser();
   const reasons = CONTESTATION_REASONS_BY_KIND[node.kind];
   const currentPolarity = node.kind === "evidence" ? node.evidence.polarity : undefined;
 
@@ -47,13 +39,11 @@ export const ContestationForm = ({
   );
   const [argument, setArgument] = useState(initialArgument);
   const [suggestedScore, setSuggestedScore] = useState("");
-  const [author, setAuthor] = useState(readSavedName);
   const [submitted, setSubmitted] = useState(false);
 
   const scoreNumber = suggestedScore === "" ? undefined : Number(suggestedScore);
   const errors = {
     argument: argument.trim() === "",
-    author: author.trim() === "",
     score: scoreNumber !== undefined && (Number.isNaN(scoreNumber) || scoreNumber < 0 || scoreNumber > 100),
   };
   const label = `${node.number} ${getNodeTitle(node)}`;
@@ -62,11 +52,6 @@ export const ContestationForm = ({
     event.preventDefault();
     setSubmitted(true);
     if (Object.values(errors).some(Boolean)) return;
-    try {
-      localStorage.setItem(ANALYST_NAME_KEY, author.trim());
-    } catch {
-      // Remembering the name is only a convenience
-    }
     const suggestedPolarity: EvidencePolarity | undefined =
       reason === "polarity" && currentPolarity
         ? currentPolarity === "positive" ? "negative" : "positive"
@@ -81,7 +66,7 @@ export const ContestationForm = ({
         argument: argument.trim(),
         suggestedScore: node.kind !== "evidence" ? scoreNumber : undefined,
         suggestedPolarity,
-        author: author.trim(),
+        author: user.name,
       },
       { onSuccess: () => onRecorded(label) },
     );
@@ -156,22 +141,9 @@ export const ContestationForm = ({
         )
       )}
 
-      <div>
-        <label htmlFor="ct-author" className="mb-1 block text-xs font-medium">
-          Seu nome <span className="text-danger">*</span>
-        </label>
-        <input
-          id="ct-author"
-          className="input py-1.5"
-          autoComplete="name"
-          value={author}
-          onChange={(e) => setAuthor(e.target.value)}
-          aria-invalid={submitted && errors.author}
-        />
-        {submitted && errors.author && (
-          <p className="mt-0.5 text-xs text-danger">Informe seu nome.</p>
-        )}
-      </div>
+      <p className="text-xs text-fg-muted">
+        Registrada em nome de <strong className="text-fg">{user.name}</strong>.
+      </p>
 
       {createContestation.isError && (
         <p role="alert" className="text-xs text-danger">Não foi possível registrar. Tente novamente.</p>
