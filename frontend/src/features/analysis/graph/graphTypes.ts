@@ -19,7 +19,7 @@ export const NODE_SIZES: Record<
   AnalysisNode["kind"],
   { width: number; height: number }
 > = {
-  criterion: { width: 248, height: 92 },
-  rule: { width: 248, height: 84 },
-  evidence: { width: 232, height: 52 },
+  criterion: { width: 204, height: 168 },
+  rule: { width: 240, height: 102 },
+  evidence: { width: 376, height: 60 },
 };

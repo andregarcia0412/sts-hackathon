@@ -1,22 +1,24 @@
-import { ReactFlowProvider, useReactFlow } from "@xyflow/react";
-import { ArrowRight, Crosshair, ListCollapse, ListTree } from "lucide-react";
-import { Group, Panel, Separator } from "react-resizable-panels";
+import { ReactFlowProvider } from "@xyflow/react";
 import { Link, useNavigate } from "react-router-dom";
+import { ProjectHeader } from "@/components/layout/ProjectHeader";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
+import { reviewMarkers } from "@/domain/contestations";
 import { FRAMEWORKS } from "@/domain/frameworks";
 import { SUGGESTED_CATEGORY_LABELS } from "@/domain/labels";
-import type { Analysis, Project } from "@/domain/types";
-import { AnalysisBreadcrumb } from "@/features/analysis/AnalysisBreadcrumb";
-import { NodeDetail } from "@/features/analysis/detail/NodeDetail";
+import { decidedCriteriaCount } from "@/domain/reviews";
+import type { Analysis, Framework, Project } from "@/domain/types";
+import { DetailPanel } from "@/features/analysis/detail/DetailPanel";
 import { AnalysisGraph } from "@/features/analysis/graph/AnalysisGraph";
-import type { AnalysisFlowNode } from "@/features/analysis/graph/graphTypes";
-import { useFrameGraph } from "@/features/analysis/graph/useFrameGraph";
-import { AnalysisTree } from "@/features/analysis/tree/AnalysisTree";
 import { useAnalysisExplorer } from "@/features/analysis/useAnalysisExplorer";
+import type { GraphView } from "@/features/analysis/useAnalysisExplorer";
 import { useRegisterAssistantContext } from "@/features/assistant/assistantState";
-import { useMediaQuery } from "@/lib/useMediaQuery";
-import { reviewMarkers } from "@/domain/contestations";
-import { useContestations } from "@/services/queries";
+import { formatDate, pluralize } from "@/lib/format";
 import { paths } from "@/routes/paths";
+import {
+  useContestations,
+  useEvidenceReviews,
+  useRuleDecisions,
+} from "@/services/queries";
 
 interface AnalysisWorkspaceProps {
   project: Project;
@@ -26,10 +28,12 @@ interface AnalysisWorkspaceProps {
   analyses: Analysis[];
 }
 
-const separatorClass =
-  "bg-border transition-colors hover:bg-accent data-[separator=active]:bg-accent";
+const VIEW_OPTIONS: { value: GraphView; label: string; title: string }[] = [
+  { value: "criterion", label: "Critério", title: "Um critério com todas as regras e evidências" },
+  { value: "overview", label: "Mapa geral", title: "Todos os critérios; clique para expandir" },
+];
 
-/* The provider wraps the toolbar and the tree too, so they can move the graph camera */
+/* The provider wraps the panel too, so it can move the graph camera */
 export const AnalysisWorkspace = (props: AnalysisWorkspaceProps) => (
   <ReactFlowProvider>
     <WorkspaceContent {...props} />
@@ -44,115 +48,81 @@ const WorkspaceContent = ({ project, analysis, analyses }: AnalysisWorkspaceProp
     analysis,
     selectedNodeId: explorer.selectedId,
   });
-  const frameGraph = useFrameGraph();
-  const { getNodes } = useReactFlow<AnalysisFlowNode>();
-  // Desktop first: side by side; on small screens the graph goes below
-  const isWide = useMediaQuery("(min-width: 768px)");
   const contestations = (useContestations(project.id).data ?? []).filter(
     (c) => c.analysisId === analysis.id,
   );
+  const ruleDecisions = useRuleDecisions(project.id).data ?? [];
+  const evidenceReviews = useEvidenceReviews(project.id).data ?? [];
   const markers = reviewMarkers(analysis, contestations);
-  const adjustedNodes = new Set((analysis.adjustments ?? []).map((a) => a.nodeId)).size;
+
+  const rules = analysis.criteria.flatMap((c) => c.rules);
+  const evidenceCount = rules.reduce((sum, r) => sum + r.evidences.length, 0);
+  const decided = decidedCriteriaCount(analysis, ruleDecisions);
+
+  const meta = [
+    `Empresa: ${project.company ?? "não informada"}`,
+    `Enviado em ${formatDate(project.createdAt)}`,
+    pluralize(project.documents.length, "documento", "documentos"),
+    `Método: ${FRAMEWORKS[analysis.framework].name}`,
+    ...(analysis.suggestedCategory
+      ? [`Classificação sugerida: ${SUGGESTED_CATEGORY_LABELS[analysis.suggestedCategory]}`]
+      : []),
+    pluralize(rules.length, "regra", "regras"),
+    `${pluralize(evidenceCount, "evidência localizada", "evidências localizadas")}`,
+  ];
+
+  const toolbar = (
+    <>
+      {analyses.length > 1 && (
+        <SegmentedControl<Framework>
+          label="Método de análise"
+          value={analysis.framework}
+          options={analyses.map((a) => ({
+            value: a.framework,
+            label: FRAMEWORKS[a.framework].label,
+            title: FRAMEWORKS[a.framework].description,
+          }))}
+          onChange={(framework) => navigate(paths.analysis(project.id, undefined, framework))}
+        />
+      )}
+      <SegmentedControl<GraphView>
+        label="Visualização do grafo"
+        value={explorer.view}
+        options={VIEW_OPTIONS}
+        onChange={explorer.setView}
+      />
+    </>
+  );
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      {/* Top bar: breadcrumb of the selection + actions */}
-      <div className="flex shrink-0 flex-wrap items-center gap-x-4 gap-y-2 border-b border-border bg-surface px-4 py-2">
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-xs text-fg-muted">
-            {project.name}
-            {analysis.suggestedCategory && (
-              <> · Classificação sugerida: {SUGGESTED_CATEGORY_LABELS[analysis.suggestedCategory]}</>
-            )}
-            {adjustedNodes > 0 && (
-              <> · {adjustedNodes} {adjustedNodes === 1 ? "item revisado" : "itens revisados"} após contestação</>
-            )}
-          </p>
-          <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
-            {analyses.length > 1 && (
-              <nav
-                aria-label="Método de análise"
-                className="flex shrink-0 rounded-md border border-border bg-surface-muted p-0.5"
-              >
-                {analyses.map((a) => (
-                  <button
-                    key={a.id}
-                    type="button"
-                    aria-pressed={a.id === analysis.id}
-                    title={FRAMEWORKS[a.framework].description}
-                    onClick={() =>
-                      a.id !== analysis.id &&
-                      navigate(paths.analysis(project.id, undefined, a.framework))
-                    }
-                    className={`rounded px-2.5 py-1 text-xs font-medium transition-colors ${
-                      a.id === analysis.id
-                        ? "bg-surface text-fg shadow-sm"
-                        : "text-fg-muted hover:text-fg"
-                    }`}
-                  >
-                    {FRAMEWORKS[a.framework].label}
-                  </button>
-                ))}
-              </nav>
-            )}
-            <AnalysisBreadcrumb explorer={explorer} framework={analysis.framework} />
-          </div>
-        </div>
-        <div className="flex flex-wrap items-center gap-1">
-          <button type="button" className="btn-ghost" onClick={explorer.collapseAll}>
-            <ListCollapse className="size-4" aria-hidden />
-            Ver todos os critérios
-          </button>
-          <button type="button" className="btn-ghost" onClick={explorer.expandAll}>
-            <ListTree className="size-4" aria-hidden />
-            Expandir tudo
-          </button>
-          <button
-            type="button"
-            className="btn-ghost"
-            onClick={() =>
-              frameGraph(
-                getNodes().filter((n) => !explorer.selectedId || n.id === explorer.selectedId),
-                explorer.selectedId ? 0.25 : undefined,
-              )
-            }
-            title="Centraliza o item selecionado, ou enquadra o grafo inteiro"
-          >
-            <Crosshair className="size-4" aria-hidden />
-            Centralizar
-          </button>
-          <Link to={paths.decision(project.id, analysis.framework)} className="btn-primary ml-2">
-            Ir para a decisão
-            <ArrowRight className="size-4" aria-hidden />
+      <ProjectHeader
+        project={project}
+        meta={meta}
+        progress={`${decided} de ${analysis.criteria.length} critérios decididos pelo analista`}
+        action={
+          <Link to={paths.decision(project.id, analysis.framework)} className="btn-primary">
+            Gerar documento de decisão
           </Link>
-        </div>
-      </div>
-
-      <Group
-        key={isWide ? "wide" : "narrow"}
-        orientation={isWide ? "horizontal" : "vertical"}
-        className="min-h-0 flex-1"
-      >
-        <Panel
-          defaultSize={isWide ? "30%" : "50%"}
-          minSize={isWide ? "260px" : "160px"}
-          maxSize={isWide ? "60%" : "80%"}
+        }
+      />
+      <div className="flex min-h-[600px] flex-1 flex-col gap-4 p-4 lg:flex-row">
+        <DetailPanel
+          className="h-[80vh] shrink-0 lg:h-auto lg:w-[488px]"
+          explorer={explorer}
+          projectId={project.id}
+          analysis={analysis}
+          contestations={contestations}
+          ruleDecisions={ruleDecisions}
+          evidenceReviews={evidenceReviews}
+        />
+        <section
+          aria-label="Grafo de evidências"
+          className="relative h-[80vh] min-w-0 overflow-hidden rounded-xl bg-white/50 lg:h-auto lg:flex-1"
         >
-          <Group orientation="vertical" className="h-full bg-surface">
-            <Panel defaultSize="45%" minSize="120px" className="overflow-y-auto">
-              <AnalysisTree explorer={explorer} reviewMarkers={markers} />
-            </Panel>
-            <Separator className={`h-px ${separatorClass}`} />
-            <Panel minSize="120px" className="overflow-y-auto">
-              <NodeDetail explorer={explorer} analysis={analysis} contestations={contestations} />
-            </Panel>
-          </Group>
-        </Panel>
-        <Separator className={`${isWide ? "w-px" : "h-px"} ${separatorClass}`} />
-        <Panel minSize={isWide ? "30%" : "20%"}>
-          <AnalysisGraph explorer={explorer} reviewMarkers={markers} />
-        </Panel>
-      </Group>
+          <AnalysisGraph explorer={explorer} reviewMarkers={markers} toolbar={toolbar} />
+        </section>
+      </div>
     </div>
   );
 };

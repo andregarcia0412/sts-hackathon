@@ -25,6 +25,8 @@ export const useFrameGraph = () => {
     const bottom = Math.max(...boxes.map((b) => b.y + b.height));
 
     const { width, height } = store.getState();
+    // Not measured yet (first render): React Flow's own fitView frames it
+    if (!width || !height) return;
     const viewport = getViewportForBounds(
       { x, y, width: right - x, height: bottom - y },
       width,

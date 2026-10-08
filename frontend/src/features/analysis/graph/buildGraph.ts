@@ -1,6 +1,6 @@
 import { Graph, layout } from "@dagrejs/dagre";
 import type { ReviewMarker } from "@/domain/contestations";
-import { getVisibleNodes } from "@/domain/tree";
+import { getVisibleNodes, isInSubtree } from "@/domain/tree";
 import type { AnalysisIndex } from "@/domain/tree";
 import { NODE_SIZES } from "@/features/analysis/graph/graphTypes";
 import type {
@@ -8,19 +8,24 @@ import type {
   AnalysisFlowNode,
 } from "@/features/analysis/graph/graphTypes";
 
-const RANK_SEPARATION = 80;
-const NODE_SEPARATION = 14;
+const RANK_SEPARATION = 40;
+const NODE_SEPARATION = 8;
 
 /**
  * Visible part of the analysis as React Flow nodes (positions not set yet).
  * Critério → Regras → Evidências, only below expanded nodes.
+ * With `rootId`, only that criterion's branch.
  */
 export const buildGraph = (
   index: AnalysisIndex,
   expanded: ReadonlySet<string>,
   reviewMarkers: ReadonlyMap<string, ReviewMarker> = new Map(),
+  rootId?: string,
 ): { nodes: AnalysisFlowNode[]; edges: AnalysisFlowEdge[] } => {
-  const nodes: AnalysisFlowNode[] = getVisibleNodes(index, expanded).map(
+  const visible = getVisibleNodes(index, expanded).filter(
+    (node) => !rootId || isInSubtree(node.id, rootId),
+  );
+  const nodes: AnalysisFlowNode[] = visible.map(
     (node) => ({
       id: node.id,
       type: node.kind,

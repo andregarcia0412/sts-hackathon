@@ -1,67 +1,58 @@
-import {
-  Background,
-  Controls,
-  MiniMap,
-  Panel,
-  ReactFlow,
-} from "@xyflow/react";
+import { Controls, Panel, ReactFlow } from "@xyflow/react";
 import type { AriaLabelConfig } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useEffect, useEffectEvent, useRef } from "react";
-import { scoreBand } from "@/domain/score";
+import type { ReactNode } from "react";
+import type { ReviewMarker } from "@/domain/contestations";
+import { getAncestorIds } from "@/domain/tree";
 import {
   buildEdges,
   buildGraph,
   layoutGraph,
 } from "@/features/analysis/graph/buildGraph";
 import { GraphLegend } from "@/features/analysis/graph/GraphLegend";
-import type { AnalysisFlowNode } from "@/features/analysis/graph/graphTypes";
+import type { AnalysisFlowEdge } from "@/features/analysis/graph/graphTypes";
 import { nodeTypes } from "@/features/analysis/graph/nodeTypes";
 import { useAnimatedNodes } from "@/features/analysis/graph/useAnimatedNodes";
 import { useFrameGraph } from "@/features/analysis/graph/useFrameGraph";
 import type { AnalysisExplorer } from "@/features/analysis/useAnalysisExplorer";
-import type { ReviewMarker } from "@/domain/contestations";
 
 const ARIA_LABELS: Partial<AriaLabelConfig> = {
   "controls.ariaLabel": "Controles do grafo",
   "controls.zoomIn.ariaLabel": "Aproximar",
   "controls.zoomOut.ariaLabel": "Afastar",
   "controls.fitView.ariaLabel": "Enquadrar o grafo inteiro",
-  "minimap.ariaLabel": "Minimapa do grafo",
 };
 
-/* MiniMap paints with an inline style, so use the theme's CSS variables */
-const MINIMAP_COLORS = {
-  strong: "var(--color-score-strong)",
-  moderate: "var(--color-score-moderate)",
-  weak: "var(--color-score-weak)",
-  positive: "var(--color-evidence-positive)",
-  negative: "var(--color-evidence-negative)",
-};
-
-const minimapNodeColor = (node: AnalysisFlowNode) => {
-  const { node: entry } = node.data;
-  if (entry.kind === "evidence") return MINIMAP_COLORS[entry.evidence.polarity];
-  const score = entry.kind === "criterion" ? entry.criterion.score : entry.rule.score;
-  return MINIMAP_COLORS[scoreBand(score)];
-};
+/* Edges paint with inline styles, so use the theme's CSS variables */
+const EDGE_STYLE = { stroke: "var(--color-border-strong)", strokeWidth: 1.5 };
+const EDGE_ON_PATH_STYLE = { stroke: "var(--color-accent)", strokeWidth: 1.5 };
 
 /**
  * Critério → Regras → Evidências, left to right.
  * The selection comes from the URL (via the explorer); clicking a node selects
- * it, clicking it again collapses/expands its children.
+ * it, and in the overview clicking it again collapses/expands its children.
  */
 export const AnalysisGraph = ({
   explorer,
   reviewMarkers,
+  toolbar,
 }: {
   explorer: AnalysisExplorer;
   reviewMarkers: ReadonlyMap<string, ReviewMarker>;
+  /** Controls shown in the top-right corner (view, method) */
+  toolbar?: ReactNode;
 }) => {
-  const { index, expanded, selectedId, frameRequest, activate } = explorer;
+  const { index, expanded, selectedId, frameRequest, activate, select, view, focusCriterionId } =
+    explorer;
   const frameGraph = useFrameGraph();
 
-  const { nodes: visibleNodes, edges: visibleEdges } = buildGraph(index, expanded, reviewMarkers);
+  const { nodes: visibleNodes, edges: visibleEdges } = buildGraph(
+    index,
+    expanded,
+    reviewMarkers,
+    view === "criterion" ? focusCriterionId : undefined,
+  );
   const target = layoutGraph(visibleNodes, visibleEdges);
 
   const { nodes: animatedNodes } = useAnimatedNodes(target);
@@ -79,17 +70,23 @@ export const AnalysisGraph = ({
     frameGraph(target.filter((n) => branchIds.has(n.id)), 0.25);
   });
 
-  // End of intro, "Ver todos os critérios", "Expandir tudo"
+  // End of intro, switching views
   const onFrameRequest = useEffectEvent(() => {
     if (!frameRequest) return;
     frame(frameRequest.scope === "selection" ? selectedId : null);
   });
   useEffect(() => onFrameRequest(), [frameRequest]);
 
-  // Selection coming from outside the graph (tree, breadcrumb, back button)
+  // Criterion view: a new criterion on screen is framed whole
+  const onFocusChange = useEffectEvent(() => {
+    if (view === "criterion") frame(null);
+  });
+  useEffect(() => onFocusChange(), [focusCriterionId]);
+
+  // Overview: selection coming from outside the graph (panel, back button)
   const graphClickRef = useRef<string | null>(null);
   const onSelectionChange = useEffectEvent(() => {
-    if (!selectedId) return;
+    if (!selectedId || view === "criterion") return;
     if (graphClickRef.current === selectedId) {
       graphClickRef.current = null;
       return;
@@ -110,6 +107,11 @@ export const AnalysisGraph = ({
   useEffect(() => onLayoutChange(), [target]);
 
   const handleNodeClick = (nodeId: string) => {
+    // Criterion view shows everything already: a click only selects
+    if (view === "criterion") {
+      select(nodeId);
+      return;
+    }
     const node = index.get(nodeId);
     if (node && node.childIds.length > 0 && !expanded.has(nodeId)) {
       expandedByClickRef.current = nodeId;
@@ -121,7 +123,19 @@ export const AnalysisGraph = ({
   const nodes = animatedNodes.map((n) =>
     n.id === selectedId ? { ...n, selected: true } : n,
   );
-  const edges = buildEdges(animatedNodes);
+
+  // Path of the selection in wine: criterion → rule → its evidences
+  const onPath = new Set(selectedId ? [...getAncestorIds(index, selectedId), selectedId] : []);
+  const edges: AnalysisFlowEdge[] = buildEdges(animatedNodes).map((edge) => {
+    const highlighted = onPath.has(edge.target) || edge.source === selectedId;
+    return {
+      ...edge,
+      type: "smoothstep",
+      pathOptions: { borderRadius: 10 },
+      style: highlighted ? EDGE_ON_PATH_STYLE : EDGE_STYLE,
+      zIndex: highlighted ? 1 : 0,
+    };
+  });
 
   return (
     <ReactFlow
@@ -133,27 +147,29 @@ export const AnalysisGraph = ({
       nodesConnectable={false}
       elementsSelectable={false}
       fitView
-      fitViewOptions={{ padding: 0.12, maxZoom: 1 }}
+      fitViewOptions={{ padding: 0.08, maxZoom: 1 }}
       minZoom={0.15}
       maxZoom={1.75}
       ariaLabelConfig={ARIA_LABELS}
-      attributionPosition="bottom-center"
-      className="bg-canvas"
+      attributionPosition="top-left"
+      className="!bg-transparent"
     >
-      <Background gap={24} />
-      <Controls showInteractive={false} position="bottom-left" />
-      <MiniMap<AnalysisFlowNode>
-        pannable
-        zoomable
-        position="bottom-right"
-        // Leaves room for the assistant button in the corner
-        style={{ marginBottom: 84 }}
-        className="max-md:hidden"
-        nodeColor={minimapNodeColor}
-      />
-      <Panel position="top-right" className="max-md:hidden">
+      {toolbar && (
+        <Panel position="top-right" className="flex flex-wrap justify-end gap-2">
+          {toolbar}
+        </Panel>
+      )}
+      <Panel position="bottom-left" className="max-md:hidden">
         <GraphLegend />
       </Panel>
+      <Controls
+        showInteractive={false}
+        position="bottom-right"
+        orientation="horizontal"
+        // Leaves room for the assistant button in the corner
+        style={{ marginBottom: 84 }}
+        className="overflow-hidden rounded-full !shadow-card"
+      />
     </ReactFlow>
   );
 };
