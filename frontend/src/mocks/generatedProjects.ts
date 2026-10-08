@@ -101,7 +101,9 @@ const pickStatus = (r: number): ProjectStatus =>
 const outcomeFor = (minScore: number, r: number): DecisionOutcome => {
   if (minScore >= 55) return r < 0.85 ? "eligible" : "with_reservations";
   if (minScore < 35) return r < 0.8 ? "not_eligible" : "with_reservations";
-  return r < 0.5 ? "with_reservations" : r < 0.75 ? "eligible" : "not_eligible";
+  if (r < 0.5) return "with_reservations";
+  if (r < 0.7) return "eligible";
+  return r < 0.85 ? "not_eligible" : "insufficient_evidence";
 };
 
 const generate = (): GeneratedProject[] => {

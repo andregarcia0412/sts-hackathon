@@ -1,7 +1,7 @@
 import { ListFilter } from "lucide-react";
-import { DECISION_OUTCOME_LABELS } from "@/domain/labels";
+import { DECISION_OUTCOMES, DECISION_OUTCOME_LABELS } from "@/domain/labels";
 import { SCORE_BAND_LABELS, SCORE_BANDS } from "@/domain/score";
-import type { DecisionOutcome, ProjectSort } from "@/domain/types";
+import type { ProjectSort } from "@/domain/types";
 import { DateRangeField } from "@/features/projects/DateRangeField";
 import type { ProjectFilters } from "@/features/projects/useProjectFilters";
 
@@ -9,10 +9,9 @@ const SORT_LABELS: Record<ProjectSort, string> = {
   recent: "Mais recentes",
   oldest: "Mais antigos",
   name: "Nome (A–Z)",
-  weakest: "Critério mais fraco primeiro",
+  weakest: "Mais fraco primeiro",
 };
 
-const OUTCOMES: DecisionOutcome[] = ["eligible", "with_reservations", "not_eligible"];
 
 /*
  * Pill select of the design; highlighted when it filters something. Each width
@@ -63,12 +62,12 @@ export const ProjectFilterBar = ({ filters, update, clear, activeCount }: Projec
 
     <select
       aria-label="Decisão"
-      className={pillSelect(!!filters.outcome)}
+      className={pillSelect(!!filters.outcome, "sm:w-54")}
       value={filters.outcome ?? ""}
       onChange={(e) => update({ outcome: (e.target.value || undefined) as ProjectFilters["outcome"] })}
     >
       <option value="">Decisão</option>
-      {OUTCOMES.map((outcome) => (
+      {DECISION_OUTCOMES.map((outcome) => (
         <option key={outcome} value={outcome}>
           {DECISION_OUTCOME_LABELS[outcome]}
         </option>
@@ -80,7 +79,7 @@ export const ProjectFilterBar = ({ filters, update, clear, activeCount }: Projec
 
     <select
       aria-label="Ordenar por"
-      className={pillSelect(false, "sm:w-64")}
+      className={pillSelect(false, "sm:w-56")}
       value={filters.sort}
       onChange={(e) => update({ sort: e.target.value as ProjectSort, page: filters.page })}
     >

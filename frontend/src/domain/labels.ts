@@ -36,6 +36,7 @@ export const DECISION_OUTCOME_LABELS: Record<DecisionOutcome, string> = {
   eligible: "Elegível",
   with_reservations: "Com ressalvas",
   not_eligible: "Não elegível",
+  insufficient_evidence: "Evidência insuficiente",
 };
 
 /** The analyst's decision (never an automatic verdict) */
@@ -43,7 +44,16 @@ export const DECISION_OUTCOME_TONES: Record<DecisionOutcome, Tone> = {
   eligible: "positive",
   not_eligible: "negative",
   with_reservations: "attention",
+  insufficient_evidence: "neutral",
 };
+
+/** Order the outcomes are offered in (form, list filter) */
+export const DECISION_OUTCOMES: DecisionOutcome[] = [
+  "eligible",
+  "with_reservations",
+  "not_eligible",
+  "insufficient_evidence",
+];
 
 export const CONTESTATION_REASON_LABELS: Record<ContestationReason, string> = {
   polarity: "Polaridade errada (a favor × contra)",

@@ -184,7 +184,12 @@ export interface Analysis {
   adjustments?: (AnalysisChange & { contestationId: string })[];
 }
 
-export type DecisionOutcome = "eligible" | "with_reservations" | "not_eligible";
+export type DecisionOutcome =
+  | "eligible"
+  | "with_reservations"
+  | "not_eligible"
+  /** The material lacks something essential to tell R&D from routine */
+  | "insufficient_evidence";
 
 export interface RuleOverride {
   /** Node id of the rule in its analysis tree */

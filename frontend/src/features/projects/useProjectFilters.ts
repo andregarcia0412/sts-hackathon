@@ -1,5 +1,6 @@
 import { useSearchParams } from "react-router-dom";
 import { paths } from "@/routes/paths";
+import { DECISION_OUTCOMES } from "@/domain/labels";
 import type { DecisionOutcome, ProjectQuery, ProjectSort, ProjectStatus } from "@/domain/types";
 
 export const PAGE_SIZE = 8;
@@ -10,7 +11,7 @@ export type ProjectFilters = Omit<ProjectQuery, "ownerId" | "pageSize">;
 const STATUSES: ProjectStatus[] = ["processing", "ready", "decided", "error"];
 const BANDS = ["strong", "moderate", "weak"] as const;
 const SORTS: ProjectSort[] = ["recent", "oldest", "name", "weakest"];
-const OUTCOMES: (DecisionOutcome | "none")[] = ["eligible", "with_reservations", "not_eligible", "none"];
+const OUTCOMES: (DecisionOutcome | "none")[] = [...DECISION_OUTCOMES, "none"];
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const dateParam = (value: string | null) => (value && DATE.test(value) ? value : undefined);
 

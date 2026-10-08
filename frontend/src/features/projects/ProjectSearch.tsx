@@ -29,7 +29,7 @@ export const ProjectSearch = ({
   }
 
   return (
-    <div role="search" className="relative w-full sm:w-auto sm:max-w-[345px] sm:min-w-[17.75rem] sm:flex-1">
+    <div role="search" className="relative w-full sm:w-auto sm:max-w-[345px] sm:min-w-[18rem] sm:flex-1">
       <label htmlFor="project-search" className="sr-only">
         Buscar projeto, equipe ou código
       </label>
