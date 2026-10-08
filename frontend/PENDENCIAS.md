@@ -1,9 +1,31 @@
-# Pendências para a versão final
+# Pendências
 
-Pontos deixados para depois durante o desenvolvimento do esqueleto. Revisar antes
-de fechar o app ou uma versão de demonstração.
+Pontos deixados para depois. Separados em dois grupos:
 
-## Conteúdo e terminologia
+- **Essenciais:** o que falta para o app funcionar de verdade (ou para a demo ficar
+  correta) dentro do hackathon.
+- **Escopo maior:** mudanças para o caso de o projeto continuar depois do hackathon.
+
+---
+
+## Essenciais (app funcionando / demo)
+
+### Integração com o back-end
+
+- [ ] Trocar os mocks pela API real em `src/services/api.ts` (projetos, análises,
+      decisões, contestações). As telas só usam essas funções.
+- [ ] Confirmar com o back-end a **escala da nota** (hoje 0–100, faixas em
+      `src/domain/score.ts`) e os **formatos de upload** aceitos (hoje PDF, DOCX, TXT).
+- [ ] Upload real dos arquivos (hoje só os metadados são guardados).
+- [ ] **Cálculo da nota:** substituir a composição mockada (`src/mocks/scoreExplanations.ts`)
+      pela explicação real do back-end, no formato `scoreExplanation`.
+- [ ] **Chatbot:** trocar as respostas mockadas (`askAssistant` em `src/services/api.ts`)
+      pela integração com o ai-microservice. Manter as regras: nunca dar veredito,
+      falar em "força da evidência" e sempre citar a fonte.
+- [ ] **Reanálise de contestações:** trocar o mock (`src/mocks/reanalysis.ts`) pela
+      reanálise real do modelo, mantendo o formato `ContestationResolution`.
+
+### Conteúdo e terminologia
 
 - [ ] **Conferir as referências normativas dos mocks.** Algumas seções foram escritas
       como placeholder e não foram verificadas: "Guia Prático da Lei do Bem (MCTI) §7
@@ -14,43 +36,40 @@ de fechar o app ou uma versão de demonstração.
       aplicada", "Desenvolvimento experimental" (Frascati + Decreto 5.798/2006, art. 2º).
       O decreto fala em "pesquisa básica **dirigida**". Os nomes devem mudar; ajustar em
       `src/domain/labels.ts`.
-- [ ] **Exclusões (EXC-xx)** ficam como regras dentro dos critérios (decidido). Revisitar
-      se o back-end mandar um grupo próprio.
-- [ ] Confirmar com o back-end a **escala da nota** (hoje 0–100, faixas em
-      `src/domain/score.ts`) e os **formatos de upload** aceitos (hoje PDF, DOCX, TXT).
+- [ ] Revisar o conteúdo da árvore mockada do **Formulário MCTI**
+      (`src/mocks/analysis-soil-sensor-mcti.ts`).
 
-## Integração
+### Visual e técnico
 
-- [ ] Trocar os mocks pela API real em `src/services/api.ts` (projetos, análise, decisões).
-- [ ] **Trilha de decisões** em banco de dados (hoje `localStorage`). Manter o
-      comportamento de só acrescentar registros.
-- [ ] **Chatbot:** trocar as respostas mockadas (`askAssistant` em `src/services/api.ts`)
-      pela integração com o ai-microservice. Manter as regras: nunca dar veredito,
-      falar em "força da evidência" e sempre citar a fonte.
-- [ ] Upload real dos arquivos (hoje só os metadados são guardados).
-
-- [ ] **Login real** (hoje: mock com sessão no `localStorage`, `src/features/auth`).
-      Definir se um analista pode abrir projetos de outro por link direto (hoje pode;
-      a lista mostra só os próprios) e se haverá visão de coordenação com todos os projetos.
-- [ ] **Cálculo da nota:** substituir a composição mockada (`src/mocks/scoreExplanations.ts`)
-      pela explicação real do back-end, no formato `scoreExplanation`.
-- [ ] **Contestações:** definir o que acontece depois de registradas (reanálise? resposta do
-      modelo? status aberta/resolvida?). Hoje só são registradas e exibidas.
-- [ ] **Outros métodos de árvore:** confirmar quais métodos além de Frascati e Formulário MCTI
-      (ex.: Manual de Oslo) e revisar o conteúdo da árvore mockada do Formulário MCTI.
-
-## Técnico
-
-- [ ] Os ~400 projetos gerados reaproveitam os textos do projeto-exemplo do sensor (só as
-      notas variam): servem para testar escala e filtros, não para ler conteúdo.
-- [ ] Bundle passa de 500 kB por causa do React Flow: carregar as telas sob demanda
-      (`React.lazy` nas rotas de análise e decisão).
-- [ ] Fontes: os tokens citam Inter e Source Serif, mas elas não são carregadas
-      (o navegador usa a fonte do sistema). Resolver junto com o design final.
 - [ ] Aplicar o visual de alta fidelidade do designer (tokens em `src/index.css`,
       cards do grafo em `src/features/analysis/graph/GraphNodes.tsx`).
+- [ ] Fontes: os tokens citam Inter e Source Serif, mas elas não são carregadas
+      (o navegador usa a fonte do sistema). Resolver junto com o design final.
+- [ ] Bundle passa de 500 kB por causa do React Flow: carregar as telas sob demanda
+      (`React.lazy` nas rotas de análise e decisão).
 
-## Fora do front-end (avisar o time)
+### Fora do front-end (avisar o time)
 
 - [ ] O commit inicial do `ai-microservice` incluiu arquivos `__pycache__/*.pyc`;
       ajustar o `.gitignore` de lá.
+
+---
+
+## Escopo maior (se o projeto continuar)
+
+- [ ] **Login real** (hoje: mock com sessão no `localStorage`, `src/features/auth`).
+- [ ] **Permissões:** hoje um analista consegue abrir o projeto de outro por link direto
+      (só a lista é individual). Definir regras de acesso e uma **visão de coordenação**
+      com os projetos de toda a equipe.
+- [ ] **Trilha em banco de dados** (hoje `localStorage`), mantendo o comportamento de só
+      acrescentar registros (decisões, contestações e reanálises nunca são apagadas).
+- [ ] **Versões da análise:** hoje uma contestação acatada ajusta a análise "por cima"
+      (lista de ajustes). Com back-end, cada reanálise poderia gerar uma nova versão
+      da análise, e a decisão apontaria para a versão exata que o analista viu.
+- [ ] **Outros métodos de árvore** além de Frascati e Formulário MCTI (ex.: Manual de Oslo):
+      basta incluir em `src/domain/frameworks.ts` e no back-end.
+- [ ] **Dados de demonstração:** os ~400 projetos gerados reaproveitam os textos do
+      projeto-exemplo do sensor (só as notas variam). Servem para teste de escala e para a
+      banca; num produto real saem de cena.
+- [ ] **Exclusões (EXC-xx)** ficam como regras dentro dos critérios (decidido). Revisitar
+      se o back-end mandar um grupo próprio.
