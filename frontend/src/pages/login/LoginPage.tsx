@@ -64,8 +64,9 @@ export const LoginPage = () => {
 
   return (
     <div className="relative isolate flex min-h-dvh flex-col justify-center overflow-hidden bg-surface-sunken p-4 sm:p-10 lg:flex-row lg:items-center">
-      {/* Background: BNB headquarters, a white glow behind the form and a dark fade at the bottom */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+      {/* Background: BNB headquarters, a white glow behind the form and a dark fade at the bottom.
+          Fixed to the window, so switching tabs (taller form) never resizes the photo */}
+      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
         <img src={headquarters} alt="" className="size-full object-cover object-left" />
         <div className="absolute -top-[308px] -right-[380px] h-[552px] w-[997px] rounded-full bg-white opacity-80 blur-[160px]" />
         <div className="absolute inset-x-0 bottom-0 h-[34%] bg-gradient-to-b from-transparent to-black" />
