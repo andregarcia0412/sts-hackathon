@@ -50,7 +50,7 @@ export const AssistantWidget = () => {
         aria-controls={PANEL_ID}
         aria-label={open ? "Fechar assistente" : "Abrir assistente da análise"}
         onClick={() => (open ? close() : setOpen(true))}
-        className="fixed right-4 bottom-4 z-40 flex size-14 items-center justify-center rounded-full bg-accent text-accent-fg shadow-lg transition-transform hover:scale-105"
+        className="fixed right-4 bottom-4 z-40 flex size-14 items-center justify-center rounded-full bg-action text-white shadow-card-accent transition-transform hover:scale-105"
       >
         {open ? (
           <X className="size-6" aria-hidden />
@@ -159,19 +159,21 @@ const AssistantPanel = ({ onClose }: { onClose: () => void }) => {
       role="dialog"
       aria-label="Assistente da análise"
       onKeyDown={(e) => e.key === "Escape" && onClose()}
-      className="fixed right-4 bottom-20 z-40 flex h-[min(36rem,calc(100dvh-7rem))] w-[min(25rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-2xl"
+      className="fixed right-4 bottom-22 z-40 flex h-[min(38rem,calc(100dvh-7.5rem))] w-[min(26rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_12px_32px_rgb(22_22_22/0.18)]"
     >
-      <header className="flex items-start gap-2 border-b border-border px-4 py-3">
-        <Bot className="mt-0.5 size-5 shrink-0 text-accent" aria-hidden />
+      <header className="flex items-center gap-3 bg-brand-deep px-4 py-3 text-white">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white/15">
+          <Bot className="size-5" aria-hidden />
+        </span>
         <div className="min-w-0 flex-1">
-          <h2 className="text-sm font-semibold">Assistente da análise</h2>
-          <p className="text-xs text-fg-muted">
+          <h2 className="text-base leading-5 font-semibold">Assistente da análise</h2>
+          <p className="text-xs leading-4 text-brand-blush">
             Explica notas e evidências · versão de demonstração
           </p>
         </div>
         <button
           type="button"
-          className="btn-ghost p-1.5"
+          className="rounded-full p-2 text-white/90 transition-colors hover:bg-white/15 disabled:opacity-40 disabled:hover:bg-transparent"
           onClick={() => {
             clear();
             setRecording(null);
@@ -184,7 +186,7 @@ const AssistantPanel = ({ onClose }: { onClose: () => void }) => {
         </button>
         <button
           type="button"
-          className="btn-ghost p-1.5"
+          className="rounded-full p-2 text-white/90 transition-colors hover:bg-white/15"
           onClick={onClose}
           aria-label="Fechar assistente"
         >
@@ -193,14 +195,14 @@ const AssistantPanel = ({ onClose }: { onClose: () => void }) => {
       </header>
 
       {debateNode ? (
-        <div className="flex items-center gap-2 border-b border-score-moderate bg-score-moderate-soft px-4 py-1.5 text-xs">
-          <Flag className="size-3.5 shrink-0 text-score-moderate" aria-hidden />
+        <div className="flex items-center gap-2 bg-state-attention-soft px-4 py-2 text-xs leading-4 text-state-attention-strong">
+          <Flag className="size-3.5 shrink-0" aria-hidden />
           <span className="min-w-0 flex-1 truncate">
             Contestando <strong>{debateNode.number} {getNodeTitle(debateNode)}</strong>
           </span>
           <button
             type="button"
-            className="shrink-0 font-medium text-accent hover:underline"
+            className="btn-link shrink-0"
             onClick={() => {
               setRecording(null);
               endDebate();
@@ -210,7 +212,7 @@ const AssistantPanel = ({ onClose }: { onClose: () => void }) => {
           </button>
         </div>
       ) : (
-        <p className="truncate border-b border-border bg-surface-muted px-4 py-1.5 text-xs text-fg-muted">
+        <p className="truncate bg-accent-soft px-4 py-2 text-xs leading-4 text-fg-muted">
           Sobre:{" "}
           <span className="font-medium text-fg">
             {selected
@@ -224,7 +226,7 @@ const AssistantPanel = ({ onClose }: { onClose: () => void }) => {
 
       <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4" aria-live="polite">
         {messages.length === 0 && (
-          <div className="space-y-3 text-sm">
+          <div className="space-y-3 text-sm leading-5">
             <p>
               Pergunte sobre as notas, as evidências e de onde vem cada
               informação. Eu explico; a decisão é sua. Discorda de algo? Use
@@ -250,9 +252,9 @@ const AssistantPanel = ({ onClose }: { onClose: () => void }) => {
         {pending && (
           <p role="status" className="flex items-center gap-1.5 text-sm text-fg-muted">
             <span className="flex gap-0.5" aria-hidden>
-              <span className="size-1.5 animate-bounce rounded-full bg-fg-muted" />
-              <span className="size-1.5 animate-bounce rounded-full bg-fg-muted [animation-delay:150ms]" />
-              <span className="size-1.5 animate-bounce rounded-full bg-fg-muted [animation-delay:300ms]" />
+              <span className="size-1.5 animate-bounce rounded-full bg-action" />
+              <span className="size-1.5 animate-bounce rounded-full bg-action [animation-delay:150ms]" />
+              <span className="size-1.5 animate-bounce rounded-full bg-action [animation-delay:300ms]" />
             </span>
             Analisando…
           </p>
@@ -308,18 +310,18 @@ const AssistantPanel = ({ onClose }: { onClose: () => void }) => {
                 ? "Explique por que discorda…"
                 : "Ex.: Como a nota deste critério foi calculada?"
             }
-            className="input max-h-28 min-h-10 flex-1 resize-none"
+            className="input max-h-28 min-h-12 flex-1 resize-none field-sizing-content"
           />
           <button
             type="submit"
-            className="btn-primary size-10 shrink-0 p-0"
+            className="btn-primary size-12 shrink-0 p-0"
             disabled={pending || !draft.trim()}
             aria-label="Enviar"
           >
-            <SendHorizontal className="size-4" aria-hidden />
+            <SendHorizontal className="size-5" aria-hidden />
           </button>
         </div>
-        <p className="mt-1.5 text-[11px] text-fg-muted">
+        <p className="mt-2 text-[11px] leading-4 text-fg-muted">
           Respostas automáticas de apoio. Não substituem a análise nem a decisão do analista.
         </p>
       </form>
@@ -334,7 +336,7 @@ const Suggestions = ({ items, onPick }: { items: string[]; onPick: (q: string) =
         <button
           type="button"
           onClick={() => onPick(item)}
-          className="rounded-full border border-accent/40 bg-accent-soft px-2.5 py-1 text-left text-xs text-accent hover:border-accent"
+          className="rounded-full border border-action/40 bg-accent-soft px-3 py-1.5 text-left text-xs leading-4 font-medium text-accent transition-colors hover:border-action"
         >
           {item}
         </button>
@@ -354,14 +356,14 @@ const Message = ({
 }) => {
   if (message.role === "user") {
     return (
-      <p className="ml-8 rounded-lg rounded-br-sm bg-accent px-3 py-2 text-sm whitespace-pre-line text-accent-fg">
+      <p className="ml-8 rounded-2xl rounded-br-md bg-action px-3.5 py-2.5 text-sm leading-5 whitespace-pre-line text-white">
         {message.text}
       </p>
     );
   }
   if (message.role === "error") {
     return (
-      <p role="alert" className="mr-8 rounded-lg bg-score-weak-soft px-3 py-2 text-sm text-danger">
+      <p role="alert" className="mr-8 rounded-2xl rounded-bl-md bg-state-negative-soft px-3.5 py-2.5 text-sm leading-5 text-danger">
         {message.text}
       </p>
     );
@@ -370,7 +372,7 @@ const Message = ({
     return (
       <p className="flex items-center gap-2 text-xs text-fg-muted">
         <span className="h-px flex-1 bg-border" />
-        <Flag className="size-3.5 text-score-moderate" aria-hidden />
+        <Flag className="size-3.5 text-state-attention" aria-hidden />
         {message.text}
         <span className="h-px flex-1 bg-border" />
       </p>
@@ -393,7 +395,7 @@ const AnswerView = ({
   const openNode = useOpenNode();
 
   return (
-    <div className="mr-4 space-y-2 rounded-lg rounded-bl-sm bg-surface-muted px-3 py-2 text-sm leading-relaxed">
+    <div className="mr-4 space-y-2 rounded-2xl rounded-bl-md border border-border bg-surface-muted px-3.5 py-2.5 text-sm leading-5">
       {answer.blocks.map((block, i) => {
         if (block.type === "text") return <p key={i}>{block.text}</p>;
         if (block.type === "list") {
@@ -406,22 +408,22 @@ const AnswerView = ({
           );
         }
         return (
-          <figure key={i} className="rounded-md border border-border bg-surface p-2">
-            <blockquote className="italic">“{block.text}”</blockquote>
+          <figure key={i} className="rounded-lg border-l-2 border-action bg-surface px-3 py-2">
+            <blockquote>“{block.text}”</blockquote>
             <figcaption className="mt-1 text-xs text-fg-muted">{block.caption}</figcaption>
           </figure>
         );
       })}
       {answer.sources.length > 0 && (
         <div className="border-t border-border pt-2">
-          <p className="mb-1 text-xs font-medium text-fg-muted">Fontes</p>
+          <p className="caps-label mb-1.5 text-fg-muted">Fontes</p>
           <ul className="flex flex-wrap gap-1">
             {answer.sources.map((s) => (
               <li key={s.nodeId}>
                 <button
                   type="button"
                   onClick={() => openNode(s.nodeId)}
-                  className="max-w-full truncate rounded border border-border bg-surface px-1.5 py-0.5 text-xs hover:border-accent hover:text-accent"
+                  className="max-w-full truncate rounded-full border border-border-strong bg-surface px-2.5 py-1 text-xs leading-4 font-medium transition-colors hover:border-action hover:text-accent"
                   title={`Ir para ${s.label}`}
                 >
                   {s.label}
@@ -435,12 +437,12 @@ const AnswerView = ({
         <button
           key={action.type + action.nodeId}
           type="button"
-          className="btn-secondary w-full border-score-moderate py-1.5"
+          className="btn-secondary w-full px-4 py-2 text-sm"
           onClick={() => onAction(action)}
         >
           {action.type === "record-contestation" ? (
             <>
-              <Flag className="size-4 text-score-moderate" aria-hidden />
+              <Flag className="size-4 text-state-attention" aria-hidden />
               Registrar contestação
             </>
           ) : (
