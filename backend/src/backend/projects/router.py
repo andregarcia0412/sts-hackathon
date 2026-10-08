@@ -81,7 +81,7 @@ async def list_projects(
         )
     except ValidationError as error:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, error.errors(include_url=False))
-    projects = await Project.find(Project.owner_id == str(user.id)).to_list()
+    projects = await Project.find(Project.owner_id == str(user.id), Project.benchmark_id == None).to_list()  # noqa: E711
     summaries = [await summarize(project) for project in projects]
     return apply_project_query(summaries, query)
 

@@ -38,6 +38,7 @@ class Project(Document):
     status: ProjectStatus = "processing"
     documents: list[ProjectFile] = Field(default_factory=list)
     latest_analysis_id: str | None = None
+    benchmark_id: str | None = None  # created by a benchmark run: hidden from the analyst's lists
 
     class Settings:
         name = "projects"

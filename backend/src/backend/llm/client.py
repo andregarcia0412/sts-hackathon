@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import time
 from collections.abc import Mapping, Sequence
 from typing import Any, Protocol
 
@@ -7,6 +8,7 @@ from ollama import AsyncClient
 from pydantic import BaseModel, ValidationError
 
 from backend.config import LLMRole, Settings
+from backend.llm.usage import LLMUsage, RoleUsage, current_usage
 
 logger = logging.getLogger(__name__)
 
@@ -75,18 +77,34 @@ class LLMClient:
     def model_for(self, role: LLMRole) -> str:
         return self.settings.model_for(role)
 
-    async def _call(self, func, **kwargs):
+    async def _call(self, func, usage: RoleUsage | None = None, **kwargs):
         """Runs one Ollama call with the concurrency limit and simple retries on transport errors."""
         attempts = self.settings.ollama_retries + 1
         for attempt in range(1, attempts + 1):
             try:
                 async with self._semaphore:
-                    return await func(**kwargs)
+                    started = time.monotonic()
+                    response = await func(**kwargs)
+                    if usage is not None:
+                        usage.calls += 1
+                        usage.llm_seconds = round(usage.llm_seconds + time.monotonic() - started, 3)
+                        usage.prompt_tokens += getattr(response, "prompt_eval_count", None) or 0
+                        usage.completion_tokens += getattr(response, "eval_count", None) or 0
+                    return response
             except Exception as error:
                 if attempt == attempts:
+                    if usage is not None:
+                        usage.failures += 1
                     raise LLMError(f"Ollama call failed after {attempts} attempt(s): {type(error).__name__}") from error
+                if usage is not None:
+                    usage.transport_retries += 1
                 logger.warning("Ollama call failed (attempt %d/%d): %s", attempt, attempts, type(error).__name__)
                 await asyncio.sleep(self._retry_backoff_s * attempt)
+
+    @staticmethod
+    def _role_usage(role: str) -> RoleUsage | None:
+        meter = current_usage()
+        return meter.role(role) if meter is not None else None
 
     async def chat(
         self,
@@ -96,6 +114,7 @@ class LLMClient:
     ) -> str:
         response = await self._call(
             self._chat.chat,
+            usage=self._role_usage(role),
             model=self.model_for(role),
             messages=list(messages),
             format=format,
@@ -116,6 +135,8 @@ class LLMClient:
                 return schema.model_validate_json(content)
             except ValidationError as error:
                 last_error = error
+                if (usage := self._role_usage(role)) is not None:
+                    usage.schema_retries += 1
                 history += [
                     {"role": "assistant", "content": content},
                     {
@@ -128,7 +149,7 @@ class LLMClient:
 
     async def web_search(self, query: str, max_results: int = 5) -> list[WebSearchResult]:
         self._require_api_key()
-        response = await self._call(self._web.web_search, query=query, max_results=max_results)
+        response = await self._web_call(self._web.web_search, "web_search_calls", query=query, max_results=max_results)
         return [
             WebSearchResult(title=r.title or "", url=r.url or "", content=r.content or "")
             for r in response.results
@@ -137,8 +158,20 @@ class LLMClient:
 
     async def web_fetch(self, url: str) -> WebPage:
         self._require_api_key()
-        response = await self._call(self._web.web_fetch, url=url)
+        response = await self._web_call(self._web.web_fetch, "web_fetch_calls", url=url)
         return WebPage(url=url, title=response.title or "", content=response.content or "")
+
+    async def _web_call(self, func, counter: str, **kwargs):
+        meter: LLMUsage | None = current_usage()
+        try:
+            response = await self._call(func, **kwargs)
+        except LLMError:
+            if meter is not None:
+                meter.web_failures += 1
+            raise
+        if meter is not None:
+            setattr(meter, counter, getattr(meter, counter) + 1)
+        return response
 
     def _require_api_key(self) -> None:
         if not self.settings.ollama_api_key:

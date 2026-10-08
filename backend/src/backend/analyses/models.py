@@ -9,6 +9,7 @@ from backend.extraction.schema import CanonicalProject
 from backend.graph.classify import ClassSuggestion
 from backend.graph.scoring import RuleScore
 from backend.graph.states import CriterionState
+from backend.llm.usage import LLMUsage
 from backend.projects.models import now
 
 StageStatus = Literal["pendente", "rodando", "concluida", "falhou", "nao_executada"]
@@ -55,6 +56,7 @@ class Analysis(Document):
     states: dict[str, CriterionState] = Field(default_factory=dict)
     suggestion: ClassSuggestion | None = None
     report: dict[str, Any] | None = None
+    usage: LLMUsage | None = None  # LLM calls, tokens and time per role
     error: str | None = None
 
     class Settings:
@@ -81,6 +83,7 @@ class Batch(Document):
     project_ids: list[str] = Field(default_factory=list)
     analysis_ids: list[str] = Field(default_factory=list)
     errors: list[str] = Field(default_factory=list)
+    benchmark_id: str | None = None
 
     class Settings:
         name = "batches"

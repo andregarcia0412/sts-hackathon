@@ -3,6 +3,7 @@ from typing import Any
 
 from backend.analyses.models import Analysis, AnalysisVersions, Stage
 from backend.api_schema import CamelModel
+from backend.llm.usage import LLMUsage
 
 
 class StageRead(CamelModel):
@@ -39,6 +40,7 @@ class AnalysisStatusRead(CamelModel):
     inconsistent: bool | None = None
     error: str | None = None
     versions: VersionsRead
+    usage: LLMUsage | None = None
 
     @classmethod
     def of(cls, analysis: Analysis) -> "AnalysisStatusRead":
@@ -58,6 +60,7 @@ class AnalysisStatusRead(CamelModel):
             inconsistent=analysis.suggestion.inconsistent if analysis.suggestion else None,
             error=analysis.error,
             versions=VersionsRead.model_validate(analysis.versions.model_dump()),
+            usage=analysis.usage,
         )
 
 

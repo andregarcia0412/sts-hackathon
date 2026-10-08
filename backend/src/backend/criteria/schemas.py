@@ -40,6 +40,7 @@ class RuleRun(BaseModel):
     reason: str | None = None
     note: str | None = None  # procedural rules (NOV-W1/W2/W8): what was checked
     evidences: list[EvidenceItem] = Field(default_factory=list)
+    dropped: list[str] = Field(default_factory=list)  # citations refused by the gates, with the reason
 
 
 class Divergence(BaseModel):

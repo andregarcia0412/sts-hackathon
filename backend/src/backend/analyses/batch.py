@@ -17,12 +17,12 @@ STATUSES = ("pendente", "rodando", "concluida", "falhou")
 
 
 async def import_projects(groups: list[tuple[str, list[IncomingFile]]], owner_id: str, name: str,
-                          service: AnalysisService, runner) -> Batch:
-    batch = Batch(owner_id=owner_id, name=name)
+                          service: AnalysisService, runner, benchmark_id: str | None = None) -> Batch:
+    batch = Batch(owner_id=owner_id, name=name, benchmark_id=benchmark_id)
     await batch.insert()
     projects = []
     for folder_name, files in groups:
-        project = await create_project(owner_id, folder_name, files)
+        project = await create_project(owner_id, folder_name, files, benchmark_id=benchmark_id)
         projects.append(project)
         batch.project_ids.append(str(project.id))
     await batch.save()

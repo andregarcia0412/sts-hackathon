@@ -37,7 +37,7 @@ def compare(key_rows: list[dict[str, str]], our_rows: list[dict[str, str]]) -> C
                              confusion={k: dict(v) for k, v in confusion.items()}, missing=missing)
 
 
-def _read(path: Path) -> list[dict[str, str]]:
+def read_csv(path: Path) -> list[dict[str, str]]:
     with path.open(encoding="utf-8-sig") as file:
         return list(csv.DictReader(file, delimiter=";"))
 
@@ -47,7 +47,7 @@ def main() -> None:
     parser.add_argument("answer_key", type=Path)
     parser.add_argument("ours", type=Path)
     args = parser.parse_args()
-    report = compare(_read(args.answer_key), _read(args.ours))
+    report = compare(read_csv(args.answer_key), read_csv(args.ours))
     print(f"Classe: {report.class_hits}/{report.total}")
     for column, hits in report.state_hits.items():
         print(f"{column}: {hits}/{report.total}")

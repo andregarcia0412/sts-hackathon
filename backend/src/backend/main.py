@@ -13,6 +13,7 @@ from backend.analyses.router import router as analyses_router
 from backend.assistant.norms import ingest_norms, load_norm_index, norm_index
 from backend.assistant.router import router as assistant_router
 from backend.auth.router import router as auth_router
+from backend.benchmark.router import router as benchmark_router
 from backend.catalog.loader import get_catalog, sync_catalog_to_db
 from backend.catalog.router import router as catalog_router
 from backend.config import settings
@@ -75,6 +76,7 @@ app.include_router(analyses_router)
 app.include_router(review_router)
 app.include_router(report_router)
 app.include_router(assistant_router)
+app.include_router(benchmark_router)
 
 
 @app.get("/")

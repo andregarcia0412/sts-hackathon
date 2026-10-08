@@ -31,9 +31,11 @@ async def create_project(
     files: list[IncomingFile],
     company: str | None = None,
     free_text: str | None = None,
+    benchmark_id: str | None = None,
 ) -> Project:
     code = project_code_from(name, *(f.top_folder for f in files))
-    project = Project(owner_id=owner_id, name=name.strip(), company=company, free_text=free_text, code=code)
+    project = Project(owner_id=owner_id, name=name.strip(), company=company, free_text=free_text, code=code,
+                      benchmark_id=benchmark_id)
     await project.insert()
     project.documents = [await _store(project, incoming) for incoming in files]
     await project.save()

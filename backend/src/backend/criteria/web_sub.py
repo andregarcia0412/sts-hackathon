@@ -299,10 +299,12 @@ class WebSub:
         runs = []
         for rule in judged:
             if accepted[rule.id]:
-                runs.append(RuleRun(rule_id=rule.id, criterion=self.criterion, status="executada", evidences=accepted[rule.id]))
+                runs.append(RuleRun(rule_id=rule.id, criterion=self.criterion, status="executada", evidences=accepted[rule.id],
+                                    dropped=dropped[rule.id]))
             elif dropped[rule.id]:
                 runs.append(RuleRun(rule_id=rule.id, criterion=self.criterion, status="sem_evidencia",
-                                    reason="citações descartadas pelo gate: " + "; ".join(dropped[rule.id])))
+                                    reason="citações descartadas pelo gate: " + "; ".join(dropped[rule.id]),
+                                    dropped=dropped[rule.id]))
             else:
                 reason = no_evidence.get(rule.id, f"nada encontrado após {len(log)} busca(s) em {len(sources)} fonte(s)")
                 runs.append(RuleRun(rule_id=rule.id, criterion=self.criterion, status="sem_evidencia", reason=reason))

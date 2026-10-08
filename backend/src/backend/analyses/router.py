@@ -1,4 +1,3 @@
-from pathlib import Path
 from typing import Annotated
 
 from beanie import PydanticObjectId
@@ -6,11 +5,10 @@ from bson.errors import InvalidId
 from fastapi import APIRouter, File, HTTPException, UploadFile, status
 
 from backend.analyses.batch import batch_panel, groups_from_directory, groups_from_zip_files, import_projects
-from backend.analyses.deps import Runner, Service, owned_analysis, start_analysis
+from backend.analyses.deps import Runner, Service, inside_package_dir, owned_analysis, start_analysis
 from backend.analyses.models import Analysis, Batch, CanonicalRecord
 from backend.analyses.schemas import AnalysisStatusRead, BatchRead, BatchRequest, GraphEdgeRead, GraphNodeRead, GraphRead
 from backend.auth.dependencies import CurrentUser
-from backend.config import settings
 from backend.extraction.schema import CanonicalProject
 from backend.graph.models import GraphEdge, GraphNode
 from backend.graph.queries import trace
@@ -84,21 +82,9 @@ def _camel(canonical: CanonicalProject) -> dict:
     return converted
 
 
-def _inside_package_dir(path: str) -> Path:
-    if settings.package_dir is None:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "PACKAGE_DIR is not configured on the server")
-    root = Path(settings.package_dir).resolve()
-    target = Path(path).resolve()
-    if target != root and root not in target.parents:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "packageDir must be inside PACKAGE_DIR")
-    if not target.is_dir():
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "packageDir not found")
-    return target
-
-
 @router.post("/batches", status_code=status.HTTP_202_ACCEPTED)
 async def create_batch(body: BatchRequest, user: CurrentUser, service: Service, runner: Runner) -> BatchRead:
-    root = _inside_package_dir(body.package_dir)
+    root = inside_package_dir(body.package_dir)
     groups = groups_from_directory(root)
     if not groups:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "No project folder found (no evidence inventory)")
@@ -122,7 +108,7 @@ async def upload_batch(user: CurrentUser, service: Service, runner: Runner,
 
 @router.get("/batches")
 async def list_batches(user: CurrentUser) -> list[BatchRead]:
-    batches = await Batch.find(Batch.owner_id == str(user.id)).sort(-Batch.created_at).to_list()
+    batches = await Batch.find(Batch.owner_id == str(user.id), Batch.benchmark_id == None).sort(-Batch.created_at).to_list()  # noqa: E711
     return [await batch_panel(b) for b in batches]
 
 

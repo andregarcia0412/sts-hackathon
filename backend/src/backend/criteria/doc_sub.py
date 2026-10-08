@@ -184,10 +184,12 @@ async def run_doc_sub(
     no_evidence = {item.regra_id: item.motivo for item in out.regras_sem_evidencia}
     for rule in active:
         if accepted[rule.id]:
-            result.rules.append(RuleRun(rule_id=rule.id, criterion=criterion, status="executada", evidences=accepted[rule.id]))
+            result.rules.append(RuleRun(rule_id=rule.id, criterion=criterion, status="executada", evidences=accepted[rule.id],
+                                        dropped=dropped[rule.id]))
         elif dropped[rule.id]:
             reason = "citações descartadas pelo gate: " + "; ".join(dropped[rule.id])
-            result.rules.append(RuleRun(rule_id=rule.id, criterion=criterion, status="sem_evidencia", reason=reason))
+            result.rules.append(RuleRun(rule_id=rule.id, criterion=criterion, status="sem_evidencia", reason=reason,
+                                        dropped=dropped[rule.id]))
         elif rule.id in no_evidence:
             result.rules.append(RuleRun(rule_id=rule.id, criterion=criterion, status="sem_evidencia", reason=no_evidence[rule.id]))
         else:

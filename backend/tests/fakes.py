@@ -7,6 +7,7 @@ from typing import Any
 from pydantic import BaseModel
 
 from backend.llm import LLMError, WebPage, WebSearchResult
+from backend.llm.usage import current_usage
 from backend.search.base import SearchHit
 
 Handler = Callable[[list[dict[str, Any]]], Any] | BaseModel | dict | Exception
@@ -40,14 +41,25 @@ class FakeLLM:
             return result
         return handler
 
+    @staticmethod
+    def _meter(role: str) -> None:
+        """Counts the call like LLMClient does, with fixed token numbers."""
+        if (meter := current_usage()) is not None:
+            usage = meter.role(role)
+            usage.calls += 1
+            usage.prompt_tokens += 10
+            usage.completion_tokens += 2
+
     async def chat(self, messages, role="default") -> str:
         self.calls.append((None, role, list(messages)))
+        self._meter(role)
         if self.chat_handler is None:
             raise LLMError("no chat handler")
         return self._resolve(self.chat_handler, list(messages))
 
     async def structured(self, messages, schema, role="default"):
         self.calls.append((schema, role, list(messages)))
+        self._meter(role)
         if schema not in self.handlers:
             raise LLMError(f"FakeLLM has no handler for {schema.__name__}")
         result = self._resolve(self.handlers[schema], list(messages))

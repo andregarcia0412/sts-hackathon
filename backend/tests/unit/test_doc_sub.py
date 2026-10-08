@@ -65,6 +65,7 @@ async def test_invented_quote_is_dropped_and_rule_has_no_evidence(canonical):
     run_ = next(r for r in result.rules if r.rule_id == "NOV-D1")
     assert run_.status == "sem_evidencia"
     assert "gate" in run_.reason
+    assert run_.dropped and "não encontrado literalmente" in run_.dropped[0]
 
 
 async def test_testimony_never_becomes_evidence(canonical):

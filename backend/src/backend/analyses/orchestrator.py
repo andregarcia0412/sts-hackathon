@@ -20,6 +20,7 @@ from backend.graph.scoring import score_criterion, score_rule
 from backend.graph.states import judge_state, numeric_record_in
 from backend.llm import LLM
 from backend.llm.prompts import prompt_hashes
+from backend.llm.usage import meter_scope
 from backend.projects.importer import IncomingFile
 from backend.projects.models import Project
 from backend.report.service import generate_report
@@ -69,7 +70,7 @@ class AnalysisService:
                     project.status = "error"
                     await project.save()
 
-    def _models(self) -> dict[str, str | None]:
+    def models_by_role(self) -> dict[str, str | None]:
         models: dict[str, str | None] = {}
         for role in LLM_ROLES:
             try:
@@ -105,7 +106,7 @@ class AnalysisService:
         project = await Project.get(analysis.project_id)
         started = time.monotonic()
         analysis.status, analysis.started_at = "rodando", datetime.now(UTC)
-        models = self._models()
+        models = self.models_by_role()
         analysis.versions = AnalysisVersions(
             schema_version=SCHEMA_VERSION,
             catalog_version=self.catalog.versao,
@@ -113,18 +114,20 @@ class AnalysisService:
             file_hashes={doc.file_name: doc.sha256 for doc in project.active_documents()},
         )
         await analysis.save()
-        try:
-            missing = [role for role, model in models.items() if model is None]
-            if missing:
-                raise RuntimeError(f"OLLAMA_MODEL is not set in .env (roles without model: {', '.join(missing)})")
-            canonical = await self._extract(analysis, project)
-            if canonical is not None:
-                await self._criteria_graph_report(analysis, canonical)
-        except Exception as error:  # defensive: never leave an analysis "running"
-            analysis.error = safe_error_message(error)
-            analysis.status = "falhou"
-            if analysis.stage(EXTRACTION).status == "pendente":
-                analysis.stage(EXTRACTION).status, analysis.stage(EXTRACTION).error = "falhou", analysis.error
+        with meter_scope() as usage:
+            analysis.usage = usage
+            try:
+                missing = [role for role, model in models.items() if model is None]
+                if missing:
+                    raise RuntimeError(f"OLLAMA_MODEL is not set in .env (roles without model: {', '.join(missing)})")
+                canonical = await self._extract(analysis, project)
+                if canonical is not None:
+                    await self._criteria_graph_report(analysis, canonical)
+            except Exception as error:  # defensive: never leave an analysis "running"
+                analysis.error = safe_error_message(error)
+                analysis.status = "falhou"
+                if analysis.stage(EXTRACTION).status == "pendente":
+                    analysis.stage(EXTRACTION).status, analysis.stage(EXTRACTION).error = "falhou", analysis.error
         analysis.versions.prompts = prompt_hashes()
         analysis.finished_at = datetime.now(UTC)
         analysis.total_s = round(time.monotonic() - started, 3)

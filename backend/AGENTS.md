@@ -139,13 +139,14 @@ The **frontend is the source of truth for the API contract**: `frontend/src/doma
 
 ```
 backend/
-  pyproject.toml            # uv, Python >= 3.13; scripts: backend, backend-import, backend-ingest-norms, backend-calibrate
+  pyproject.toml            # uv, Python >= 3.13; scripts: backend, backend-import, backend-ingest-norms, backend-calibrate, backend-benchmark
   .env.example              # every setting, documented (Ollama models per role live here)
   data/normas/              # normative PDFs for the chatbot (BM25 index, no embeddings)
   src/backend/
     main.py                 # app, lifespan (Mongo, seed users, catalog sync, services, norm index), routers
     config.py               # Settings; LLM roles: extraction, doc, search, judge, report, chat
     llm/                    # LLMClient (Ollama chat/structured/web_search/web_fetch, temperature 0, retries) + prompt registry
+                            # + usage meter (calls/tokens/time per role, saved on every Analysis)
     catalog/                # rules.yaml (versioned), loader + Mongo sync, GET /regras, /regras/{id}
     storage.py              # GridFS: immutable originals with sha256
     projects/               # Project + files (superseded, never deleted), upload (multipart/.zip), list (ProjectQuery), CLI import
@@ -158,6 +159,7 @@ backend/
     review/                 # decisions, contestations (+ reanalysis), rule decisions, evidence reviews — append-only
     frontend_api/           # projection to the hifi Analysis tree (crit-x.rule-y.ev-z), ProjectQuery
     assistant/              # 6. chatbot: graph + catalog + norms (BM25), citation and numbers gates, debate
+    benchmark/              # pipeline benchmark: runs the package sets, accuracy vs references, time, cost, gates, determinism
     users/, auth/           # User (email, name, argon2), JWT access/refresh, CurrentUser dependency
   tests/                    # unit/ (fakes, no network), api/ (TestClient), live/ (opt-in, real Ollama)
 ```
@@ -171,6 +173,7 @@ Main endpoints: `POST /projects` (multipart files or .zip; starts the analysis) 
 · `GET /analyses/{id}/graph/trace/{node}` · `GET /analyses/{id}/report.{json,csv,pdf}` · `POST /batches`
 (`packageDir` inside `PACKAGE_DIR`) · `POST /batches/upload` (.zip) · `GET /batches/{id}[/report.csv]` ·
 `GET|POST /projects/{id}/decisions|contestations|rule-decisions|evidence-reviews` ·
+`POST /benchmarks` · `GET /benchmarks[/{id}[/projects|/report.csv]]` · `GET /benchmarks/compare?base=&target=` ·
 `POST /contestations/{id}/reanalysis` · `POST /assistant/ask|debate` · `GET /regras[/{id}]`.
 
 ## Commands
@@ -184,6 +187,7 @@ uv run backend                 # uvicorn with reload at http://127.0.0.1:8000 (d
 uv run backend-import <folder> # import + analyse every project folder as a batch (progress in the terminal)
 uv run backend-ingest-norms    # (re)index data/normas (also done in the background on the first start)
 uv run backend-calibrate historicos_classificados.csv nosso.csv   # confusion matrix vs the answer key
+uv run backend-benchmark --projects PRJ01,PRJ21   # benchmark (all 40 without --projects; --repeats 2 = determinism)
 uv run pytest                  # unit + API tests, needs Mongo; no network
 uv run pytest -m live          # opt-in: PRJ21 end to end with the real Ollama (reads backend/.env)
 uv add <package>               # always manage dependencies with uv, never pip
@@ -210,9 +214,21 @@ uv add <package>               # always manage dependencies with uv, never pip
 - Calibrate against PRJ01–PRJ20 (answer key) before running PRJ21–PRJ40.
 - Never commit `.env`, `.venv` or `__pycache__/`.
 
+## Benchmark
+
+`benchmark/` runs the real pipeline over `01_historico` (PRJ01–20) and `02_casos_para_analise`
+(PRJ21–40) and saves a `Benchmark` (config with models/prompts/catalog/file hashes, one snapshot per
+run, metrics). Accuracy is reported **per reference and never mixed**: `oficial` =
+`historicos_classificados.csv` (class, 5 states, confusion, F1, kappa, false eligibles); `preliminar` =
+`leitura_preliminar.csv` at the package root, the team's reading of PRJ21–40 plus the planted interview
+divergences (**not** an answer key; outside the repo like all package data). Also: time per stage,
+LLM calls/tokens per role, failures, rule coverage, gate drop rate, divergences, and agreement between
+repeats. Benchmark projects/batches carry `benchmark_id` and are hidden from the analyst's lists.
+There is no coordinator task: `refresh` closes the benchmark when every analysis has finished.
+
 ## Knowledge base
 
-Research notes (outside this repo, in Portuguese): `~/projects/second-brain/hackathons/sts-2026/`.
+Research notes (outside this repo, in Portuguese): `~/second-brain/hackathons/sts-2026/`.
 
 - `STS 2026 — Decisões do Modelo e do Back.md` — architecture and scoring decisions
 - `Fluxo do Backend.md` — definition of done for each module (1 to 8)
