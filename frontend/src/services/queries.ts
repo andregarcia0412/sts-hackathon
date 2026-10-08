@@ -8,18 +8,24 @@ import { useCurrentUser } from "@/features/auth/authState";
 import type {
   NewContestationInput,
   NewDecisionInput,
+  NewEvidenceReviewInput,
+  NewRuleDecisionInput,
   NewProjectInput,
   ProjectQuery,
 } from "@/domain/types";
 import {
   requestReanalysis,
   createContestation,
+  createEvidenceReview,
   createProject,
+  createRuleDecision,
   getAnalyses,
   getProject,
   listContestations,
   listDecisions,
+  listEvidenceReviews,
   listProjects,
+  listRuleDecisions,
   saveDecision,
 } from "@/services/api";
 
@@ -33,6 +39,8 @@ export const queryKeys = {
     ["projects", projectId, "decisions"] as const,
   contestations: (projectId: string) =>
     ["projects", projectId, "contestations"] as const,
+  ruleDecisions: (projectId: string) => ["projects", projectId, "rule-decisions"] as const,
+  evidenceReviews: (projectId: string) => ["projects", projectId, "evidence-reviews"] as const,
 };
 
 /** A project sent minutes ago may still finish processing: worth polling */
@@ -118,5 +126,35 @@ export const useRequestReanalysis = () => {
   return useMutation({
     mutationFn: (contestationId: string) => requestReanalysis(contestationId),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.projects }),
+  });
+};
+
+export const useRuleDecisions = (projectId: string) =>
+  useQuery({
+    queryKey: queryKeys.ruleDecisions(projectId),
+    queryFn: () => listRuleDecisions(projectId),
+  });
+
+export const useCreateRuleDecision = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: NewRuleDecisionInput) => createRuleDecision(input),
+    onSuccess: (decision) =>
+      queryClient.invalidateQueries({ queryKey: queryKeys.ruleDecisions(decision.projectId) }),
+  });
+};
+
+export const useEvidenceReviews = (projectId: string) =>
+  useQuery({
+    queryKey: queryKeys.evidenceReviews(projectId),
+    queryFn: () => listEvidenceReviews(projectId),
+  });
+
+export const useCreateEvidenceReview = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: NewEvidenceReviewInput) => createEvidenceReview(input),
+    onSuccess: (review) =>
+      queryClient.invalidateQueries({ queryKey: queryKeys.evidenceReviews(review.projectId) }),
   });
 };

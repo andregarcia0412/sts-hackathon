@@ -261,3 +261,48 @@ export type NewContestationInput = Omit<
   Contestation,
   "id" | "createdAt" | "status" | "resolution"
 >;
+
+/*
+ * Analyst review inside the analysis screen (append-only, part of the trail):
+ * evidences are confirmed or discarded, rules get the analyst's rating.
+ * The latest entry per node is the current one.
+ */
+export type RuleRating =
+  | "sustained"
+  | "partial"
+  | "contradictory"
+  | "not_sustained"
+  | "needs_expert";
+
+export interface RuleDecision {
+  id: string;
+  projectId: string;
+  analysisId: string;
+  /** Path id of the rule in the analysis tree */
+  nodeId: string;
+  /** Snapshot like "1.4 PROJ-14 Barreira tecnológica" */
+  nodeLabel: string;
+  rating: RuleRating;
+  /** System's reading at the time, for the trail */
+  suggested?: RuleRating;
+  justification: string;
+  author: string;
+  createdAt: string;
+}
+
+export type EvidenceVerdict = "confirmed" | "discarded";
+
+export interface EvidenceReview {
+  id: string;
+  projectId: string;
+  analysisId: string;
+  nodeId: string;
+  nodeLabel: string;
+  verdict: EvidenceVerdict;
+  note?: string;
+  author: string;
+  createdAt: string;
+}
+
+export type NewRuleDecisionInput = Omit<RuleDecision, "id" | "createdAt">;
+export type NewEvidenceReviewInput = Omit<EvidenceReview, "id" | "createdAt">;

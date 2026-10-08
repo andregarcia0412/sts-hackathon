@@ -3,12 +3,16 @@ import type {
   Contestation,
   NewContestationInput,
   Decision,
+  EvidenceReview,
   NewDecisionInput,
+  NewEvidenceReviewInput,
+  NewRuleDecisionInput,
   NewProjectInput,
   Project,
   ProjectPage,
   ProjectQuery,
   ProjectSummary,
+  RuleDecision,
   User,
 } from "@/domain/types";
 import type { AssistantAnswer, AssistantContext } from "@/domain/assistant";
@@ -63,13 +67,15 @@ export class AuthError extends Error {
  * copied into db.projects, which then takes precedence.
  */
 // Bump the version when src/mocks changes, or browsers keep the old copy
-const STORAGE_KEY = "lei-do-bem:mock-db:v4";
+const STORAGE_KEY = "lei-do-bem:mock-db:v5";
 
 interface MockDb {
   projects: Project[];
   analyses: Analysis[];
   decisions: Decision[];
   contestations: Contestation[];
+  ruleDecisions: RuleDecision[];
+  evidenceReviews: EvidenceReview[];
   /** Mock-created projects become "ready" after this timestamp (ms) */
   processingUntil: Record<string, number>;
 }
@@ -79,6 +85,8 @@ const seedDb = (): MockDb => ({
   analyses: structuredClone(mockAnalyses),
   decisions: structuredClone(mockDecisions),
   contestations: [],
+  ruleDecisions: [],
+  evidenceReviews: [],
   processingUntil: {},
 });
 
@@ -381,6 +389,38 @@ export const requestReanalysis = async (contestationId: string): Promise<Contest
   stored.resolution = reanalyze(analysis, current, new Date().toISOString());
   persist();
   return structuredClone(stored);
+};
+
+/** Analyst's rule ratings, oldest first. Append-only: the latest per rule is the current one. */
+export const listRuleDecisions = async (projectId: string): Promise<RuleDecision[]> => {
+  await delay();
+  return structuredClone(db.ruleDecisions.filter((d) => d.projectId === projectId));
+};
+
+export const createRuleDecision = async (input: NewRuleDecisionInput): Promise<RuleDecision> => {
+  await delay();
+  findProject(input.projectId);
+  const decision: RuleDecision = { ...input, id: newId("rd"), createdAt: new Date().toISOString() };
+  db.ruleDecisions.push(decision);
+  persist();
+  return structuredClone(decision);
+};
+
+/** Evidences confirmed or discarded by the analyst, oldest first. Append-only. */
+export const listEvidenceReviews = async (projectId: string): Promise<EvidenceReview[]> => {
+  await delay();
+  return structuredClone(db.evidenceReviews.filter((r) => r.projectId === projectId));
+};
+
+export const createEvidenceReview = async (
+  input: NewEvidenceReviewInput,
+): Promise<EvidenceReview> => {
+  await delay();
+  findProject(input.projectId);
+  const review: EvidenceReview = { ...input, id: newId("er"), createdAt: new Date().toISOString() };
+  db.evidenceReviews.push(review);
+  persist();
+  return structuredClone(review);
 };
 
 // ---------------------------------------------------------------------------
