@@ -41,7 +41,7 @@ export const DateRangeField = ({ from, to, onChange }: DateRangeFieldProps) => {
         aria-expanded={open}
         aria-haspopup="dialog"
         onClick={() => setOpen(!open)}
-        className={`flex h-12 w-full items-center justify-between gap-3 rounded-full border bg-surface pr-3 pl-4 text-left text-base whitespace-nowrap sm:w-52 ${
+        className={`flex h-12 w-full items-center justify-between gap-3 rounded-full border bg-surface pr-3 pl-4 text-left text-base whitespace-nowrap sm:w-56 ${
           from || to ? "border-action" : "border-border-strong"
         }`}
       >

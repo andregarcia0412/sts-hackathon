@@ -29,7 +29,7 @@ export const ProjectSearch = ({
   }
 
   return (
-    <div role="search" className="relative w-full sm:w-[345px]">
+    <div role="search" className="relative w-full sm:w-auto sm:max-w-[345px] sm:min-w-[17.75rem] sm:flex-1">
       <label htmlFor="project-search" className="sr-only">
         Buscar projeto, equipe ou código
       </label>
@@ -38,7 +38,7 @@ export const ProjectSearch = ({
         type="search"
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
-        placeholder="Buscar projeto, equipe ou código..."
+        placeholder="Buscar projeto, equipe ou código"
         className="h-12 w-full rounded-full border border-fg-faint bg-surface py-2 pr-12 pl-4 text-sm placeholder:text-fg-subtle focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-action"
       />
       <Search className="pointer-events-none absolute top-1/2 right-4 size-5 -translate-y-1/2 text-fg-secondary" aria-hidden />

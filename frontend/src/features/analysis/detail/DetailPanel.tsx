@@ -265,7 +265,7 @@ const ClosedRule = ({
       className="flex w-full items-center gap-2 rounded-full py-3 pr-2 pl-6 text-left text-fg-muted transition-colors hover:bg-surface-sunken/70 hover:text-fg"
     >
       <span className="text-xs leading-4 font-semibold tabular-nums">{node.number}</span>
-      <span className="min-w-0 flex-1 truncate text-base leading-5" title={node.rule.name}>
+      <span className="min-w-0 flex-1 text-base leading-5 break-words">
         {node.rule.name}
       </span>
       {decided && <span className="sr-only">(com nota do analista)</span>}

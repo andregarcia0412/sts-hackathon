@@ -58,9 +58,9 @@ export const UploadTable = ({ items, onRemove }: { items: UploadItem[]; onRemove
           {visible.map((item) => (
             <tr key={item.id}>
               <td className="py-2.5 pr-3 pl-4">
-                <span className="flex min-w-0 items-center gap-1">
+                <span className="flex min-w-0 items-start gap-1">
                   <FileIcon name={item.name} />
-                  <span className="truncate text-xs leading-4 font-semibold" title={item.name}>
+                  <span className="min-w-0 text-xs leading-4 font-semibold break-all">
                     {item.name}
                   </span>
                 </span>

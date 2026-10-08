@@ -199,7 +199,7 @@ const AssistantPanel = ({ onClose }: { onClose: () => void }) => {
       {debateNode ? (
         <div className="flex items-center gap-2 bg-state-attention-soft px-4 py-2 text-xs leading-4 text-state-attention-strong">
           <Flag className="size-3.5 shrink-0" aria-hidden />
-          <span className="min-w-0 flex-1 truncate">
+          <span className="min-w-0 flex-1 break-words">
             Contestando <strong>{debateNode.number} {getNodeTitle(debateNode)}</strong>
           </span>
           <button
@@ -214,7 +214,7 @@ const AssistantPanel = ({ onClose }: { onClose: () => void }) => {
           </button>
         </div>
       ) : (
-        <p className="truncate bg-accent-soft px-4 py-2 text-xs leading-4 text-fg-muted">
+        <p className="bg-accent-soft px-4 py-2 break-words text-xs leading-4 text-fg-muted">
           Sobre:{" "}
           <span className="font-medium text-fg">
             {selected
@@ -425,7 +425,7 @@ const AnswerView = ({
                 <button
                   type="button"
                   onClick={() => openNode(s.nodeId)}
-                  className="max-w-full truncate rounded-full border border-border-strong bg-surface px-2.5 py-1 text-xs leading-4 font-medium transition-colors hover:border-action hover:text-accent"
+                  className="max-w-full rounded-2xl border border-border-strong bg-surface px-2.5 py-1 text-left text-xs break-words leading-4 font-medium transition-colors hover:border-action hover:text-accent"
                   title={`Ir para ${s.label}`}
                 >
                   {s.label}

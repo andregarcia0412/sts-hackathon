@@ -108,7 +108,7 @@ const ResendForm = ({ project, onDone }: { project: ProjectSummary; onDone: () =
         {file && (
           <p className="flex items-center gap-2 rounded-xl bg-surface-muted px-3 py-2 text-sm">
             <ArticleIcon className="size-4 shrink-0 text-fg-secondary" />
-            <span className="min-w-0 flex-1 truncate font-semibold">{file.name}</span>
+            <span className="min-w-0 flex-1 font-semibold break-all">{file.name}</span>
             <span className="text-xs text-fg-muted tabular-nums">{formatFileSize(file.size)}</span>
           </p>
         )}

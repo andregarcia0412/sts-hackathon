@@ -14,9 +14,12 @@ const SORT_LABELS: Record<ProjectSort, string> = {
 
 const OUTCOMES: DecisionOutcome[] = ["eligible", "with_reservations", "not_eligible"];
 
-/* Pill select of the design; highlighted when it filters something */
+/*
+ * Pill select of the design; highlighted when it filters something. Each width
+ * fits its longest option (a chosen option is never cut).
+ */
 const pillSelect = (active: boolean, width = "sm:w-48") =>
-  `select h-12 w-full rounded-full py-0 pl-4 text-base ${width} ${active ? "border-action" : ""}`;
+  `select h-12 w-full rounded-full py-0 pr-10 pl-4 text-base ${width} ${active ? "border-action" : ""}`;
 
 interface ProjectFilterBarProps {
   filters: ProjectFilters;
@@ -46,7 +49,7 @@ export const ProjectFilterBar = ({ filters, update, clear, activeCount }: Projec
 
     <select
       aria-label="Força da evidência do critério mais fraco"
-      className={pillSelect(!!filters.weakestBand, "sm:w-60")}
+      className={pillSelect(!!filters.weakestBand, "sm:w-72")}
       value={filters.weakestBand ?? ""}
       onChange={(e) => update({ weakestBand: (e.target.value || undefined) as ProjectFilters["weakestBand"] })}
     >
@@ -77,7 +80,7 @@ export const ProjectFilterBar = ({ filters, update, clear, activeCount }: Projec
 
     <select
       aria-label="Ordenar por"
-      className={pillSelect(false, "sm:w-60")}
+      className={pillSelect(false, "sm:w-64")}
       value={filters.sort}
       onChange={(e) => update({ sort: e.target.value as ProjectSort, page: filters.page })}
     >
