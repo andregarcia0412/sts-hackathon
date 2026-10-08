@@ -10,7 +10,9 @@ requires-python = ">=3.13"
 dependencies = [
     "beanie>=2.0.0",
     "fastapi[standard]>=0.142.2",
+    "pwdlib[argon2]>=0.3.1",
     "pydantic-settings>=2.15.0",
+    "pyjwt>=2.15.1",
 ]
 
 [project.scripts]
@@ -19,3 +21,8 @@ backend = "backend.main:main"
 [build-system]
 requires = ["uv_build>=0.12.23,<0.13.0"]
 build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]

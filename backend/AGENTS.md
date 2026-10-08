@@ -125,13 +125,20 @@ The **frontend is the source of truth for the API contract**: `frontend/src/doma
 ```
 backend/
   pyproject.toml          # uv, Python >= 3.13, FastAPI + Beanie + pydantic-settings
-  .env.example            # MONGODB_URI, MONGODB_DB
+  .env.example            # Mongo, JWT secrets/expirations, seed users (JWT + seed vars are required)
   src/backend/
-    main.py               # FastAPI app, lifespan (Mongo init/close), GET /, GET /health/db
+    main.py               # FastAPI app, lifespan (Mongo init, seed users, close), GET /, GET /health/db
     config.py             # Settings (pydantic-settings, reads .env)
     database.py           # AsyncMongoClient + init_beanie
     models/__init__.py    # DOCUMENT_MODELS: register every Beanie Document here
+    users/                # User document (email + argon2 password_hash only), service, GET /users/me,
+                          #   seed.py: 5 users from SEED_EMAIL_PATTERN/SEED_PASSWORD, created on startup
+    auth/                 # POST /auth/register|login|refresh; stateless JWT access + refresh tokens
+                          #   (separate secrets, `type` claim), get_current_user / CurrentUser dependency
+  tests/                  # pytest against the local Mongo, isolated `sts_test` database
 ```
+
+Protect an endpoint by adding a `user: CurrentUser` parameter (`backend.auth.dependencies`).
 
 The Novelty module (NOV-W1…W8, LLM/OpenAlex/Ollama web search clients, jobs) already exists on the
 `feature/ai-models` branch under `ai-microservice/`. When bringing it over, adapt it to
@@ -145,6 +152,7 @@ cd backend
 cp .env.example .env
 uv sync
 uv run backend                 # uvicorn with reload at http://127.0.0.1:8000
+uv run pytest                  # needs Mongo running
 uv add <package>               # always manage dependencies with uv, never pip
 ```
 
