@@ -1,5 +1,5 @@
 [project]
-name = "ai-microservice"
+name = "backend"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -8,11 +8,13 @@ authors = [
 ]
 requires-python = ">=3.13"
 dependencies = [
+    "beanie>=2.0.0",
     "fastapi[standard]>=0.142.2",
+    "pydantic-settings>=2.15.0",
 ]
 
 [project.scripts]
-ai-microservice = "ai_microservice.main:main"
+backend = "backend.main:main"
 
 [build-system]
 requires = ["uv_build>=0.12.23,<0.13.0"]
