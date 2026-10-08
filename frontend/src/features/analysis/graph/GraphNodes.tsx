@@ -13,8 +13,8 @@ import {
   criterionStatusInfo,
   ruleStatus,
 } from "@/domain/qualitative";
-import { NODE_SIZES } from "@/features/analysis/graph/graphTypes";
 import type { AnalysisFlowNode } from "@/features/analysis/graph/graphTypes";
+import { nodeSize } from "@/features/analysis/graph/nodeSize";
 
 /*
  * Graph cards of the design system ("Critério", "Regra", "Evidência").
@@ -66,8 +66,8 @@ export const CriterionGraphNode = ({ data, selected }: NodeProps<AnalysisFlowNod
     <>
       <Handles target={false} source={childIds.length > 0} />
       <div
-        style={NODE_SIZES.criterion}
-        className={`relative flex flex-col justify-center gap-2 rounded-xl bg-brand-deep p-3.5 text-white transition-shadow ${
+        style={nodeSize(data.node)}
+        className={`relative flex flex-col justify-center gap-2 rounded-xl bg-brand-deep py-3.5 pr-5 pl-3.5 text-white transition-shadow ${
           selected ? "ring-2 ring-action ring-offset-2" : "hover:shadow-card-accent"
         }`}
       >
@@ -75,7 +75,7 @@ export const CriterionGraphNode = ({ data, selected }: NodeProps<AnalysisFlowNod
           Critério {number}
           <ReviewIcon marker={data.review} className="text-brand-blush" />
         </p>
-        <p className="line-clamp-2 text-xl leading-7 font-semibold" title={criterion.name}>
+        <p className="text-xl leading-7 font-semibold break-words">
           {criterion.name}
         </p>
         <hr className="border-brand-blush" />
@@ -100,8 +100,8 @@ export const RuleGraphNode = ({ data, selected }: NodeProps<AnalysisFlowNode>) =
     <>
       <Handles source={childIds.length > 0} />
       <div
-        style={NODE_SIZES.rule}
-        className={`relative flex flex-col items-start gap-1.5 rounded-2xl p-3 transition-shadow ${
+        style={nodeSize(data.node)}
+        className={`relative flex flex-col items-start justify-center gap-1.5 rounded-2xl py-3 pr-5 pl-3 transition-shadow ${
           selected
             ? "bg-action text-white shadow-card-accent"
             : "bg-surface-muted text-fg shadow-card hover:shadow-card-accent"
@@ -116,7 +116,7 @@ export const RuleGraphNode = ({ data, selected }: NodeProps<AnalysisFlowNode>) =
           <span className="truncate">Regra {number}</span>
           <ReviewIcon marker={data.review} className={selected ? "text-white" : ""} />
         </p>
-        <p className="line-clamp-2 text-base leading-5 font-semibold" title={rule.name}>
+        <p className="w-full text-base leading-5 font-semibold break-words">
           {rule.name}
         </p>
         <Tag tone={status.tone} label={status.short} size="plain" inverted={selected} />
@@ -143,7 +143,7 @@ export const EvidenceGraphNode = ({ data, selected }: NodeProps<AnalysisFlowNode
     <>
       <Handles source={false} />
       <div
-        style={NODE_SIZES.evidence}
+        style={nodeSize(data.node)}
         className={`flex flex-col justify-center gap-2 overflow-hidden rounded-2xl border-2 px-4 py-2 shadow-card transition-colors ${
           selected
             ? "border-action bg-accent-soft"
@@ -152,7 +152,7 @@ export const EvidenceGraphNode = ({ data, selected }: NodeProps<AnalysisFlowNode
               : "border-transparent bg-surface-muted hover:bg-surface"
         }`}
       >
-        <p className="truncate text-base leading-5 font-semibold text-fg" title={evidence.title}>
+        <p className="text-base leading-5 font-semibold break-words text-fg">
           {evidence.title}
         </p>
         <p className="flex min-w-0 items-center gap-1 text-xs leading-4">

@@ -143,8 +143,11 @@ src/
 
 ## Armadilhas conhecidas
 
-- **dagre** grava `x`/`y` no objeto passado em `setNode`: passe sempre uma cópia dos
-  tamanhos (`{ ...NODE_SIZES[kind] }`).
+- **dagre** grava `x`/`y` no objeto passado em `setNode`: `nodeSize()` devolve sempre um
+  objeto novo.
+- **Altura dos cards da árvore**: `nodeSize()` (`analysis/graph/nodeSize.ts`) mede o título
+  e aumenta o card em vez de cortar o texto. Mudou padding ou fonte de um card em
+  `GraphNodes.tsx`? Atualize `METRICS` no mesmo arquivo.
 - **dagre** reordena irmãos: usamos `disableOptimalOrderHeuristic` para manter 1.1 acima de 1.2.
 - **Enquadrar o grafo**: use `useFrameGraph` (limites calculados do layout final +
   `setViewport`), não `fitView`. O `fitView` do React Flow depende de nós já medidos e falha

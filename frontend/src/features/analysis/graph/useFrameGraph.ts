@@ -1,6 +1,6 @@
 import { getViewportForBounds, useReactFlow, useStoreApi } from "@xyflow/react";
-import { NODE_SIZES } from "@/features/analysis/graph/graphTypes";
 import type { AnalysisFlowNode } from "@/features/analysis/graph/graphTypes";
+import { nodeSize } from "@/features/analysis/graph/nodeSize";
 
 const ANIMATION_MS = 450;
 const MIN_FRAME_ZOOM = 0.15;
@@ -9,7 +9,7 @@ const MAX_FRAME_ZOOM = 1;
 
 /**
  * Frame a set of positioned nodes. Bounds come from the given positions and
- * the fixed node sizes, not from React Flow's measured DOM nodes, so we can
+ * the computed card sizes, not from React Flow's measured DOM nodes, so we can
  * frame the *final* layout while the expand/collapse animation is running.
  */
 export const useFrameGraph = () => {
@@ -18,7 +18,7 @@ export const useFrameGraph = () => {
 
   return (nodes: AnalysisFlowNode[], padding = 0.12) => {
     if (nodes.length === 0) return;
-    const boxes = nodes.map((n) => ({ ...n.position, ...NODE_SIZES[n.data.node.kind] }));
+    const boxes = nodes.map((n) => ({ ...n.position, ...nodeSize(n.data.node) }));
     const x = Math.min(...boxes.map((b) => b.x));
     const y = Math.min(...boxes.map((b) => b.y));
     const right = Math.max(...boxes.map((b) => b.x + b.width));
