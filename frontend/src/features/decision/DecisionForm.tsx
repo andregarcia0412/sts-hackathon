@@ -1,55 +1,54 @@
-import { Plus, Trash2 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { DECISION_OUTCOME_LABELS } from "@/domain/labels";
+import { TONE_ICONS, TONE_STYLES } from "@/components/ui/toneStyles";
 import { FRAMEWORKS } from "@/domain/frameworks";
-import { indexAnalysis } from "@/domain/tree";
-import type { RuleNode } from "@/domain/tree";
-import type { Analysis, DecisionOutcome, RuleOverride } from "@/domain/types";
+import { DECISION_OUTCOME_LABELS, DECISION_OUTCOME_TONES } from "@/domain/labels";
+import { latestByNode } from "@/domain/reviews";
+import type { Analysis, DecisionOutcome, RuleDecision } from "@/domain/types";
 import { useCurrentUser } from "@/features/auth/authState";
+import { paths } from "@/routes/paths";
 import { useSaveDecision } from "@/services/queries";
 
-const OUTCOMES: DecisionOutcome[] = ["eligible", "not_eligible", "needs_review"];
+const OUTCOMES: DecisionOutcome[] = ["eligible", "needs_review", "not_eligible"];
 
-/** Override value in the select: rules of different methods may share ids */
-const overrideKey = (analysisId: string, ruleId: string) => `${analysisId}::${ruleId}`;
+const OUTCOME_HINTS: Record<DecisionOutcome, string> = {
+  eligible: "O projeto atende aos critérios",
+  needs_review: "Faltam informações ou há divergências",
+  not_eligible: "O projeto não atende aos critérios",
+};
 
 interface DecisionFormProps {
   /** Every analysis of the project; the first is the primary one */
   analyses: Analysis[];
+  /** Analyst's rule ratings (all analyses), to show what is still pending */
+  ruleDecisions: RuleDecision[];
   /** A decision already exists: this form records a new one in the trail */
   hasPrevious: boolean;
 }
 
-export const DecisionForm = ({ analyses, hasPrevious }: DecisionFormProps) => {
+/** Final decision on the project: outcome + justification, recorded in the trail */
+export const DecisionForm = ({ analyses, ruleDecisions, hasPrevious }: DecisionFormProps) => {
   const saveDecision = useSaveDecision();
+  const user = useCurrentUser();
   const primary = analyses[0];
-  const rulesByAnalysis = analyses.map((analysis) => ({
-    analysis,
-    rules: [...indexAnalysis(analysis).values()].filter((n): n is RuleNode => n.kind === "rule"),
-  }));
-
   const [outcome, setOutcome] = useState<DecisionOutcome | null>(null);
   const [justification, setJustification] = useState("");
-  const user = useCurrentUser();
-  const [overrides, setOverrides] = useState<RuleOverride[]>([]);
   const [submitted, setSubmitted] = useState(false);
 
-  const errors = {
-    outcome: outcome === null,
-    justification: justification.trim() === "",
-  };
-  const hasErrors = Object.values(errors).some(Boolean);
+  const errors = { outcome: outcome === null, justification: justification.trim() === "" };
+  const showError = (field: keyof typeof errors) => submitted && errors[field];
 
-  const updateOverride = (i: number, patch: Partial<RuleOverride>) =>
-    setOverrides((current) =>
-      current.map((o, j) => (j === i ? { ...o, ...patch } : o)),
-    );
+  const progress = analyses.map((analysis) => {
+    const rated = latestByNode(ruleDecisions, analysis.id);
+    const total = analysis.criteria.reduce((sum, c) => sum + c.rules.length, 0);
+    return { analysis, rated: rated.size, total };
+  });
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
     setSubmitted(true);
-    if (hasErrors || outcome === null) return;
+    if (errors.outcome || errors.justification || outcome === null) return;
     saveDecision.mutate(
       {
         projectId: primary.projectId,
@@ -58,69 +57,96 @@ export const DecisionForm = ({ analyses, hasPrevious }: DecisionFormProps) => {
         outcome,
         justification: justification.trim(),
         analystName: user.name,
-        ruleOverrides: overrides
-          .filter((o) => o.ruleId && o.note.trim())
-          .map((o) => ({
-            ruleId: o.ruleId,
-            analysisId: o.analysisId ?? primary.id,
-            note: o.note.trim(),
-          })),
       },
       {
         onSuccess: () => {
           setOutcome(null);
           setJustification("");
-          setOverrides([]);
           setSubmitted(false);
         },
       },
     );
   };
 
-  const showError = (field: keyof typeof errors) => submitted && errors[field];
-
   return (
     <form
       onSubmit={handleSubmit}
       noValidate
-      className="space-y-5 rounded-lg border border-border bg-surface p-5 font-sans print:hidden"
+      className="flex flex-col gap-5 rounded-2xl border border-border bg-surface-muted p-5 print:hidden"
     >
-      <p className="text-sm text-fg-muted">
+      <p className="text-sm leading-5 text-fg-muted">
         {hasPrevious
           ? "Registrar uma nova decisão não apaga as anteriores: ela entra na trilha abaixo."
           : "A decisão é do analista. O sistema só organiza as evidências."}
       </p>
 
-      <fieldset>
-        <legend className="label">
-          Resultado <span className="text-danger">*</span>
-        </legend>
-        <div className="flex flex-wrap gap-2">
-          {OUTCOMES.map((value) => (
-            <label
-              key={value}
-              className="flex cursor-pointer items-center gap-2 rounded-md border border-border-strong px-3 py-2 text-sm has-checked:border-accent has-checked:bg-accent-soft has-checked:font-medium"
-            >
-              <input
-                type="radio"
-                name="outcome"
-                value={value}
-                checked={outcome === value}
-                onChange={() => setOutcome(value)}
-                className="accent-accent"
-              />
-              {DECISION_OUTCOME_LABELS[value]}
-            </label>
+      <div className="flex flex-col gap-2 rounded-xl bg-surface p-3 text-sm leading-5">
+        <p className="caps-label text-fg-muted">Notas do analista por regra</p>
+        <ul className="flex flex-col gap-1">
+          {progress.map(({ analysis, rated, total }) => (
+            <li key={analysis.id} className="flex flex-wrap items-center justify-between gap-2">
+              <span>
+                {FRAMEWORKS[analysis.framework].label}:{" "}
+                <strong className="font-semibold tabular-nums">
+                  {rated} de {total}
+                </strong>{" "}
+                regras com nota
+              </span>
+              {rated < total && (
+                <Link to={paths.analysis(analysis.projectId, undefined, analysis.framework)} className="btn-link">
+                  Dar notas no grafo
+                </Link>
+              )}
+            </li>
           ))}
-        </div>
-        {showError("outcome") && (
-          <p className="mt-1 text-xs text-danger">Escolha um resultado.</p>
+        </ul>
+        {progress.some((p) => p.rated < p.total) && (
+          <p className="text-xs leading-4 text-fg-muted">
+            Regras sem nota aparecem no documento só com a leitura sugerida pelo sistema.
+          </p>
         )}
+      </div>
+
+      <fieldset className="flex flex-col gap-2">
+        <legend className="label">
+          Resultado <span className="text-action">*</span>
+        </legend>
+        <div className="grid gap-2 sm:grid-cols-3">
+          {OUTCOMES.map((value) => {
+            const tone = DECISION_OUTCOME_TONES[value];
+            const Icon = TONE_ICONS[tone];
+            return (
+              <label
+                key={value}
+                className="flex cursor-pointer items-start gap-2 rounded-2xl border-2 border-border bg-surface p-3 transition-colors has-checked:border-action has-focus-visible:outline-2 has-focus-visible:outline-action hover:border-border-strong"
+              >
+                <input
+                  type="radio"
+                  name="outcome"
+                  value={value}
+                  checked={outcome === value}
+                  onChange={() => setOutcome(value)}
+                  className="sr-only"
+                />
+                <span
+                  className={`flex size-8 shrink-0 items-center justify-center rounded-full ${TONE_STYLES[tone].soft} ${TONE_STYLES[tone].icon}`}
+                >
+                  <Icon className="size-6" aria-hidden />
+                </span>
+                <span className="flex flex-col">
+                  <span className="text-base leading-5 font-semibold">{DECISION_OUTCOME_LABELS[value]}</span>
+                  <span className="text-xs leading-4 text-fg-muted">{OUTCOME_HINTS[value]}</span>
+                </span>
+              </label>
+            );
+          })}
+        </div>
+        {showError("outcome") && <p className="text-xs text-danger">Escolha um resultado.</p>}
       </fieldset>
 
-      <div>
-        <label htmlFor="justification" className="label">
-          Justificativa <span className="text-danger">*</span>
+      <div className="flex flex-col gap-2">
+        <label htmlFor="justification" className="label mb-0">
+          Justificativa <span className="text-action">*</span>
         </label>
         <textarea
           id="justification"
@@ -131,70 +157,9 @@ export const DecisionForm = ({ analyses, hasPrevious }: DecisionFormProps) => {
           aria-invalid={showError("justification")}
         />
         {showError("justification") && (
-          <p className="mt-1 text-xs text-danger">A justificativa é obrigatória.</p>
+          <p className="text-xs text-danger">A justificativa é obrigatória.</p>
         )}
       </div>
-
-      <div>
-        <p className="label">Ressalvas por regra (opcional)</p>
-        <p className="mb-2 text-xs text-fg-muted">
-          Use quando discordar da nota de uma regra.
-        </p>
-        <ul className="space-y-2">
-          {overrides.map((override, i) => (
-            <li key={i} className="flex flex-wrap items-start gap-2">
-              <select
-                aria-label={`Regra da ressalva ${i + 1}`}
-                className="input w-auto max-w-64"
-                value={override.ruleId ? overrideKey(override.analysisId ?? primary.id, override.ruleId) : ""}
-                onChange={(e) => {
-                  const [analysisId, ruleId] = e.target.value.split("::");
-                  updateOverride(i, { analysisId, ruleId: ruleId ?? "" });
-                }}
-              >
-                <option value="">Escolha a regra…</option>
-                {rulesByAnalysis.map(({ analysis, rules }) => (
-                  <optgroup key={analysis.id} label={FRAMEWORKS[analysis.framework].label}>
-                    {rules.map((node) => (
-                      <option key={node.id} value={overrideKey(analysis.id, node.id)}>
-                        {node.number} {node.rule.code} · {node.rule.name}
-                      </option>
-                    ))}
-                  </optgroup>
-                ))}
-              </select>
-              <input
-                aria-label={`Ressalva ${i + 1}`}
-                className="input min-w-48 flex-1"
-                placeholder="Por que discorda da nota"
-                value={override.note}
-                onChange={(e) => updateOverride(i, { note: e.target.value })}
-              />
-              <button
-                type="button"
-                className="btn-ghost p-2"
-                aria-label={`Remover ressalva ${i + 1}`}
-                onClick={() => setOverrides((current) => current.filter((_, j) => j !== i))}
-              >
-                <Trash2 className="size-4" aria-hidden />
-              </button>
-            </li>
-          ))}
-        </ul>
-        <button
-          type="button"
-          className="btn-ghost mt-1"
-          onClick={() => setOverrides((current) => [...current, { ruleId: "", note: "" }])}
-        >
-          <Plus className="size-4" aria-hidden />
-          Adicionar ressalva
-        </button>
-      </div>
-
-      <p className="text-xs text-fg-muted">
-        Será registrada em nome de <strong className="text-fg">{user.name}</strong>, com data e
-        hora automáticas.
-      </p>
 
       {saveDecision.isError && (
         <p role="alert" className="text-sm text-danger">
@@ -202,7 +167,11 @@ export const DecisionForm = ({ analyses, hasPrevious }: DecisionFormProps) => {
         </p>
       )}
 
-      <div className="flex justify-end">
+      <div className="flex flex-wrap items-center justify-end gap-3">
+        <p className="min-w-0 flex-1 text-xs leading-4 text-fg-muted">
+          Será registrada em nome de <strong className="font-semibold text-fg">{user.name}</strong>,
+          com data e hora automáticas.
+        </p>
         <button type="submit" className="btn-primary" disabled={saveDecision.isPending}>
           {saveDecision.isPending ? "Registrando…" : "Registrar decisão"}
         </button>

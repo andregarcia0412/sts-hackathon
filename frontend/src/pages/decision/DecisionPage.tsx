@@ -1,11 +1,21 @@
-import { ArrowLeft, Printer } from "lucide-react";
+import { Printer } from "lucide-react";
 import { useRef } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
+import { ProjectHeader } from "@/components/layout/ProjectHeader";
 import { ErrorState, LoadingState } from "@/components/ui/states";
 import { reviewMarkers } from "@/domain/contestations";
 import { FRAMEWORKS } from "@/domain/frameworks";
-import type { Analysis, Contestation, Decision, Project } from "@/domain/types";
+import { DECISION_OUTCOME_LABELS } from "@/domain/labels";
+import { decidedCriteriaCount, latestByNode } from "@/domain/reviews";
+import type {
+  Analysis,
+  Contestation,
+  Decision,
+  EvidenceReview,
+  Project,
+  RuleDecision,
+} from "@/domain/types";
 import { useRegisterAssistantContext } from "@/features/assistant/assistantState";
 import {
   ReportDetails,
@@ -15,13 +25,16 @@ import {
 } from "@/features/decision/AnalysisReport";
 import { DecisionForm } from "@/features/decision/DecisionForm";
 import { DecisionTrail } from "@/features/decision/DecisionTrail";
+import { formatDate, pluralize } from "@/lib/format";
 import { FRAMEWORK_PARAM, paths } from "@/routes/paths";
 import { NotFoundError } from "@/services/api";
 import {
   useAnalyses,
   useContestations,
   useDecisions,
+  useEvidenceReviews,
   useProject,
+  useRuleDecisions,
 } from "@/services/queries";
 
 export const DecisionPage = () => {
@@ -30,6 +43,8 @@ export const DecisionPage = () => {
   const analyses = useAnalyses(projectId);
   const decisions = useDecisions(projectId);
   const contestations = useContestations(projectId);
+  const ruleDecisions = useRuleDecisions(projectId);
+  const evidenceReviews = useEvidenceReviews(projectId);
 
   const backToProjects = (
     <Link to={paths.projects()} className="btn-secondary">
@@ -37,12 +52,32 @@ export const DecisionPage = () => {
     </Link>
   );
 
-  if (project.isPending || analyses.isPending || decisions.isPending || contestations.isPending) {
+  if (
+    project.isPending ||
+    analyses.isPending ||
+    decisions.isPending ||
+    contestations.isPending ||
+    ruleDecisions.isPending ||
+    evidenceReviews.isPending
+  ) {
     return <LoadingState label="Carregando documento de decisão…" />;
   }
 
-  if (project.isError || analyses.isError || decisions.isError || contestations.isError) {
-    const error = project.error ?? analyses.error ?? decisions.error ?? contestations.error;
+  if (
+    project.isError ||
+    analyses.isError ||
+    decisions.isError ||
+    contestations.isError ||
+    ruleDecisions.isError ||
+    evidenceReviews.isError
+  ) {
+    const error =
+      project.error ??
+      analyses.error ??
+      decisions.error ??
+      contestations.error ??
+      ruleDecisions.error ??
+      evidenceReviews.error;
     return (
       <ErrorState
         action={backToProjects}
@@ -71,6 +106,8 @@ export const DecisionPage = () => {
       analyses={analyses.data}
       decisions={decisions.data}
       contestations={contestations.data}
+      ruleDecisions={ruleDecisions.data}
+      evidenceReviews={evidenceReviews.data}
     />
   );
 };
@@ -81,6 +118,8 @@ interface DecisionDocumentProps {
   analyses: Analysis[];
   decisions: Decision[];
   contestations: Contestation[];
+  ruleDecisions: RuleDecision[];
+  evidenceReviews: EvidenceReview[];
 }
 
 const DecisionDocument = ({
@@ -88,6 +127,8 @@ const DecisionDocument = ({
   analyses,
   decisions,
   contestations,
+  ruleDecisions,
+  evidenceReviews,
 }: DecisionDocumentProps) => {
   const documentRef = useRef<HTMLElement>(null);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -101,76 +142,124 @@ const DecisionDocument = ({
     analyses.find((a) => a.framework === searchParams.get(FRAMEWORK_PARAM)) ?? analyses[0];
   useRegisterAssistantContext({ screen: "decision", analysis: focused, selectedNodeId: null });
 
+  const reviewsOf = (analysis: Analysis) => ({
+    decisions: latestByNode(ruleDecisions, analysis.id),
+    evidence: latestByNode(evidenceReviews, analysis.id),
+  });
+
+  const scrollTo = (id: string) =>
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+
   const goToMethod = (analysis: Analysis) => {
     setSearchParams({ [FRAMEWORK_PARAM]: analysis.framework }, { replace: true });
-    document
-      .getElementById(`detalhamento-${analysis.framework}`)
-      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    scrollTo(`detalhamento-${analysis.framework}`);
   };
 
-
+  const current = decisions.at(-1);
+  const sections = [
+    { id: "resumo", label: "Resumo" },
+    ...analyses.map((a) => ({
+      id: `detalhamento-${a.framework}`,
+      label: `Detalhamento · ${FRAMEWORKS[a.framework].label}`,
+      analysis: a,
+    })),
+    { id: "decisao", label: "Decisão do analista" },
+    { id: "trilha", label: "Trilha de decisão" },
+  ];
 
   return (
-    <div className="flex-1 bg-surface-muted print:bg-white">
-      <div className="sticky top-0 z-10 border-b border-border bg-surface/95 backdrop-blur print:hidden">
-        <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-6 py-2">
-          <Link to={paths.analysis(project.id, undefined, focused.framework)} className="btn-ghost">
-            <ArrowLeft className="size-4" aria-hidden />
-            Voltar para a análise
-          </Link>
-          {analyses.length > 1 && (
-            <nav aria-label="Detalhamento por método" className="flex items-center gap-1 text-sm">
-              <span className="text-xs text-fg-muted">Ir para:</span>
-              {analyses.map((analysis) => (
-                <button
-                  key={analysis.id}
-                  type="button"
-                  className={`btn-ghost px-2 py-1 ${analysis.id === focused.id ? "text-fg" : ""}`}
-                  aria-current={analysis.id === focused.id ? "true" : undefined}
-                  onClick={() => goToMethod(analysis)}
-                >
-                  {FRAMEWORKS[analysis.framework].label}
-                </button>
-              ))}
-            </nav>
-          )}
-          <button type="button" className="btn-primary" onClick={() => print()}>
-            <Printer className="size-4" aria-hidden />
-            Exportar PDF
-          </button>
-        </div>
-      </div>
+    <div className="flex flex-1 flex-col print:block">
+      <ProjectHeader
+        project={project}
+        meta={[
+          `Empresa: ${project.company ?? "não informada"}`,
+          `Enviado em ${formatDate(project.createdAt)}`,
+          pluralize(project.documents.length, "documento", "documentos"),
+          pluralize(analyses.length, "método analisado", "métodos analisados"),
+          current
+            ? `Decisão vigente: ${DECISION_OUTCOME_LABELS[current.outcome]} (${formatDate(current.decidedAt)})`
+            : "Sem decisão registrada",
+        ]}
+        progress={`${decidedCriteriaCount(focused, ruleDecisions)} de ${focused.criteria.length} critérios decididos pelo analista · ${FRAMEWORKS[focused.framework].label}`}
+        action={
+          <>
+            <Link to={paths.analysis(project.id, undefined, focused.framework)} className="btn-secondary">
+              Voltar para o grafo
+            </Link>
+            <button type="button" className="btn-primary" onClick={() => print()}>
+              <Printer className="size-5" aria-hidden />
+              Exportar PDF
+            </button>
+          </>
+        }
+      />
 
-      <article
-        ref={documentRef}
-        className="mx-auto my-8 max-w-4xl space-y-10 bg-surface px-8 py-10 font-serif leading-relaxed shadow-sm sm:px-14 print:my-0 print:max-w-none print:px-0 print:py-0 print:shadow-none"
-      >
-        <ReportHeader project={project} analyses={analyses} />
-        <ReportSection title="Resumo">
+      <div className="mx-auto flex w-full max-w-[1440px] flex-1 items-start gap-6 p-4 sm:px-10 sm:py-6 print:block print:p-0">
+        <nav
+          aria-label="Seções do documento"
+          className="card sticky top-6 hidden w-64 shrink-0 flex-col gap-1 p-3 lg:flex print:hidden"
+        >
+          <p className="caps-label px-2 pb-1 text-fg-muted">Neste documento</p>
+          {sections.map((section) => {
+            const active = "analysis" in section && section.analysis?.id === focused.id;
+            return (
+              <button
+                key={section.id}
+                type="button"
+                aria-current={active ? "true" : undefined}
+                onClick={() =>
+                  "analysis" in section && section.analysis
+                    ? goToMethod(section.analysis)
+                    : scrollTo(section.id)
+                }
+                className={`rounded-lg px-2 py-1.5 text-left text-sm leading-5 transition-colors hover:bg-surface-sunken ${
+                  active ? "bg-accent-soft font-semibold text-accent" : "text-fg-secondary"
+                }`}
+              >
+                {section.label}
+              </button>
+            );
+          })}
+        </nav>
+
+        <article
+          ref={documentRef}
+          className="flex min-w-0 flex-1 flex-col gap-12 rounded-2xl bg-surface px-6 py-8 shadow-card sm:px-14 sm:py-12 print:rounded-none print:px-0 print:py-0 print:shadow-none"
+        >
+          <ReportHeader project={project} analyses={analyses} />
+          <ReportSection title="Resumo" id="resumo">
+            {analyses.map((analysis) => (
+              <ReportSummary key={analysis.id} analysis={analysis} reviews={reviewsOf(analysis)} />
+            ))}
+          </ReportSection>
           {analyses.map((analysis) => (
-            <ReportSummary key={analysis.id} analysis={analysis} />
+            <ReportDetails
+              key={analysis.id}
+              project={project}
+              analysis={analysis}
+              markers={reviewMarkers(analysis, contestations)}
+              reviews={reviewsOf(analysis)}
+            />
           ))}
-        </ReportSection>
-        {analyses.map((analysis) => (
-          <ReportDetails
-            key={analysis.id}
-            project={project}
-            analysis={analysis}
-            markers={reviewMarkers(analysis, contestations)}
-          />
-        ))}
-        {/* The form is not printed: the trail below carries the current decision */}
-        <ReportSection title="Decisão do analista" className="print:hidden">
-          <DecisionForm analyses={analyses} hasPrevious={decisions.length > 0} />
-        </ReportSection>
-        <ReportSection title="Trilha de decisão">
-          <DecisionTrail
-            decisions={decisions}
-            contestations={contestations}
-            analyses={analyses}
-          />
-        </ReportSection>
-      </article>
+          {/* The form is not printed: the trail below carries the current decision */}
+          <ReportSection title="Decisão do analista" id="decisao" className="print:hidden">
+            <DecisionForm
+              analyses={analyses}
+              ruleDecisions={ruleDecisions}
+              hasPrevious={decisions.length > 0}
+            />
+          </ReportSection>
+          <ReportSection title="Trilha de decisão" id="trilha">
+            <DecisionTrail
+              decisions={decisions}
+              contestations={contestations}
+              ruleDecisions={ruleDecisions}
+              evidenceReviews={evidenceReviews}
+              analyses={analyses}
+            />
+          </ReportSection>
+        </article>
+      </div>
     </div>
   );
 };
