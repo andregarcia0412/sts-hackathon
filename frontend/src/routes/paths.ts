@@ -2,6 +2,8 @@ import type { Framework } from "@/domain/types";
 
 export const SELECTED_NODE_PARAM = "no";
 export const FRAMEWORK_PARAM = "metodo";
+/** Opens the "Novo projeto" (upload) dialog on the projects page */
+export const NEW_PROJECT_PARAM = "novo";
 
 const query = (params: Record<string, string | undefined>) => {
   const search = new URLSearchParams(
@@ -12,6 +14,7 @@ const query = (params: Record<string, string | undefined>) => {
 
 export const paths = {
   projects: () => "/projetos",
+  newProject: () => `/projetos${query({ [NEW_PROJECT_PARAM]: "1" })}`,
   analysis: (projectId: string, nodeId?: string, framework?: Framework) =>
     `/projetos/${projectId}/analise${query({ [FRAMEWORK_PARAM]: framework, [SELECTED_NODE_PARAM]: nodeId })}`,
   decision: (projectId: string, framework?: Framework) =>

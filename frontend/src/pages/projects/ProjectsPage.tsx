@@ -1,5 +1,6 @@
 import { Plus } from "lucide-react";
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Pagination } from "@/components/ui/Pagination";
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui/states";
 import { useCurrentUser } from "@/features/auth/authState";
@@ -8,13 +9,30 @@ import { ProjectFilterBar } from "@/features/projects/ProjectFilterBar";
 import { ProjectOverview } from "@/features/projects/ProjectOverview";
 import { ProjectTable } from "@/features/projects/ProjectTable";
 import { PAGE_SIZE, useProjectFilters } from "@/features/projects/useProjectFilters";
+import { NEW_PROJECT_PARAM } from "@/routes/paths";
 import { useProjects } from "@/services/queries";
 
 export const ProjectsPage = () => {
   const user = useCurrentUser();
   const { filters, update, clear, activeCount } = useProjectFilters();
   const projects = useProjects({ ...filters, ownerId: user.id, pageSize: PAGE_SIZE });
-  const [dialogOpen, setDialogOpen] = useState(false);
+  // "Upload de arquivos" in the header links here with ?novo=1
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [openedHere, setDialogOpen] = useState(false);
+  const dialogOpen = openedHere || searchParams.has(NEW_PROJECT_PARAM);
+  const closeDialog = () => {
+    setDialogOpen(false);
+    if (searchParams.has(NEW_PROJECT_PARAM)) {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          next.delete(NEW_PROJECT_PARAM);
+          return next;
+        },
+        { replace: true },
+      );
+    }
+  };
 
   const newProjectButton = (
     <button type="button" className="btn-primary" onClick={() => setDialogOpen(true)}>
@@ -92,7 +110,7 @@ export const ProjectsPage = () => {
         </>
       )}
 
-      <NewProjectDialog open={dialogOpen} onClose={() => setDialogOpen(false)} />
+      <NewProjectDialog open={dialogOpen} onClose={closeDialog} />
     </div>
   );
 };
