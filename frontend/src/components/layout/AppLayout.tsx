@@ -17,7 +17,7 @@ interface Step {
   to: string | null;
 }
 
-/** Flow of the analyst: Projetos › Upload › Grafo de evidências › Documento de decisão */
+/** Flow of the analyst: Projetos › Upload › Árvore de evidências › Documento de decisão */
 const useSteps = (): { steps: Step[]; current: StepKey | null } => {
   const analysis = useMatch("/projetos/:projectId/analise");
   const decision = useMatch("/projetos/:projectId/decisao");
@@ -35,7 +35,7 @@ const useSteps = (): { steps: Step[]; current: StepKey | null } => {
       { key: "upload", label: "Upload de arquivos", to: `${paths.projects()}?${uploadSearch}` },
       {
         key: "analysis",
-        label: "Grafo de evidências",
+        label: "Árvore de evidências",
         to: projectId ? paths.analysis(projectId) : null,
       },
       {

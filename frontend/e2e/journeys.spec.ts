@@ -43,7 +43,7 @@ test("analista faz a primeira análise, decide e gera o documento", async ({ pag
     await expect(page.getByText("Registrada:")).toBeVisible();
   });
 
-  await test.step("vai para a regra 1.2 pelo grafo e dá nota", async () => {
+  await test.step("vai para a regra 1.2 pela árvore e dá nota", async () => {
     await page.locator(".react-flow__node-rule", { hasText: "Tecnologia de amplo domínio" }).click();
     const dock = page.getByRole("form", { name: "Decisão do analista" });
     await expect(dock.getByText("Regra 1.2", { exact: true })).toBeVisible();
@@ -230,9 +230,9 @@ test("analista explora o mapa geral com o mouse", async ({ page }) => {
     await expect(page).toHaveURL(/\.ev-/);
   });
 
-  await test.step("usa o zoom, enquadra e arrasta o grafo", async () => {
+  await test.step("usa o zoom, enquadra e arrasta a árvore", async () => {
     await page.getByRole("button", { name: "Afastar" }).click();
-    await page.getByRole("button", { name: "Enquadrar o grafo inteiro" }).click();
+    await page.getByRole("button", { name: "Enquadrar a árvore inteira" }).click();
     const pane = await page.locator(".react-flow__pane").boundingBox();
     if (!pane) throw new Error("graph pane not found");
     await page.mouse.move(pane.x + 300, pane.y + 300);
@@ -297,7 +297,7 @@ test("analista usa só o teclado", async ({ page }) => {
 test.describe("no celular", () => {
   test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
 
-  test("analista dá nota a uma regra e consulta o grafo e o chat", async ({ page }) => {
+  test("analista dá nota a uma regra e consulta a árvore e o chat", async ({ page }) => {
     await test.step("entra e abre um projeto", async () => {
       await page.goto("/");
       await page.getByRole("button", { name: /Ana Ribeiro/ }).click();
@@ -325,8 +325,8 @@ test.describe("no celular", () => {
       expect(overlaps).toBe(false);
     });
 
-    await test.step("o grafo aparece abaixo do painel", async () => {
-      const graph = page.getByRole("region", { name: "Grafo de evidências" });
+    await test.step("a árvore aparece abaixo do painel", async () => {
+      const graph = page.getByRole("region", { name: "Árvore de evidências" });
       await graph.scrollIntoViewIfNeeded();
       expect((await graph.boundingBox())?.height ?? 0).toBeGreaterThan(400);
     });

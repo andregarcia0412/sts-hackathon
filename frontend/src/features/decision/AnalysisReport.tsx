@@ -408,9 +408,9 @@ const NodeHeading = ({
       <Link
         to={paths.analysis(projectId, nodeId, analysis.framework)}
         className="btn-link shrink-0 whitespace-nowrap print:hidden"
-        aria-label={`Ver ${node?.number ?? ""} no grafo`}
+        aria-label={`Ver ${node?.number ?? ""} na árvore`}
       >
-        Ver no grafo
+        Ver na árvore
       </Link>
     </div>
   );

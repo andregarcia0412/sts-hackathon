@@ -20,7 +20,7 @@ test("visão Critério mostra um critério inteiro dentro da tela", async ({ pag
   }
 });
 
-test("seleção na URL: painel, grafo e botão voltar", async ({ page }) => {
+test("seleção na URL: painel, árvore e botão voltar", async ({ page }) => {
   await page.goto("/projetos/p1/analise");
   await page.getByRole("button", { name: /Incerteza/ }).click();
   await expect(page).toHaveURL(/no=crit-uncertainty/);

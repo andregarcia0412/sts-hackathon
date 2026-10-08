@@ -50,7 +50,7 @@ Pontos deixados para depois. Separados em dois grupos:
 
 ### Visual e técnico
 
-- [x] Visual de alta fidelidade aplicado em todas as telas. Do Figma: cabeçalho, grafo de
+- [x] Visual de alta fidelidade aplicado em todas as telas. Do Figma: cabeçalho, árvore de
       evidências, projetos, upload e login. Derivados do design system (sem tela no Figma):
       documento de decisão e chatbot.
 - [ ] Documento de decisão: aplicar as telas novas do Figma ("Tela de documento" e

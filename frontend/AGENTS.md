@@ -109,7 +109,7 @@ src/
   ressalvas / Não elegível.
 - **Lista de projetos**: os cards de situação são o filtro de status; a barra tem critério
   mais fraco, decisão, período de envio e ordem (o botão redondo conta e limpa os filtros).
-- **Grafo**: visão "Critério" (padrão: um critério inteiro, como no Figma) e "Mapa geral"
+- **Árvore de evidências** (na interface; no código é `graph`, pasta `analysis/graph`): visão "Critério" (padrão: um critério inteiro, como no Figma) e "Mapa geral"
   (os 5 critérios; na primeira abertura expande tudo e depois recolhe).
 - **Decisão do analista por regra** (`RuleDecision`) e **triagem de evidência**
   (`EvidenceReview`, descartar pede motivo): só acrescentadas; a mais recente por nó vale

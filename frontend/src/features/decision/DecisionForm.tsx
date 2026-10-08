@@ -94,7 +94,7 @@ export const DecisionForm = ({ analyses, ruleDecisions, hasPrevious }: DecisionF
               </span>
               {rated < total && (
                 <Link to={paths.analysis(analysis.projectId, undefined, analysis.framework)} className="btn-link">
-                  Dar notas no grafo
+                  Dar notas na árvore
                 </Link>
               )}
             </li>

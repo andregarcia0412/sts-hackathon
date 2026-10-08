@@ -78,7 +78,7 @@ const reanalysisAnswer = (contestation: Contestation): AssistantAnswer => {
       },
       { type: "text", text: resolution.explanation },
       ...(resolution.changes.length
-        ? [{ type: "text" as const, text: "A árvore, o grafo e o documento de decisão já mostram os valores revisados." }]
+        ? [{ type: "text" as const, text: "A árvore de evidências e o documento de decisão já mostram os valores revisados." }]
         : []),
     ],
     sources: [

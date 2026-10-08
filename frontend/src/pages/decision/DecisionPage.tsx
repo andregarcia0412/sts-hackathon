@@ -184,7 +184,7 @@ const DecisionDocument = ({
         action={
           <>
             <Link to={paths.analysis(project.id, undefined, focused.framework)} className="btn-secondary">
-              Voltar para o grafo
+              Voltar para a árvore
             </Link>
             <button type="button" className="btn-primary" onClick={() => print()}>
               <Printer className="size-5" aria-hidden />

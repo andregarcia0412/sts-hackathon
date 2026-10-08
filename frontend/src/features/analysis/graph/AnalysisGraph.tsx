@@ -19,10 +19,10 @@ import { useFrameGraph } from "@/features/analysis/graph/useFrameGraph";
 import type { AnalysisExplorer } from "@/features/analysis/useAnalysisExplorer";
 
 const ARIA_LABELS: Partial<AriaLabelConfig> = {
-  "controls.ariaLabel": "Controles do grafo",
+  "controls.ariaLabel": "Controles da árvore",
   "controls.zoomIn.ariaLabel": "Aproximar",
   "controls.zoomOut.ariaLabel": "Afastar",
-  "controls.fitView.ariaLabel": "Enquadrar o grafo inteiro",
+  "controls.fitView.ariaLabel": "Enquadrar a árvore inteira",
 };
 
 /* Edges paint with inline styles, so use the theme's CSS variables */

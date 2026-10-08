@@ -4,11 +4,11 @@ test.beforeEach(async ({ page }) => {
   await signInAs(page, USERS.ana);
 });
 
-test("projeto decidido mostra a decisão vigente e links para o grafo", async ({ page }) => {
+test("projeto decidido mostra a decisão vigente e links para a árvore", async ({ page }) => {
   await page.goto("/projetos/p2/decisao");
   await expect(page.getByText("decisão vigente", { exact: true })).toBeVisible();
   await expect(page.locator('[aria-current="step"]')).toHaveText("Documento de decisão");
-  const href = await page.getByRole("link", { name: /Ver .* no grafo/ }).first().getAttribute("href");
+  const href = await page.getByRole("link", { name: /Ver .* na árvore/ }).first().getAttribute("href");
   expect(href).toMatch(/\/analise\?.*no=/);
 });
 

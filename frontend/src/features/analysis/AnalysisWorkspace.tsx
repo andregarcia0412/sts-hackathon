@@ -86,7 +86,7 @@ const WorkspaceContent = ({ project, analysis, analyses }: AnalysisWorkspaceProp
         />
       )}
       <SegmentedControl<GraphView>
-        label="Visualização do grafo"
+        label="Visualização da árvore"
         value={explorer.view}
         options={VIEW_OPTIONS}
         onChange={explorer.setView}
@@ -118,7 +118,7 @@ const WorkspaceContent = ({ project, analysis, analyses }: AnalysisWorkspaceProp
           evidenceReviews={evidenceReviews}
         />
         <section
-          aria-label="Grafo de evidências"
+          aria-label="Árvore de evidências"
           className="relative h-[80vh] min-w-0 shrink-0 overflow-hidden rounded-xl bg-white/50 lg:h-auto lg:flex-1 lg:shrink"
         >
           <AnalysisGraph explorer={explorer} reviewMarkers={markers} toolbar={toolbar} />
