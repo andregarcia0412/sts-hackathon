@@ -11,6 +11,10 @@ export interface AssistantState {
   /** Context registered by the current screen (null on screens without it) */
   pageContext: AssistantContext | null;
   setPageContext: (context: AssistantContext | null) => void;
+  /** Node being contested (debate mode), if any */
+  debateNodeId: string | null;
+  startDebate: (nodeId: string) => void;
+  endDebate: (note?: string) => void;
 }
 
 export const AssistantStateContext = createContext<AssistantState | null>(null);

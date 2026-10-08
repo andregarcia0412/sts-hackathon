@@ -151,3 +151,34 @@ export interface NewProjectInput {
 }
 
 export type NewDecisionInput = Omit<Decision, "decidedAt">;
+
+/*
+ * Contestation: the analyst disagrees with something the model produced
+ * (a criterion, rule or evidence). Recorded, never edited: it becomes part of
+ * the decision trail.
+ */
+export type ContestationReason =
+  | "polarity"
+  | "score_too_high"
+  | "score_too_low"
+  | "wrong_excerpt"
+  | "missing_evidence"
+  | "other";
+
+export interface Contestation {
+  id: string;
+  projectId: string;
+  analysisId: string;
+  /** Path id of the node in the analysis tree */
+  nodeId: string;
+  /** Snapshot like "3.1 PROJ-13 Barreira tecnológica", readable even if the analysis changes */
+  nodeLabel: string;
+  reason: ContestationReason;
+  argument: string;
+  suggestedScore?: number;
+  suggestedPolarity?: EvidencePolarity;
+  author: string;
+  createdAt: string;
+}
+
+export type NewContestationInput = Omit<Contestation, "id" | "createdAt">;

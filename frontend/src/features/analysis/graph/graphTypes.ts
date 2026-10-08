@@ -5,6 +5,8 @@ export type GraphNodeData = {
   node: AnalysisNode;
   /** Children currently visible in the graph */
   expanded: boolean;
+  /** An analyst recorded a contestation for this node */
+  contested: boolean;
 };
 
 export type AnalysisFlowNode = Node<GraphNodeData, AnalysisNode["kind"]>;

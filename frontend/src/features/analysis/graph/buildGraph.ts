@@ -17,6 +17,7 @@ const NODE_SEPARATION = 14;
 export const buildGraph = (
   index: AnalysisIndex,
   expanded: ReadonlySet<string>,
+  contestedIds: ReadonlySet<string> = new Set(),
 ): { nodes: AnalysisFlowNode[]; edges: AnalysisFlowEdge[] } => {
   const nodes: AnalysisFlowNode[] = getVisibleNodes(index, expanded).map(
     (node) => ({
@@ -24,7 +25,11 @@ export const buildGraph = (
       type: node.kind,
       position: { x: 0, y: 0 },
       ...NODE_SIZES[node.kind],
-      data: { node, expanded: expanded.has(node.id) },
+      data: {
+        node,
+        expanded: expanded.has(node.id),
+        contested: contestedIds.has(node.id),
+      },
     }),
   );
   return { nodes, edges: buildEdges(nodes) };

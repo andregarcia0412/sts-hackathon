@@ -50,11 +50,17 @@ const minimapNodeColor = (node: AnalysisFlowNode) => {
  * The selection comes from the URL (via the explorer); clicking a node selects
  * it, clicking it again collapses/expands its children.
  */
-export const AnalysisGraph = ({ explorer }: { explorer: AnalysisExplorer }) => {
+export const AnalysisGraph = ({
+  explorer,
+  contestedIds,
+}: {
+  explorer: AnalysisExplorer;
+  contestedIds: ReadonlySet<string>;
+}) => {
   const { index, expanded, selectedId, frameRequest, activate } = explorer;
   const frameGraph = useFrameGraph();
 
-  const { nodes: visibleNodes, edges: visibleEdges } = buildGraph(index, expanded);
+  const { nodes: visibleNodes, edges: visibleEdges } = buildGraph(index, expanded, contestedIds);
   const target = layoutGraph(visibleNodes, visibleEdges);
 
   const { nodes: animatedNodes } = useAnimatedNodes(target);

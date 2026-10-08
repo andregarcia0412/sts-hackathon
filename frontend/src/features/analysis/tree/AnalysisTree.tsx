@@ -1,4 +1,4 @@
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Flag } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
 import { POLARITY_ICONS, POLARITY_STYLES } from "@/components/ui/polarityStyles";
@@ -20,7 +20,14 @@ const DEPTH: Record<AnalysisNode["kind"], number> = {
  * Keyboard (WAI-ARIA tree pattern): ↑/↓ move, → expands or enters,
  * ← collapses or goes to the parent, Enter/Space selects, Home/End jump.
  */
-export const AnalysisTree = ({ explorer }: { explorer: AnalysisExplorer }) => {
+export const AnalysisTree = ({
+  explorer,
+  contestedIds,
+}: {
+  explorer: AnalysisExplorer;
+  /** Nodes with a recorded contestation (flagged) */
+  contestedIds: ReadonlySet<string>;
+}) => {
   const { index, expanded, selectedId, introActive, activate, toggle } = explorer;
   const visible = getVisibleNodes(index, expanded);
   const [focusedId, setFocusedId] = useState<string | null>(null);
@@ -128,6 +135,12 @@ export const AnalysisTree = ({ explorer }: { explorer: AnalysisExplorer }) => {
             <span className="min-w-0 flex-1 truncate" title={getNodeTitle(node)}>
               {getNodeTitle(node)}
             </span>
+            {contestedIds.has(node.id) && (
+              <Flag
+                className="size-3.5 shrink-0 text-score-moderate"
+                aria-label="Contestado pelo analista"
+              />
+            )}
             <NodeIndicator node={node} />
           </li>
         );

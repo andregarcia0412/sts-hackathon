@@ -1,4 +1,4 @@
-import { FileText, Network, PenLine } from "lucide-react";
+import { FileText, Flag, Network, PenLine } from "lucide-react";
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { PolarityTag } from "@/components/ui/PolarityTag";
@@ -105,7 +105,11 @@ export const ReportSummary = ({ analysis }: { analysis: Analysis }) => (
   </ReportSection>
 );
 
-export const ReportDetails = ({ project, analysis }: AnalysisReportProps) => {
+export const ReportDetails = ({
+  project,
+  analysis,
+  contestedIds = new Set(),
+}: AnalysisReportProps & { contestedIds?: ReadonlySet<string> }) => {
   const index = indexAnalysis(analysis);
 
   return (
@@ -115,7 +119,7 @@ export const ReportDetails = ({ project, analysis }: AnalysisReportProps) => {
         const { criterion } = node;
         return (
           <section key={node.id} className="space-y-4 border-t border-border pt-4">
-            <NodeHeading level={3} index={index} nodeId={node.id} projectId={project.id}>
+            <NodeHeading level={3} index={index} nodeId={node.id} projectId={project.id} contested={contestedIds.has(node.id)}>
               {node.number}. {criterion.name}
               <ScoreBadge score={criterion.score} showLabel size="sm" />
             </NodeHeading>
@@ -127,7 +131,7 @@ export const ReportDetails = ({ project, analysis }: AnalysisReportProps) => {
               />
             )}
             {node.childIds.map((ruleId) => (
-              <RuleBlock key={ruleId} index={index} ruleId={ruleId} projectId={project.id} />
+              <RuleBlock key={ruleId} index={index} ruleId={ruleId} projectId={project.id} contestedIds={contestedIds} />
             ))}
           </section>
         );
@@ -140,10 +144,12 @@ const RuleBlock = ({
   index,
   ruleId,
   projectId,
+  contestedIds,
 }: {
   index: AnalysisIndex;
   ruleId: string;
   projectId: string;
+  contestedIds: ReadonlySet<string>;
 }) => {
   const node = index.get(ruleId);
   if (node?.kind !== "rule") return null;
@@ -151,7 +157,7 @@ const RuleBlock = ({
 
   return (
     <div className="space-y-3 pl-4">
-      <NodeHeading level={4} index={index} nodeId={ruleId} projectId={projectId}>
+      <NodeHeading level={4} index={index} nodeId={ruleId} projectId={projectId} contested={contestedIds.has(ruleId)}>
         {node.number} {rule.code} · {rule.name}
         <ScoreBadge score={rule.score} size="sm" />
       </NodeHeading>
@@ -176,7 +182,7 @@ const RuleBlock = ({
               key={evidenceId}
               className="space-y-2 rounded-md border border-border p-3 break-inside-avoid"
             >
-              <NodeHeading level={5} index={index} nodeId={evidenceId} projectId={projectId}>
+              <NodeHeading level={5} index={index} nodeId={evidenceId} projectId={projectId} contested={contestedIds.has(evidenceId)}>
                 {evidenceNode.number} {evidence.title}
                 <PolarityTag polarity={evidence.polarity} />
               </NodeHeading>
@@ -232,12 +238,15 @@ const NodeHeading = ({
   index,
   nodeId,
   projectId,
+  contested = false,
   children,
 }: {
   level: 3 | 4 | 5;
   index: AnalysisIndex;
   nodeId: string;
   projectId: string;
+  /** Flag the item: an analyst contested it (details in the trail) */
+  contested?: boolean;
   children: ReactNode;
 }) => {
   const Tag = `h${level}` as const;
@@ -249,6 +258,12 @@ const NodeHeading = ({
         className={`flex scroll-mt-20 flex-wrap items-center gap-2 rounded font-sans ${HEADING_CLASSES[level]}`}
       >
         {children}
+        {contested && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-score-moderate-soft px-2 py-0.5 text-xs font-medium">
+            <Flag className="size-3 text-score-moderate" aria-hidden />
+            contestado
+          </span>
+        )}
       </Tag>
       <Link
         to={paths.analysis(projectId, nodeId)}

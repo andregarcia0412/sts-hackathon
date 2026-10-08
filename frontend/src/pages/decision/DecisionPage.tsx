@@ -4,7 +4,7 @@ import { Link, useParams } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
 import { ErrorState, LoadingState } from "@/components/ui/states";
 import { indexAnalysis } from "@/domain/tree";
-import type { Analysis, Decision, Project } from "@/domain/types";
+import type { Analysis, Contestation, Decision, Project } from "@/domain/types";
 import {
   ReportDetails,
   ReportHeader,
@@ -16,20 +16,26 @@ import { DecisionTrail } from "@/features/decision/DecisionTrail";
 import { useRegisterAssistantContext } from "@/features/assistant/assistantState";
 import { paths } from "@/routes/paths";
 import { NotFoundError } from "@/services/api";
-import { useAnalysis, useDecisions, useProject } from "@/services/queries";
+import {
+  useAnalysis,
+  useContestations,
+  useDecisions,
+  useProject,
+} from "@/services/queries";
 
 export const DecisionPage = () => {
   const { projectId = "" } = useParams();
   const project = useProject(projectId);
   const analysis = useAnalysis(projectId);
   const decisions = useDecisions(projectId);
+  const contestations = useContestations(projectId);
 
-  if (project.isPending || analysis.isPending || decisions.isPending) {
+  if (project.isPending || analysis.isPending || decisions.isPending || contestations.isPending) {
     return <LoadingState label="Carregando documento de decisão…" />;
   }
 
-  if (project.isError || analysis.isError || decisions.isError) {
-    const error = project.error ?? analysis.error ?? decisions.error;
+  if (project.isError || analysis.isError || decisions.isError || contestations.isError) {
+    const error = project.error ?? analysis.error ?? decisions.error ?? contestations.error;
     return (
       <ErrorState
         action={
@@ -65,6 +71,7 @@ export const DecisionPage = () => {
       project={project.data}
       analysis={analysis.data}
       decisions={decisions.data}
+      contestations={contestations.data.filter((c) => c.analysisId === analysis.data?.id)}
     />
   );
 };
@@ -73,9 +80,15 @@ interface DecisionDocumentProps {
   project: Project;
   analysis: Analysis;
   decisions: Decision[];
+  contestations: Contestation[];
 }
 
-const DecisionDocument = ({ project, analysis, decisions }: DecisionDocumentProps) => {
+const DecisionDocument = ({
+  project,
+  analysis,
+  decisions,
+  contestations,
+}: DecisionDocumentProps) => {
   const documentRef = useRef<HTMLElement>(null);
   const print = useReactToPrint({
     contentRef: documentRef,
@@ -105,13 +118,22 @@ const DecisionDocument = ({ project, analysis, decisions }: DecisionDocumentProp
       >
         <ReportHeader project={project} analysis={analysis} />
         <ReportSummary analysis={analysis} />
-        <ReportDetails project={project} analysis={analysis} />
+        <ReportDetails
+          project={project}
+          analysis={analysis}
+          contestedIds={new Set(contestations.map((c) => c.nodeId))}
+        />
         {/* The form is not printed: the trail below carries the current decision */}
         <ReportSection title="Decisão do analista" className="print:hidden">
           <DecisionForm analysis={analysis} hasPrevious={decisions.length > 0} />
         </ReportSection>
         <ReportSection title="Trilha de decisão">
-          <DecisionTrail decisions={decisions} analysis={analysis} index={index} />
+          <DecisionTrail
+            decisions={decisions}
+            contestations={contestations}
+            analysis={analysis}
+            index={index}
+          />
         </ReportSection>
       </article>
     </div>

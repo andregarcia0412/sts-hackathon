@@ -1,9 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { NewDecisionInput, NewProjectInput } from "@/domain/types";
+import type {
+  NewContestationInput,
+  NewDecisionInput,
+  NewProjectInput,
+} from "@/domain/types";
 import {
+  createContestation,
   createProject,
   getAnalysis,
   getProject,
+  listContestations,
   listDecisions,
   listProjects,
   saveDecision,
@@ -17,6 +23,8 @@ export const queryKeys = {
   analysis: (projectId: string) => ["projects", projectId, "analysis"] as const,
   decisions: (projectId: string) =>
     ["projects", projectId, "decisions"] as const,
+  contestations: (projectId: string) =>
+    ["projects", projectId, "contestations"] as const,
 };
 
 export const useProjects = () =>
@@ -68,5 +76,22 @@ export const useSaveDecision = () => {
     // Prefix match: refreshes the list, the project and its decisions
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: queryKeys.projects }),
+  });
+};
+
+export const useContestations = (projectId: string) =>
+  useQuery({
+    queryKey: queryKeys.contestations(projectId),
+    queryFn: () => listContestations(projectId),
+  });
+
+export const useCreateContestation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: NewContestationInput) => createContestation(input),
+    onSuccess: (contestation) =>
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.contestations(contestation.projectId),
+      }),
   });
 };

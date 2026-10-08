@@ -13,6 +13,7 @@ import { AnalysisTree } from "@/features/analysis/tree/AnalysisTree";
 import { useAnalysisExplorer } from "@/features/analysis/useAnalysisExplorer";
 import { useRegisterAssistantContext } from "@/features/assistant/assistantState";
 import { useMediaQuery } from "@/lib/useMediaQuery";
+import { useContestations } from "@/services/queries";
 import { paths } from "@/routes/paths";
 
 interface AnalysisWorkspaceProps {
@@ -41,6 +42,10 @@ const WorkspaceContent = ({ project, analysis }: AnalysisWorkspaceProps) => {
   const { getNodes } = useReactFlow<AnalysisFlowNode>();
   // Desktop first: side by side; on small screens the graph goes below
   const isWide = useMediaQuery("(min-width: 768px)");
+  const contestations = (useContestations(project.id).data ?? []).filter(
+    (c) => c.analysisId === analysis.id,
+  );
+  const contestedIds = new Set(contestations.map((c) => c.nodeId));
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -97,17 +102,17 @@ const WorkspaceContent = ({ project, analysis }: AnalysisWorkspaceProps) => {
         >
           <Group orientation="vertical" className="h-full bg-surface">
             <Panel defaultSize="45%" minSize="120px" className="overflow-y-auto">
-              <AnalysisTree explorer={explorer} />
+              <AnalysisTree explorer={explorer} contestedIds={contestedIds} />
             </Panel>
             <Separator className={`h-px ${separatorClass}`} />
             <Panel minSize="120px" className="overflow-y-auto">
-              <NodeDetail explorer={explorer} />
+              <NodeDetail explorer={explorer} contestations={contestations} />
             </Panel>
           </Group>
         </Panel>
         <Separator className={`${isWide ? "w-px" : "h-px"} ${separatorClass}`} />
         <Panel minSize={isWide ? "30%" : "20%"}>
-          <AnalysisGraph explorer={explorer} />
+          <AnalysisGraph explorer={explorer} contestedIds={contestedIds} />
         </Panel>
       </Group>
     </div>

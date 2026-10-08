@@ -1,5 +1,7 @@
 import type {
   Analysis,
+  Contestation,
+  NewContestationInput,
   Decision,
   NewDecisionInput,
   NewProjectInput,
@@ -8,6 +10,7 @@ import type {
 } from "@/domain/types";
 import type { AssistantAnswer, AssistantContext } from "@/domain/assistant";
 import { answerQuestion } from "@/mocks/assistantEngine";
+import { debateOpening, debateReply } from "@/mocks/debateEngine";
 import { withScoreExplanations } from "@/mocks/scoreExplanations";
 import {
   analysisTemplate,
@@ -39,12 +42,13 @@ export class NotFoundError extends Error {
  * start over from the fictitious examples.
  */
 // Bump the version when src/mocks changes, or browsers keep the old copy
-const STORAGE_KEY = "lei-do-bem:mock-db:v1";
+const STORAGE_KEY = "lei-do-bem:mock-db:v2";
 
 interface MockDb {
   projects: Project[];
   analyses: Analysis[];
   decisions: Decision[];
+  contestations: Contestation[];
   /** Mock-created projects become "ready" after this timestamp (ms) */
   processingUntil: Record<string, number>;
 }
@@ -53,13 +57,15 @@ const seedDb = (): MockDb => ({
   projects: structuredClone(mockProjects),
   analyses: structuredClone(mockAnalyses),
   decisions: structuredClone(mockDecisions),
+  contestations: [],
   processingUntil: {},
 });
 
 const loadDb = (): MockDb => {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw) as MockDb;
+    // Spread over the seed so fields added later get a default
+    if (raw) return { ...seedDb(), ...(JSON.parse(raw) as Partial<MockDb>) };
   } catch {
     // Storage unavailable or corrupted: fall back to the seed
   }
@@ -208,6 +214,31 @@ export const saveDecision = async (
   return structuredClone(decision);
 };
 
+/** Contestations of a project, oldest first. Append-only, like decisions. */
+export const listContestations = async (projectId: string): Promise<Contestation[]> => {
+  await delay();
+  return structuredClone(
+    db.contestations
+      .filter((c) => c.projectId === projectId)
+      .sort((a, b) => a.createdAt.localeCompare(b.createdAt)),
+  );
+};
+
+export const createContestation = async (
+  input: NewContestationInput,
+): Promise<Contestation> => {
+  await delay();
+  findProject(input.projectId);
+  const contestation: Contestation = {
+    ...input,
+    id: newId("ct"),
+    createdAt: new Date().toISOString(),
+  };
+  db.contestations.push(contestation);
+  persist();
+  return structuredClone(contestation);
+};
+
 /**
  * Analysis assistant (chatbot). MOCK: rule-based answers from the analysis on
  * screen. To integrate, send `question` + `context` to the ai-microservice and
@@ -218,5 +249,16 @@ export const askAssistant = async (
   context: AssistantContext,
 ): Promise<AssistantAnswer> => {
   await delay(ASSISTANT_LATENCY_MS);
-  return answerQuestion(question, context);
+  return context.debateNodeId
+    ? debateReply(question, context)
+    : answerQuestion(question, context);
+};
+
+/** Opens a debate about one node: the model states the basis of its reading */
+export const openDebate = async (
+  nodeId: string,
+  context: AssistantContext,
+): Promise<AssistantAnswer> => {
+  await delay(ASSISTANT_LATENCY_MS);
+  return debateOpening({ ...context, debateNodeId: nodeId }, nodeId);
 };

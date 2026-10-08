@@ -1,4 +1,4 @@
-import type { Analysis } from "@/domain/types";
+import type { Analysis, ContestationReason } from "@/domain/types";
 
 /* Contract of the analysis assistant (chatbot). Provisional, like domain/types.ts */
 
@@ -9,6 +9,8 @@ export interface AssistantContext {
   screen: AssistantScreen;
   analysis: Analysis;
   selectedNodeId: string | null;
+  /** Set while the analyst is contesting a node (debate mode) */
+  debateNodeId?: string | null;
 }
 
 export type AnswerBlock =
@@ -22,14 +24,24 @@ export interface AnswerSource {
   label: string;
 }
 
+/** Something the analyst can do from an answer, rendered as a button */
+export type AssistantAction = {
+  type: "record-contestation";
+  nodeId: string;
+  reason: ContestationReason;
+};
+
 export interface AssistantAnswer {
   blocks: AnswerBlock[];
   sources: AnswerSource[];
   /** Follow-up questions offered as chips */
   suggestions: string[];
+  actions?: AssistantAction[];
 }
 
 export type ChatMessage =
   | { id: string; role: "user"; text: string }
   | { id: string; role: "assistant"; answer: AssistantAnswer }
-  | { id: string; role: "error"; text: string };
+  | { id: string; role: "error"; text: string }
+  /** Marker in the conversation, e.g. "Contestando 3.1 PROJ-13" */
+  | { id: string; role: "event"; text: string };

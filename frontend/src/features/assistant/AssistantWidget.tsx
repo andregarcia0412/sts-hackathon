@@ -1,9 +1,19 @@
-import { Bot, MessageCircleQuestion, RotateCcw, SendHorizontal, X } from "lucide-react";
+import {
+  Bot,
+  Flag,
+  MessageCircleQuestion,
+  RotateCcw,
+  SendHorizontal,
+  X,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent, KeyboardEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import type { AssistantAnswer, ChatMessage } from "@/domain/assistant";
+import type { AssistantAction, AssistantAnswer, ChatMessage } from "@/domain/assistant";
+import { CONTESTATION_REASON_LABELS } from "@/domain/labels";
+import type { ContestationReason } from "@/domain/types";
 import { getNodeTitle, indexAnalysis } from "@/domain/tree";
+import { ContestationForm } from "@/features/assistant/ContestationForm";
 import { useAssistant } from "@/features/assistant/assistantState";
 import { starterSuggestions } from "@/mocks/assistantEngine";
 import { paths } from "@/routes/paths";
@@ -13,7 +23,7 @@ const PANEL_ID = "analysis-assistant";
 /**
  * Floating assistant (bottom-right) for the analysis and decision screens.
  * Answers explain scores and evidences, never give a verdict, and link back
- * to the nodes they are based on.
+ * to the nodes they are based on. In debate mode the analyst contests a node.
  */
 export const AssistantWidget = () => {
   const { open, setOpen, pageContext } = useAssistant();
@@ -49,22 +59,27 @@ export const AssistantWidget = () => {
   );
 };
 
+type Recording = Extract<AssistantAction, { type: "record-contestation" }>;
+
 const AssistantPanel = ({ onClose }: { onClose: () => void }) => {
-  const { messages, pending, send, clear, pageContext } = useAssistant();
+  const { messages, pending, send, clear, pageContext, debateNodeId, endDebate } = useAssistant();
   const [draft, setDraft] = useState("");
+  const [recording, setRecording] = useState<Recording | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => inputRef.current?.focus(), []);
+  useEffect(() => inputRef.current?.focus(), [debateNodeId]);
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" });
-  }, [messages, pending]);
+  }, [messages, pending, recording]);
 
   if (!pageContext) return null;
   const index = indexAnalysis(pageContext.analysis);
   const selected = pageContext.selectedNodeId
     ? index.get(pageContext.selectedNodeId)
     : undefined;
+  const debateNode = debateNodeId ? index.get(debateNodeId) : undefined;
+  const recordingNode = recording ? index.get(recording.nodeId) : undefined;
 
   const submit = (question: string) => {
     if (!question.trim() || pending) return;
@@ -84,7 +99,27 @@ const AssistantPanel = ({ onClose }: { onClose: () => void }) => {
     }
   };
 
-  const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
+  const debateMessages = messages.slice(messages.findLastIndex((m) => m.role === "event") + 1);
+  const reasonLabels = new Set<string>(Object.values(CONTESTATION_REASON_LABELS));
+
+  /** What the analyst wrote since the debate started (reason chips excluded) */
+  const debateArgument = () =>
+    debateMessages
+      .filter((m): m is Extract<ChatMessage, { role: "user" }> => m.role === "user")
+      .map((m) => m.text)
+      .filter((text) => !reasonLabels.has(text))
+      .join("\n");
+
+  /** Most specific reason identified during the debate (latest non-"other") */
+  const debateReason = (fallback: ContestationReason) =>
+    debateMessages
+      .flatMap((m) => (m.role === "assistant" ? m.answer.actions ?? [] : []))
+      .map((a) => a.reason)
+      .filter((r) => r !== "other")
+      .at(-1) ?? fallback;
+
+  const last = messages.at(-1);
+  const lastAnswer = last?.role === "assistant" ? last.answer : undefined;
 
   return (
     <section
@@ -105,7 +140,10 @@ const AssistantPanel = ({ onClose }: { onClose: () => void }) => {
         <button
           type="button"
           className="btn-ghost p-1.5"
-          onClick={clear}
+          onClick={() => {
+            clear();
+            setRecording(null);
+          }}
           disabled={messages.length === 0}
           aria-label="Limpar conversa"
           title="Limpar conversa"
@@ -122,29 +160,54 @@ const AssistantPanel = ({ onClose }: { onClose: () => void }) => {
         </button>
       </header>
 
-      <p className="truncate border-b border-border bg-surface-muted px-4 py-1.5 text-xs text-fg-muted">
-        Sobre:{" "}
-        <span className="font-medium text-fg">
-          {selected
-            ? `${selected.number} ${getNodeTitle(selected)}`
-            : pageContext.screen === "decision"
-              ? "o documento de decisão (cite um número, ex.: 3.1.1)"
-              : "toda a análise (selecione um item para focar)"}
-        </span>
-      </p>
+      {debateNode ? (
+        <div className="flex items-center gap-2 border-b border-score-moderate bg-score-moderate-soft px-4 py-1.5 text-xs">
+          <Flag className="size-3.5 shrink-0 text-score-moderate" aria-hidden />
+          <span className="min-w-0 flex-1 truncate">
+            Contestando <strong>{debateNode.number} {getNodeTitle(debateNode)}</strong>
+          </span>
+          <button
+            type="button"
+            className="shrink-0 font-medium text-accent hover:underline"
+            onClick={() => {
+              setRecording(null);
+              endDebate();
+            }}
+          >
+            Encerrar
+          </button>
+        </div>
+      ) : (
+        <p className="truncate border-b border-border bg-surface-muted px-4 py-1.5 text-xs text-fg-muted">
+          Sobre:{" "}
+          <span className="font-medium text-fg">
+            {selected
+              ? `${selected.number} ${getNodeTitle(selected)}`
+              : pageContext.screen === "decision"
+                ? "o documento de decisão (cite um número, ex.: 3.1.1)"
+                : "toda a análise (selecione um item para focar)"}
+          </span>
+        </p>
+      )}
 
       <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4" aria-live="polite">
         {messages.length === 0 && (
           <div className="space-y-3 text-sm">
             <p>
               Pergunte sobre as notas, as evidências e de onde vem cada
-              informação. Eu explico; a decisão é sua.
+              informação. Eu explico; a decisão é sua. Discorda de algo? Use
+              “Questionar” no detalhe do item.
             </p>
             <Suggestions items={starterSuggestions(pageContext)} onPick={submit} />
           </div>
         )}
         {messages.map((message) => (
-          <Message key={message.id} message={message} />
+          <Message
+            key={message.id}
+            message={message}
+            onAction={(action) => setRecording(action)}
+            actionsEnabled={message === last && !recording}
+          />
         ))}
         {pending && (
           <p role="status" className="flex items-center gap-1.5 text-sm text-fg-muted">
@@ -156,18 +219,29 @@ const AssistantPanel = ({ onClose }: { onClose: () => void }) => {
             Analisando…
           </p>
         )}
-        {!pending && lastAssistant?.role === "assistant" &&
-          lastAssistant.answer.suggestions.length > 0 &&
-          messages.at(-1) === lastAssistant && (
-            <Suggestions items={lastAssistant.answer.suggestions} onPick={submit} />
-          )}
+        {!pending && !recording && lastAnswer && lastAnswer.suggestions.length > 0 && (
+          <Suggestions items={lastAnswer.suggestions} onPick={submit} />
+        )}
+        {recording && recordingNode && (
+          <ContestationForm
+            analysis={pageContext.analysis}
+            node={recordingNode}
+            initialReason={debateReason(recording.reason)}
+            initialArgument={debateArgument()}
+            onCancel={() => setRecording(null)}
+            onRecorded={(label) => {
+              setRecording(null);
+              endDebate(`Contestação de ${label} registrada na trilha`);
+            }}
+          />
+        )}
         <div ref={endRef} />
       </div>
 
       <form onSubmit={handleSubmit} className="border-t border-border p-3">
         <div className="flex items-end gap-2">
           <label htmlFor="assistant-input" className="sr-only">
-            Pergunta para o assistente
+            {debateNode ? "Seu argumento" : "Pergunta para o assistente"}
           </label>
           <textarea
             ref={inputRef}
@@ -176,14 +250,18 @@ const AssistantPanel = ({ onClose }: { onClose: () => void }) => {
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ex.: Como a nota deste critério foi calculada?"
+            placeholder={
+              debateNode
+                ? "Explique por que discorda…"
+                : "Ex.: Como a nota deste critério foi calculada?"
+            }
             className="input max-h-28 min-h-10 flex-1 resize-none"
           />
           <button
             type="submit"
             className="btn-primary size-10 shrink-0 p-0"
             disabled={pending || !draft.trim()}
-            aria-label="Enviar pergunta"
+            aria-label="Enviar"
           >
             <SendHorizontal className="size-4" aria-hidden />
           </button>
@@ -197,7 +275,7 @@ const AssistantPanel = ({ onClose }: { onClose: () => void }) => {
 };
 
 const Suggestions = ({ items, onPick }: { items: string[]; onPick: (q: string) => void }) => (
-  <ul className="flex flex-wrap gap-1.5" aria-label="Sugestões de perguntas">
+  <ul className="flex flex-wrap gap-1.5" aria-label="Sugestões">
     {items.map((item) => (
       <li key={item}>
         <button
@@ -212,7 +290,15 @@ const Suggestions = ({ items, onPick }: { items: string[]; onPick: (q: string) =
   </ul>
 );
 
-const Message = ({ message }: { message: ChatMessage }) => {
+const Message = ({
+  message,
+  onAction,
+  actionsEnabled,
+}: {
+  message: ChatMessage;
+  onAction: (action: Recording) => void;
+  actionsEnabled: boolean;
+}) => {
   if (message.role === "user") {
     return (
       <p className="ml-8 rounded-lg rounded-br-sm bg-accent px-3 py-2 text-sm whitespace-pre-line text-accent-fg">
@@ -227,10 +313,30 @@ const Message = ({ message }: { message: ChatMessage }) => {
       </p>
     );
   }
-  return <AnswerView answer={message.answer} />;
+  if (message.role === "event") {
+    return (
+      <p className="flex items-center gap-2 text-xs text-fg-muted">
+        <span className="h-px flex-1 bg-border" />
+        <Flag className="size-3.5 text-score-moderate" aria-hidden />
+        {message.text}
+        <span className="h-px flex-1 bg-border" />
+      </p>
+    );
+  }
+  return (
+    <AnswerView answer={message.answer} onAction={onAction} actionsEnabled={actionsEnabled} />
+  );
 };
 
-const AnswerView = ({ answer }: { answer: AssistantAnswer }) => {
+const AnswerView = ({
+  answer,
+  onAction,
+  actionsEnabled,
+}: {
+  answer: AssistantAnswer;
+  onAction: (action: Recording) => void;
+  actionsEnabled: boolean;
+}) => {
   const openNode = useOpenNode();
 
   return (
@@ -272,6 +378,17 @@ const AnswerView = ({ answer }: { answer: AssistantAnswer }) => {
           </ul>
         </div>
       )}
+      {actionsEnabled && answer.actions?.map((action) => (
+        <button
+          key={action.type + action.nodeId}
+          type="button"
+          className="btn-secondary w-full border-score-moderate py-1.5"
+          onClick={() => onAction(action)}
+        >
+          <Flag className="size-4 text-score-moderate" aria-hidden />
+          Registrar contestação
+        </button>
+      ))}
     </div>
   );
 };

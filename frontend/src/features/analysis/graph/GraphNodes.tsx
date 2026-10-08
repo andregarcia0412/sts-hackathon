@@ -1,6 +1,6 @@
 import { Handle, NodeToolbar, Position } from "@xyflow/react";
 import type { NodeProps } from "@xyflow/react";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Flag } from "lucide-react";
 import { useState } from "react";
 import type { ReactNode } from "react";
 import { ScoreBadge } from "@/components/ui/ScoreBadge";
@@ -39,6 +39,20 @@ const ExpandHint = ({ expanded, count, noun }: { expanded: boolean; count: numbe
   </span>
 );
 
+const ContestedTag = () => (
+  <span className="inline-flex items-center gap-1 rounded-full bg-score-moderate-soft px-1.5 py-0.5 text-[11px] font-medium text-fg">
+    <Flag className="size-3 text-score-moderate" aria-hidden />
+    contestado
+  </span>
+);
+
+const Footer = ({ children, contested }: { children: ReactNode; contested: boolean }) => (
+  <div className="flex items-center justify-between gap-2">
+    {children}
+    {contested && <ContestedTag />}
+  </div>
+);
+
 const Card = ({
   selected,
   band,
@@ -75,11 +89,13 @@ export const CriterionGraphNode = ({ data, selected }: NodeProps<AnalysisFlowNod
           </div>
           <ScoreBadge score={criterion.score} />
         </div>
-        <ExpandHint
-          expanded={data.expanded}
-          count={childIds.length}
-          noun={childIds.length === 1 ? "regra" : "regras"}
-        />
+        <Footer contested={data.contested}>
+          <ExpandHint
+            expanded={data.expanded}
+            count={childIds.length}
+            noun={childIds.length === 1 ? "regra" : "regras"}
+          />
+        </Footer>
       </Card>
     </>
   );
@@ -104,11 +120,13 @@ export const RuleGraphNode = ({ data, selected }: NodeProps<AnalysisFlowNode>) =
           </div>
           <ScoreBadge score={rule.score} size="sm" />
         </div>
-        <ExpandHint
-          expanded={data.expanded}
-          count={childIds.length}
-          noun={childIds.length === 1 ? "evidência" : "evidências"}
-        />
+        <Footer contested={data.contested}>
+          <ExpandHint
+            expanded={data.expanded}
+            count={childIds.length}
+            noun={childIds.length === 1 ? "evidência" : "evidências"}
+          />
+        </Footer>
       </Card>
     </>
   );
@@ -155,12 +173,15 @@ export const EvidenceGraphNode = ({ data, selected }: NodeProps<AnalysisFlowNode
         >
           <Icon className="size-5" aria-label={polarityLabel} />
         </span>
-        <span className="min-w-0">
+        <span className="min-w-0 flex-1">
           <span className="block text-[11px] leading-none text-fg-muted">{number}</span>
           <span className="line-clamp-2 text-xs leading-tight font-medium" title={evidence.title}>
             {evidence.title}
           </span>
         </span>
+        {data.contested && (
+          <Flag className="size-4 shrink-0 text-score-moderate" aria-label="Contestado pelo analista" />
+        )}
       </div>
     </>
   );

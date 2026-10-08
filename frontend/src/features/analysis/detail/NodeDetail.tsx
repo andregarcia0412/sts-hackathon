@@ -1,4 +1,4 @@
-import { FileText, MousePointerClick, PenLine } from "lucide-react";
+import { FileText, Flag, MousePointerClick, PenLine } from "lucide-react";
 import type { ReactNode } from "react";
 import { PolarityTag } from "@/components/ui/PolarityTag";
 import { ReferenceLink } from "@/components/ui/ReferenceLink";
@@ -12,7 +12,10 @@ import type {
   EvidenceNode,
   RuleNode,
 } from "@/domain/tree";
-import type { ProjectExcerpt } from "@/domain/types";
+import { CONTESTATION_REASON_LABELS } from "@/domain/labels";
+import type { Contestation, ProjectExcerpt } from "@/domain/types";
+import { useAssistant } from "@/features/assistant/assistantState";
+import { formatDateTime } from "@/lib/format";
 import type { AnalysisExplorer } from "@/features/analysis/useAnalysisExplorer";
 
 /*
@@ -22,10 +25,13 @@ import type { AnalysisExplorer } from "@/features/analysis/useAnalysisExplorer";
 
 interface NodeDetailProps {
   explorer: AnalysisExplorer;
+  /** Contestations of this analysis (all nodes) */
+  contestations: Contestation[];
 }
 
-export const NodeDetail = ({ explorer }: NodeDetailProps) => {
+export const NodeDetail = ({ explorer, contestations }: NodeDetailProps) => {
   const { selectedNode } = explorer;
+  const { startDebate, debateNodeId } = useAssistant();
 
   if (!selectedNode) {
     return (
@@ -42,8 +48,18 @@ export const NodeDetail = ({ explorer }: NodeDetailProps) => {
   return (
     <article
       aria-label="Detalhe do item selecionado"
-      className="space-y-4 p-4 text-sm"
+      className="relative space-y-4 p-4 text-sm"
     >
+      <button
+        type="button"
+        className="btn-secondary absolute top-3 right-3 px-2.5 py-1 text-xs"
+        onClick={() => startDebate(selectedNode.id)}
+        disabled={debateNodeId === selectedNode.id}
+        title="Discorda de algo? Debata com o modelo e registre a contestação"
+      >
+        <Flag className="size-3.5 text-score-moderate" aria-hidden />
+        Questionar
+      </button>
       {selectedNode.kind === "criterion" && (
         <CriterionDetail node={selectedNode} explorer={explorer} />
       )}
@@ -53,6 +69,9 @@ export const NodeDetail = ({ explorer }: NodeDetailProps) => {
       {selectedNode.kind === "evidence" && (
         <EvidenceDetail node={selectedNode} explorer={explorer} />
       )}
+      <ContestationList
+        items={contestations.filter((c) => c.nodeId === selectedNode.id)}
+      />
     </article>
   );
 };
@@ -72,7 +91,7 @@ const DetailHeader = ({
   title: string;
   badge: ReactNode;
 }) => (
-  <header className="space-y-1.5">
+  <header className="space-y-1.5 pr-24">
     <p className="text-xs font-medium tracking-wide text-fg-muted uppercase">
       {KIND_LABELS[node.kind]} {node.number}
     </p>
@@ -353,6 +372,35 @@ const EvidenceImpact = ({
         </button>{" "}
         ({node.rule.score}/100).
       </p>
+    </Section>
+  );
+};
+
+/** Contestations recorded by analysts for the selected node */
+const ContestationList = ({ items }: { items: Contestation[] }) => {
+  if (items.length === 0) return null;
+  return (
+    <Section title={`Contestações (${items.length})`}>
+      <ul className="space-y-2">
+        {items.map((c) => (
+          <li
+            key={c.id}
+            className="rounded-md border border-score-moderate bg-score-moderate-soft/60 p-2.5"
+          >
+            <p className="flex items-center gap-1.5 text-xs font-medium">
+              <Flag className="size-3.5 text-score-moderate" aria-hidden />
+              {CONTESTATION_REASON_LABELS[c.reason]}
+              {c.suggestedScore !== undefined && ` · nota sugerida ${c.suggestedScore}`}
+              {c.suggestedPolarity &&
+                ` · sugere ${c.suggestedPolarity === "positive" ? "positiva" : "negativa"}`}
+            </p>
+            <p className="mt-1 whitespace-pre-line">{c.argument}</p>
+            <p className="mt-1 text-xs text-fg-muted">
+              {c.author} · {formatDateTime(c.createdAt)}
+            </p>
+          </li>
+        ))}
+      </ul>
     </Section>
   );
 };
