@@ -46,7 +46,7 @@ export const ProjectFilterBar = ({ filters, update, clear, activeCount }: Projec
 
     <select
       aria-label="Força da evidência do critério mais fraco"
-      className={pillSelect(!!filters.weakestBand)}
+      className={pillSelect(!!filters.weakestBand, "sm:w-60")}
       value={filters.weakestBand ?? ""}
       onChange={(e) => update({ weakestBand: (e.target.value || undefined) as ProjectFilters["weakestBand"] })}
     >
