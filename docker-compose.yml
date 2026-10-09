@@ -1,0 +1,25 @@
+services:
+  mongo:
+    image: mongo:8
+    container_name: sts-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    # MongoDB recommends a high open-files limit; the test suite creates/drops databases often.
+    ulimits:
+      nofile:
+        soft: 64000
+        hard: 64000
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-root}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-root}
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mongo-data:

@@ -1,5 +1,5 @@
 [project]
-name = "ai-microservice"
+name = "backend"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -8,12 +8,45 @@ authors = [
 ]
 requires-python = ">=3.13"
 dependencies = [
+    "beanie>=2.0.0",
     "fastapi[standard]>=0.142.2",
+    "fpdf2>=2.8.9",
+    "httpx>=0.28.1",
+    "ollama>=0.6.3",
+    "openpyxl>=3.1.5",
+    "pwdlib[argon2]>=0.3.1",
+    "pydantic-settings>=2.15.0",
+    "pyjwt>=2.15.1",
+    "pypdf>=6.19.0",
+    "python-multipart>=0.0.32",
+    "pyyaml>=6.0.3",
 ]
 
 [project.scripts]
-ai-microservice = "ai_microservice.main:main"
+backend = "backend.main:main"
+backend-import = "backend.projects.cli:main"
+backend-ingest-norms = "backend.assistant.cli:main"
+backend-calibrate = "backend.report.calibration:main"
+backend-benchmark = "backend.benchmark.cli:main"
 
 [build-system]
 requires = ["uv_build>=0.12.23,<0.13.0"]
 build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "python-dotenv>=1.2.4",
+    "respx>=0.23.1",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+markers = [
+    "live: calls the real Ollama API (opt-in: uv run pytest -m live)",
+    "package: needs the hackathon package at PACKAGE_DIR",
+]
+addopts = "-m 'not live'"
