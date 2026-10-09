@@ -99,3 +99,15 @@ def test_batch_from_zip_with_several_projects(client, auth_headers, fake_pipelin
     batch = client.post("/batches/upload", files=[("file", ("lote.zip", buffer.getvalue(), "application/zip"))],
                         headers=auth_headers).json()
     assert batch["total"] == 2
+
+
+def test_graph_decision_view(client, auth_headers, fake_pipeline):
+    from tests.conftest import package_upload
+
+    project = client.post("/projects", data={"name": "PRJ90 fila"}, files=package_upload(), headers=auth_headers).json()
+    analysis_id = client.get(f"/projects/{project['id']}", headers=auth_headers).json()["latestAnalysisId"]
+    full = client.get(f"/analyses/{analysis_id}/graph", headers=auth_headers).json()
+    decision = client.get(f"/analyses/{analysis_id}/graph?view=decisao", headers=auth_headers).json()
+    assert 0 < len(decision["nodes"]) < len(full["nodes"])
+    assert {"class", "criterion"} <= {n["kind"] for n in decision["nodes"]}
+    assert "rule" not in {n["kind"] for n in decision["nodes"]}

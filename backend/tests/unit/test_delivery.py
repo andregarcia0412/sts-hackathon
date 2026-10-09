@@ -52,8 +52,12 @@ async def test_export_writes_every_item_of_the_expected_delivery(delivered):
     for path, digest in manifest["arquivos"].items():
         assert hashlib.sha256((out / path).read_bytes()).hexdigest() == digest
     assert "Entrega esperada" in (out / "LEIA-ME.md").read_text() and (out / "resumo.html").is_file()
+    decision = json.loads((out / "frontend" / "api_mock_decisao.json").read_text())
+    assert len(decision) == 2 and all(k.endswith("/graph?view=decisao") and v["nodes"] for k, v in decision.items())
+    assert (out / "PRJ91" / "api_decisao.json").is_file()
     api = json.loads((out / "frontend" / "api_mock.json").read_text())
     assert "GET /projects" in api and any(k.endswith("/graph") for k in api)
+    assert not any("view=decisao" in k for k in api)  # the full mock keeps its routes only
     assert any(k.endswith("/analyses") and v[0]["criteria"] for k, v in api.items() if isinstance(v, list) and v)
 
 

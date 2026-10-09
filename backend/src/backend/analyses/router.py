@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Literal
 
 from beanie import PydanticObjectId
 from bson.errors import InvalidId
@@ -10,6 +10,7 @@ from backend.analyses.models import Analysis, Batch, CanonicalRecord
 from backend.analyses.schemas import AnalysisStatusRead, BatchRead, BatchRequest, GraphEdgeRead, GraphNodeRead, GraphRead
 from backend.auth.dependencies import CurrentUser
 from backend.extraction.schema import CanonicalProject
+from backend.graph.decision import decision_graph
 from backend.graph.models import GraphEdge, GraphNode
 from backend.graph.queries import trace
 from backend.projects.importer import ImportError_, files_from_zip
@@ -37,10 +38,14 @@ async def analysis_status(analysis_id: str, user: CurrentUser) -> AnalysisStatus
 
 
 @router.get("/analyses/{analysis_id}/graph")
-async def graph(analysis_id: str, user: CurrentUser) -> GraphRead:
+async def graph(analysis_id: str, user: CurrentUser, view: Literal["completo", "decisao"] = "completo") -> GraphRead:
+    """`view=decisao`: only the decision path (class → criteria → answers → evidence → cited fragment), for the
+    analyst; the default is the full graph (audit: searches, every rule, the rows used by the checks)."""
     analysis = await owned_analysis(analysis_id, str(user.id))
     nodes = await GraphNode.find(GraphNode.analysis_id == str(analysis.id)).to_list()
     edges = await GraphEdge.find(GraphEdge.analysis_id == str(analysis.id)).to_list()
+    if view == "decisao":
+        nodes, edges = decision_graph(nodes, edges)
     return GraphRead(
         analysis_id=str(analysis.id),
         nodes=[GraphNodeRead(node_id=n.node_id, kind=n.kind, label=n.label, props=n.props) for n in nodes],

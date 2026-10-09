@@ -201,7 +201,7 @@ project, analysis and review record is scoped to its owner.
 Main endpoints: `POST /projects` (multipart files or .zip; starts the analysis) · `GET /projects`
 (`ProjectPage`) · `POST /projects/{id}/documents` (re-analysis) · `POST /projects/{id}/analyses` ·
 `GET /projects/{id}/analyses` (hifi `Analysis[]` or `null`) · `GET /analyses/{id}/status|graph|canonical`
-· `GET /analyses/{id}/graph/trace/{node}` · `GET /analyses/{id}/report.{json,csv,pdf}` · `POST /batches`
+· `GET /analyses/{id}/graph?view=decisao` (decision path only) · `GET /analyses/{id}/graph/trace/{node}` · `GET /analyses/{id}/report.{json,csv,pdf}` · `POST /batches`
 (`packageDir` inside `PACKAGE_DIR`) · `POST /batches/upload` (.zip) · `GET /batches/{id}[/report.csv]` ·
 `GET|POST /projects/{id}/decisions|contestations|rule-decisions|evidence-reviews` ·
 `POST /benchmarks` · `POST /benchmarks/{id}/rejudge|close|delivery` · `GET /benchmarks/{id}/report.html` · `GET /benchmarks[/{id}[/projects|/report.csv]]` · `GET /benchmarks/compare?base=&target=` ·
