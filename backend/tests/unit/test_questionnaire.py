@@ -205,3 +205,11 @@ async def test_state_gates_lock_answers_from_the_catalog():
                                          options=QUESTIONNAIRE)
     assert state.state == "DOCUMENTADA COMO ACEITE" and state.fired_gates == ["SIS-D5"]
     assert next(a for a in state.answers if a.pergunta == "S2").origem == "gate"
+
+
+async def test_novelty_in_the_rd_column_needs_a_numeric_record_somewhere_in_the_analysis():
+    nov = CriterionResult(criterion="NOV", rules=[run("NOV-D2", evidence("NOV-D2"))])
+    state = await judge_by_questionnaire(FakeLLM({QuestionnaireOut: fake_answers()}), get_catalog(), nov, False,
+                                         options=QUESTIONNAIRE)
+    assert state.state == "INDETERMINADA" and state.llm_state == "DEMONSTRADA NO RECORTE"
+    assert any("registro numérico" in gate for gate in state.gates)

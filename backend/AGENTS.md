@@ -88,7 +88,8 @@ numeric record (medicoes/resultados) → undetermined column. **Coherence gate**
 (e.g. INDETERMINADA with score 89, SIS PARCIAL with score 100) makes the judge decide once more with the
 contradiction spelled out; a configuration gate does not force against a strong positive score (it is judged again).
 If the contradiction persists, the judge's state stays, the criterion is flagged "revisar" and the class gets
-`inconsistent` — the code never picks the state from the score. **Questionnaire mode** (`JUDGE_MODE=questionario`,
+`inconsistent` — the code never picks the state from the score. **Questionnaire mode** (`JUDGE_MODE=questionario`, the default since the out-of-sample measurement: PRJ09–20
+re-judged, questionnaire + reask 29/36 classes vs 7/12 for the state judge, 0 false eligibles;
 `graph/questionnaire.py`): instead of picking the label, the judge answers closed questions about facts (N1–N3,
 C1–C3, I1–I3, S1–S2, R1–R3), each with evidence ids (no evidence after one new attempt → `nao_fundamentada`, counted
 as `sem_registro`), and the decision table of `catalog/questionario.yaml` turns the answers into the state in code;

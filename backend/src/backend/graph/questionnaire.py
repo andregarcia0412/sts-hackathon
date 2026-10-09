@@ -231,13 +231,20 @@ def build_state(catalog: Catalog, result: CriterionResult, answers: dict[str, An
         gates.append(f"{UNSUPPORTED_NOTE} ({', '.join(unsupported)})")
     ordered = [answers[q] for q in questions if q in answers]
     decisive = [answers[q] for q in line.quando if q in answers] if not line.senao else ordered
-    column = column_of(criterion, line.estado, catalog)
+    final = line.estado
+    column = column_of(criterion, final, catalog)
+    if column == "pd" and not has_numeric:  # the same numeric-record gate as the state judge (NOV/CRI: anywhere)
+        final = catalog.criteria[criterion].estados.indeterminado
+        column = column_of(criterion, final, catalog)
+        if NUMERIC_GATE not in gates:
+            gates.append(NUMERIC_GATE)
     state = CriterionState(
-        criterion=criterion, state=line.estado, column=column, llm_state=raw_line.estado,
-        justification=_justification(catalog, result, questions, line.estado, decisive),
+        criterion=criterion, state=final, column=column, llm_state=raw_line.estado,
+        justification=_justification(catalog, result, questions, final, decisive),
         decisive_evidence_ids=list(dict.fromkeys(i for a in decisive for i in a.evidencias)),
         gates=gates, gate_conflicts=list(conflicts), fired_gates=list(fired or []), answers=ordered,
-        decision_rule=f"{criterion} linha {index + 1}: {line.label()} → {line.estado}",
+        decision_rule=f"{criterion} linha {index + 1}: {line.label()} → {line.estado}"
+                      + (f" (gate numérico → {final})" if final != line.estado else ""),
     )
     if criterion == "REP" and effective.get("R3") == "sim":
         state.caveat = caveat or Caveat()
