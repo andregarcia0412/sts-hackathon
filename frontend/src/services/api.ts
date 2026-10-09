@@ -25,8 +25,10 @@ import { applyProjectQuery } from "@/mocks/projectQuery";
 import { applyAdjustments, reanalyze } from "@/mocks/reanalysis";
 import { withScoreExplanations } from "@/mocks/scoreExplanations";
 import { mockUsers } from "@/mocks/users";
+import { decisionCsvColumns, decisionCsvFileName, decisionCsvRow, toCsv } from "@/domain/decisionCsv";
 import { recognizeDocumentKind } from "@/domain/documents";
 import { sortByFramework } from "@/domain/frameworks";
+import { pendenciesOf } from "@/domain/report";
 import { decidedCriteriaCount } from "@/domain/reviews";
 import {
   analysisTemplates,
@@ -424,6 +426,31 @@ export const saveDecision = async (
   project.status = "decided";
   persist();
   return structuredClone(decision);
+};
+
+export interface ExportedFile {
+  fileName: string;
+  content: Blob;
+}
+
+/**
+ * Decision of one method as a spreadsheet (CSV). Back-end:
+ * GET /analyses/{analysisId}/report.csv, file name from Content-Disposition.
+ */
+export const exportDecisionCsv = async (projectId: string, analysisId: string): Promise<ExportedFile> => {
+  await delay();
+  const project = findProject(projectId);
+  const stored = analysesOf(projectId).find((a) => a.id === analysisId);
+  if (!stored) throw new NotFoundError("Análise");
+  const analysis = withScoreExplanations(structuredClone(stored));
+  const pendencies = pendenciesOf(analysis, project, contestationsOf(projectId));
+  const csv = toCsv(decisionCsvColumns(analysis.criteria.length), [
+    decisionCsvRow(project, analysis, decisionsOf(projectId).at(-1), pendencies),
+  ]);
+  return {
+    fileName: decisionCsvFileName(project, analysis),
+    content: new Blob([csv], { type: "text/csv;charset=utf-8" }),
+  };
 };
 
 /** Contestations of a project, oldest first. Append-only, like decisions. */

@@ -33,6 +33,11 @@ Pontos deixados para depois. Separados em dois grupos:
       falar em "força da evidência" e sempre citar a fonte.
 - [ ] **Reanálise de contestações:** trocar o mock (`src/mocks/reanalysis.ts`) pela
       reanálise real do modelo, mantendo o formato `ContestationResolution`.
+- [ ] **Exportar CSV:** `exportDecisionCsv` (`src/services/api.ts`) passa a baixar
+      `GET /analyses/{id}/report.csv`. Combinar com o back-end duas diferenças do mock
+      (`src/domain/decisionCsv.ts`): no front, `classificacao`/`justificativa` são a decisão
+      do analista (no back-end, a classe sugerida pelo sistema), e o front acrescenta
+      `metodo`, `analista` e `decidido_em` depois das 27 colunas.
 
 ### Conteúdo e terminologia
 
