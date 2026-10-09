@@ -63,19 +63,24 @@ async function readJson(path: string): Promise<Json | null> {
   if (!cache) cache = new Map();
   if (cache.has(path)) return cache.get(path) ?? null;
   let value: Json | null = null;
-  const importer = globbed[`/src/services/__fixtures__/static-export/${path}`];
-  if (importer) {
-    try {
-      value = (await importer()) as Json;
-    } catch {
-      value = null;
-    }
-  } else if (typeof fetch === "function") {
+  // 1) the real export, as served by Vite (dev) or deployed beside the bundle (prod)
+  if (typeof fetch === "function") {
     try {
       const response = await fetch(`${staticApiDir()}/${path}`);
-      value = response.ok ? ((await response.json()) as Json) : null;
+      if (response.ok) value = (await response.json()) as Json;
     } catch {
-      value = null;
+      value = null; // no server (vitest): fall through to the bundled fixture
+    }
+  }
+  // 2) hand-made fixture (tests; also the offline fallback of a fresh checkout)
+  if (value === null) {
+    const importer = globbed[`/src/services/__fixtures__/static-export/${path}`];
+    if (importer) {
+      try {
+        value = (await importer()) as Json;
+      } catch {
+        value = null;
+      }
     }
   }
   cache.set(path, value);
