@@ -165,3 +165,18 @@ def test_kept_parameter_claim_against_a_recorded_change():
     unchanged = project(config.model_copy(update={"text": '{"limiar_inicial": 5, "limiar_final": 5}'}),
                         doc("entrevista", "conclusao", "Mantivemos o limiar inicial.", "depoimento"))
     assert diverg.find(unchanged) == []
+
+
+def test_a_divergence_the_sub_agent_already_wrote_is_not_repeated():
+    from backend.checks.divergences import add_check_divergences
+    from backend.checks.models import CheckResult, ChecksReport
+    from backend.criteria.schemas import CriterionResult, Divergence
+
+    written = Divergence(criterion="SIS", testimony_fragment_id="E#conclusao", testimony_quote="Reduziu para 2,1 pontos",
+                         record_fragment_id="R#x", record_alias="resultados.csv#x", record_quote="3.7", statement="s")
+    candidate = {"depoimento_fragmento": "E#conclusao", "depoimento_trecho": "Reduziu para 2,1 pontos.",
+                 "registro_fragmento": "PRJ-S02", "registro_alias": "a", "registro_trecho": "b", "frase": "f"}
+    checks = ChecksReport(results={"CHK-DIVERG": CheckResult(id="CHK-DIVERG", status="alerta",
+                                                             facts={"divergencias": [candidate]})})
+    results = {"SIS": CriterionResult(criterion="SIS", divergences=[written])}
+    assert add_check_divergences(results, project(), checks) == 0
