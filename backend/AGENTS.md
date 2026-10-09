@@ -124,8 +124,10 @@ Fixed-order pipeline; each stage reads and writes **only** through the canonical
 graph. No module calls another directly:
 
 1. **Extraction** → converts the package into the **canonical JSON** (the single input for every
-   module). **Every file goes through the extraction agent** (LLM), which identifies its type by
-   content and maps its structure (section headings with line numbers, table header row and ID column).
+   module). The known files are mapped **deterministically by content** (`extraction/structure.py`: header columns,
+   JSON keys, headings; the XLSX header on row 5; footer and page numbers ignored), producing the same
+   `FileMapping` the agent would; the **extraction agent** (LLM) is the fallback for files not recognized with
+   confidence, with missing required sections, or contradicting the inventory (`ExtractedFile.mapping_source`).
    **Code slices** the verbatim text from that mapping, so no sentence or number passes through
    generation; an invented heading is dropped. A fragment with a stable ID is the unit of citation
    (file, page/line, verbatim text, nature). Unrecognized file → "pendente de validação".
@@ -215,6 +217,7 @@ uv run backend-benchmark --projects PRJ01,PRJ21   # benchmark (all 40 without --
 uv run backend-benchmark --rejudge <benchmark_id> [--coherence off|flag|reask|force] [--judge-mode estado|questionario]
 uv run backend-benchmark --close <benchmark_id>   # close a benchmark whose CLI died
 uv run backend-checks <benchmark_id> [--projects PRJ21]   # deterministic checks over saved canonicals (zero tokens)
+uv run backend-checks <benchmark_id> --parsers   # deterministic mapping × saved canonical fragment ids (zero tokens)
 uv run pytest                  # unit + API tests, needs Mongo; no network
 uv run pytest -m live          # opt-in: PRJ21 end to end with the real Ollama (reads backend/.env)
 uv add <package>               # always manage dependencies with uv, never pip

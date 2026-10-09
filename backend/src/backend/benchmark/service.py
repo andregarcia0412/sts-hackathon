@@ -145,6 +145,8 @@ def snapshot_of(run: BenchmarkRun, analysis: Analysis | None) -> RunSnapshot:
         usage=analysis.usage,
         coherence={c: s.coherence for c, s in analysis.states.items() if s.coherence},
         neutralized=len(analysis.consistency.neutralized) if analysis.consistency else 0,
+        files_total=sum(analysis.mapping_sources.values()),
+        files_by_agent=analysis.mapping_sources.get("agente", 0),
     )
     if suggestion := analysis.suggestion:
         snap.suggested_class, snap.inconsistent = suggestion.suggested_class, suggestion.inconsistent

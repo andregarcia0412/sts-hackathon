@@ -90,6 +90,8 @@ class RunSnapshot(CamelModel):
     coherence: dict[str, Coherence] = Field(default_factory=dict)  # criterion → coherence gate record
     judgements: dict[str, CriterionState] = Field(default_factory=dict)  # re-judge only: the full new states
     neutralized: int = 0  # evidences neutralized by the consistency between criteria (spec 02)
+    files_total: int = 0
+    files_by_agent: int = 0  # files the extraction agent had to map (the rest: deterministic, spec 05)
 
 
 class Distribution(CamelModel):
@@ -148,6 +150,7 @@ class ReliabilityMetrics(CamelModel):
 
 class EvidenceMetrics(CamelModel):
     evidences_per_run: Distribution = Field(default_factory=Distribution)
+    files_by_agent_share: float | None = None  # extraction: files mapped by the agent / total
     positive_share: float | None = None
     rule_coverage: float | None = None  # executed with evidence / rules run
     gate_drop_rate: float | None = None  # dropped / (dropped + accepted)

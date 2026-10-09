@@ -8,6 +8,7 @@ import unicodedata
 from fpdf import FPDF
 
 from backend.extraction.agent import ContextOut, FileMapping, SectionMark
+from backend.extraction.schema import SECTION_KEYS
 from backend.projects.importer import IncomingFile
 
 FOOTER = "Massa inteiramente ficticia | V9 | Registros sinteticos"
@@ -238,7 +239,9 @@ def fake_file_mapping(messages) -> FileMapping:
     if any("revisão técnica" in text for text in lines.values()):
         for n, text in lines.items():
             if text.startswith("## "):
-                marks.append(SectionMark(chave=_slug(text[3:]), linha=n, titulo=text))
+                name = _slug(text[3:])  # the fixed key the prompt lists, when the heading starts with it
+                key = next((k for k in SECTION_KEYS["revisao"] if name.startswith(k)), name)
+                marks.append(SectionMark(chave=key, linha=n, titulo=text))
         return FileMapping(tipo="revisao", justificativa="seções", secoes=marks)
     return FileMapping(tipo="desconhecido", justificativa="sem padrão")
 

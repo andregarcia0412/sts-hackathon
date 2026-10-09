@@ -183,6 +183,7 @@ def evidence(runs: list[RunSnapshot]) -> EvidenceMetrics:
     dropped = sum(r.gate_dropped for r in runs)
     return EvidenceMetrics(
         evidences_per_run=distribution(r.evidences_positive + r.evidences_negative for r in runs),
+        files_by_agent_share=_rate(sum(r.files_by_agent for r in runs), sum(r.files_total for r in runs)),
         positive_share=_rate(positive, accepted),
         rule_coverage=_rate(sum(r.rules_with_evidence for r in runs), sum(r.rules_total for r in runs)),
         gate_drop_rate=_rate(dropped, dropped + accepted),

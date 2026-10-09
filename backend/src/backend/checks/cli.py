@@ -31,9 +31,67 @@ SUMMARY = {
 }
 
 
+class _NoLLM:
+    """Stands in for the LLM in the parser comparison: any agent call fails (and is counted)."""
+
+    def __init__(self) -> None:
+        self.calls = 0
+
+    def model_for(self, role: str) -> str:
+        return "none"
+
+    async def structured(self, messages, schema, role="default"):
+        self.calls += 1
+        raise RuntimeError("no LLM in the parser comparison")
+
+
+async def compare_parsers(benchmark: Benchmark, wanted: set[str]) -> None:
+    """Deterministic mapping over the original files (GridFS) × the fragment ids of the saved canonical."""
+    from backend.analyses.models import Analysis
+    from backend.extraction.pipeline import extract_project
+    from backend.projects.importer import IncomingFile
+    from backend.projects.models import Project
+    from backend.storage import read_file
+
+    total_same = total = agent_files = files = 0
+    seen = set()
+    for run in benchmark.runs:
+        if (wanted and run.code.upper() not in wanted) or run.code in seen:
+            continue
+        record = await CanonicalRecord.find_one(CanonicalRecord.analysis_id == run.analysis_id)
+        analysis = await Analysis.get(PydanticObjectId(run.analysis_id))
+        project = await Project.get(PydanticObjectId(analysis.project_id)) if analysis else None
+        if record is None or project is None:
+            continue
+        seen.add(run.code)
+        incoming = [IncomingFile(path=d.file_name, data=await read_file(d.gridfs_id), top_folder=project.code)
+                    for d in project.active_documents()]
+        llm = _NoLLM()
+        fresh = await extract_project(llm, incoming, code_hint=project.code)
+        saved = {f.id for f in record.canonical.fragments if f.file_type != "checagem"}
+        new = {f.id for f in fresh.fragments}
+        same = saved & new
+        total_same, total = total_same + len(same), total + len(saved | new)
+        by_agent = [f.path for f in fresh.files if f.mapping_source == "agente"]
+        agent_files, files = agent_files + len(by_agent), files + len(fresh.files)
+        print(f"{run.code}: {len(same)}/{len(saved | new)} fragmentos idênticos · arquivos pelo agente: "
+              f"{', '.join(by_agent) or '-'}")
+        for fid in sorted(saved - new):
+            print(f"   só no canônico salvo (agente): {fid}")
+        for fid in sorted(new - saved):
+            print(f"   só no determinístico: {fid}")
+    if total:
+        print(f"\nFragmentos idênticos: {total_same}/{total} = {total_same / total:.1%} · "
+              f"arquivos mapeados pelo agente: {agent_files}/{files}")
+
+
 async def main_async(args: argparse.Namespace) -> None:
     await init_db()
     try:
+        if args.parsers:
+            benchmark = await Benchmark.get(PydanticObjectId(args.benchmark))
+            await compare_parsers(benchmark, {c.upper() for c in args.projects})
+            return
         benchmark = await Benchmark.get(PydanticObjectId(args.benchmark))
         if benchmark is None:
             raise SystemExit(f"benchmark not found: {args.benchmark}")
@@ -77,5 +135,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Deterministic checks over saved canonical projects (zero tokens)")
     parser.add_argument("benchmark", help="benchmark id whose analyses have saved canonical projects")
     parser.add_argument("--projects", type=lambda v: [c.strip() for c in v.split(",") if c.strip()], default=[])
+    parser.add_argument("--parsers", action="store_true",
+                        help="compare the deterministic mapping (spec 05) with the saved canonical, zero tokens")
     parser.add_argument("--out", type=Path, help="also write every report as JSON (keep it outside the repo)")
     asyncio.run(main_async(parser.parse_args()))

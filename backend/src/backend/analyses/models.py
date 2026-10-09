@@ -61,6 +61,7 @@ class Analysis(Document):
     suggestion: ClassSuggestion | None = None
     consistency: ConsistencyReport | None = None  # spec 02 part A, when CONSISTENCY_NEUTRALIZE is on
     checks: ChecksReport | None = None  # deterministic CHK-* checks (zero tokens)
+    mapping_sources: dict[str, int] = Field(default_factory=dict)  # files mapped "deterministico" / by the "agente"
     report: dict[str, Any] | None = None
     usage: LLMUsage | None = None  # LLM calls, tokens and time per role
     worker: str | None = None  # "host:pid:boot_id" of the process that runs it (analyses/worker.py)
