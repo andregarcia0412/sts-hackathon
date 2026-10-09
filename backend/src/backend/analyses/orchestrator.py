@@ -43,7 +43,8 @@ class AnalysisService:
         self.llm, self.providers, self.settings, self.catalog = llm, providers, settings, catalog
         self._lock = asyncio.Lock()
 
-    async def create(self, project: Project, batch_id: str | None = None) -> Analysis:
+    async def create(self, project: Project, batch_id: str | None = None,
+                     reconcluded_from: str | None = None) -> Analysis:
         previous = await Analysis.find(Analysis.project_id == str(project.id)).sort(-Analysis.version).first_or_none()
         analysis = Analysis(
             project_id=str(project.id),
@@ -52,6 +53,7 @@ class AnalysisService:
             previous_analysis_id=str(previous.id) if previous else None,
             batch_id=batch_id,
             stages=[Stage(name=name) for name in STAGES],
+            reconcluded_from=reconcluded_from,
             worker=worker_id(),  # the job runner is in-process: whoever creates it runs it
             heartbeat_at=datetime.now(UTC),
         )
@@ -149,10 +151,13 @@ class AnalysisService:
                 missing = [role for role, model in models.items() if model is None]
                 if missing:
                     raise RuntimeError(f"OLLAMA_MODEL is not set in .env (roles without model: {', '.join(missing)})")
-                canonical = await self._extract(analysis, project)
-                if canonical is not None:
-                    canonical = await self._checks(analysis, canonical)
-                    await self._criteria_graph_report(analysis, canonical)
+                if analysis.reconcluded_from:
+                    await self._reconclude(analysis)
+                else:
+                    canonical = await self._extract(analysis, project)
+                    if canonical is not None:
+                        canonical = await self._checks(analysis, canonical)
+                        await self._conclude(analysis, canonical, await self._criteria(analysis, canonical))
             except Exception as error:  # defensive: never leave an analysis "running"
                 analysis.error = safe_error_message(error)
                 analysis.status = "falhou"
@@ -212,7 +217,36 @@ class AnalysisService:
         await self._set_stage(analysis, CHECKS, "concluida", f"checagens que falharam: {', '.join(failed)}" if failed else None)
         return canonical
 
-    async def _criteria_graph_report(self, analysis: Analysis, canonical: CanonicalProject) -> None:
+    async def _reconclude(self, analysis: Analysis) -> None:
+        """A new version that re-runs only the conclusion (judge → gates → class, graph, report) over the evidence
+        of a finished analysis: cheap (a few calls), and the source analysis is never written (principle 10)."""
+        source = await Analysis.get(PydanticObjectId(analysis.reconcluded_from))
+        record = await CanonicalRecord.find_one(CanonicalRecord.analysis_id == analysis.reconcluded_from)
+        if source is None or record is None or source.status != "concluida":
+            raise RuntimeError(f"análise de origem indisponível para reconcluir: {analysis.reconcluded_from}")
+        analysis.versions.schema_version = source.versions.schema_version
+        analysis.versions.file_hashes = dict(source.versions.file_hashes)
+        analysis.mapping_sources = dict(source.mapping_sources)
+        analysis.checks = source.checks or run_checks(record.canonical)
+        analysis.versions.checks_version = analysis.checks.version
+        canonical = with_check_fragments(record.canonical, analysis.checks)
+        await CanonicalRecord(analysis_id=str(analysis.id), canonical=canonical).insert()
+        results = {c: r.model_copy(deep=True) for c, r in source.criteria.items()}
+        for result in results.values():  # adjustments are recomputed by the conclusion
+            for run in result.rules:
+                for item in run.evidences:
+                    item.adjustment = None
+        if not source.checks:
+            add_check_divergences(results, canonical, analysis.checks)
+        analysis.criteria = results
+        note = f"reaproveitada da análise {source.id} (versão {source.version})"
+        for stage in analysis.stages:
+            if stage.name not in (GRAPH, REPORT):
+                stage.status, stage.error, stage.duration_s = "concluida", note, 0.0
+        await analysis.save()
+        await self._conclude(analysis, canonical, results)
+
+    async def _criteria(self, analysis: Analysis, canonical: CanonicalProject) -> dict:
         runner = CriteriaRunner(
             self.llm, self.catalog, self.providers(),
             on_stage=lambda name, status, error=None: self._set_stage(analysis, name, status, error),
@@ -227,7 +261,9 @@ class AnalysisService:
         if analysis.checks:
             add_check_divergences(results, canonical, analysis.checks)
         analysis.criteria = results
+        return results
 
+    async def _conclude(self, analysis: Analysis, canonical: CanonicalProject, results: dict) -> None:
         await self._set_stage(analysis, GRAPH, "rodando")
         try:
             options = JudgeOptions.from_settings(self.settings)

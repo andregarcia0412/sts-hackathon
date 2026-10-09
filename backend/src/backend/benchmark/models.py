@@ -32,6 +32,7 @@ class BenchmarkConfig(CamelModel):
     backend_version: str | None = None
     search: dict[str, int] = Field(default_factory=dict)  # web search budget and concurrency of the run
     resumed_from: str | None = None  # delivery: the benchmark whose unchanged analyses this one reuses
+    reconcluded_from: str | None = None  # every analysis is a re-concluded version of this benchmark's
     rejudged_from: str | None = None  # re-judge benchmark: id of the benchmark whose analyses were re-judged
     judge_options: dict[str, Any] = Field(default_factory=dict)
 
