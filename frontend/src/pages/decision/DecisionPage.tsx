@@ -147,6 +147,21 @@ const DecisionDocument = ({
   evidenceReviews,
 }: DecisionDocumentProps) => {
   const documentRef = useRef<HTMLElement>(null);
+  /**
+   * Moves only the document box (large screens). scrollIntoView would also
+   * scroll every container around it, pushing the page header out of view.
+   */
+  const scrollDocumentTo = (target: HTMLElement | null) => {
+    const box = documentRef.current;
+    if (!target || !box) return;
+    if (getComputedStyle(box).overflowY === "visible") {
+      // Phones and tablets: the page itself scrolls
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    const top = target.getBoundingClientRect().top - box.getBoundingClientRect().top + box.scrollTop - 24;
+    box.scrollTo({ top, behavior: "smooth" });
+  };
   const user = useCurrentUser();
   const [searchParams, setSearchParams] = useSearchParams();
   // One method at a time (?metodo=, default: the first); the decision covers all of them
@@ -195,7 +210,7 @@ const DecisionDocument = ({
   const reveal = useEffectEvent((nodeId: string) => {
     if (toggledHere.current === nodeId) return;
     const target = document.getElementById(reportAnchorId(focused, nodeId));
-    target?.scrollIntoView({ behavior: "smooth", block: "start" });
+    scrollDocumentTo(target);
     target?.animate(
       [{ backgroundColor: "var(--color-accent-soft)" }, { backgroundColor: "transparent" }],
       { duration: 1600, easing: "ease-out" },
@@ -206,8 +221,7 @@ const DecisionDocument = ({
   }, [nodeParam]);
 
   const active = useActiveSection();
-  const scrollTo = (id: string) =>
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const scrollTo = (id: string) => scrollDocumentTo(document.getElementById(id));
 
   const treeLink = paths.analysis(project.id, undefined, focused.framework);
   const methodControl =
@@ -243,7 +257,7 @@ const DecisionDocument = ({
       />
 
       <div className="flex w-full flex-1 items-start gap-4 p-4 lg:min-h-0 print:block print:p-0">
-        <aside className="hidden w-60 shrink-0 flex-col gap-4 rounded-3xl bg-surface p-4 shadow-card lg:flex print:hidden">
+        <aside className="scroll-visible hidden w-60 shrink-0 flex-col gap-4 rounded-3xl bg-surface p-4 shadow-card lg:flex lg:max-h-full lg:overflow-y-auto print:hidden">
           {methodControl}
           <nav aria-label="Seções do documento" className="flex flex-col gap-1">
             <p className="px-3 pb-1 text-xs leading-4 font-medium text-fg-muted">Neste documento</p>

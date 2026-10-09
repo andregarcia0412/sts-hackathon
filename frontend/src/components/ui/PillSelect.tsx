@@ -58,9 +58,15 @@ export const PillSelect = <T extends string>({
     return () => document.removeEventListener("pointerdown", onPointerDown);
   }, [open]);
 
-  // Keep the highlighted option visible in long lists
+  // Keep the highlighted option visible in long lists (scrolls the list only)
   useEffect(() => {
-    if (open) document.getElementById(`${id}-opcao-${active}`)?.scrollIntoView({ block: "nearest" });
+    const option = open ? document.getElementById(`${id}-opcao-${active}`) : null;
+    const list = option?.parentElement;
+    if (!option || !list) return;
+    if (option.offsetTop < list.scrollTop) list.scrollTop = option.offsetTop;
+    else if (option.offsetTop + option.offsetHeight > list.scrollTop + list.clientHeight) {
+      list.scrollTop = option.offsetTop + option.offsetHeight - list.clientHeight;
+    }
   }, [open, active, id]);
 
   const openList = () => {

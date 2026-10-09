@@ -109,11 +109,13 @@ const AssistantPanel = ({
   const [draft, setDraft] = useState("");
   const [recording, setRecording] = useState<Recording | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const endRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => inputRef.current?.focus(), [debateNodeId]);
+  // Follow the conversation inside the panel only (scrollIntoView would also move the page)
   useEffect(() => {
-    endRef.current?.scrollIntoView({ block: "end" });
+    const list = listRef.current;
+    if (list) list.scrollTop = list.scrollHeight;
   }, [messages, pending, recording]);
 
   if (!pageContext) return null;
@@ -244,7 +246,7 @@ const AssistantPanel = ({
         </p>
       )}
 
-      <div className="-mx-1 flex flex-1 flex-col gap-4 overflow-y-auto px-1 py-4" aria-live="polite">
+      <div ref={listRef} className="-mx-1 flex flex-1 flex-col gap-4 overflow-y-auto px-1 py-4" aria-live="polite">
         {messages.length === 0 && (
           <div className="my-auto flex flex-col items-center gap-2 text-center">
             <AssistantStarIcon gradient className="size-11" />
@@ -305,7 +307,6 @@ const AssistantPanel = ({
             }}
           />
         )}
-        <div ref={endRef} />
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-2">

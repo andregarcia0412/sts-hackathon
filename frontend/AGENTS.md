@@ -166,6 +166,10 @@ src/
   no meio da animação.
 - **React Router 7** aplica navegações numa transição: ao atualizar parâmetros em sequência
   rápida, leia `window.location.search` (veja `useProjectFilters`), não o valor do último render.
+- **Não use `scrollIntoView`** dentro dos layouts de altura fixa: ele rola também os
+  contêineres de fora (inclusive os `overflow: hidden`) e tira o cabeçalho da tela. Role o
+  próprio contêiner (`scrollTo` / `scrollTop`), como em `scrollDocumentTo` (documento),
+  no chat e no `PillSelect`.
 - **`sr-only` dentro de contêiner com rolagem**: o `<main>` é `relative` para que esses
   elementos absolutos não aumentem o tamanho do documento.
 - **Impressão/PDF**: o layout usa `h-dvh` com o `<main>` rolável. Há classes `print:` que
