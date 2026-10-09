@@ -896,20 +896,24 @@ rules:
   - UK DSIT ¶13
   - HMRC GfC3 parte 2 passo 3
   - Guia MCTI 2020 §6.3
+  - Históricos PRJ01, PRJ12 (rotina) × PRJ02/03/13/18 (aberta)
   routing:
   - atividades.csv
   - dossie_projeto.pdf
   - evidencias/metodo.md#2
+  chk: CHK-PERGUNTA
   polarity_hint: positive
   scoring_role: mean
   status: aplicavel
   status_reason: null
   absorbed_into: null
-  prompt: 'Duas partes: (1) REGRA — há padrão ''Pergunta:'' na coluna resultado_ou_saida do atividades.csv?
-
-    (tool buscar_em_arquivos). (2) LLM — a pergunta é técnica (não de negócio)? Pergunta técnica
-
-    registrada → sustenta citando-a; pergunta de negócio → contrária; sem pergunta → sem evidência.'
+  prompt: 'Duas partes: (1) REGRA — use a CHK-PERGUNTA (tool chk_resultado): a pergunta registrada
+    contém marcador de solução conhecida ("conhecida", "contratado", "existente", "disponível")?
+    (2) LLM — a pergunta é técnica (não de negócio)? REGRA DERIVADA DOS HISTÓRICOS: pergunta que
+    JÁ NOMEIA a solução conhecida ("aplicar idempotência CONHECIDA", "cofre de chaves CONTRATADO")
+    é sinal de ROTINA — evidência CONTRÁRIA, mesmo havendo padrão ''Pergunta:'' (PRJ01/PRJ12).
+    Pergunta técnica aberta ("era possível associar sem depender de…?") → sustenta citando-a.
+    Pergunta de negócio → contrária; sem pergunta → sem evidência.'
 - id: INC-D3
   criterion: incerteza
   block: documento
@@ -1966,6 +1970,22 @@ rules:
   routing:
   - transcricao_entrevista_tecnica.pdf
   - evidencias/resultados.csv
+  polarity_hint: positive
+  scoring_role: informativa
+  status: aplicavel
+  status_reason: null
+  absorbed_into: null
+- id: CHK-PERGUNTA
+  criterion: compartilhada
+  block: shared
+  mode: regra
+  what: 'Sinal de rotina na pergunta registrada: marcador de solução conhecida (conhecida,
+    contratado, existente, disponível) no texto da Pergunta; pergunta aberta é incerteza'
+  evidence: perguntas de atividades.csv/xlsx com marcador e fonte
+  sources:
+  - Históricos PRJ01, PRJ12 × PRJ02/03/13/18
+  routing:
+  - atividades.csv
   polarity_hint: positive
   scoring_role: informativa
   status: aplicavel

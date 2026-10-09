@@ -97,6 +97,16 @@ async def run_analysis(project_path: Path, analysis_id: str, status_cb=None) -> 
                 motivo = f"absorvida em {r.absorbed_into} — não executa"
             builder.add_rule_gap(r.id, motivo)
 
+    # termos do domínio (determinístico): aterram queries web (V9.1)
+    from ai_microservice.tools.web import extract_domain_terms_from_text
+
+    _ROTAS_BASES = {rota.split("#")[0] for rule in catalog.rules if rule.executes for rota in rule.routing}
+    textos_rota = [
+        f.text for f in parsed["fragments"]
+        if f.artifact in _ROTAS_BASES and not f.anchor.startswith("chk:")
+    ]
+    domain_terms = extract_domain_terms_from_text(textos_rota)
+
     # especialistas em paralelo com semáforo
     await step("especialistas")
     web_tools = WebTools()
@@ -119,6 +129,7 @@ async def run_analysis(project_path: Path, analysis_id: str, status_cb=None) -> 
                     model=s.model_analyst,
                     web_tools=web_tools,
                     allow_web=criterion in _WEB_CRITERIA,
+                    domain_terms=domain_terms,
                 )
                 return await agent.run()
             except Exception as exc:
@@ -135,6 +146,14 @@ async def run_analysis(project_path: Path, analysis_id: str, status_cb=None) -> 
 
     results = await asyncio.gather(*(run_criterion(c) for c in CRITERIA))
 
+    # pós-pass de consistência entre critérios (V9.1): fontes marcadas como
+    # contidas na referência anterior rebaixam sustenta de CRI/INC; CHK-PERGUNTA
+    # contrata INC-D2 com pergunta-nomeia-solução. Determinístico, auditável.
+    from ai_microservice.agents.consistency import run_consistency
+
+    await step("consistencia")
+    consistencia = run_consistency(builder, checks)
+
     # queries web persistidas (original × sanitizada) + ligações query → fonte
     await step("web_log")
     for q in web_tools.query_log:
@@ -147,13 +166,17 @@ async def run_analysis(project_path: Path, analysis_id: str, status_cb=None) -> 
 
     # regras transversais de design e executáveis ficam como nós com estado
     await step("grafo")
+    from ai_microservice.graph.builder import manifest_hash as _manifest_hash
+
     version = builder.save_version(
         catalog_version=catalog.version,
         model=s.model_analyst,
         extra_meta={
             "analysis_id": analysis_id,
             "manifest": manifest,
+            "manifest_hash": _manifest_hash(manifest["files"]),
             "flags_ingestao": parsed["flags"],
+            "consistencia": consistencia,
         },
     )
 

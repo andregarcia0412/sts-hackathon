@@ -16,6 +16,10 @@ tecnológico**. Barreira = etapas/eventos que podem levar o projeto ao insucesso
 
 - **Só falha EXPERIMENTAL conta** (INC-D4): "v1 falhou → v2 corrigiu por configuração" NÃO prova
   incerteza — os 7 não elegíveis da massa têm exatamente esse padrão. Use a CHK-FALHAS.
+- **PERGUNTA QUE JÁ NOMEIA A SOLUÇÃO é rotina** (INC-D2 + CHK-PERGUNTA, V9.1): "Como aplicar
+  idempotência CONHECIDA…", "cofre de chaves CONTRATADO" — evidência CONTRÁRIA mesmo com padrão
+  `Pergunta:` (PRJ01/PRJ12 são os casos). Pergunta técnica ABERTA ("era possível associar sem
+  depender de…?", PRJ02/03/13/18) é a que sustenta.
 - **INC-D9**: falha **operacional** (parâmetro, permissão, cadastro, receita do fornecedor) conta
   CONTRA — é rotina. NUNCA use `natureza_informada_pela_equipe` como fonte.
 - **INC-W1/W2**: a busca é pela **solução da barreira**, não pelo produto. Se a solução já estava
@@ -25,6 +29,11 @@ tecnológico**. Barreira = etapas/eventos que podem levar o projeto ao insucesso
 - **INC-D1**: risco descrito como mercado/prazo/orçamento/política → contrária (PRJ20: "diferenças de
   política, não falha científica").
 - Depoimento nunca pontua; divergências entrevista × registro vão para a CHK-DIVERG.
+- **Fundamentação ancorada** (gate V9.1): a justificativa DEVE apontar o trecho como base
+  ("o trecho mostra…", "o registro informa…"). Frase especulativa solta ("pode gerar risco")
+  sem ancoragem é rejeitada pelo gate — cite o registro, não a possibilidade.
+- **Checagens são citáveis** (V9.1): evidência com `fonte: chk:CHK-ID` cita literalmente o
+  JSON devolvido por `chk_resultado` e sai com natureza `derivado`.
 
 ## Vocabulário de estado
 

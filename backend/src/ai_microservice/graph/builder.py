@@ -19,6 +19,12 @@ def evidence_id(regra_id: str, fonte: str, quote: str) -> str:
     return "ev-" + _hid(regra_id, fonte, quote)
 
 
+def manifest_hash(files: list[dict]) -> str:
+    """sha256 do conjunto de arquivos do pacote (ordem-invariante) → meta.json."""
+    canon = json.dumps(sorted(files, key=lambda f: f.get("path", "")), ensure_ascii=False, sort_keys=True)
+    return hashlib.sha256(canon.encode("utf-8")).hexdigest()
+
+
 def source_id(fonte: str) -> str:
     if fonte.startswith("http"):
         return "web-" + _hid(fonte)
@@ -58,6 +64,20 @@ class GraphBuilder:
             self._edges[key].props.update(props)
 
     # ------------------------------------------------------------------ regras
+    def rule_catalog_props(self, rule) -> dict:
+        """Props de catálogo para o nó da regra — o que o frontend precisa para
+        mostrar a EXPLICAÇÃO da regra ao clicar (what + fontes normativas)."""
+        return {
+            "id": rule.id,
+            "what": rule.what,
+            "evidence": rule.evidence,
+            "sources": rule.sources,
+            "status": rule.status.value if hasattr(rule.status, "value") else str(rule.status),
+            "status_reason": rule.status_reason,
+            "scoring_role": rule.scoring_role,
+            "polarity_hint": rule.polarity_hint,
+        }
+
     def ensure_rule(self, regra_id: str, props: dict | None = None) -> Node:
         rid = f"regra:{regra_id}"
         node = self._upsert(
@@ -111,6 +131,23 @@ class GraphBuilder:
             self._upsert(Node(id=sid, type="fonte", label=fonte, props={"ancora": fonte}))
         self._edge(eid, sid, "cita")
         return node
+
+    # ------------------------------------------------------------------ ajuste de consistência
+    def set_evidence_polarity(self, evidence_node_id: str, nova_polaridade: str, motivo: str) -> None:
+        """Rebaixa polaridade preservando a original em props (auditável, T7)."""
+        node = self._nodes.get(evidence_node_id)
+        if node is None:
+            return
+        props = node.props
+        props.setdefault("polaridade_original", props.get("polaridade"))
+        props["polaridade"] = nova_polaridade
+        props["ajuste_consistencia"] = motivo
+        # recria aresta regra ← evidência com o tipo novo (a antiga sai)
+        rid = f"regra:{props.get('regra_id')}"
+        for old in ("sustenta", "contraria", "neutra"):
+            self._edges.pop((evidence_node_id, rid, old), None)
+        etype = {"sustenta": "sustenta", "contraria": "contraria"}.get(nova_polaridade, "neutra")
+        self._edge(evidence_node_id, rid, etype)
 
     def add_rejected_evidence(self, regra_id: str, fonte: str, quote: str, motivo: str) -> Node:
         """Evidência rejeitada pelo gate vira gap registrado (nunca silêncio)."""

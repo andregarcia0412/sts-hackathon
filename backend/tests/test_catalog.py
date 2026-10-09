@@ -46,7 +46,7 @@ def test_contagem_da_auditoria(catalog):
     assert len([r for r in ativas if r["status"] == "parcial"]) == 4
     assert len(by_status.get("absorvida", [])) == 9
     assert len([r for r in rules if r["criterion"] == "transversal"]) == 15
-    assert len([r for r in rules if r["criterion"] == "compartilhada"]) == 7
+    assert len([r for r in rules if r["criterion"] == "compartilhada"]) == 8  # 7 CHK + CHK-PERGUNTA (V9.1)
 
 
 def test_sem_duplicado_ou_orfao(catalog):
@@ -67,7 +67,7 @@ def test_sem_duplicado_ou_orfao(catalog):
         "SIS-D9", "SIS-D10", "SIS-D11", "SIS-D12", "SIS-D13", "SIS-D14",
         "REP-D1", "REP-D2", "REP-D3", "REP-D4", "REP-D5", "REP-D6", "REP-D7", "REP-D8", "REP-D9",
         *[f"T{i}" for i in range(1, 16)],
-        "CHK-TEMPO", "CHK-RECALC", "CHK-VERSOES", "CHK-FALHAS", "CHK-CONFIG", "CHK-ESCOPO", "CHK-DIVERG",
+        "CHK-TEMPO", "CHK-RECALC", "CHK-VERSOES", "CHK-FALHAS", "CHK-CONFIG", "CHK-ESCOPO", "CHK-DIVERG", "CHK-PERGUNTA",
     }
     faltando = esperados - set(ids)
     sobrando = set(ids) - esperados
@@ -131,10 +131,11 @@ def test_loader_py_valida_o_catalogo(catalog):
     cat = load_catalog(CATALOG_PATH)
     assert cat.version == "1.0.0"
     por_id = {r.id: r for r in cat.rules}
-    assert len(por_id) == 97
+    assert len(por_id) == 98  # 97 + CHK-PERGUNTA (V9.1)
     assert por_id["NOV-D1"].criterion == "novidade"
     assert por_id["NOV-D8"].status.value == "na"
     assert por_id["NOV-D7"].absorbed_into == "T2"
+    assert por_id["INC-D2"].chk == "CHK-PERGUNTA"
 
 
 def test_polarity_hint_valido(catalog):

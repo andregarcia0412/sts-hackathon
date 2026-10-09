@@ -20,6 +20,10 @@ empresa **e** não estar em uso no setor. Copiar, imitar ou fazer engenharia rev
 - **NOV-D4/D10/CRI-D5**: se a referência anterior (manual/catálogo/produto contratado, datado antes) já
   fornece a função aplicada, a novidade não está demonstrada — use a CHK-CONFIG.
 - **NOV-D12**: título ou adjetivo ("inteligente", "adaptativo") não prova — decide o mecanismo do §2.
+- **Consistência entre critérios (V9.1)**: quando você registra contraria com contenção pela
+  referência anterior ("já fornece", "anterior"), o pós-pass rebaixa automaticamente evidências
+  de CRI/INC que SUSTENTAM usando a mesma fonte — citar o §1 para provar criatividade é o erro
+  clássico do PRJ01 v1 (CRI-D10 "acoplamento inovador" sobre o texto do manual BARR-2).
 - **NOV-D5**: configurar produto pronto, customizar, depurar rotineiramente = exclusões de software.
 - **NOV-W3**: achar a técnica GENÉRICA na web não derruba novidade se o mecanismo específico do recorte
   não está descrito no achado.

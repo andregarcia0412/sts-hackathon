@@ -10,9 +10,16 @@ def search_fragments(
     secao: str | None = None,
     termo: str | None = None,
 ) -> list[Fragment]:
-    """Filtragem determinística; termo é case-insensitive substring."""
+    """Filtragem determinística; termo é case-insensitive substring.
+
+    Fragmentos `chk:` (fontes sintéticas das checagens) NÃO são buscáveis aqui —
+    são citáveis apenas via fonte `chk:CHK-ID` (V9.1); sem isso o contexto da
+    regra LLM ficaria poluído pela pré-pass em vez do conteúdo do projeto.
+    """
     out = []
     for f in fragments:
+        if f.anchor.startswith("chk:"):
+            continue
         if artefato and f.artifact != artefato:
             continue
         if secao:
