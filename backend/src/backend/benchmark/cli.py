@@ -6,17 +6,20 @@ import json
 from pathlib import Path
 
 import httpx
+from beanie import PydanticObjectId
 
 from backend.analyses.jobs import JobRunner
 from backend.analyses.orchestrator import AnalysisService
 from backend.benchmark.metrics import headline
 from backend.benchmark.models import Benchmark, BenchmarkMetrics
+from backend.benchmark.rejudge import create_rejudge, run_rejudge
 from backend.benchmark.router import DEFAULT_ANSWER_KEY, DEFAULT_DIRS, DEFAULT_PRELIMINARY
 from backend.benchmark.schemas import BenchmarkRead
 from backend.benchmark.service import analyses_of, progress, refresh, start_benchmark
 from backend.catalog.loader import get_catalog, sync_catalog_to_db
 from backend.config import settings
 from backend.database import close_db, init_db
+from backend.graph.judge import JudgeOptions
 from backend.llm import LLMClient
 from backend.search.providers import build_providers
 from backend.users.seed import seed_users
@@ -87,6 +90,21 @@ async def run(args: argparse.Namespace, service: AnalysisService, runner) -> Ben
     return benchmark
 
 
+async def rejudge(args: argparse.Namespace, service: AnalysisService) -> Benchmark:
+    source = await Benchmark.get(PydanticObjectId(args.rejudge))
+    if source is None:
+        raise SystemExit(f"benchmark not found: {args.rejudge}")
+    options = JudgeOptions.from_settings(service.settings)
+    benchmark = await create_rejudge(source, source.owner_id, service.models_by_role(), service.catalog, options,
+                                     name=args.name if args.name != "benchmark" else None, projects=args.projects,
+                                     repeats=args.repeats)
+    for error in benchmark.errors:
+        print("!", error)
+    print(f"[re-julgar {benchmark.id}] origem {source.id} · {len(benchmark.runs)} análises · {options.model_dump()}",
+          flush=True)
+    return await run_rejudge(benchmark, service.llm, service.catalog, options, settings.analysis_concurrency)
+
+
 async def _main(args: argparse.Namespace) -> None:
     await init_db()
     await seed_users()
@@ -95,7 +113,10 @@ async def _main(args: argparse.Namespace) -> None:
         async with httpx.AsyncClient(timeout=30) as http:
             llm = LLMClient(settings)
             service = AnalysisService(llm, lambda: build_providers(llm, http, settings), settings, get_catalog())
-            benchmark = await run(args, service, JobRunner(settings.analysis_concurrency))
+            if args.rejudge:
+                benchmark = await rejudge(args, service)
+            else:
+                benchmark = await run(args, service, JobRunner(settings.analysis_concurrency))
         if benchmark.metrics:
             print_summary(benchmark.metrics)
         print(f"\nsalvo no Mongo: benchmark {benchmark.id} (GET /benchmarks/{benchmark.id})")
@@ -123,6 +144,8 @@ def parser() -> argparse.ArgumentParser:
     parser.add_argument("--owner", default=settings.seed_email_pattern.format(n=1), help="analyst e-mail")
     parser.add_argument("--poll", type=float, default=10, help="seconds between progress lines")
     parser.add_argument("--out", type=Path, help="also write the metrics as JSON")
+    parser.add_argument("--rejudge", metavar="BENCHMARK_ID",
+                        help="re-run only judge → gates → class over the finished analyses of this benchmark")
     return parser
 
 

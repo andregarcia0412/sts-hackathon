@@ -102,3 +102,18 @@ def test_benchmarks_are_scoped_to_their_owner(client, auth_headers, fake_pipelin
     headers = {"Authorization": f"Bearer {other['access_token']}"}
     assert client.get(f"/benchmarks/{benchmark_id}", headers=headers).status_code == 404
     assert client.get("/benchmarks/bad-id", headers=headers).status_code == 404
+
+
+def test_rejudge_endpoint_creates_a_comparable_benchmark(client, auth_headers, fake_pipeline, package_root):
+    source = client.post("/benchmarks", json={"projects": ["PRJ90"]}, headers=auth_headers).json()["id"]
+    created = client.post(f"/benchmarks/{source}/rejudge", json={}, headers=auth_headers)
+    assert created.status_code == 202
+    body = client.get(f"/benchmarks/{created.json()['id']}", headers=auth_headers).json()
+    assert body["status"] == "concluido" and body["config"]["rejudgedFrom"] == source
+    assert body["progress"]["concluida"] == 1
+    comparison = client.get(f"/benchmarks/compare?base={source}&target={body['id']}", headers=auth_headers).json()
+    assert comparison["deltas"]["oficial.classAccuracy"]["delta"] == 0
+
+    other = client.post("/auth/register", json={"email": "y@sts.com", "password": "yyyyyyyy"}).json()
+    headers = {"Authorization": f"Bearer {other['access_token']}"}
+    assert client.post(f"/benchmarks/{source}/rejudge", json={}, headers=headers).status_code == 404

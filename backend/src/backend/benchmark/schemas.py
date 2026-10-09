@@ -23,6 +23,12 @@ class BenchmarkRequest(CamelModel):
     projects: list[str] = Field(default_factory=list, description="e.g. ['PRJ01', 'PRJ21']; empty = all")
 
 
+class RejudgeRequest(CamelModel):
+    name: str | None = None
+    projects: list[str] = Field(default_factory=list, description="e.g. ['PRJ01']; empty = every finished analysis")
+    repeats: int = Field(default=1, ge=1, le=5)
+
+
 class BenchmarkSummary(CamelModel):
     id: str
     name: str

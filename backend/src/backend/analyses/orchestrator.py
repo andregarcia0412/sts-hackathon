@@ -7,17 +7,15 @@ from collections.abc import Callable
 from datetime import UTC, datetime
 
 from backend.analyses.models import Analysis, AnalysisVersions, CanonicalRecord, Stage
-from backend.catalog.models import CRITERIA_ORDER, Catalog
+from backend.catalog.models import Catalog
 from backend.config import LLM_ROLES, Settings
 from backend.criteria.agent import CriteriaRunner
 from backend.errors import safe_error_message
 from backend.extraction.pipeline import extract_project
 from backend.extraction.schema import SCHEMA_VERSION, CanonicalProject
 from backend.graph.builder import build_graph
-from backend.graph.classify import classify
 from backend.graph.queries import save_graph
-from backend.graph.scoring import score_criterion, score_rule
-from backend.graph.states import judge_state, numeric_record_in
+from backend.graph.judge import JudgeOptions, judge_and_classify
 from backend.llm import LLM
 from backend.llm.prompts import prompt_hashes
 from backend.llm.usage import current_usage, meter_scope
@@ -186,16 +184,9 @@ class AnalysisService:
 
         await self._set_stage(analysis, GRAPH, "rodando")
         try:
-            analysis.scores = {
-                c: [score_rule(run, self.catalog.get(run.rule_id)) for run in result.rules] for c, result in results.items()
-            }
-            analysis.criterion_scores = {c: score_criterion(s) for c, s in analysis.scores.items()}
-            numeric = numeric_record_in(results)
-            judged = await asyncio.gather(
-                *(judge_state(self.llm, self.catalog, results[c], numeric) for c in CRITERIA_ORDER)
-            )
-            analysis.states = dict(zip(CRITERIA_ORDER, judged, strict=True))
-            analysis.suggestion = classify(analysis.states)
+            outcome = await judge_and_classify(self.llm, self.catalog, results, JudgeOptions.from_settings(self.settings))
+            analysis.scores, analysis.criterion_scores = outcome.scores, outcome.criterion_scores
+            analysis.states, analysis.suggestion = outcome.states, outcome.suggestion
             nodes, edges = build_graph(str(analysis.id), canonical, self.catalog, results, analysis.scores,
                                        analysis.states, analysis.suggestion)
             await save_graph(str(analysis.id), nodes, edges)

@@ -173,7 +173,7 @@ Main endpoints: `POST /projects` (multipart files or .zip; starts the analysis) 
 · `GET /analyses/{id}/graph/trace/{node}` · `GET /analyses/{id}/report.{json,csv,pdf}` · `POST /batches`
 (`packageDir` inside `PACKAGE_DIR`) · `POST /batches/upload` (.zip) · `GET /batches/{id}[/report.csv]` ·
 `GET|POST /projects/{id}/decisions|contestations|rule-decisions|evidence-reviews` ·
-`POST /benchmarks` · `GET /benchmarks[/{id}[/projects|/report.csv]]` · `GET /benchmarks/compare?base=&target=` ·
+`POST /benchmarks` · `POST /benchmarks/{id}/rejudge` · `GET /benchmarks[/{id}[/projects|/report.csv]]` · `GET /benchmarks/compare?base=&target=` ·
 `POST /contestations/{id}/reanalysis` · `POST /assistant/ask|debate` · `GET /regras[/{id}]`.
 
 ## Commands
@@ -188,6 +188,7 @@ uv run backend-import <folder> # import + analyse every project folder as a batc
 uv run backend-ingest-norms    # (re)index data/normas (also done in the background on the first start)
 uv run backend-calibrate historicos_classificados.csv nosso.csv   # confusion matrix vs the answer key
 uv run backend-benchmark --projects PRJ01,PRJ21   # benchmark (all 40 without --projects; --repeats 2 = determinism)
+uv run backend-benchmark --rejudge <benchmark_id> # re-run only judge → gates → class over its finished analyses
 uv run pytest                  # unit + API tests, needs Mongo; no network
 uv run pytest -m live          # opt-in: PRJ21 end to end with the real Ollama (reads backend/.env)
 uv add <package>               # always manage dependencies with uv, never pip
@@ -225,6 +226,10 @@ divergences (**not** an answer key; outside the repo like all package data). Als
 LLM calls/tokens per role, failures, rule coverage, gate drop rate, divergences, and agreement between
 repeats. Benchmark projects/batches carry `benchmark_id` and are hidden from the analyst's lists.
 There is no coordinator task: `refresh` closes the benchmark when every analysis has finished.
+**Re-judge** (`benchmark/rejudge.py`, `POST /benchmarks/{id}/rejudge`): runs only the conclusion stage
+(`graph/judge.py → judge_and_classify`, the same function the orchestrator uses) over the saved evidence of the
+finished analyses of a benchmark, on in-memory copies (the source analyses are never written), and saves a new
+benchmark with `config.rejudgedFrom`. ~5 `judge` calls per analysis instead of a full run.
 
 ## Knowledge base
 

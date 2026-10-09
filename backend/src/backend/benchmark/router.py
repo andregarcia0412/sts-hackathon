@@ -15,9 +15,12 @@ from backend.benchmark.schemas import (
     BenchmarkRead,
     BenchmarkRequest,
     BenchmarkSummary,
+    RejudgeRequest,
 )
+from backend.benchmark.rejudge import create_rejudge, run_rejudge
 from backend.benchmark.service import analyses_of, progress, refresh, start_benchmark
 from backend.config import settings
+from backend.graph.judge import JudgeOptions
 
 router = APIRouter(prefix="/benchmarks", tags=["benchmarks"])
 
@@ -85,6 +88,24 @@ async def compare(base: str, target: str, user: CurrentUser, request: Request) -
         prompts_changed=[p for p in prompts if old.config.prompts.get(p) != new.config.prompts.get(p)],
         catalog_changed=old.config.catalog_version != new.config.catalog_version,
     )
+
+
+@router.post("/{benchmark_id}/rejudge", status_code=status.HTTP_202_ACCEPTED)
+async def rejudge_benchmark(benchmark_id: str, body: RejudgeRequest, user: CurrentUser, request: Request,
+                            service: Service, runner: Runner) -> BenchmarkRead:
+    """Re-runs only the judge → gates → class over the finished analyses of a benchmark (~5 calls each).
+
+    The source analyses are never written; the result is a new benchmark, comparable through /compare."""
+    source = await _owned(benchmark_id, user, request)
+    options = JudgeOptions.from_settings(service.settings)
+    benchmark = await create_rejudge(source, str(user.id), service.models_by_role(), service.catalog, options,
+                                     name=body.name, projects=body.projects, repeats=body.repeats)
+    if not benchmark.runs:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "; ".join(benchmark.errors))
+    # One job slot of the runner = one analysis at a time, like any other background job.
+    await runner.submit(lambda: run_rejudge(benchmark, service.llm, service.catalog, options, concurrency=1))
+    benchmark = await Benchmark.get(benchmark.id)
+    return BenchmarkRead.of(benchmark, progress(benchmark, {}))
 
 
 @router.get("/{benchmark_id}")

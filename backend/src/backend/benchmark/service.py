@@ -109,6 +109,11 @@ async def analyses_of(benchmark: Benchmark) -> dict[str, Analysis]:
 
 def progress(benchmark: Benchmark, analyses: dict[str, Analysis]) -> dict[str, int]:
     counts = dict.fromkeys(("pendente", "rodando", "concluida", "falhou"), 0)
+    if benchmark.config.rejudged_from:  # its runs point at the source analyses, which finished long ago
+        for snap in benchmark.snapshots:
+            counts["falhou" if snap.status == "falhou" else "concluida"] += 1
+        counts["pendente"] = len(benchmark.runs) - len(benchmark.snapshots)
+        return counts
     for run in benchmark.runs:
         status = analyses[run.analysis_id].status if run.analysis_id in analyses else "falhou"
         counts[status] = counts.get(status, 0) + 1
@@ -158,7 +163,7 @@ def snapshot_of(run: BenchmarkRun, analysis: Analysis | None) -> RunSnapshot:
 
 async def refresh(benchmark: Benchmark, catalog: Catalog) -> Benchmark:
     """Closes the benchmark once every analysis has finished (idempotent; a no-op while running or closed)."""
-    if benchmark.status == "concluido":
+    if benchmark.status == "concluido" or benchmark.config.rejudged_from:  # a re-judge closes itself
         return benchmark
     analyses = await analyses_of(benchmark)
     if any(analyses[run.analysis_id].status not in FINISHED for run in benchmark.runs if run.analysis_id in analyses):
