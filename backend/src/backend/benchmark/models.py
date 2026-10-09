@@ -7,6 +7,7 @@ from pydantic import Field
 from backend.api_schema import CamelModel
 from backend.benchmark.reference import ExpectedCase
 from backend.graph.coherence import Coherence
+from backend.graph.states import CriterionState
 from backend.llm.usage import LLMUsage, RoleUsage
 from backend.projects.models import now
 
@@ -84,6 +85,7 @@ class RunSnapshot(CamelModel):
     usage: LLMUsage | None = None
     rejudged: bool = False  # only the conclusion stage ran again, over the saved evidence
     coherence: dict[str, Coherence] = Field(default_factory=dict)  # criterion → coherence gate record
+    judgements: dict[str, CriterionState] = Field(default_factory=dict)  # re-judge only: the full new states
 
 
 class Distribution(CamelModel):
