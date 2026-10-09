@@ -18,3 +18,13 @@ export const formatFileSize = (bytes: number) => {
 
 export const pluralize = (count: number, singular: string, plural: string) =>
   `${count} ${count === 1 ? singular : plural}`;
+
+/** "Ana Ribeiro" → "AR" (avatars without a photo) */
+export const initials = (name: string) =>
+  name
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();

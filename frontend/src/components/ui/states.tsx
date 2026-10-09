@@ -8,7 +8,7 @@ export const LoadingState = ({ label = "Carregando…" }: { label?: string }) =>
     role="status"
     className="flex flex-1 items-center justify-center gap-2 p-10 text-fg-muted"
   >
-    <LoaderCircle className="size-5 animate-spin" aria-hidden />
+    <LoaderCircle className="size-5 animate-spin text-action" aria-hidden />
     <span>{label}</span>
   </div>
 );
@@ -23,7 +23,7 @@ interface MessageStateProps {
 const MessageState = ({ title, description, action, icon }: MessageStateProps) => (
   <div className="flex flex-1 flex-col items-center justify-center gap-2 p-10 text-center">
     {icon}
-    <p className="font-medium">{title}</p>
+    <p className="text-base leading-5 font-semibold">{title}</p>
     {description && (
       <p className="max-w-md text-sm text-fg-muted">{description}</p>
     )}
@@ -34,7 +34,11 @@ const MessageState = ({ title, description, action, icon }: MessageStateProps) =
 export const EmptyState = (props: Omit<MessageStateProps, "icon">) => (
   <MessageState
     {...props}
-    icon={<Inbox className="size-8 text-fg-muted" aria-hidden />}
+    icon={
+      <span className="mb-1 flex size-14 items-center justify-center rounded-full bg-surface-sunken">
+        <Inbox className="size-7 text-fg-secondary" aria-hidden />
+      </span>
+    }
   />
 );
 
@@ -54,7 +58,11 @@ export const ErrorState = ({
     <MessageState
       title={title}
       description={error instanceof Error ? error.message : undefined}
-      icon={<CircleAlert className="size-8 text-danger" aria-hidden />}
+      icon={
+        <span className="mb-1 flex size-14 items-center justify-center rounded-full bg-state-negative-soft">
+          <CircleAlert className="size-7 text-danger" aria-hidden />
+        </span>
+      }
       action={
         (onRetry || action) && (
           <div className="flex flex-wrap justify-center gap-2">
