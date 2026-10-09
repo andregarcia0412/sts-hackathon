@@ -147,3 +147,22 @@ def test_benchmark_counts_contradictions_and_column_changes_against_the_answer_k
     assert metrics.contradictions == {"NOV": 1, "SIS": 1} and metrics.by_source == {"juiz": 2}
     assert (metrics.rejudged, metrics.resolved, metrics.incoherent) == (2, 1, 1)
     assert (metrics.changed_column, metrics.changed_column_hits, metrics.changed_column_misses) == (1, 1, 0)
+
+
+def test_routine_chosen_by_the_judge_against_a_strong_positive_score_is_a_contradiction():
+    contradiction = check("CRI", "NÃO DEMONSTRADA", "rotina", 89)
+    assert contradiction.source == "juiz" and contradiction.choices == ["DEMONSTRADA NO RECORTE", "NÃO DEMONSTRADA"]
+    assert check("CRI", "NÃO DEMONSTRADA", "rotina", 64) is None  # weak score: the judge's call stands
+    forced = check_coherence("CRI", "NÃO DEMONSTRADA", "rotina", "rotina", [], 89, 9, get_catalog(), REASK,
+                             forced_by_gate=True)
+    assert forced is None  # a gate forcing routine is not the judge's caution
+    assert check("SIS", "DOCUMENTADA COMO ACEITE", "rotina", 100) is None  # acceptance well documented: coherent
+
+
+async def test_routine_against_the_score_is_asked_again_with_the_burden_on_routine():
+    cri = CriterionResult(criterion="CRI", rules=[run("CRI-D1", evidence("CRI-D1", source="PRJ90-EV06#2"))])
+    llm = FakeLLM({StateJudgeOut: answers("NÃO DEMONSTRADA", "DEMONSTRADA NO RECORTE")})
+    state = await judge_state(llm, get_catalog(), cri, True, score=88, n_rules=8, options=REASK)
+    assert state.state == "DEMONSTRADA NO RECORTE" and state.coherence.status == "resolvida"
+    block = user_text(llm.calls_for(StateJudgeOut)[1])
+    assert "evidência de rotina" in block and "Falta de um registro não é prova de rotina" in block
