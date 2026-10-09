@@ -68,20 +68,20 @@ export const RuleDecisionDock = ({ node, projectId, analysisId, current }: RuleD
   return (
     <form
       aria-label="Decisão do analista"
-      className="flex shrink-0 flex-col gap-4 rounded-b-2xl border-t border-border bg-surface px-4 pb-4 shadow-dock"
+      className="flex shrink-0 flex-col gap-2 rounded-b-2xl border-t border-border bg-surface px-4 pb-3 shadow-dock"
       onSubmit={(e) => {
         e.preventDefault();
         submit();
       }}
     >
-      <div className="flex items-center justify-between gap-3 border-b border-border-strong pt-4 pb-3">
+      <div className="flex items-center justify-between gap-3 border-b border-border-strong pt-3 pb-2">
         <h2 className="text-xl leading-6 font-semibold">Decisão do analista</h2>
         <span className="btn-chip" title={node.rule.name}>
           Regra {node.number}
         </span>
       </div>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1">
         <label htmlFor={fieldId} className="label mb-0">
           Nota da regra
         </label>
@@ -117,7 +117,7 @@ export const RuleDecisionDock = ({ node, projectId, analysisId, current }: RuleD
         )}
       </div>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1">
         <label htmlFor={`${fieldId}-justificativa`} className="label mb-0">
           Justificativa <span className="text-action">*</span>
         </label>
@@ -137,7 +137,7 @@ export const RuleDecisionDock = ({ node, projectId, analysisId, current }: RuleD
         )}
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="mt-1 flex items-center gap-4">
         <p
           className="flex min-h-11 min-w-0 flex-1 flex-col items-center justify-center rounded-full border border-border-strong bg-surface px-4 py-1.5 text-center text-sm leading-4 font-semibold"
           aria-live="polite"

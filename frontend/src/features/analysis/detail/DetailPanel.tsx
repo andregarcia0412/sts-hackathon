@@ -107,7 +107,7 @@ export const DetailPanel = ({
           // Removed elements do not report where the focus went: keep the flag then
           if (e.relatedTarget && !e.currentTarget.contains(e.relatedTarget)) focusInPanel.current = false;
         }}
-        className="flex flex-col gap-1 px-4 pb-4 lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
+        className="scroll-visible flex flex-col gap-1 px-4 pb-4 lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
         {criteria.map((node) =>
           node.id === focusCriterionId ? (
             <OpenCriterion
@@ -127,6 +127,8 @@ export const DetailPanel = ({
             <ClosedCriterion key={node.id} node={node} onOpen={() => explorer.select(node.id)} />
           ),
         )}
+        {/* Fade at the bottom of the scroll area (design): more content below */}
+        <div aria-hidden className="pointer-events-none sticky bottom-0 -mt-10 hidden h-10 shrink-0 bg-gradient-to-b from-white/0 to-white/90 lg:block" />
       </div>
       {openRule && (
         <RuleDecisionDock

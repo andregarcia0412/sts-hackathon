@@ -37,28 +37,25 @@ export const AssistantWidget = () => {
 
   const close = () => {
     setOpen(false);
-    launcherRef.current?.focus();
+    // The launcher comes back once the panel starts closing: focus it then
+    requestAnimationFrame(() => launcherRef.current?.focus());
   };
 
   return (
     <div className="print:hidden">
       {mounted && <AssistantPanel onClose={close} closing={!open} onClosed={() => setMounted(false)} />}
+      {/* Floating button; while the panel is open it takes its place (design) */}
       <button
         ref={launcherRef}
         type="button"
+        hidden={open}
         aria-expanded={open}
         aria-controls={PANEL_ID}
-        aria-label={open ? "Fechar assistente" : "Abrir assistente da análise"}
-        onClick={() => (open ? close() : setOpen(true))}
+        aria-label="Abrir assistente da análise"
+        onClick={() => setOpen(true)}
         className="fixed right-4 bottom-4 z-40 flex size-14 items-center justify-center rounded-full bg-action text-white shadow-card-accent transition-transform hover:scale-105 sm:size-18"
       >
-        <AssistantStarIcon
-          className={`absolute size-7 transition-[rotate,scale,opacity] duration-300 sm:size-8 ${open ? "scale-50 rotate-90 opacity-0" : ""}`}
-        />
-        <X
-          className={`absolute size-7 transition-[rotate,scale,opacity] duration-300 ${open ? "" : "scale-50 -rotate-90 opacity-0"}`}
-          aria-hidden
-        />
+        <AssistantStarIcon className="size-7 sm:size-8" />
       </button>
     </div>
   );
@@ -183,7 +180,7 @@ const AssistantPanel = ({
       onAnimationEnd={(e) => {
         if (closing && e.target === e.currentTarget) onClosed();
       }}
-      className={`assistant-motion fixed right-4 bottom-22 isolate z-40 flex h-[min(34rem,calc(100dvh-7.5rem))] w-[min(30.625rem,calc(100vw-2rem))] origin-bottom-right flex-col overflow-hidden rounded-2xl border border-divider bg-surface p-5 shadow-float sm:bottom-26 sm:h-[min(34rem,calc(100dvh-8.5rem))] ${
+      className={`assistant-motion fixed right-4 bottom-4 isolate z-40 flex h-[min(34rem,calc(100dvh-2rem))] w-[min(30.625rem,calc(100vw-2rem))] origin-bottom-right flex-col overflow-hidden rounded-2xl border border-divider bg-surface p-5 shadow-[0_4px_24px_rgb(223_44_89/0.3)] ${
         closing ? "animate-assistant-out" : "animate-assistant-in"
       }`}
     >

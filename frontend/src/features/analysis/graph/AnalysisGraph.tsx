@@ -13,7 +13,7 @@ import {
 import { GraphLegend } from "@/features/analysis/graph/GraphLegend";
 import { ZoomControls } from "@/features/analysis/graph/ZoomControls";
 import type { AnalysisFlowEdge } from "@/features/analysis/graph/graphTypes";
-import { nodeTypes } from "@/features/analysis/graph/nodeTypes";
+import { edgeTypes, nodeTypes } from "@/features/analysis/graph/nodeTypes";
 import { useAnimatedNodes } from "@/features/analysis/graph/useAnimatedNodes";
 import { useFrameGraph } from "@/features/analysis/graph/useFrameGraph";
 import type { AnalysisExplorer } from "@/features/analysis/useAnalysisExplorer";
@@ -27,7 +27,7 @@ const ARIA_LABELS: Partial<AriaLabelConfig> = {
 
 /* Edges paint with inline styles, so use the theme's CSS variables */
 const EDGE_STYLE = { stroke: "var(--color-border-strong)", strokeWidth: 1.5 };
-const EDGE_ON_PATH_STYLE = { stroke: "var(--color-accent)", strokeWidth: 1.5 };
+const EDGE_ON_PATH_STYLE = { stroke: "var(--color-accent)", strokeWidth: 2 };
 
 /**
  * Critério → Regras → Evidências, left to right.
@@ -135,8 +135,7 @@ export const AnalysisGraph = ({
     const highlighted = onPath.has(edge.target) || edge.source === selectedId;
     return {
       ...edge,
-      type: "smoothstep",
-      pathOptions: { borderRadius: 10 },
+      type: "bracket",
       style: highlighted ? EDGE_ON_PATH_STYLE : EDGE_STYLE,
       zIndex: highlighted ? 1 : 0,
     };
@@ -147,6 +146,7 @@ export const AnalysisGraph = ({
       nodes={nodes}
       edges={edges}
       nodeTypes={nodeTypes}
+      edgeTypes={edgeTypes}
       onNodeClick={(_, node) => handleNodeClick(node.id)}
       nodesDraggable={false}
       nodesConnectable={false}
