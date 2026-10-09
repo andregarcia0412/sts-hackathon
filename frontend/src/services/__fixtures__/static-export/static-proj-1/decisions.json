@@ -1,0 +1,11 @@
+[
+  {
+    "projectId": "static-proj-1",
+    "analysisId": "static-analysis-1",
+    "outcome": "not_eligible",
+    "justification": "Novidade não demonstrada no recorte alegado.",
+    "analystName": "Ana",
+    "decidedAt": "2026-10-09T14:00:00.000Z",
+    "ruleOverrides": []
+  }
+]

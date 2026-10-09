@@ -1,0 +1,35 @@
+{
+  "items": [
+    {
+      "id": "static-proj-1",
+      "ownerId": "user-1",
+      "name": "Sensor de Solo — Caso Estático",
+      "company": "AgroExemplo LTDA",
+      "createdAt": "2026-10-09T12:00:00.000Z",
+      "status": "ready",
+      "documents": [],
+      "freeText": null,
+      "code": "PRJ91",
+      "supersededDocuments": [],
+      "latestAnalysisId": "static-analysis-1",
+      "frameworks": ["frascati"],
+      "scoreSummary": [{ "criterionKey": "novelty", "name": "Novidade", "score": 80 }]
+    },
+    {
+      "id": "static-proj-2",
+      "ownerId": "user-1",
+      "name": "Ponte de Concreto — Em processamento",
+      "createdAt": "2026-10-09T12:30:00.000Z",
+      "status": "processing",
+      "documents": [],
+      "freeText": null,
+      "code": "PRJ92",
+      "supersededDocuments": [],
+      "latestAnalysisId": null
+    }
+  ],
+  "total": 2,
+  "page": 1,
+  "pageSize": 2,
+  "statusCounts": { "processing": 1, "ready": 1, "decided": 0, "error": 0 }
+}

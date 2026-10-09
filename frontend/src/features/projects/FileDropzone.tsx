@@ -2,9 +2,16 @@ import { CloudUpload } from "lucide-react";
 import { useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import type { FileRejection } from "react-dropzone";
-import { MAX_FILE_BYTES, isAcceptedFile } from "@/domain/documents";
-import { ACCEPTED_FILE_TYPES } from "@/features/projects/acceptedFiles";
+import { MAX_FILE_BYTES } from "@/domain/documents";
 import { formatFileSize } from "@/lib/format";
+
+/*
+ * ANY file type is accepted: the back-end identifies each file BY CONTENT
+ * (pdf, csv, xlsx, md, json, txt, docx…) and flags unknown types for
+ * validation instead of rejecting them — the front must not pre-bar them.
+ * The known-formats list lives in domain/documents.ts (icon/kind); the
+ * dropzone only enforces the size limit.
+ */
 
 interface FileDropzoneProps {
   onFiles: (files: File[]) => void;
@@ -18,14 +25,13 @@ export const FileDropzone = ({ onFiles, hasFiles }: FileDropzoneProps) => {
   const folderInput = useRef<HTMLInputElement>(null);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    accept: ACCEPTED_FILE_TYPES,
     maxSize: MAX_FILE_BYTES,
     multiple: true,
     onDrop: (accepted, rejected: FileRejection[]) => {
       onFiles(accepted);
       setRejections(
         rejected.map(({ file, errors }) =>
-          `${file.name}: ${errors[0]?.code === "file-too-large" ? "arquivo maior que o limite" : "formato não aceito"}`,
+          `${file.name}: ${errors[0]?.code === "file-too-large" ? "arquivo maior que o limite" : "não foi possível adicionar o arquivo"}`,
         ),
       );
     },
@@ -33,12 +39,12 @@ export const FileDropzone = ({ onFiles, hasFiles }: FileDropzoneProps) => {
 
   const onFolder = (files: FileList | null) => {
     const all = [...(files ?? [])];
-    // A folder brings everything: keep the accepted formats, report the others
-    onFiles(all.filter((f) => isAcceptedFile(f.name) && f.size <= MAX_FILE_BYTES));
+    // A folder brings everything, any type: only the size limit applies
+    onFiles(all.filter((f) => f.size <= MAX_FILE_BYTES));
     setRejections(
       all
-        .filter((f) => !isAcceptedFile(f.name) || f.size > MAX_FILE_BYTES)
-        .map((f) => `${f.webkitRelativePath || f.name}: ${f.size > MAX_FILE_BYTES ? "arquivo maior que o limite" : "formato não aceito"}`),
+        .filter((f) => f.size > MAX_FILE_BYTES)
+        .map((f) => `${f.webkitRelativePath || f.name}: arquivo maior que o limite`),
     );
   };
 
@@ -63,8 +69,8 @@ export const FileDropzone = ({ onFiles, hasFiles }: FileDropzoneProps) => {
               : "Arraste arquivos ou clique para selecionar"}
         </p>
         <p className="text-xs text-fg-muted">
-          PDF, DOCX, TXT, MD, CSV, XLSX ou JSON · até {formatFileSize(MAX_FILE_BYTES)} por arquivo ·
-          pastas inteiras são aceitas{" "}
+          Qualquer tipo de documento (PDF, DOCX, TXT, MD, CSV, XLSX, JSON e outros) · até{" "}
+          {formatFileSize(MAX_FILE_BYTES)} por arquivo · pastas inteiras são aceitas{" "}
           <button
             type="button"
             className="btn-link"

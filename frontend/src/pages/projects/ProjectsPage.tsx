@@ -7,6 +7,7 @@ import { EmptyState, ErrorState, LoadingState } from "@/components/ui/states";
 import type { ProjectSummary } from "@/domain/types";
 import { useCurrentUser } from "@/features/auth/authState";
 import { ProjectSearch } from "@/features/projects/ProjectSearch";
+import { dataSourceLabel } from "@/services/api";
 import { ProjectTable } from "@/features/projects/ProjectTable";
 import { ResendFileDialog } from "@/features/projects/ResendFileDialog";
 import { ProjectFilterBar } from "@/features/projects/ProjectFilterBar";
@@ -40,7 +41,11 @@ export const ProjectsPage = () => {
     <div className="flex flex-1 flex-col lg:min-h-0 lg:overflow-hidden">
       <PageHeader
         title="Meus Projetos"
-        description={<p>Análise preliminar de enquadramento na Lei do Bem · dados fictícios de demonstração</p>}
+        description={
+          <p>
+            Análise preliminar de enquadramento na Lei do Bem · {dataSourceLabel().toLowerCase()}
+          </p>
+        }
         aside={newProjectButton}
       >
         {data && !ownsNothing && (
