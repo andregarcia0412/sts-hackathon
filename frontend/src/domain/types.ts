@@ -182,6 +182,11 @@ export interface Analysis {
   criteria: Criterion[];
   /** Changes applied after accepted contestations (oldest first) */
   adjustments?: (AnalysisChange & { contestationId: string })[];
+  /**
+   * Example added by the front for a method the back-end does not produce yet
+   * (mocks/illustrativeMcti.ts): shown as such, never sent to the back-end
+   */
+  illustrative?: boolean;
 }
 
 export type DecisionOutcome =

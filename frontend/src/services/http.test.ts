@@ -117,4 +117,62 @@ describe("http + api in api mode (spec 14 E2/E3)", () => {
     });
     expect(answer.blocks[0]).toEqual({ type: "text", text: "resposta" });
   });
+
+  /* The back-end only produces Frascati: the front adds the illustrative MCTI example */
+  const frascatiOnly = async () => {
+    const { soilSensorAnalysis } = await import("@/mocks/analysis-soil-sensor");
+    return [{ ...soilSensorAnalysis, id: "real-analysis", projectId: "real-project" }];
+  };
+
+  it("adds the illustrative MCTI analysis next to the back-end's Frascati", async () => {
+    const analyses = await frascatiOnly();
+    const api = await loggedInApi(vi.fn().mockImplementation((url: string) =>
+      Promise.resolve(url.includes("/auth/login") ? json(200, TOKENS) : json(200, analyses))));
+    const shown = await api.getAnalyses("real-project");
+    expect(shown?.map((a) => a.framework)).toEqual(["frascati", "mcti_form"]);
+    expect(shown?.[1]).toMatchObject({ illustrative: true, projectId: "real-project" });
+  });
+
+  it("reads the analyst's records back from the API, outcomes in the front's vocabulary", async () => {
+    const api = await loggedInApi(vi.fn().mockImplementation((url: string) => {
+      if (url.includes("/auth/login")) return Promise.resolve(json(200, TOKENS));
+      if (url.includes("/rule-decisions")) {
+        return Promise.resolve(json(200, [{ id: "rd1", projectId: "real-project", analysisId: "real-analysis",
+          nodeId: "crit-novelty.rule-proj-12", rating: "sustained", justification: "ok", author: "Ana",
+          createdAt: "2026-10-09T15:00:00Z" }]));
+      }
+      return Promise.resolve(json(200, [{ projectId: "real-project", analysisId: "real-analysis",
+        outcome: "eligible_with_caveats", justification: "x", analystName: "Ana", decidedAt: "2026-10-09T15:00:00Z" }]));
+    }));
+    expect((await api.listRuleDecisions("real-project")).map((d) => d.id)).toEqual(["rd1"]);
+    expect((await api.listDecisions("real-project"))[0].outcome).toBe("with_reservations");
+  });
+
+  it("keeps what is recorded on the illustrative analysis in the browser", async () => {
+    const analyses = await frascatiOnly();
+    const fetchMock = vi.fn().mockImplementation((url: string) => {
+      if (url.includes("/auth/login")) return Promise.resolve(json(200, TOKENS));
+      if (url.includes("/analyses")) return Promise.resolve(json(200, analyses));
+      if (url.includes("/decisions") && !url.includes("rule")) return Promise.resolve(json(201, {
+        projectId: "real-project", analysisId: "real-analysis", outcome: "eligible",
+        justification: "x", analystName: "Ana", decidedAt: "2026-10-09T15:00:00Z" }));
+      return Promise.resolve(json(200, []));
+    });
+    const api = await loggedInApi(fetchMock);
+    const mcti = (await api.getAnalyses("real-project"))![1];
+
+    const rating = await api.createRuleDecision({ projectId: "real-project", analysisId: mcti.id,
+      nodeId: mcti.criteria[0].rules[0].id, rating: "sustained", justification: "ok", author: "Ana" } as never);
+    expect(fetchCalls().some(([u, init]) => (u as string).includes("/rule-decisions") &&
+      (init as { method?: string })?.method === "POST")).toBe(false);
+    expect((await api.listRuleDecisions("real-project")).map((d) => d.id)).toContain(rating.id);
+
+    await api.saveDecision({ projectId: "real-project", analysisId: "real-analysis",
+      analysisIds: ["real-analysis", mcti.id], outcome: "eligible", justification: "x", analystName: "Ana",
+      ruleOverrides: [{ ruleId: "r", note: "n", analysisId: mcti.id }] });
+    const decisionCall = fetchCalls().find(([u, init]) => (u as string).endsWith("/decisions") &&
+      (init as { method?: string })?.method === "POST")!;
+    expect(JSON.parse((decisionCall[1] as { body: string }).body)).toMatchObject({
+      analysisIds: ["real-analysis"], ruleOverrides: [] });
+  });
 });
