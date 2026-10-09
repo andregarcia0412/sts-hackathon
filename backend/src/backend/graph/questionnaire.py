@@ -263,11 +263,14 @@ def build_state(catalog: Catalog, result: CriterionResult, answers: dict[str, An
     if criterion == "REP" and effective.get("R3") == "sim":
         state.caveat = caveat or Caveat()
     if column == "insuficiente":
-        missing = [a for a in ordered if a.effective == NO_RECORD]
+        # The missing link: the questions left without record or, when the table decided on a "nao" (e.g. R1 = nao:
+        # results not recomputable), the decisive answers — an insufficient criterion always says what is missing.
+        missing = [a for a in ordered if a.effective == NO_RECORD] or decisive
         state.missing_link = MissingLinkInfo(
             elo_ausente="; ".join(f"{a.pergunta} ({questions[a.pergunta].texto.strip()}): "
-                                  f"{a.o_que_falta or 'sem registro'}" for a in missing) or None,
-            evidencias_a_solicitar=list(dict.fromkeys(i for a in missing for i in a.evidencias_a_solicitar)),
+                                  f"{a.o_que_falta or a.explicacao or a.effective}" for a in missing) or None,
+            evidencias_a_solicitar=list(dict.fromkeys(i for a in missing for i in a.evidencias_a_solicitar))
+            or [f"registro que responda {a.pergunta}: {questions[a.pergunta].texto.strip()}" for a in missing],
         )
     return state
 
