@@ -187,6 +187,10 @@ def evidence(runs: list[RunSnapshot]) -> EvidenceMetrics:
         rule_coverage=_rate(sum(r.rules_with_evidence for r in runs), sum(r.rules_total for r in runs)),
         gate_drop_rate=_rate(dropped, dropped + accepted),
         web_search_error_rate=_rate(sum(r.web_search_errors for r in runs), sum(r.web_searches for r in runs)),
+        web_search_error_rate_by_base={
+            base: _rate(sum(r.web_search_errors_by_base.get(base, 0) for r in runs),
+                        sum(r.web_searches_by_base.get(base, 0) for r in runs))
+            for base in sorted({b for r in runs for b in r.web_searches_by_base})},
         web_not_prior_art_share=_rate(sum(r.web_not_prior_art for r in runs), sum(r.web_sources for r in runs)),
         sanitized_terms_removed=sum(r.sanitized_terms_removed for r in runs),
         divergences_per_run=distribution(len(r.divergences) for r in runs),
@@ -204,6 +208,7 @@ def usage(runs: list[RunSnapshot]) -> UsageMetrics:
         metrics.total.add(run.usage.total())
         metrics.web_search_calls += run.usage.web_search_calls
         metrics.web_fetch_calls += run.usage.web_fetch_calls
+        metrics.web_retries += run.usage.web_retries
     measured = [r.usage.total() for r in runs if r.usage is not None]
     metrics.tokens_per_run = distribution(u.prompt_tokens + u.completion_tokens for u in measured)
     metrics.calls_per_run = distribution(u.calls for u in measured)

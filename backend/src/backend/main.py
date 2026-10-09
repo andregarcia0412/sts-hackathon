@@ -34,12 +34,12 @@ async def lifespan(app: FastAPI):
     await init_db()
     await seed_users()
     await sync_catalog_to_db(get_catalog())
-    await AnalysisService.mark_interrupted()
     http = httpx.AsyncClient(timeout=30)
     llm = LLMClient(settings)
     app.state.llm = llm
     app.state.runner = JobRunner(settings.analysis_concurrency)
     app.state.analysis_service = AnalysisService(llm, lambda: build_providers(llm, http, settings), settings, get_catalog())
+    await app.state.analysis_service.mark_interrupted()
     app.state.norm_index = await load_norm_index()
     ingestion = None
     if not app.state.norm_index.chunks and settings.norms_auto_ingest and any(settings.norms_dir.glob("*.pdf")):

@@ -53,12 +53,13 @@ def print_summary(metrics: BenchmarkMetrics) -> None:
         print(f"   {stage:9} mediana {d.median} s · p95 {d.p95} s")
     print(f"== LLM: {u.total.calls} chamadas · {u.total.prompt_tokens + u.total.completion_tokens} tokens "
           f"(média {u.tokens_per_run.mean}/projeto) · retries {u.total.transport_retries} transporte, "
-          f"{u.total.schema_retries} schema · {u.web_search_calls} buscas web")
+          f"{u.total.schema_retries} schema · {u.web_search_calls} buscas web ({u.web_retries} retries)")
     print(f"== Confiabilidade: falhas {r.failed}/{r.runs} · inconsistentes {r.inconsistent_rate} · "
           f"sem classe {r.no_class_rate} · regras não executadas {r.rules_not_executed_rate}")
     e = metrics.evidence
     print(f"== Evidência: cobertura de regras {e.rule_coverage} · descarte no gate {e.gate_drop_rate} · "
-          f"divergências/projeto {e.divergences_per_run.mean}")
+          f"divergências/projeto {e.divergences_per_run.mean} · erro de busca por base "
+          f"{e.web_search_error_rate_by_base}")
     if (c := metrics.coherence).contradictions:
         print(f"== Coerência: contradições {c.contradictions} · origem {c.by_source} · novos julgamentos "
               f"{c.rejudged} · resolvidas {c.resolved} · incoerentes {c.incoherent} · mudaram de coluna "
@@ -119,7 +120,12 @@ async def _main(args: argparse.Namespace) -> None:
         async with httpx.AsyncClient(timeout=30) as http:
             llm = LLMClient(settings)
             service = AnalysisService(llm, lambda: build_providers(llm, http, settings), settings, get_catalog())
-            if args.rejudge:
+            if args.close:
+                benchmark = await Benchmark.get(PydanticObjectId(args.close))
+                if benchmark is None:
+                    raise SystemExit(f"benchmark not found: {args.close}")
+                benchmark = await refresh(benchmark, service.catalog, force=True)
+            elif args.rejudge:
                 benchmark = await rejudge(args, service)
             else:
                 benchmark = await run(args, service, JobRunner(settings.analysis_concurrency))
@@ -150,6 +156,8 @@ def parser() -> argparse.ArgumentParser:
     parser.add_argument("--owner", default=settings.seed_email_pattern.format(n=1), help="analyst e-mail")
     parser.add_argument("--poll", type=float, default=10, help="seconds between progress lines")
     parser.add_argument("--out", type=Path, help="also write the metrics as JSON")
+    parser.add_argument("--close", metavar="BENCHMARK_ID",
+                        help="close a benchmark stuck in 'rodando' (unfinished analyses count as failures)")
     parser.add_argument("--rejudge", metavar="BENCHMARK_ID",
                         help="re-run only judge → gates → class over the finished analyses of this benchmark")
     parser.add_argument("--coherence", choices=["off", "flag", "reask", "force"],

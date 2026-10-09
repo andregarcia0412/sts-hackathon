@@ -86,7 +86,7 @@ class LLMClient:
     def model_for(self, role: LLMRole) -> str:
         return self.settings.model_for(role)
 
-    async def _call(self, func, usage: RoleUsage | None = None, **kwargs):
+    async def _call(self, func, usage: RoleUsage | None = None, on_retry=None, **kwargs):
         """Runs one Ollama call with the concurrency limit and simple retries on transport errors."""
         attempts = self.settings.ollama_retries + 1
         for attempt in range(1, attempts + 1):
@@ -107,6 +107,8 @@ class LLMClient:
                     raise LLMError(f"Ollama call failed after {attempts} attempt(s): {type(error).__name__}") from error
                 if usage is not None:
                     usage.transport_retries += 1
+                if on_retry is not None:
+                    on_retry()
                 logger.warning("Ollama call failed (attempt %d/%d): %s", attempt, attempts, type(error).__name__)
                 await asyncio.sleep(self._retry_backoff_s * attempt)
 
@@ -174,7 +176,7 @@ class LLMClient:
     async def _web_call(self, func, counter: str, **kwargs):
         meter: LLMUsage | None = current_usage()
         try:
-            response = await self._call(func, **kwargs)
+            response = await self._call(func, on_retry=lambda: _count_web_retry(meter), **kwargs)
         except LLMError:
             if meter is not None:
                 meter.web_failures += 1
@@ -186,6 +188,11 @@ class LLMClient:
     def _require_api_key(self) -> None:
         if not self.settings.ollama_api_key:
             raise LLMError("OLLAMA_API_KEY is required for web_search/web_fetch")
+
+
+def _count_web_retry(meter: LLMUsage | None) -> None:
+    if meter is not None:
+        meter.web_retries += 1
 
 
 def extract_json(content: str) -> str:

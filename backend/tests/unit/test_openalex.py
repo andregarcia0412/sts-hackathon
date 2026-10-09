@@ -41,3 +41,32 @@ async def test_search_filters_by_reference_date_and_maps_hits():
     assert hit.published_date == date(2019, 4, 2)
     assert hit.date_source == "metadata"
     assert hit.snippet == "isolate dependencies"
+
+
+@respx.mock
+async def test_rate_limit_waits_for_retry_after_and_tries_again(monkeypatch):
+    import asyncio
+
+    waits = []
+
+    async def no_sleep(seconds):
+        waits.append(seconds)
+
+    monkeypatch.setattr(asyncio, "sleep", no_sleep)
+    route = respx.get(OPENALEX_URL).mock(side_effect=[
+        httpx.Response(429, headers={"Retry-After": "3"}),
+        httpx.Response(200, json={"results": [{"id": "https://openalex.org/W1", "title": "Ok"}]}),
+    ])
+    async with httpx.AsyncClient() as http:
+        hits = await OpenAlexProvider(http, retries=2).search("q", before=date(2025, 1, 6), limit=5)
+    assert [h.title for h in hits] == ["Ok"] and route.call_count == 2 and waits == [3.0]
+
+
+@respx.mock
+async def test_rate_limit_gives_up_after_the_retries():
+    import pytest
+
+    respx.get(OPENALEX_URL).mock(return_value=httpx.Response(429, headers={"Retry-After": "0"}))
+    async with httpx.AsyncClient() as http:
+        with pytest.raises(httpx.HTTPStatusError):
+            await OpenAlexProvider(http, retries=1).search("q", before=date(2025, 1, 6), limit=5)

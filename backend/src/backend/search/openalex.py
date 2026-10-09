@@ -1,10 +1,28 @@
-from datetime import date
+import asyncio
+import email.utils
+from datetime import UTC, date, datetime
 
 import httpx
 
 from backend.search.base import SearchHit, source_id
 
 OPENALEX_URL = "https://api.openalex.org/works"
+MAX_RETRY_AFTER_S = 60.0
+
+
+def retry_after_seconds(value: str | None, default: float) -> float:
+    """`Retry-After` in seconds or as an HTTP date; capped, never negative."""
+    if not value:
+        return default
+    try:
+        seconds = float(value)
+    except ValueError:
+        try:
+            moment = email.utils.parsedate_to_datetime(value)
+        except (TypeError, ValueError):
+            return default
+        seconds = (moment - datetime.now(UTC)).total_seconds()
+    return max(0.0, min(seconds, MAX_RETRY_AFTER_S))
 
 
 def rebuild_abstract(inverted_index: dict[str, list[int]] | None) -> str:
@@ -19,10 +37,13 @@ class OpenAlexProvider:
 
     name = "openalex"
 
-    def __init__(self, http: httpx.AsyncClient, api_key: str | None = None, mailto: str | None = None) -> None:
+    def __init__(self, http: httpx.AsyncClient, api_key: str | None = None, mailto: str | None = None,
+                 retries: int = 2, max_concurrency: int = 2, backoff_s: float = 2.0) -> None:
         self._http = http
         self._api_key = api_key
-        self._mailto = mailto
+        self._mailto = mailto  # the "polite pool": far fewer 429s in batch runs
+        self._retries, self._backoff_s = retries, backoff_s
+        self._semaphore = asyncio.Semaphore(max_concurrency)
 
     async def search(self, query: str, before: date, limit: int) -> list[SearchHit]:
         params: dict[str, str | int] = {
@@ -35,8 +56,14 @@ class OpenAlexProvider:
             params["api_key"] = self._api_key
         if self._mailto:
             params["mailto"] = self._mailto
-        response = await self._http.get(OPENALEX_URL, params=params)
-        response.raise_for_status()
+        for attempt in range(1, self._retries + 2):
+            async with self._semaphore:
+                response = await self._http.get(OPENALEX_URL, params=params)
+            if response.status_code != 429 or attempt > self._retries:
+                break
+            # rate limited: wait what the server asks (outside the semaphore) and try again
+            await asyncio.sleep(retry_after_seconds(response.headers.get("Retry-After"), self._backoff_s * attempt))
+        response.raise_for_status()  # an error is never cached as an empty result (CachedProvider stores successes)
         return [self._to_hit(work) for work in response.json().get("results", [])]
 
     async def enrich(self, hit: SearchHit) -> SearchHit:

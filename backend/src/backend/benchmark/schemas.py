@@ -133,3 +133,4 @@ class BenchmarkComparison(CamelModel):
     models_changed: dict[str, dict[str, str | None]] = {}
     prompts_changed: list[str] = []
     catalog_changed: bool = False
+    search_changed: dict[str, dict[str, int | None]] = {}

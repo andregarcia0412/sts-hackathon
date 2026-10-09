@@ -46,6 +46,14 @@ def _backend_version() -> str | None:
         return None
 
 
+def search_config(settings) -> dict[str, int]:
+    return {"web_queries_per_front": settings.web_queries_per_front,
+            "web_results_per_query": settings.web_results_per_query,
+            "web_fetch_per_front": settings.web_fetch_per_front,
+            "analysis_concurrency": settings.analysis_concurrency,
+            "openalex_max_concurrency": settings.openalex_max_concurrency}
+
+
 def load_expected(catalog: Catalog, answer_key: Path | None, preliminary: Path | None) -> dict[str, ExpectedCase]:
     expected = load_preliminary(preliminary) if preliminary else {}
     if answer_key:
@@ -73,6 +81,7 @@ async def start_benchmark(owner_id: str, name: str, sets: dict[PackageSet, Path]
             catalog_version=service.catalog.versao,
             prompts=prompt_hashes(),
             backend_version=_backend_version(),
+            search=search_config(service.settings),
         ),
     )
     await benchmark.insert()
@@ -153,6 +162,10 @@ def snapshot_of(run: BenchmarkRun, analysis: Analysis | None) -> RunSnapshot:
                 snap.evidences_negative += item.polarity == "negativa"
         snap.web_searches += len(result.search_log)
         snap.web_search_errors += sum(1 for entry in result.search_log if entry.error)
+        for entry in result.search_log:
+            snap.web_searches_by_base[entry.base] = snap.web_searches_by_base.get(entry.base, 0) + 1
+            if entry.error:
+                snap.web_search_errors_by_base[entry.base] = snap.web_search_errors_by_base.get(entry.base, 0) + 1
         snap.sanitized_terms_removed += sum(len(entry.removed_terms) for entry in result.search_log)
         snap.web_sources += len(result.web_sources)
         snap.web_not_prior_art += sum(1 for source in result.web_sources if source.prior_art is False)
@@ -163,8 +176,37 @@ def snapshot_of(run: BenchmarkRun, analysis: Analysis | None) -> RunSnapshot:
     return snap
 
 
-async def refresh(benchmark: Benchmark, catalog: Catalog) -> Benchmark:
-    """Closes the benchmark once every analysis has finished (idempotent; a no-op while running or closed)."""
+UNFINISHED = "não terminou: benchmark fechado antes do fim da análise"
+
+
+async def close(benchmark: Benchmark, catalog: Catalog) -> Benchmark:
+    """Closes a benchmark now (a CLI that died mid-run): what finished counts, the rest counts as failure."""
+    if benchmark.status == "concluido":
+        return benchmark
+    if benchmark.config.rejudged_from:
+        done = {(s.code, s.repeat) for s in benchmark.snapshots}
+        benchmark.snapshots += [RunSnapshot(set=run.set, code=run.code, repeat=run.repeat, analysis_id=run.analysis_id,
+                                            status="falhou", error=UNFINISHED, rejudged=True)
+                                for run in benchmark.runs if (run.code, run.repeat) not in done]
+    else:
+        analyses = await analyses_of(benchmark)
+        benchmark.snapshots = [snapshot_of(run, analyses.get(run.analysis_id)) for run in benchmark.runs]
+        for snap in benchmark.snapshots:
+            if snap.status not in FINISHED:
+                snap.status, snap.error = "falhou", UNFINISHED
+    benchmark.metrics = compute(benchmark.snapshots, benchmark.expected, catalog)
+    benchmark.status = "concluido"
+    benchmark.finished_at = datetime.now(UTC)
+    benchmark.errors.append("fechado à força")
+    await benchmark.save()
+    return benchmark
+
+
+async def refresh(benchmark: Benchmark, catalog: Catalog, force: bool = False) -> Benchmark:
+    """Closes the benchmark once every analysis has finished (idempotent; a no-op while running or closed).
+    `force` closes it now, counting the unfinished analyses as failures."""
+    if force:
+        return await close(benchmark, catalog)
     if benchmark.status == "concluido" or benchmark.config.rejudged_from:  # a re-judge closes itself
         return benchmark
     analyses = await analyses_of(benchmark)
