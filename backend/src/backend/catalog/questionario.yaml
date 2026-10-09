@@ -110,7 +110,7 @@ perguntas:
         conhecimento: o mecanismo e o resultado do ensaio
         configuracao: a configuração de um produto
       regras: [REP-D8]
-      explicacao: "configuracao quando o que se reproduz é a configuração de um produto, não o mecanismo ensaiado."
+      explicacao: "Todo projeto tem um arquivo de configuração (parâmetros, versões): ter a configuração documentada NÃO é configuracao. Responda configuracao só se o que a documentação permite reproduzir é o ajuste de um produto de terceiros (contratado, catálogo, plataforma), sem mecanismo próprio ensaiado; se reproduz o mecanismo e o resultado do ensaio, é conhecimento."
     - id: R3
       texto: >-
         Alguma hipótese ou cenário da própria pretensão ficou sem ensaio, ou algum critério prévio não foi atingido?

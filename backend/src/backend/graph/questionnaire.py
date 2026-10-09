@@ -135,12 +135,14 @@ def comparators_measured(checks: ChecksReport | None) -> list[str]:
 
 
 def hypothesis_before_trials(checks: ChecksReport | None, result: CriterionResult) -> bool:
-    """CHK-TEMPO shows the initial document before the trials and the criterion cites the mechanism and hypothesis
-    of the method (§2): the hypothesis was registered before the trials — the record answers C4 by itself."""
+    """CHK-TEMPO shows the initial document before the trials and the method has its mechanism-and-hypothesis
+    section (§2, among the fragments CHK-CONFIG read): the hypothesis was registered before the trials — the record
+    answers C4 by itself, whatever fragments the criterion happened to cite."""
     timeline = checks.get("CHK-TEMPO") if checks else None
+    config = checks.get("CHK-CONFIG") if checks else None
     if timeline is None or not timeline.facts.get("documento_inicial_antes_dos_ensaios"):
         return False
-    return any(e.source_alias.endswith("metodo.md#2") for r in result.rules for e in r.evidences)
+    return bool(config and any(fid.endswith("#2") for fid in config.fragment_ids))
 
 
 def _validate(out: QuestionnaireOut, asked: list[Question], known: set[str],
