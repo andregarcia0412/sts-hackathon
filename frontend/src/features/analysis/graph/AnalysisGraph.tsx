@@ -25,6 +25,9 @@ const ARIA_LABELS: Partial<AriaLabelConfig> = {
   "controls.fitView.ariaLabel": "Enquadrar a árvore inteira",
 };
 
+/* Whole tree: clear of the view/method toggles (top) and the zoom controls (left) */
+const WHOLE_TREE_PADDING = { top: "64px", right: "24px", bottom: "24px", left: "56px" } as const;
+
 /* Edges paint with inline styles, so use the theme's CSS variables */
 const EDGE_STYLE = { stroke: "var(--color-border-strong)", strokeWidth: 1.5 };
 const EDGE_ON_PATH_STYLE = { stroke: "var(--color-accent)", strokeWidth: 2 };
@@ -62,9 +65,9 @@ export const AnalysisGraph = ({
    * Frame the final layout (not the animating one): a node and its visible
    * children, or the whole graph. The camera moves together with the nodes.
    */
-  const frame = useEffectEvent((nodeId: string | null) => {
+  const frame = useEffectEvent((nodeId: string | null, durationMs?: number) => {
     if (!nodeId) {
-      frameGraph(target);
+      frameGraph(target, WHOLE_TREE_PADDING, durationMs);
       return;
     }
     const branchIds = new Set([nodeId, ...(index.get(nodeId)?.childIds ?? [])]);
@@ -74,7 +77,7 @@ export const AnalysisGraph = ({
   // End of intro, switching views
   const onFrameRequest = useEffectEvent(() => {
     if (!frameRequest) return;
-    frame(frameRequest.scope === "selection" ? selectedId : null);
+    frame(frameRequest.scope === "selection" ? selectedId : null, frameRequest.durationMs);
   });
   useEffect(() => onFrameRequest(), [frameRequest]);
 

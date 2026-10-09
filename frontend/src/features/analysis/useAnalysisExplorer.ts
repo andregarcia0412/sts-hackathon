@@ -13,7 +13,12 @@ import type { Analysis } from "@/domain/types";
 interface FrameRequest {
   /** "selection" falls back to the whole graph when nothing is selected */
   scope: "all" | "selection";
+  /** Camera duration; the overview zooms out more slowly, so the move reads */
+  durationMs?: number;
 }
+
+/** "Mapa geral": zoom out to the whole tree, slower than the other moves */
+export const OVERVIEW_FRAME_MS = 1000;
 
 /** How long the fully expanded overview stays on screen before collapsing */
 export const INTRO_HOLD_MS = 1800;
@@ -53,14 +58,15 @@ export const useAnalysisExplorer = (analysis: Analysis) => {
    * later: router updates arrive in a transition, after this state.
    */
   const [frameRequest, setFrameRequest] = useState<FrameRequest | null>(null);
-  const requestFrame = (scope: FrameRequest["scope"]) => setFrameRequest({ scope });
+  const requestFrame = (scope: FrameRequest["scope"], durationMs?: number) =>
+    setFrameRequest({ scope, durationMs });
 
   useEffect(() => {
     if (!introActive) return;
     const timer = setTimeout(() => {
       setIntroActive(false);
       // Collapsed to the criteria: show all of them
-      requestFrame("all");
+      requestFrame("all", OVERVIEW_FRAME_MS);
     }, INTRO_HOLD_MS);
     return () => clearTimeout(timer);
   }, [introActive]);
@@ -84,8 +90,9 @@ export const useAnalysisExplorer = (analysis: Analysis) => {
       setIntroActive(true);
     } else {
       setIntroActive(false);
-      requestFrame(next === "criterion" ? "all" : "selection");
     }
+    // Overview: zoom out until the whole tree is on screen
+    requestFrame("all", next === "overview" ? OVERVIEW_FRAME_MS : undefined);
   };
 
   const setExpandedAfterIntro = (
