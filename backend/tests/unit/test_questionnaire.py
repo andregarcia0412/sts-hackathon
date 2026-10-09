@@ -213,3 +213,17 @@ async def test_novelty_in_the_rd_column_needs_a_numeric_record_somewhere_in_the_
                                          options=QUESTIONNAIRE)
     assert state.state == "INDETERMINADA" and state.llm_state == "DEMONSTRADA NO RECORTE"
     assert any("registro numérico" in gate for gate in state.gates)
+
+
+async def test_comparators_measured_on_the_same_metric_answer_n3():
+    from backend.checks.runner import run_checks
+    from tests.factories import synthetic_canonical
+
+    checks = run_checks(await synthetic_canonical())  # fifo-v1 and dependencia-v2 on "lotes na ordem"
+    nov = CriterionResult(criterion="NOV", rules=[run("NOV-D2", evidence("NOV-D2"))])
+    llm = FakeLLM({QuestionnaireOut: fake_answers({"N3": "sem_registro"})})
+    state = await judge_by_questionnaire(llm, get_catalog(), nov, True, options=QUESTIONNAIRE, checks=checks)
+    n3 = next(a for a in state.answers if a.pergunta == "N3")
+    assert (n3.resposta, n3.origem) == ("sim", "gate") and "CHK-RECALC" in n3.explicacao
+    assert state.state == "DEMONSTRADA NO RECORTE"
+    assert "\nN3 [" not in user_text(llm.calls_for(QuestionnaireOut)[0])

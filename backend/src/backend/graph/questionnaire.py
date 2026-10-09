@@ -6,6 +6,7 @@ the evidence that sustains it, and the CODE turns the answers into the state wit
 from pydantic import BaseModel, Field
 
 from backend.catalog.models import Catalog, DecisionLine, Question
+from backend.checks.models import ChecksReport
 from backend.criteria.common import DATA_NOT_INSTRUCTIONS, argument_block
 from backend.criteria.schemas import CriterionResult
 from backend.errors import safe_error_message
@@ -118,6 +119,19 @@ def locks(result: CriterionResult, catalog: Catalog, exempt_score: int | None,
                 evidencias=_evidence_ids(result, hit.rule_id, "negativa"),
                 explicacao=f"{hit.rule_id} com evidência negativa predominante ({hit.title})."))
     return locked, gates, conflicts, fired
+
+
+def comparators_measured(checks: ChecksReport | None) -> list[str]:
+    """Metrics measured for two or more versions in the recomputed results (CHK-RECALC): the mechanism was run
+    against comparators on the same inputs — the record answers N3 by itself."""
+    result = checks.get("CHK-RECALC") if checks else None
+    if result is None or result.status in ("falhou", "nao_aplicavel"):
+        return []
+    versions: dict[str, set[str]] = {}
+    for line in result.facts.get("linhas", []):
+        if line.get("metrica") and line.get("versao") and line.get("natureza") in (None, "desempenho"):
+            versions.setdefault(line["metrica"], set()).add(line["versao"])
+    return [f"{metric}: {', '.join(sorted(found))}" for metric, found in versions.items() if len(found) >= 2]
 
 
 def _validate(out: QuestionnaireOut, asked: list[Question], known: set[str],
@@ -275,13 +289,18 @@ async def judge_by_questionnaire(llm: LLM, catalog: Catalog, result: CriterionRe
                                  numeric_record_in_analysis: bool, analyst_argument: str | None = None, *,
                                  score: int | None = None, n_rules: int = 0,
                                  options: JudgeOptions | None = None,
-                                 cross: set[str] | frozenset[str] = frozenset()) -> CriterionState:
+                                 cross: set[str] | frozenset[str] = frozenset(),
+                                 checks: ChecksReport | None = None) -> CriterionState:
     options = options or JudgeOptions(judge_mode="questionario")
     criterion = result.criterion
     questions = catalog.questionnaire.perguntas[criterion]
     table = catalog.questionnaire.decisao[criterion]
     exempt = coherence_exempt(criterion, score, n_rules, options)
     locked, gates, conflicts, fired = locks(result, catalog, exempt, cross)
+    if criterion == "NOV" and "N3" not in locked and (compared := comparators_measured(checks)):
+        locked["N3"] = Answer(pergunta="N3", resposta="sim", origem="gate",
+                              explicacao="checagens#CHK-RECALC: versões comparadas na mesma métrica — "
+                                         + "; ".join(compared))
     if criterion in NUMERIC_IN_CRITERION:
         has_numeric = any(e.polarity == "positiva" and e.nature in NUMERIC_NATURES
                           for r in result.rules for e in r.evidences)

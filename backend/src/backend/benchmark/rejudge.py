@@ -12,11 +12,12 @@ from datetime import UTC, datetime
 
 from beanie import PydanticObjectId
 
-from backend.analyses.models import Analysis
+from backend.analyses.models import Analysis, CanonicalRecord
 from backend.benchmark.metrics import compute
 from backend.benchmark.models import Benchmark, BenchmarkRun, RunSnapshot
 from backend.benchmark.service import snapshot_of
 from backend.catalog.models import Catalog
+from backend.checks.runner import run_checks
 from backend.errors import safe_error_message
 from backend.graph.judge import JudgeOptions, judge_and_classify
 from backend.llm import LLM
@@ -62,9 +63,12 @@ async def _rejudge_one(llm: LLM, catalog: Catalog, options: JudgeOptions, run: B
                        analysis: Analysis) -> RunSnapshot:
     started_at, started = datetime.now(UTC), time.monotonic()
     copy = analysis.model_copy(deep=True)
+    if copy.checks is None:  # analyses from before the checks stage: zero tokens from the saved canonical
+        if record := await CanonicalRecord.find_one(CanonicalRecord.analysis_id == str(analysis.id)):
+            copy.checks = run_checks(record.canonical)
     with meter_scope() as usage, calls_scope() as calls, stage_scope("grafo"):
         try:
-            outcome = await judge_and_classify(llm, catalog, copy.criteria, options)
+            outcome = await judge_and_classify(llm, catalog, copy.criteria, options, copy.checks)
         except Exception as error:  # defensive: one analysis failing must not lose the others
             snap = snapshot_of(run, copy)
             snap.status, snap.error = "falhou", f"re-julgar falhou: {safe_error_message(error)}"
