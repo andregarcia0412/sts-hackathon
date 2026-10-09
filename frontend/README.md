@@ -41,7 +41,8 @@ react-resizable-panels, react-dropzone, react-to-print, lucide-react.
 | Rota | Tela |
 |---|---|
 | `/login` | Login e Cadastro do **Lastro** (mock: analistas de demonstração ou conta criada na hora, qualquer senha) |
-| `/projetos?q=&status=&banda=&decisao=&de=&ate=&ordem=&pagina=&novo=1` | Meus projetos: cards por situação (também filtram), filtros (critério mais fraco, decisão, período, ordem), busca, situação de cada projeto e "Reenviar arquivo"; "Novo projeto" (`novo=1` abre o upload) |
+| `/projetos?q=&status=&banda=&decisao=&de=&ate=&ordem=&pagina=` | Meus projetos: cabeçalho fixo e só a lista rola; cards por situação (também filtram), filtros em menus da marca (critério mais fraco, decisão, período, ordem), busca, situação de cada projeto e "Reenviar arquivo" |
+| `/projetos/novo` | Upload de arquivos (novo projeto) em tela própria: formulário com rolagem, rodapé fixo, "Enviar para análise" só habilitado com nome + material e envios concluídos |
 | `/projetos/:id/analise?metodo=<método>&no=<nó>` | Árvore de evidências: detalhamento (critérios em acordeão) + grafo Critério → Regra → Evidência + decisão do analista por regra |
 | `/projetos/:id/decisao?metodo=<método>&no=<nó>` | Documento de decisão de um método por vez: resumo, pendências antes de decidir (divergências, limites, lacunas), detalhamento em sanfona (`no` abre o critério/regra), classificação final (4 opções), trilha e PDF (sai tudo aberto) |
 

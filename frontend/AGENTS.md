@@ -131,6 +131,13 @@ src/
   simples e reproduzidos com Tailwind.
 - "Etiqueta" = `<Tag tone label size>` (sempre ícone + texto). Botões: `.btn-primary`
   (pílula vinho), `.btn-secondary`, `.btn-chip`, `.btn-link`.
+- Menus suspensos: `<PillSelect>` (`components/ui`), combobox acessível com a cara da marca
+  (o `<select>` nativo não deixa estilizar a lista). Campos de texto: `.input-pill`.
+- Telas de lista, upload e documento: em telas largas o cabeçalho fica fixo e só o conteúdo
+  rola (`lg:min-h-0` + `overflow-y-auto` + `.scroll-visible`, barra de rolagem visível).
+- Login sem rolagem: variantes `short:` (altura ≤ 66rem) e `shorter:` (≤ 48rem) em
+  `index.css` compactam espaços e título.
+- Conectores da árvore: `BracketEdge` (`bracketPath`), reta → canto de 8px → vertical no meio.
 - Texto cinza claro do Figma (`#979797`) não tem contraste suficiente para texto: usamos
   `text-fg-muted` (`#646464`) nesses casos.
 - Os cards de situação da lista usam cores próprias do design (laranja, azul, verde:
