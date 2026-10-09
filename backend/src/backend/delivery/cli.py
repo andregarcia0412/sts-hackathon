@@ -93,10 +93,32 @@ async def _export(args: argparse.Namespace) -> int:
     return 0 if result.ok else 1
 
 
+async def _reconclude(args: argparse.Namespace) -> int:
+    from backend.delivery.reconclude import reconclude_benchmark
+
+    source = await get_benchmark(args.benchmark)
+    if source is None:
+        raise SystemExit(f"benchmark not found: {args.benchmark}")
+    async with httpx.AsyncClient(timeout=30) as http:
+        llm = LLMClient(settings)
+        service = AnalysisService(llm, lambda: build_providers(llm, http, settings), settings, get_catalog())
+        runner = JobRunner(settings.analysis_concurrency)
+        benchmark = await reconclude_benchmark(source, service, runner)
+        while benchmark.status != "concluido":
+            await asyncio.sleep(args.poll)
+            benchmark = await refresh(await get_benchmark(str(benchmark.id)), service.catalog)
+        await runner.wait_all()
+    if benchmark.metrics:
+        print_summary(benchmark.metrics)
+    print(f"\nbenchmark reconcluído: {benchmark.id} → uv run backend-entrega export {benchmark.id}")
+    return 0
+
+
 async def _main(args: argparse.Namespace) -> int:
     await init_db()
     try:
-        return await (_run(args) if args.command == "run" else _export(args))
+        commands = {"run": _run, "export": _export, "reconclude": _reconclude}
+        return await commands[args.command](args)
     finally:
         await close_db()
 
@@ -112,6 +134,9 @@ def main() -> None:
     run.add_argument("--name", default="entrega")
     run.add_argument("--owner", default=settings.seed_email_pattern.format(n=1))
     run.add_argument("--poll", type=float, default=30)
+    again = sub.add_parser("reconclude", help="new versions re-running only judge, graph and report (cheap)")
+    again.add_argument("benchmark")
+    again.add_argument("--poll", type=float, default=20)
     export = sub.add_parser("export", help="write the delivery folder from what is in Mongo")
     export.add_argument("benchmark")
     export.add_argument("--out", type=Path, help="default: PACKAGE_DIR/../entregas/entrega_<date>; never in the repo")

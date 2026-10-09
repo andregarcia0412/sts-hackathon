@@ -223,6 +223,7 @@ uv run backend-benchmark --rejudge <benchmark_id> [--coherence off|flag|reask|fo
 uv run backend-benchmark --close <benchmark_id>   # close a benchmark whose CLI died
 uv run backend-benchmark report <benchmark_id> --out metricas.html   # pitch report (static HTML + metricas.json)
 uv run backend-entrega run [--resume <id>] [--yes]   # analyse the 20 cases (resumable, estimate first)
+uv run backend-entrega reconclude <benchmark_id>   # new versions re-running only judge, graph and report (cheap)
 uv run backend-entrega export <benchmark_id> [--out <outside the repo>] [--zip] [--require-decisions]
 uv run backend-checks <benchmark_id> [--projects PRJ21]   # deterministic checks over saved canonicals (zero tokens)
 uv run backend-checks <benchmark_id> --parsers   # deterministic mapping × saved canonical fragment ids (zero tokens)

@@ -46,6 +46,7 @@ class Analysis(Document):
     owner_id: str
     version: int
     previous_analysis_id: str | None = None
+    reconcluded_from: str | None = None  # only the conclusion was re-run over this analysis' evidence
     batch_id: str | None = None
     status: AnalysisStatus = "pendente"
     created_at: datetime = Field(default_factory=now)

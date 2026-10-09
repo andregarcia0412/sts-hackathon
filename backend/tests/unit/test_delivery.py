@@ -94,3 +94,27 @@ async def test_resume_reuses_unchanged_projects_and_redoes_changed_ones(delivere
     assert todo == ["PRJ92"] and reused == ["PRJ91"]
     resumed = await run_delivery("owner-1", "entrega", folder, service, InlineRunner(), None, resume=benchmark)
     assert [r.code for r in resumed.runs] == ["PRJ92"] and resumed.config.resumed_from == str(benchmark.id)
+
+
+async def test_reconclude_makes_new_versions_without_touching_the_source(delivered):
+    from backend.delivery.reconclude import reconclude_benchmark
+    from backend.graph.models import GraphNode
+
+    benchmark, _, _, tmp_path = delivered
+    before = (await Analysis.get(benchmark.runs[0].analysis_id)).model_dump(exclude={"revision_id"})
+    llm = FakeLLM(full_handlers({"SIS": "DOCUMENTADA COMO ACEITE"}))
+    service = AnalysisService(llm, fake_providers, SETTINGS, get_catalog())
+    again = await reconclude_benchmark(benchmark, service, InlineRunner())
+    assert again.status == "concluido" and again.config.reconcluded_from == str(benchmark.id)
+    new = await Analysis.get(again.runs[0].analysis_id)
+    old = await Analysis.get(new.reconcluded_from)
+    assert new.version == old.version + 1 and new.status == "concluida"
+    from backend.graph.questionnaire import QuestionnaireOut
+
+    assert len(llm.calls_for(QuestionnaireOut)) >= 10 and new.states["SIS"].answers  # the judge ran again
+    assert old.model_dump(exclude={"revision_id"}) == before  # the source is never written
+    assert new.stage("NOV").status == "concluida" and "reaproveitada" in new.stage("NOV").error
+    assert {r for _, r, _ in llm.calls} <= {"judge", "report"}  # no extraction, no sub-agents, no web
+    assert await GraphNode.find(GraphNode.analysis_id == str(new.id)).count() > 10
+    result = await export_delivery(again, get_catalog(), tmp_path / "e3", expected=2)
+    assert result.ok and {p.analysis_id for p in result.projects} == {r.analysis_id for r in again.runs}
