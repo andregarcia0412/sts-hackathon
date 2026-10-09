@@ -55,7 +55,8 @@ def strength_of(score: int | None, rules_with_evidence: int, options: JudgeOptio
 
 def check_coherence(criterion: str, state: str | None, column: str | None, llm_column: str | None,
                     gate_conflicts: list[str], score: int | None, rules_with_evidence: int, catalog: Catalog,
-                    options: JudgeOptions, include_gate_conflicts: bool = True) -> Contradiction | None:
+                    options: JudgeOptions, include_gate_conflicts: bool = True,
+                    forced_by_gate: bool = False) -> Contradiction | None:
     strength = strength_of(score, rules_with_evidence, options)
     if strength is None or state is None:
         return None
@@ -70,6 +71,10 @@ def check_coherence(criterion: str, state: str | None, column: str | None, llm_c
             return Contradiction(**base, source="gate", gate_rules=list(gate_conflicts),
                                  choices=[*vocabulary.positivo, vocabulary.negativo])
         if strength == "forte_positivo" and column == "insuficiente" and not numeric_gate:
+            return Contradiction(**base, source="juiz", choices=[*vocabulary.positivo, vocabulary.negativo])
+        # The judge itself chose routine against a strong positive score (a gate forcing it is a separate case):
+        # the costly error of calling R&D routine — asked again, never overturned by the code.
+        if strength == "forte_positivo" and column == "rotina" and not forced_by_gate:
             return Contradiction(**base, source="juiz", choices=[*vocabulary.positivo, vocabulary.negativo])
         if strength == "forte_negativo" and column == "pd":
             return Contradiction(**base, source="juiz", choices=[vocabulary.negativo, vocabulary.indeterminado])
@@ -99,8 +104,13 @@ def contradiction_block(contradiction: Contradiction, result: CriterionResult) -
         column = {"pd": "P&D", "rotina": "rotina", "insuficiente": "insuficiente"}.get(contradiction.column or "", "?")
         lines.append(f'O estado escolhido, {contradiction.state}, está na coluna "{column}".')
         lines.append(f"Reavalie escolhendo entre: {choices}.")
-        lines.append(f"Mantenha {contradiction.state} somente se citar a evidência decisiva que falta e explicar por "
-                     "que as evidências do score não bastam.")
+        if contradiction.column == "rotina":
+            lines.append(f"Mantenha {contradiction.state} somente se citar a evidência de rotina: a referência anterior "
+                         "ou uma configuração já fornecia a função, ou o elemento é renomeação de técnica conhecida. "
+                         "Falta de um registro não é prova de rotina.")
+        else:
+            lines.append(f"Mantenha {contradiction.state} somente se citar a evidência decisiva que falta e explicar "
+                         "por que as evidências do score não bastam.")
     return "<contradicao>\n" + "\n".join(lines) + "\n</contradicao>"
 
 

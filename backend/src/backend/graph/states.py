@@ -252,8 +252,9 @@ async def _judge_once(llm: LLM, catalog: Catalog, result: CriterionResult, numer
 def _contradiction(state: CriterionState, score: int | None, n_rules: int, catalog: Catalog, options: JudgeOptions,
                    include_gate_conflicts: bool = True) -> Contradiction | None:
     llm_column = column_of(state.criterion, state.llm_state, catalog) if state.llm_state else None
+    forced = bool(state.fired_gates) or any(g.startswith("gate NOV-W3") for g in state.gates)
     return check_coherence(state.criterion, state.state, state.column, llm_column, state.gate_conflicts, score,
-                           n_rules, catalog, options, include_gate_conflicts)
+                           n_rules, catalog, options, include_gate_conflicts, forced_by_gate=forced)
 
 
 JudgeOnce = Callable[[Contradiction | None, CriterionState | None], Awaitable[CriterionState]]
