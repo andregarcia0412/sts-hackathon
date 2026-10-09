@@ -2,7 +2,6 @@ import { CloudUpload, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { ArticleIcon } from "@/components/icons/MaterialIcons";
-import { ACCEPTED_FILE_TYPES } from "@/features/projects/acceptedFiles";
 import { MAX_FILE_BYTES } from "@/domain/documents";
 import type { ProjectSummary } from "@/domain/types";
 import { formatFileSize } from "@/lib/format";
@@ -42,7 +41,8 @@ const ResendForm = ({ project, onDone }: { project: ProjectSummary; onDone: () =
   const [file, setFile] = useState<File | null>(null);
   const [rejected, setRejected] = useState(false);
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    accept: ACCEPTED_FILE_TYPES,
+    // Any document type: the back-end identifies files by content and flags
+    // unknown kinds instead of rejecting them (see FileDropzone).
     maxSize: MAX_FILE_BYTES,
     multiple: false,
     onDrop: (accepted, rejections) => {
