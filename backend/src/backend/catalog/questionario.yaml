@@ -31,7 +31,7 @@ perguntas:
         O mecanismo foi comparado com a referência ou com as alternativas conhecidas, com o modo de falha de cada
         uma?
       regras: [NOV-D2]
-      explicacao: "Basta a comparação registrada no método ou nas medições; sem_registro só se ela não existe."
+      explicacao: "Conta a comparação no método (§1 lista as alternativas conhecidas e o modo de falha de cada uma) ou nas medições (versões comparadoras rodadas nas mesmas entradas que o mecanismo). sem_registro só se nenhuma das duas existe."
   CRI:
     - id: C1
       texto: >-
@@ -44,7 +44,7 @@ perguntas:
         Há elemento técnico próprio (combinação original, não renomeação de técnica conhecida) com a hipótese
         registrada antes dos testes?
       regras: [CRI-D1, CRI-D10]
-      explicacao: "Não use o texto da referência anterior (§1) como prova de combinação original; método novo para tarefa comum conta."
+      explicacao: "A hipótese escrita no método (§2, mecanismo e hipótese) conta como registrada antes quando o documento inicial é anterior aos ensaios na cronologia; não exija um registro separado. Responda nao só se o elemento é renomeação de técnica conhecida, se vem do texto da referência anterior (§1) ou se a hipótese só aparece depois dos ensaios. Método novo para tarefa comum conta."
     - id: C3
       texto: >-
         Os parâmetros-chave do mecanismo estão preenchidos (não nulos) na configuração, com regra de decisão
@@ -89,7 +89,7 @@ perguntas:
         experimento: alternativas nas mesmas entradas + referência fixada antes + critérios prévios
         aceite: roteiros com resultado esperado repetidos até passar
       regras: [SIS-D5]
-      explicacao: "Aceite perfeito (100% de aprovação) não é sinal de experimento; documentação completa de aceite é aceite, não sem_registro."
+      explicacao: "Versões sucessivas do mesmo produto ou configuração repetidas até passar (v1 falha, v2 passa) são aceite. Experimento exige alternativas concorrentes (comparadores conhecidos) rodadas nas mesmas entradas, com critérios fixados antes. Aceite perfeito não é sinal de experimento."
   REP:
     - id: R1
       texto: >-
