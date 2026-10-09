@@ -1,0 +1,87 @@
+import os
+
+# Must run before `backend` is imported: Settings is built at import time.
+os.environ.update(
+    MONGODB_DB="sts_test",
+    JWT_ACCESS_SECRET="test-access-secret-at-least-32-bytes-long",
+    JWT_REFRESH_SECRET="test-refresh-secret-at-least-32-bytes-long",
+    ACCESS_TOKEN_EXPIRE_MINUTES="15",
+    REFRESH_TOKEN_EXPIRE_DAYS="7",
+    SEED_EMAIL_PATTERN="seed{n}@sts.com",
+    SEED_PASSWORD="seed-password",
+    NORMS_AUTO_INGEST="false",
+    OLLAMA_MODEL="",
+    PACKAGE_DIR="",
+)
+
+import pytest  # noqa: E402
+from fastapi.testclient import TestClient  # noqa: E402
+from pymongo import MongoClient  # noqa: E402
+
+from backend.config import settings  # noqa: E402
+from backend.main import app  # noqa: E402
+
+
+def _drop_test_db() -> None:
+    with MongoClient(settings.mongodb_uri) as mongo:
+        mongo.drop_database(settings.mongodb_db)
+
+
+@pytest.fixture
+def client():
+    _drop_test_db()
+    with TestClient(app) as test_client:
+        yield test_client
+    _drop_test_db()
+
+
+@pytest.fixture
+def users_collection():
+    with MongoClient(settings.mongodb_uri) as mongo:
+        yield mongo[settings.mongodb_db]["users"]
+
+
+@pytest.fixture
+async def db():
+    """Beanie initialised on the isolated test database, for service-level tests without HTTP."""
+    from beanie import init_beanie
+    from pymongo import AsyncMongoClient
+
+    from backend.models import DOCUMENT_MODELS
+
+    _drop_test_db()
+    mongo = AsyncMongoClient(settings.mongodb_uri)
+    await init_beanie(database=mongo[settings.mongodb_db], document_models=DOCUMENT_MODELS)
+    yield mongo[settings.mongodb_db]
+    await mongo.close()
+    _drop_test_db()
+
+
+@pytest.fixture
+def auth_headers(client):
+    tokens = client.post(
+        "/auth/register", json={"email": "analyst@sts.com", "password": "analyst-pass", "name": "Ana Analista"}
+    ).json()
+    return {"Authorization": f"Bearer {tokens['access_token']}"}
+
+
+@pytest.fixture
+def fake_pipeline(client):
+    """Swaps the real LLM/search for fakes and runs analyses inline (the request returns after the run)."""
+    from backend.analyses.jobs import InlineRunner
+    from backend.analyses.orchestrator import AnalysisService
+    from backend.catalog.loader import get_catalog
+    from tests.factories import fake_providers, full_handlers
+    from tests.fakes import FakeLLM
+
+    llm = FakeLLM(full_handlers())
+    app.state.llm = llm
+    app.state.runner = InlineRunner()
+    app.state.analysis_service = AnalysisService(llm, fake_providers, settings, get_catalog())
+    return llm
+
+
+def package_upload():
+    from tests.factories import synthetic_package
+
+    return [("files", (f.path, f.data, "application/octet-stream")) for f in synthetic_package()]
