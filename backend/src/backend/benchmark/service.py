@@ -164,6 +164,9 @@ def snapshot_of(run: BenchmarkRun, analysis: Analysis | None) -> RunSnapshot:
                 snap.evidences_negative += item.polarity == "negativa"
         snap.web_searches += len(result.search_log)
         snap.web_search_errors += sum(1 for entry in result.search_log if entry.error)
+        snap.web_searches_reused += sum(1 for entry in result.search_log if entry.reused_from)
+        snap.web_queries_ungrounded += sum(1 for entry in result.search_log
+                                           if entry.error and "sem termo do domínio" in entry.error)
         for entry in result.search_log:
             snap.web_searches_by_base[entry.base] = snap.web_searches_by_base.get(entry.base, 0) + 1
             if entry.error:

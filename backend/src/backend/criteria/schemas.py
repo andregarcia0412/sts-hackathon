@@ -103,6 +103,7 @@ class SearchLogEntry(BaseModel):
     selected: list[str] = Field(default_factory=list)
     discarded: list[str] = Field(default_factory=list)
     error: str | None = None
+    reused_from: str | None = None  # near-identical query of the same front already run in this analysis
 
 
 class ClosestDoc(BaseModel):

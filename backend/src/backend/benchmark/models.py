@@ -80,6 +80,8 @@ class RunSnapshot(CamelModel):
     web_search_errors: int = 0
     web_searches_by_base: dict[str, int] = Field(default_factory=dict)
     web_search_errors_by_base: dict[str, int] = Field(default_factory=dict)
+    web_searches_reused: int = 0  # served by a near-identical query of the same front (spec 10)
+    web_queries_ungrounded: int = 0  # dropped: no term of the project's domain
     web_sources: int = 0
     web_not_prior_art: int = 0
     sanitized_terms_removed: int = 0
@@ -156,6 +158,8 @@ class EvidenceMetrics(CamelModel):
     gate_drop_rate: float | None = None  # dropped / (dropped + accepted)
     web_search_error_rate: float | None = None
     web_search_error_rate_by_base: dict[str, float | None] = Field(default_factory=dict)  # openalex, patentes, web
+    web_searches_reused: int = 0
+    web_queries_ungrounded: int = 0
     web_not_prior_art_share: float | None = None
     sanitized_terms_removed: int = 0
     divergences_per_run: Distribution = Field(default_factory=Distribution)
