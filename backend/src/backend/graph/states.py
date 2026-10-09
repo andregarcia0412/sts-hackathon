@@ -299,7 +299,7 @@ async def with_coherence(judge_once: JudgeOnce, catalog: Catalog, score: int | N
 async def judge_state(llm: LLM, catalog: Catalog, result: CriterionResult, numeric_record_in_analysis: bool,
                       analyst_argument: str | None = None, *, score: int | None = None, n_rules: int = 0,
                       options: JudgeOptions | None = None,
-                      cross: set[str] | frozenset[str] = frozenset()) -> CriterionState:
+                      cross: set[str] | frozenset[str] = frozenset(), checks=None) -> CriterionState:
     """The LLM suggests the state, gates force it in code, and the coherence gate checks it against the score.
     `cross`: the state gates that fired in the criteria judged before (NOV, CRI)."""
     options = options or JudgeOptions()

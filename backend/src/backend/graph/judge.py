@@ -58,7 +58,8 @@ async def judge_and_classify(llm: LLM, catalog: Catalog, results: dict[str, Crit
 
     async def one(criterion: str, cross: set[str]) -> CriterionState:
         return await judge(llm, catalog, results[criterion], numeric, score=criterion_scores.get(criterion),
-                           n_rules=rules_with_evidence(scores.get(criterion, [])), options=options, cross=cross)
+                           n_rules=rules_with_evidence(scores.get(criterion, [])), options=options, cross=cross,
+                           checks=checks)
 
     # Two waves, no extra calls: the state gates that fired in NOV/CRI feed the cross-criteria gates of INC/SIS/REP.
     first = await asyncio.gather(*(one(c, set()) for c in FIRST_WAVE))
