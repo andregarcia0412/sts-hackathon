@@ -102,3 +102,62 @@ def test_benchmarks_are_scoped_to_their_owner(client, auth_headers, fake_pipelin
     headers = {"Authorization": f"Bearer {other['access_token']}"}
     assert client.get(f"/benchmarks/{benchmark_id}", headers=headers).status_code == 404
     assert client.get("/benchmarks/bad-id", headers=headers).status_code == 404
+
+
+def test_rejudge_endpoint_creates_a_comparable_benchmark(client, auth_headers, fake_pipeline, package_root):
+    source = client.post("/benchmarks", json={"projects": ["PRJ90"]}, headers=auth_headers).json()["id"]
+    created = client.post(f"/benchmarks/{source}/rejudge", json={}, headers=auth_headers)
+    assert created.status_code == 202
+    body = client.get(f"/benchmarks/{created.json()['id']}", headers=auth_headers).json()
+    assert body["status"] == "concluido" and body["config"]["rejudgedFrom"] == source
+    assert body["progress"]["concluida"] == 1
+    comparison = client.get(f"/benchmarks/compare?base={source}&target={body['id']}", headers=auth_headers).json()
+    assert comparison["deltas"]["oficial.classAccuracy"]["delta"] == 0
+
+    other = client.post("/auth/register", json={"email": "y@sts.com", "password": "yyyyyyyy"}).json()
+    headers = {"Authorization": f"Bearer {other['access_token']}"}
+    assert client.post(f"/benchmarks/{source}/rejudge", json={}, headers=headers).status_code == 404
+
+
+def test_close_a_benchmark_stuck_running(client, auth_headers, fake_pipeline, package_root):
+    import asyncio
+
+    from backend.analyses.models import Analysis
+
+    body = client.post("/benchmarks", json={"projects": ["PRJ90", "PRJ92"]}, headers=auth_headers).json()
+
+    async def reopen():  # as if the CLI had died with one analysis still running
+        from beanie import PydanticObjectId
+
+        from backend.benchmark.models import Benchmark
+
+        benchmark = await Benchmark.get(PydanticObjectId(body["id"]))
+        analysis = await Analysis.get(PydanticObjectId(benchmark.runs[1].analysis_id))
+        analysis.status = "rodando"
+        await analysis.save()
+        benchmark.status, benchmark.metrics, benchmark.snapshots = "rodando", None, []
+        await benchmark.save()
+
+    client.portal.call(reopen) if hasattr(client, "portal") else asyncio.run(reopen())
+    assert client.get(f"/benchmarks/{body['id']}", headers=auth_headers).json()["status"] == "rodando"
+    closed = client.post(f"/benchmarks/{body['id']}/close", headers=auth_headers).json()
+    assert closed["status"] == "concluido" and "fechado à força" in closed["errors"]
+    assert closed["metrics"]["reliability"]["failed"] == 1
+
+
+def test_report_html_endpoint(client, auth_headers, fake_pipeline, package_root):
+    benchmark_id = client.post("/benchmarks", json={"projects": ["PRJ90"]}, headers=auth_headers).json()["id"]
+    page = client.get(f"/benchmarks/{benchmark_id}/report.html", headers=auth_headers)
+    assert page.status_code == 200 and page.headers["content-type"].startswith("text/html")
+    assert "Matriz de confusão" in page.text and "O que o sistema barrou" in page.text
+
+
+def test_delivery_zip_endpoint(client, auth_headers, fake_pipeline, package_root):
+    import io
+    import zipfile
+
+    benchmark_id = client.post("/benchmarks", json={"sets": ["analise"]}, headers=auth_headers).json()["id"]
+    response = client.post(f"/benchmarks/{benchmark_id}/delivery", headers=auth_headers)
+    assert response.status_code == 200 and response.headers["content-type"] == "application/zip"
+    names = zipfile.ZipFile(io.BytesIO(response.content)).namelist()
+    assert "manifest.json" in names and "PRJ91/parecer.pdf" in names and "frontend/api_mock.json" in names

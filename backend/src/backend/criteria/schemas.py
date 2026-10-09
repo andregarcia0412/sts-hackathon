@@ -15,6 +15,14 @@ def evidence_id(rule_id: str, source_id: str, quote: str) -> str:
     return "ev-" + hashlib.sha1(f"{rule_id}|{source_id}|{quote}".encode()).hexdigest()[:16]
 
 
+class Adjustment(BaseModel):
+    """A deterministic adjustment made after the sub-agents (never deletes, keeps the original polarity)."""
+
+    kind: Literal["consistencia", "pergunta"]  # consistencia = out of the score; pergunta = counts as negative
+    by_rule: str
+    reason: str
+
+
 class EvidenceItem(BaseModel):
     id: str
     rule_id: str
@@ -31,6 +39,15 @@ class EvidenceItem(BaseModel):
     url: str | None = None
     published_date: date | None = None
     captured_at: datetime | None = None
+    adjustment: Adjustment | None = None
+    flags: list[str] = Field(default_factory=list)  # signals for the reviewer (e.g. justificativa_especulativa)
+
+    @property
+    def scored_polarity(self) -> Polarity | None:
+        """The polarity the score and the state gates use: None = neutralized (out of the score)."""
+        if self.adjustment is None:
+            return self.polarity
+        return "negativa" if self.adjustment.kind == "pergunta" else None
 
 
 class RuleRun(BaseModel):
@@ -87,6 +104,7 @@ class SearchLogEntry(BaseModel):
     selected: list[str] = Field(default_factory=list)
     discarded: list[str] = Field(default_factory=list)
     error: str | None = None
+    reused_from: str | None = None  # near-identical query of the same front already run in this analysis
 
 
 class ClosestDoc(BaseModel):

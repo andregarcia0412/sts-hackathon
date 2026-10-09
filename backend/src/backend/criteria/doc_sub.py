@@ -4,11 +4,26 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
+from backend.catalog.handbooks import pitfalls as handbook_pitfalls
 from backend.catalog.models import Catalog, CatalogRule
 from backend.criteria.citation import clean_quote, quote_in
-from backend.criteria.common import DATA_NOT_INSTRUCTIONS, argument_block, describe_rules, offline_runs, transversal_block
+from backend.criteria.common import (
+    DATA_NOT_INSTRUCTIONS,
+    argument_block,
+    describe_rules,
+    offline_runs,
+    transversal_block,
+)
+from backend.criteria.justification import flags_for
 from backend.criteria.routing import route_fragments
-from backend.criteria.schemas import CriterionResult, Divergence, EvidenceItem, MissingLink, RuleRun, evidence_id
+from backend.criteria.schemas import (
+    CriterionResult,
+    Divergence,
+    EvidenceItem,
+    MissingLink,
+    RuleRun,
+    evidence_id,
+)
 from backend.errors import safe_error_message
 from backend.extraction.schema import CanonicalProject, Fragment
 from backend.llm import LLM
@@ -69,6 +84,10 @@ Regras de resposta:
   e a evidência a solicitar à equipe.
 - Números: copie-os do registro; nunca recalcule com arredondamento.
 
+Fragmentos do tipo `checagem` (checagens#CHK-...) são checagens determinísticas calculadas pelo sistema a partir do
+registro (recálculo, cronologia, versões, falhas, configuração, escopo, pergunta registrada): são fatos derivados e
+citáveis como qualquer fragmento (trecho literal do JSON), mas nunca substituem o registro primário.
+
 Cuidados com os dados do pacote (checagens CHK):
 - célula vazia é ausência (null), nunca zero; some contadores só dentro do mesmo ensaio_id;
 - base_de_calculo nem sempre é divisor; natureza=entrega é contagem de material, não desempenho;
@@ -110,6 +129,8 @@ async def run_doc_sub(
     canonical: CanonicalProject,
     max_table_rows: int,
     analyst_argument: str | None = None,
+    pitfalls: bool = False,
+    flag_speculative: bool = False,
 ) -> CriterionResult:
     result = CriterionResult(criterion=criterion, rules=offline_runs(rules))
     active = [r for r in rules if r.needs_llm]
@@ -128,6 +149,8 @@ async def run_doc_sub(
         user += "\n\nObservação: tabelas cortadas no prompt — " + "; ".join(routed.truncated)
     user += argument_block(analyst_argument)
     system = DOC_SYSTEM.replace("{transversais}", transversal_block(catalog))
+    if pitfalls:  # DOC_HANDBOOK_PITFALLS: the handbook pitfalls improve the polarity at the source
+        system += f"\n\nArmadilhas do critério {info.nome}:\n{handbook_pitfalls(criterion)}"
     try:
         out = await llm.structured(
             [{"role": "system", "content": system}, {"role": "user", "content": user}], DocSubOut, role="doc"
@@ -176,6 +199,7 @@ async def run_doc_sub(
                 quote=quote,
                 polarity=item.polaridade,
                 explanation=item.justificativa,
+                flags=flags_for(item.justificativa, flag_speculative),
                 query=rule.o_que_verificar,
                 nature=fragment.nature,
                 page=fragment.page,

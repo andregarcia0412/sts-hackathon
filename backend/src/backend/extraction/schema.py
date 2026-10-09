@@ -5,7 +5,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, PrivateAttr
 
-SCHEMA_VERSION = "1.0"
+SCHEMA_VERSION = "1.1"  # 1.1: deterministic mapping of the known files (mapping_source)
 
 FileType = Literal[
     "dossie",
@@ -21,6 +21,7 @@ FileType = Literal[
     "entradas",
     "observacoes",
     "revisao",
+    "checagem",  # deterministic check computed by code (CHK-*), citable like any fragment
     "desconhecido",
 ]
 Nature = Literal["registro_primario", "derivado", "sintese", "depoimento"]
@@ -34,6 +35,7 @@ NATURE_BY_TYPE: dict[str, Nature] = {
     "entradas": "registro_primario",
     "observacoes": "registro_primario",
     "resultados": "derivado",
+    "checagem": "derivado",
     "dossie": "sintese",
     "registro_tecnico": "sintese",
     "metodo": "sintese",
@@ -113,6 +115,7 @@ class ExtractedFile(BaseModel):
     missing_sections: list[str] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list)
     fragment_count: int = 0
+    mapping_source: Literal["deterministico", "agente"] = "agente"
 
 
 class ContextField(BaseModel):
