@@ -65,7 +65,10 @@ export const DecisionForm = ({ analyses, focused, ruleDecisions }: DecisionFormP
     );
   };
 
+  const drafting = outcome !== null || justification.trim() !== "";
+
   return (
+    <>
     <form
       onSubmit={handleSubmit}
       noValidate
@@ -158,5 +161,21 @@ export const DecisionForm = ({ analyses, focused, ruleDecisions }: DecisionFormP
         </button>
       </div>
     </form>
+
+    {/* PDF: what the analyst marked here goes on paper too, flagged as not recorded yet */}
+    {drafting && (
+      <div className="hidden flex-col gap-2 rounded-2xl border border-dashed border-border-strong p-4 text-sm leading-5 print:flex">
+        <p className="caps-label text-fg-muted">Decisão em elaboração · ainda não registrada</p>
+        <p>
+          <span className="text-fg-muted">Classificação: </span>
+          <strong className="font-semibold">{outcome ? DECISION_OUTCOME_LABELS[outcome] : "não escolhida"}</strong>
+        </p>
+        {justification.trim() && <p className="whitespace-pre-line">{justification.trim()}</p>}
+        <p className="text-xs text-fg-muted">
+          Analista: {user.name} · critérios {criteriaVersion}. Só a trilha abaixo tem valor de registro.
+        </p>
+      </div>
+    )}
+    </>
   );
 };

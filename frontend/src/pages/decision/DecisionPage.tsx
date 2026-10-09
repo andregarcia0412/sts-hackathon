@@ -221,7 +221,8 @@ const DecisionDocument = ({
     ) : null;
 
   return (
-    <div className="flex flex-1 flex-col print:block">
+    // Large screens: header and index stay put, the document scrolls in its own box (design)
+    <div className="flex flex-1 flex-col lg:min-h-0 lg:overflow-hidden print:block print:overflow-visible">
       <ProjectHeader
         project={project}
         showStatus={false}
@@ -241,8 +242,8 @@ const DecisionDocument = ({
         }
       />
 
-      <div className="mx-auto flex w-full max-w-[1440px] flex-1 items-start gap-4 p-4 sm:py-4 print:block print:p-0">
-        <aside className="sticky top-4 hidden w-60 shrink-0 flex-col gap-4 rounded-3xl bg-surface p-4 shadow-card lg:flex print:hidden">
+      <div className="flex w-full flex-1 items-start gap-4 p-4 lg:min-h-0 print:block print:p-0">
+        <aside className="hidden w-60 shrink-0 flex-col gap-4 rounded-3xl bg-surface p-4 shadow-card lg:flex print:hidden">
           {methodControl}
           <nav aria-label="Seções do documento" className="flex flex-col gap-1">
             <p className="px-3 pb-1 text-xs leading-4 font-medium text-fg-muted">Neste documento</p>
@@ -277,7 +278,7 @@ const DecisionDocument = ({
           </div>
         </aside>
 
-        <div className="flex min-w-0 flex-1 flex-col gap-4 print:block">
+        <div className="flex min-w-0 flex-1 flex-col gap-4 lg:min-h-0 lg:self-stretch print:block">
           {/* Phones and tablets: the side panel's controls */}
           <div className="flex flex-wrap items-center gap-2 lg:hidden print:hidden">
             {methodControl}
@@ -291,7 +292,7 @@ const DecisionDocument = ({
 
           <article
             ref={documentRef}
-            className="flex flex-col gap-12 rounded-3xl bg-surface px-5 py-8 shadow-card sm:px-12 sm:py-12 print:rounded-none print:px-0 print:py-0 print:shadow-none"
+            className="scroll-visible flex flex-col gap-12 rounded-3xl bg-surface px-5 py-8 shadow-card sm:px-12 sm:py-12 lg:min-h-0 lg:flex-1 lg:overflow-y-auto print:overflow-visible print:rounded-none print:px-0 print:py-0 print:shadow-none"
           >
             <ReportHeader
               project={project}
@@ -322,7 +323,7 @@ const DecisionDocument = ({
               />
             </ReportSection>
             {/* The form is not printed: the trail below carries the current decision */}
-            <section id="decisao" className="scroll-mt-6 print:hidden">
+            <section id="decisao" className="scroll-mt-6">
               <DecisionForm analyses={analyses} focused={focused} ruleDecisions={ruleDecisions} />
             </section>
             <ReportSection title="Trilha de decisão" id="trilha">

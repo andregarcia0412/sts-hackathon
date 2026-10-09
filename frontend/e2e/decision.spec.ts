@@ -1,4 +1,4 @@
-import { USERS, expect, signInAs, test } from "./fixtures.ts";
+import { USERS, combobox, expect, signInAs, test } from "./fixtures.ts";
 
 test.beforeEach(async ({ page }) => {
   await signInAs(page, USERS.ana);
@@ -45,7 +45,7 @@ test("evidência insuficiente é uma classificação e filtra a lista", async ({
   await page.getByRole("button", { name: "Registrar decisão" }).click();
   await expect(page.locator("#trilha ol > li").first()).toContainText("Evidência insuficiente");
   await page.goto("/projetos?decisao=insufficient_evidence");
-  await expect(page.getByLabel("Decisão", { exact: true })).toHaveValue("insufficient_evidence");
+  await expect(combobox(page, "Decisão")).toContainText("Evidência insuficiente");
   await expect(page.locator("tbody")).toContainText("Evidência insuficiente");
 });
 
