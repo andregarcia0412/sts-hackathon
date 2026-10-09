@@ -15,11 +15,11 @@ from backend.database import close_db, init_db
 from backend.frontend_api.exporter import export_frontend
 
 
-async def _main(out: Path, owner: str | None, project: str | None) -> int:
+async def _main(out: Path, owner: str | None, project: str | None, include_benchmark: bool) -> int:
     await init_db()
     await sync_catalog_to_db(get_catalog())
     try:
-        result = await export_frontend(out, owner=owner, project=project)
+        result = await export_frontend(out, owner=owner, project=project, include_benchmark=include_benchmark)
     finally:
         await close_db()
     print(f"[export] {len(result.projects)} projeto(s) → {result.folder}")
@@ -35,8 +35,10 @@ def main() -> None:
                         help="destination folder (default: frontend-static/ at the repo root)")
     parser.add_argument("--owner", help="export only this analyst's projects (user id)")
     parser.add_argument("--project", help="export a single project (id)")
+    parser.add_argument("--include-benchmark", action="store_true",
+                        help="also export benchmark projects (the analysed PRJxx cases — the static front's demo data)")
     args = parser.parse_args()
-    sys.exit(asyncio.run(_main(args.out, args.owner, args.project)))
+    sys.exit(asyncio.run(_main(args.out, args.owner, args.project, args.include_benchmark)))
 
 
 if __name__ == "__main__":

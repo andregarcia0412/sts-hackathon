@@ -94,8 +94,13 @@ async def _read_models(model, read_cls, project_id: str) -> list:
 
 
 async def export_frontend(out: Path, owner: str | None = None, project: str | None = None,
-                          catalog: Catalog | None = None) -> ExportResult:
-    """Writes `out` with one JSON per route. Filters: `owner` (analyst) and `project` (single id)."""
+                          include_benchmark: bool = False, catalog: Catalog | None = None) -> ExportResult:
+    """Writes `out` with one JSON per route. Filters: `owner` (analyst) and `project` (single id).
+
+    `include_benchmark`: the default mirrors GET /projects (benchmark runs are hidden from the
+    analyst's lists). The static front is the exception: its purpose is to show the analysed
+    cases — benchmark projects (the delivery/PRJxx runs) are exactly the demo data — so the
+    static export brings them in with this flag."""
     from backend.catalog.loader import get_catalog
 
     catalog = catalog or get_catalog()
@@ -103,6 +108,8 @@ async def export_frontend(out: Path, owner: str | None = None, project: str | No
     routes: dict[str, int] = {}
 
     query = Project.find(Project.benchmark_id == None)  # noqa: E711 — hidden from the analyst's lists (D6)
+    if include_benchmark:
+        query = Project.find_all()
     if owner:
         query = query.find(Project.owner_id == owner)
     if project:
