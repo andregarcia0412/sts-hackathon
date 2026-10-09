@@ -35,6 +35,24 @@ def add_check_divergences(results: dict[str, CriterionResult], canonical: Canoni
     return added
 
 
+def dedupe_divergences(results: dict[str, CriterionResult]) -> int:
+    """Keeps one record per interview sentence across the criteria (the first: usually the sub-agent's).
+    Returns how many repeated records were dropped from the copy (the source analysis is never written)."""
+    seen: list[str] = []
+    dropped = 0
+    for result in results.values():
+        kept = []
+        for divergence in result.divergences:
+            quote = _normal(divergence.testimony_quote)
+            if any(_same_sentence(quote, other) for other in seen):
+                dropped += 1
+                continue
+            seen.append(quote)
+            kept.append(divergence)
+        result.divergences = kept
+    return dropped
+
+
 def _normal(text: str) -> str:
     """The same sentence quoted with or without its final period or quotes is the same divergence."""
     return re.sub(r"\W+", " ", text.casefold()).strip()

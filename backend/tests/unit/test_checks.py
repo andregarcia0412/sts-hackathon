@@ -195,3 +195,18 @@ def test_a_short_quote_of_the_sub_agent_never_hides_a_deterministic_divergence()
                                                              facts={"divergencias": [candidate]})})
     results = {"SIS": CriterionResult(criterion="SIS", divergences=[written])}
     assert add_check_divergences(results, project(), checks) == 1
+
+
+def test_dedupe_keeps_one_record_per_interview_sentence_across_criteria():
+    from backend.checks.divergences import dedupe_divergences
+    from backend.criteria.schemas import CriterionResult, Divergence
+
+    def div(criterion, quote, record):
+        return Divergence(criterion=criterion, testimony_fragment_id="E#c", testimony_quote=quote,
+                          record_fragment_id=record, record_alias="r", record_quote="x", statement=f"{quote}/{record}")
+
+    results = {"SIS": CriterionResult(criterion="SIS", divergences=[div("SIS", "Reduziu para 2,1 pontos", "R1")]),
+               "REP": CriterionResult(criterion="REP", divergences=[div("REP", "Reduziu para 2,1 pontos.", "R2"),
+                                                                     div("REP", "Outra frase", "R3")])}
+    assert dedupe_divergences(results) == 1
+    assert [d.record_fragment_id for r in results.values() for d in r.divergences] == ["R1", "R3"]

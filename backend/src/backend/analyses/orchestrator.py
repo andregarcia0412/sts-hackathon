@@ -11,7 +11,7 @@ from beanie import PydanticObjectId
 from backend.analyses.models import Analysis, AnalysisVersions, Batch, CanonicalRecord, Stage
 from backend.analyses.worker import is_orphan, worker_id
 from backend.catalog.models import Catalog
-from backend.checks.divergences import add_check_divergences
+from backend.checks.divergences import add_check_divergences, dedupe_divergences
 from backend.checks.runner import run_checks, with_check_fragments
 from backend.config import LLM_ROLES, Settings
 from backend.criteria.agent import CriteriaRunner
@@ -238,6 +238,7 @@ class AnalysisService:
                     item.adjustment = None
         if not source.checks:
             add_check_divergences(results, canonical, analysis.checks)
+        dedupe_divergences(results)  # the same interview sentence recorded twice (sub-agent and CHK-DIVERG)
         analysis.criteria = results
         note = f"reaproveitada da análise {source.id} (versão {source.version})"
         for stage in analysis.stages:
