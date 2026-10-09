@@ -6,17 +6,21 @@ import json
 from pathlib import Path
 
 import httpx
+from beanie import PydanticObjectId
 
 from backend.analyses.jobs import JobRunner
 from backend.analyses.orchestrator import AnalysisService
 from backend.benchmark.metrics import headline
 from backend.benchmark.models import Benchmark, BenchmarkMetrics
+from backend.benchmark.rejudge import create_rejudge, run_rejudge
+from backend.benchmark.report_html import report_html
 from backend.benchmark.router import DEFAULT_ANSWER_KEY, DEFAULT_DIRS, DEFAULT_PRELIMINARY
 from backend.benchmark.schemas import BenchmarkRead
 from backend.benchmark.service import analyses_of, progress, refresh, start_benchmark
 from backend.catalog.loader import get_catalog, sync_catalog_to_db
 from backend.config import settings
 from backend.database import close_db, init_db
+from backend.graph.judge import JudgeOptions
 from backend.llm import LLMClient
 from backend.search.providers import build_providers
 from backend.users.seed import seed_users
@@ -50,12 +54,17 @@ def print_summary(metrics: BenchmarkMetrics) -> None:
         print(f"   {stage:9} mediana {d.median} s · p95 {d.p95} s")
     print(f"== LLM: {u.total.calls} chamadas · {u.total.prompt_tokens + u.total.completion_tokens} tokens "
           f"(média {u.tokens_per_run.mean}/projeto) · retries {u.total.transport_retries} transporte, "
-          f"{u.total.schema_retries} schema · {u.web_search_calls} buscas web")
+          f"{u.total.schema_retries} schema · {u.web_search_calls} buscas web ({u.web_retries} retries)")
     print(f"== Confiabilidade: falhas {r.failed}/{r.runs} · inconsistentes {r.inconsistent_rate} · "
           f"sem classe {r.no_class_rate} · regras não executadas {r.rules_not_executed_rate}")
     e = metrics.evidence
     print(f"== Evidência: cobertura de regras {e.rule_coverage} · descarte no gate {e.gate_drop_rate} · "
-          f"divergências/projeto {e.divergences_per_run.mean}")
+          f"divergências/projeto {e.divergences_per_run.mean} · erro de busca por base "
+          f"{e.web_search_error_rate_by_base}")
+    if (c := metrics.coherence).contradictions:
+        print(f"== Coerência: contradições {c.contradictions} · origem {c.by_source} · novos julgamentos "
+              f"{c.rejudged} · resolvidas {c.resolved} · incoerentes {c.incoherent} · mudaram de coluna "
+              f"{c.changed_column} (acertos {c.changed_column_hits}, erros {c.changed_column_misses})")
     if d := metrics.determinism:
         print(f"== Determinismo: classe {d.class_agreement} · jaccard evidências {d.evidence_jaccard} · "
               f"instáveis: {', '.join(d.unstable) or '-'}")
@@ -87,6 +96,23 @@ async def run(args: argparse.Namespace, service: AnalysisService, runner) -> Ben
     return benchmark
 
 
+async def rejudge(args: argparse.Namespace, service: AnalysisService) -> Benchmark:
+    source = await Benchmark.get(PydanticObjectId(args.rejudge))
+    if source is None:
+        raise SystemExit(f"benchmark not found: {args.rejudge}")
+    options = JudgeOptions.from_settings(service.settings, coherence_mode=args.coherence,
+                                       judge_mode=args.judge_mode,
+                                       handbooks=None if args.handbooks is None else args.handbooks == "on")
+    benchmark = await create_rejudge(source, source.owner_id, service.models_by_role(), service.catalog, options,
+                                     name=args.name if args.name != "benchmark" else None, projects=args.projects,
+                                     repeats=args.repeats)
+    for error in benchmark.errors:
+        print("!", error)
+    print(f"[re-julgar {benchmark.id}] origem {source.id} · {len(benchmark.runs)} análises · {options.model_dump()}",
+          flush=True)
+    return await run_rejudge(benchmark, service.llm, service.catalog, options, settings.analysis_concurrency)
+
+
 async def _main(args: argparse.Namespace) -> None:
     await init_db()
     await seed_users()
@@ -95,7 +121,15 @@ async def _main(args: argparse.Namespace) -> None:
         async with httpx.AsyncClient(timeout=30) as http:
             llm = LLMClient(settings)
             service = AnalysisService(llm, lambda: build_providers(llm, http, settings), settings, get_catalog())
-            benchmark = await run(args, service, JobRunner(settings.analysis_concurrency))
+            if args.close:
+                benchmark = await Benchmark.get(PydanticObjectId(args.close))
+                if benchmark is None:
+                    raise SystemExit(f"benchmark not found: {args.close}")
+                benchmark = await refresh(benchmark, service.catalog, force=True)
+            elif args.rejudge:
+                benchmark = await rejudge(args, service)
+            else:
+                benchmark = await run(args, service, JobRunner(settings.analysis_concurrency))
         if benchmark.metrics:
             print_summary(benchmark.metrics)
         print(f"\nsalvo no Mongo: benchmark {benchmark.id} (GET /benchmarks/{benchmark.id})")
@@ -123,10 +157,46 @@ def parser() -> argparse.ArgumentParser:
     parser.add_argument("--owner", default=settings.seed_email_pattern.format(n=1), help="analyst e-mail")
     parser.add_argument("--poll", type=float, default=10, help="seconds between progress lines")
     parser.add_argument("--out", type=Path, help="also write the metrics as JSON")
+    parser.add_argument("--close", metavar="BENCHMARK_ID",
+                        help="close a benchmark stuck in 'rodando' (unfinished analyses count as failures)")
+    parser.add_argument("--rejudge", metavar="BENCHMARK_ID",
+                        help="re-run only judge → gates → class over the finished analyses of this benchmark")
+    parser.add_argument("--coherence", choices=["off", "flag", "reask", "force"],
+                        help="re-judge only: coherence gate mode (default COHERENCE_MODE; force = diagnostic ceiling)")
+    parser.add_argument("--judge-mode", choices=["estado", "questionario"],
+                        help="re-judge only: state judge or questionnaire (default JUDGE_MODE)")
+    parser.add_argument("--handbooks", choices=["on", "off"], help="re-judge only: default JUDGE_HANDBOOKS")
     return parser
 
 
+async def _report(benchmark_id: str, out: Path) -> None:
+    await init_db()
+    try:
+        benchmark = await Benchmark.get(PydanticObjectId(benchmark_id))
+        if benchmark is None or benchmark.metrics is None:
+            raise SystemExit(f"benchmark not found or still running: {benchmark_id}")
+        out.write_text(report_html(benchmark), encoding="utf-8")
+        metrics = out.with_name(out.stem + ".json") if out.suffix == ".html" else out.with_suffix(".json")
+        metrics.write_text(benchmark.metrics.model_dump_json(by_alias=True, indent=1), encoding="utf-8")
+        print(f"relatório em {out} · métricas em {metrics}")
+    finally:
+        await close_db()
+
+
+def report_main(argv: list[str]) -> None:
+    cli = argparse.ArgumentParser(prog="backend-benchmark report", description="Pitch report of a benchmark (HTML)")
+    cli.add_argument("benchmark_id")
+    cli.add_argument("--out", type=Path, default=Path("metricas.html"), help="keep it outside the repository")
+    args = cli.parse_args(argv)
+    asyncio.run(_report(args.benchmark_id, args.out))
+
+
 def main() -> None:
+    import sys
+
+    if len(sys.argv) > 1 and sys.argv[1] == "report":  # subcommand, detected before the run parser (--projects…)
+        report_main(sys.argv[2:])
+        return
     cli = parser()
     args = cli.parse_args()
     if args.repeats < 1:

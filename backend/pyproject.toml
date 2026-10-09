@@ -28,6 +28,9 @@ backend-import = "backend.projects.cli:main"
 backend-ingest-norms = "backend.assistant.cli:main"
 backend-calibrate = "backend.report.calibration:main"
 backend-benchmark = "backend.benchmark.cli:main"
+backend-checks = "backend.checks.cli:main"
+backend-entrega = "backend.delivery.cli:main"
+backend-export-frontend = "backend.frontend_api.cli:main"
 
 [build-system]
 requires = ["uv_build>=0.12.23,<0.13.0"]

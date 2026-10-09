@@ -4,16 +4,25 @@ from pathlib import Path
 import yaml
 from pydantic import ValidationError
 
-from backend.catalog.models import Catalog, CatalogRule, CriterionInfo, RuleDocument
+from backend.catalog.models import (
+    Catalog,
+    CatalogRule,
+    CriterionInfo,
+    Questionnaire,
+    RuleDocument,
+)
 
 CATALOG_PATH = Path(__file__).with_name("rules.yaml")
+KNOWN_CHECKS = {"CHK-RECALC", "CHK-TEMPO", "CHK-VERSOES", "CHK-FALHAS", "CHK-CONFIG", "CHK-ESCOPO", "CHK-DIVERG",
+                "CHK-PERGUNTA"}
+QUESTIONNAIRE_PATH = Path(__file__).with_name("questionario.yaml")
 
 
 class CatalogError(ValueError):
     pass
 
 
-def parse_catalog(raw: dict) -> Catalog:
+def parse_catalog(raw: dict, questionnaire: dict | None = None) -> Catalog:
     try:
         criteria = {key: CriterionInfo(id=key, **value) for key, value in (raw.get("criterios") or {}).items()}
         rules = [CatalogRule.model_validate(item) for item in raw.get("regras") or []]
@@ -23,11 +32,45 @@ def parse_catalog(raw: dict) -> Catalog:
             familias_web=raw.get("familias_web") or {},
             criteria=criteria,
             rules=rules,
+            questionnaire=Questionnaire.model_validate(questionnaire) if questionnaire else None,
         )
     except (ValidationError, KeyError) as error:
         raise CatalogError(f"invalid rule catalog: {error}") from error
     _validate(catalog)
+    if catalog.questionnaire:
+        _validate_questionnaire(catalog)
     return catalog
+
+
+def _validate_questionnaire(catalog: Catalog) -> None:
+    q = catalog.questionnaire
+    for rule_id, lock in q.travas.items():
+        rule = catalog.get(rule_id)
+        if rule is None or not rule.forca_coluna:
+            raise CatalogError(f"questionnaire lock on {rule_id}: not a state gate of the catalog")
+        for question_id, answer in lock.items():
+            question = q.question(rule.criterio, question_id)
+            if question is None or answer not in question.opcoes:
+                raise CatalogError(f"questionnaire lock {rule_id}: invalid {question_id} = {answer}")
+    for criterion, questions in q.perguntas.items():
+        vocabulary = catalog.criteria[criterion].estados.all_states()
+        known = {question.id: question for question in questions}
+        for question in questions:
+            for rule_id in question.regras:
+                if catalog.get(rule_id) is None:
+                    raise CatalogError(f"questionnaire {question.id}: unknown rule {rule_id}")
+        lines = q.decisao.get(criterion) or []
+        if not lines or not lines[-1].senao:
+            raise CatalogError(f"questionnaire {criterion}: the decision table must end with `senao`")
+        for line in lines:
+            if line.estado not in vocabulary:
+                raise CatalogError(f"questionnaire {criterion}: state outside the vocabulary {line.estado!r}")
+            for question_id in line.quando:
+                if question_id not in known:
+                    raise CatalogError(f"questionnaire {criterion}: unknown question {question_id}")
+                options = set(known[question_id].opcoes) | {"sem_registro"}
+                if bad := set(line.accepted(question_id)) - options:
+                    raise CatalogError(f"questionnaire {question_id}: unknown option(s) {sorted(bad)}")
 
 
 def _validate(catalog: Catalog) -> None:
@@ -46,11 +89,23 @@ def _validate(catalog: Catalog) -> None:
             raise CatalogError(f"{rule.id}: status {rule.status} needs motivo_status")
         if rule.needs_llm and not rule.prompt:
             raise CatalogError(f"{rule.id}: applicable LLM rule without prompt")
+        if unknown := [c for c in rule.checagens if c not in KNOWN_CHECKS]:
+            raise CatalogError(f"{rule.id}: unknown check(s) {unknown}")
+        if rule.forca_coluna and rule.papel != "gate":
+            raise CatalogError(f"{rule.id}: forca_coluna needs papel: gate")
+        for target in rule.requer_gate:
+            if target not in seen:
+                raise CatalogError(f"{rule.id}: requer_gate on unknown rule {target}")
 
 
-def load_catalog(path: Path = CATALOG_PATH) -> Catalog:
+def load_catalog(path: Path = CATALOG_PATH, questionnaire_path: Path | None = QUESTIONNAIRE_PATH) -> Catalog:
     with path.open(encoding="utf-8") as file:
-        return parse_catalog(yaml.safe_load(file))
+        raw = yaml.safe_load(file)
+    questionnaire = None
+    if questionnaire_path is not None and questionnaire_path.is_file():
+        with questionnaire_path.open(encoding="utf-8") as file:
+            questionnaire = yaml.safe_load(file)
+    return parse_catalog(raw, questionnaire)
 
 
 @lru_cache

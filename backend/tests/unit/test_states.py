@@ -89,3 +89,52 @@ async def test_llm_failure_leaves_state_not_executed():
     state, _ = await judge(result, RuntimeError("down"))
     assert state.state is None
     assert state.error
+
+
+def _negative(rule_id, criterion):
+    return CriterionResult(criterion=criterion, rules=[
+        run(rule_id, evidence(rule_id, "negativa", source="PRJ90-EV06#2")),
+        run(f"{criterion}-D12" if criterion != "REP" else "REP-D9",
+            evidence(f"{criterion}-D12" if criterion != "REP" else "REP-D9", source="PRJ90-S02", nature="derivado"))])
+
+
+async def test_acceptance_gate_forces_documented_as_acceptance():
+    state, _ = await judge(_negative("SIS-D5", "SIS"), out("DOCUMENTADA"))
+    assert state.state == "DOCUMENTADA COMO ACEITE" and state.fired_gates == ["SIS-D5"]
+    assert any("gate SIS-D5" in g for g in state.gates)
+
+
+async def test_configuration_gate_of_rep_forces_documented_for_the_configuration():
+    state, _ = await judge(_negative("REP-D8", "REP"), out("DOCUMENTADA NO ESCOPO"))
+    assert state.state == "DOCUMENTADA PARA A CONFIGURAÇÃO"
+
+
+async def test_inc_gate_needs_a_novelty_configuration_gate():
+    from backend.graph.options import JudgeOptions
+
+    result = _negative("INC-D9", "INC")
+    alone, _ = await judge(result, out("INVESTIGADA"))
+    assert alone.state == "INVESTIGADA" and alone.fired_gates == []  # no NOV gate: INC is not forced
+    llm = FakeLLM({StateJudgeOut: out("INVESTIGADA")})
+    crossed = await judge_state(llm, get_catalog(), result, True, cross={"NOV-D10"})
+    assert crossed.state == "NÃO CARACTERIZADA" and crossed.fired_gates == ["INC-D9"]
+    strong = await judge_state(FakeLLM({StateJudgeOut: out("INVESTIGADA")}), get_catalog(), result, True,
+                               cross={"NOV-D10"}, score=80, n_rules=5, options=JudgeOptions(coherence_mode="reask"))
+    assert strong.state == "INVESTIGADA" and strong.gate_conflicts == ["INC-D9"]  # strong positive score: not forced
+
+
+async def test_novelty_gates_feed_the_second_wave(db):
+    from backend.graph.judge import judge_and_classify
+    from tests.factories import analysed_project
+
+    _, analysis = await analysed_project()
+    criteria = analysis.criteria
+    for c, rule_id in (("NOV", "NOV-D10"), ("INC", "INC-D5")):
+        criteria[c].rules = [r for r in criteria[c].rules if r.rule_id != rule_id]
+    criteria["NOV"].rules.append(run("NOV-D10", evidence("NOV-D10", "negativa", source="PRJ90-EV06#2"),
+                                     evidence("NOV-D10", "negativa", source="PRJ90-EV06#3")))
+    criteria["INC"].rules.append(run("INC-D5", evidence("INC-D5", "negativa", source="PRJ90-EV06#2")))
+    from tests.factories import fake_state
+    outcome = await judge_and_classify(FakeLLM({StateJudgeOut: fake_state()}), get_catalog(), criteria)
+    assert outcome.states["NOV"].fired_gates == ["NOV-D10"]
+    assert outcome.states["INC"].state == "NÃO CARACTERIZADA" and outcome.states["INC"].fired_gates == ["INC-D5"]

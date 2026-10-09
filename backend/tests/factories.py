@@ -8,6 +8,7 @@ import unicodedata
 from fpdf import FPDF
 
 from backend.extraction.agent import ContextOut, FileMapping, SectionMark
+from backend.extraction.schema import SECTION_KEYS
 from backend.projects.importer import IncomingFile
 
 FOOTER = "Massa inteiramente ficticia | V9 | Registros sinteticos"
@@ -238,7 +239,9 @@ def fake_file_mapping(messages) -> FileMapping:
     if any("revisão técnica" in text for text in lines.values()):
         for n, text in lines.items():
             if text.startswith("## "):
-                marks.append(SectionMark(chave=_slug(text[3:]), linha=n, titulo=text))
+                name = _slug(text[3:])  # the fixed key the prompt lists, when the heading starts with it
+                key = next((k for k in SECTION_KEYS["revisao"] if name.startswith(k)), name)
+                marks.append(SectionMark(chave=key, linha=n, titulo=text))
         return FileMapping(tipo="revisao", justificativa="seções", secoes=marks)
     return FileMapping(tipo="desconhecido", justificativa="sem padrão")
 
@@ -363,6 +366,35 @@ def fake_state(states: dict[str, str] | None = None):
         evidence_ids = re.findall(r"\[(ev-[0-9a-f]+)\]", messages[-1]["content"])
         return StateJudgeOut(estado=states[criterion], justificativa=f"Sustentado por [{evidence_ids[0]}]." if evidence_ids else "x",
                              evidencias_decisivas=evidence_ids[:1])
+
+    return handler
+
+
+ELIGIBLE_ANSWERS = {"N1": "nao", "N2": "sim", "N3": "sim", "C1": "nao", "C2": "sim", "C3": "sim",
+                    "I1": "nao", "I2": "experimental", "I3": "sim", "S1": "sim", "S2": "experimento",
+                    "R1": "sim", "R2": "conhecimento", "R3": "nao"}
+
+
+def fake_answers(answers: dict[str, str] | None = None):
+    """Questionnaire judge: answers every asked question (from the <perguntas> block) citing the first evidence."""
+    answers = ELIGIBLE_ANSWERS | (answers or {})
+
+    def handler(messages):
+        from backend.graph.questionnaire import QuestionnaireOut
+
+        text = messages[1]["content"]
+        block = text.split("<perguntas>")[1].split("</perguntas>")[0]
+        asked = re.findall(r"^([A-Z]\d) \[", block, flags=re.M)
+        evidence_ids = re.findall(r"\[(ev-[0-9a-f]+)\]", text)
+        out = []
+        for question in asked:
+            value = answers[question]
+            if value == "sem_registro":
+                out.append({"pergunta": question, "resposta": value, "o_que_falta": "registro da execução"})
+            else:
+                out.append({"pergunta": question, "resposta": value, "evidencias": evidence_ids[:1],
+                            "explicacao": "O trecho mostra o fato."})
+        return QuestionnaireOut(respostas=out)
 
     return handler
 

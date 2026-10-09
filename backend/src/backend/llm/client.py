@@ -4,12 +4,14 @@ import logging
 import re
 import time
 from collections.abc import Mapping, Sequence
+from contextvars import ContextVar
 from typing import Any, Protocol
 
 from ollama import AsyncClient
 from pydantic import BaseModel, ValidationError
 
 from backend.config import LLMRole, Settings
+from backend.llm.calls import record_call
 from backend.llm.usage import LLMUsage, RoleUsage, current_usage
 
 logger = logging.getLogger(__name__)
@@ -19,6 +21,7 @@ OLLAMA_CLOUD_HOST = "https://ollama.com"
 # Reproducibility (principle 11): every call runs at temperature 0. Not configurable on purpose.
 DETERMINISTIC_OPTIONS = {"temperature": 0, "seed": 0}
 RETRY_BACKOFF_S = 1.0
+_schema_name: ContextVar[str | None] = ContextVar("llm_schema", default=None)  # for the per-call log
 # Some models answer ```json ... ``` or wrap the JSON in prose even with `format` set.
 FENCE_RE = re.compile(r"```(?:json)?\s*(.*?)\s*```", re.DOTALL)
 SCHEMA_INSTRUCTION = (
@@ -86,27 +89,39 @@ class LLMClient:
     def model_for(self, role: LLMRole) -> str:
         return self.settings.model_for(role)
 
-    async def _call(self, func, usage: RoleUsage | None = None, **kwargs):
-        """Runs one Ollama call with the concurrency limit and simple retries on transport errors."""
+    async def _call(self, func, usage: RoleUsage | None = None, on_retry=None, log: dict | None = None, **kwargs):
+        """Runs one Ollama call with the concurrency limit and simple retries on transport errors.
+        `log`: fields of the per-call log (role, model, schema, kind); every attempt becomes a record."""
         attempts = self.settings.ollama_retries + 1
         for attempt in range(1, attempts + 1):
+            started = time.monotonic()
             try:
                 async with self._semaphore:
                     started = time.monotonic()
                     response = await func(**kwargs)
+                    prompt_tokens = getattr(response, "prompt_eval_count", None) or 0
+                    completion_tokens = getattr(response, "eval_count", None) or 0
                     if usage is not None:
                         usage.calls += 1
                         usage.llm_seconds = round(usage.llm_seconds + time.monotonic() - started, 3)
-                        usage.prompt_tokens += getattr(response, "prompt_eval_count", None) or 0
-                        usage.completion_tokens += getattr(response, "eval_count", None) or 0
+                        usage.prompt_tokens += prompt_tokens
+                        usage.completion_tokens += completion_tokens
+                    if log is not None:
+                        record_call(**log, attempt=attempt, prompt_tokens=prompt_tokens,
+                                    completion_tokens=completion_tokens, duration_s=time.monotonic() - started)
                     return response
             except Exception as error:
+                if log is not None:
+                    record_call(**log, attempt=attempt, ok=False, error_type=type(error).__name__,
+                                duration_s=time.monotonic() - started)
                 if attempt == attempts:
                     if usage is not None:
                         usage.failures += 1
                     raise LLMError(f"Ollama call failed after {attempts} attempt(s): {type(error).__name__}") from error
                 if usage is not None:
                     usage.transport_retries += 1
+                if on_retry is not None:
+                    on_retry()
                 logger.warning("Ollama call failed (attempt %d/%d): %s", attempt, attempts, type(error).__name__)
                 await asyncio.sleep(self._retry_backoff_s * attempt)
 
@@ -121,10 +136,12 @@ class LLMClient:
         role: LLMRole = "default",
         format: dict[str, Any] | None = None,
     ) -> str:
+        model = self.model_for(role)
         response = await self._call(
             self._chat.chat,
             usage=self._role_usage(role),
-            model=self.model_for(role),
+            log={"role": role, "model": model, "schema_name": _schema_name.get(), "kind": "chat"},
+            model=model,
             messages=list(messages),
             format=format,
             options=DETERMINISTIC_OPTIONS,
@@ -142,6 +159,13 @@ class LLMClient:
         """
         json_schema = schema.model_json_schema()
         history = _with_schema_instruction(list(messages), json_schema)
+        token = _schema_name.set(schema.__name__)
+        try:
+            return await self._structured(history, schema, json_schema, role)
+        finally:
+            _schema_name.reset(token)
+
+    async def _structured[T: BaseModel](self, history: list, schema: type[T], json_schema: dict, role: LLMRole) -> T:
         last_error: ValidationError | None = None
         for _ in range(self.settings.ollama_schema_retries + 1):
             content = await self.chat(history, role=role, format=json_schema)
@@ -174,7 +198,9 @@ class LLMClient:
     async def _web_call(self, func, counter: str, **kwargs):
         meter: LLMUsage | None = current_usage()
         try:
-            response = await self._call(func, **kwargs)
+            response = await self._call(func, on_retry=lambda: _count_web_retry(meter),
+                                        log={"role": "web", "model": "ollama-web", "kind": counter.removesuffix("_calls")},
+                                        **kwargs)
         except LLMError:
             if meter is not None:
                 meter.web_failures += 1
@@ -186,6 +212,11 @@ class LLMClient:
     def _require_api_key(self) -> None:
         if not self.settings.ollama_api_key:
             raise LLMError("OLLAMA_API_KEY is required for web_search/web_fetch")
+
+
+def _count_web_retry(meter: LLMUsage | None) -> None:
+    if meter is not None:
+        meter.web_retries += 1
 
 
 def extract_json(content: str) -> str:
