@@ -13,10 +13,14 @@ async def canonical():
     return await extract_project(FakeLLM(extraction_handlers()), synthetic_package(), code_hint="PRJ90")
 
 
-async def test_every_file_goes_through_the_agent(canonical):
+async def test_only_unrecognized_files_go_through_the_agent(canonical):
     llm = FakeLLM(extraction_handlers())
-    await extract_project(llm, synthetic_package(), code_hint="PRJ90")
-    assert len(llm.calls_for(FileMapping)) == len(synthetic_package())
+    done = await extract_project(llm, synthetic_package(), code_hint="PRJ90")
+    [call] = llm.calls_for(FileMapping)  # the known files are mapped by code; only the loose note needs the agent
+    assert "notas_soltas.txt" in call[-1]["content"]
+    sources = {f.path: f.mapping_source for f in done.files}
+    assert sources.pop("notas_soltas.txt") == "agente" and set(sources.values()) == {"deterministico"}
+    assert any("mapeado pelo agente" in note for f in done.files for note in f.notes)
 
 
 async def test_files_classified_by_content_with_evidence_ids(canonical):

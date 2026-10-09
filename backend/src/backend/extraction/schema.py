@@ -5,7 +5,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, PrivateAttr
 
-SCHEMA_VERSION = "1.0"
+SCHEMA_VERSION = "1.1"  # 1.1: deterministic mapping of the known files (mapping_source)
 
 FileType = Literal[
     "dossie",
@@ -115,6 +115,7 @@ class ExtractedFile(BaseModel):
     missing_sections: list[str] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list)
     fragment_count: int = 0
+    mapping_source: Literal["deterministico", "agente"] = "agente"
 
 
 class ContextField(BaseModel):

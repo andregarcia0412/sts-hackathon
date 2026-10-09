@@ -35,7 +35,7 @@ async def test_full_pipeline_records_stages_versions_and_graph(project):
     assert all(s.duration_s is not None for s in done.stages)
     assert done.total_s is not None
     assert done.versions.catalog_version == get_catalog().versao
-    assert done.versions.schema_version == "1.0"
+    assert done.versions.schema_version == "1.1"
     assert done.versions.models["doc"] == "fake-doc"
     assert "criteria.doc" in done.versions.prompts
     assert set(done.versions.file_hashes) == {d.file_name for d in project.active_documents()}
@@ -179,3 +179,8 @@ async def test_checks_stage_runs_and_feeds_the_document_sub_agent(project):
     # the totality claim of the interview reaches the recorded divergences even if the sub-agent misses it
     assert any("todos" in d.testimony_quote for r in done.criteria.values() for d in r.divergences)
     assert await GraphNode.find(GraphNode.analysis_id == str(done.id), GraphNode.kind == "check").count() == 8
+
+
+async def test_the_analysis_counts_files_mapped_by_the_agent(project):
+    done = await service().run(str((await service().create(project)).id))
+    assert done.mapping_sources == {"deterministico": 9, "agente": 1}  # only the loose note needs the agent

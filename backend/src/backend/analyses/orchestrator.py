@@ -176,6 +176,8 @@ class AnalysisService:
             await self._set_stage(analysis, EXTRACTION, "falhou", message)
             return None
         await CanonicalRecord(analysis_id=str(analysis.id), canonical=canonical).insert()
+        for extracted in canonical.files:
+            analysis.mapping_sources[extracted.mapping_source] = analysis.mapping_sources.get(extracted.mapping_source, 0) + 1
         if not project.code and canonical.project_code != "PRJ":
             project.code = canonical.project_code
             await project.save()
