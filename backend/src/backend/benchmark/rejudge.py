@@ -77,6 +77,7 @@ async def _rejudge_one(llm: LLM, catalog: Catalog, options: JudgeOptions, run: B
     snap.stages = {"grafo": "concluida"}
     snap.stage_seconds = {"grafo": copy.total_s}
     snap.rejudged = True
+    snap.judgements = outcome.states  # the source analysis is never written: this is the only record of them
     return snap
 
 

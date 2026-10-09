@@ -90,3 +90,10 @@ async def test_rejudge_filters_projects(db):
     benchmark = await _rejudge(await _source(first, second), FakeLLM({StateJudgeOut: fake_state()}),
                                projects=["prj91"])
     assert [s.code for s in benchmark.snapshots] == ["PRJ91"]
+
+
+async def test_rejudge_keeps_the_new_states_in_the_snapshot(db):
+    _, analysis = await analysed_project()
+    benchmark = await _rejudge(await _source(analysis), FakeLLM({StateJudgeOut: fake_state(ROUTINE)}))
+    [snap] = benchmark.snapshots
+    assert snap.judgements["SIS"].state == "DOCUMENTADA COMO ACEITE" and snap.judgements["SIS"].justification
