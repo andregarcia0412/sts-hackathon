@@ -27,6 +27,12 @@ const ARIA_LABELS: Partial<AriaLabelConfig> = {
 
 /* Whole tree: clear of the view/method toggles (top) and the zoom controls (left) */
 const WHOLE_TREE_PADDING = { top: "64px", right: "24px", bottom: "24px", left: "56px" } as const;
+/*
+ * "Critério" view: a real criterion has ~18 rules. Fitting all of them would
+ * shrink the cards past reading; below this zoom the column is cropped
+ * (centered on the criterion card) and the analyst pans or scrolls.
+ */
+const CRITERION_VIEW_MIN_ZOOM = 0.5;
 
 /* Edges paint with inline styles, so use the theme's CSS variables */
 const EDGE_STYLE = { stroke: "var(--color-border-strong)", strokeWidth: 1.5 };
@@ -67,7 +73,7 @@ export const AnalysisGraph = ({
    */
   const frame = useEffectEvent((nodeId: string | null, durationMs?: number) => {
     if (!nodeId) {
-      frameGraph(target, WHOLE_TREE_PADDING, durationMs);
+      frameGraph(target, WHOLE_TREE_PADDING, durationMs, view === "criterion" ? CRITERION_VIEW_MIN_ZOOM : undefined);
       return;
     }
     const branchIds = new Set([nodeId, ...(index.get(nodeId)?.childIds ?? [])]);
@@ -155,7 +161,11 @@ export const AnalysisGraph = ({
       nodesConnectable={false}
       elementsSelectable={false}
       fitView
-      fitViewOptions={{ padding: 0.08, maxZoom: 1 }}
+      fitViewOptions={{
+        padding: 0.08,
+        maxZoom: 1,
+        minZoom: view === "criterion" ? CRITERION_VIEW_MIN_ZOOM : undefined,
+      }}
       minZoom={0.15}
       maxZoom={1.75}
       ariaLabelConfig={ARIA_LABELS}
