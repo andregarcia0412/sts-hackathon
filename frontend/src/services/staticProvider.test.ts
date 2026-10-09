@@ -120,6 +120,15 @@ describe("static provider (spec 14 E1)", () => {
     expect(decision.outcome).toBe("eligible");
   });
 
+  it("logs in as the exported analyst and lists their projects", async () => {
+    const api = await load();
+    const user = await api.login("user1@sts.com", "qualquer");
+    expect(user.name).toMatch(/Analista/i);
+    const page = await api.listProjects({ ownerId: user.id, sort: "recent", page: 1, pageSize: 20 });
+    expect(page.total).toBeGreaterThan(0);
+    expect(page.items.every((p) => p.ownerId === user.id)).toBe(true);
+  });
+
   it("defaults to the mock source when VITE_DATA_SOURCE is unset", async () => {
     vi.stubEnv("VITE_DATA_SOURCE", "");
     const api = await load();
