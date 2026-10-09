@@ -190,8 +190,9 @@ class AnalysisService:
             outcome = await judge_and_classify(self.llm, self.catalog, results, options)
             analysis.scores, analysis.criterion_scores = outcome.scores, outcome.criterion_scores
             analysis.states, analysis.suggestion = outcome.states, outcome.suggestion
+            analysis.consistency = outcome.consistency
             nodes, edges = build_graph(str(analysis.id), canonical, self.catalog, results, analysis.scores,
-                                       analysis.states, analysis.suggestion)
+                                       analysis.states, analysis.suggestion, analysis.consistency)
             await save_graph(str(analysis.id), nodes, edges)
         except Exception as error:
             await self._set_stage(analysis, GRAPH, "falhou", safe_error_message(error))

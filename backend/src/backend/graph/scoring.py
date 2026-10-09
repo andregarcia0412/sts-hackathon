@@ -17,10 +17,12 @@ class RuleScore(BaseModel):
 
 
 def counted_evidences(run: RuleRun) -> list[EvidenceItem]:
-    """The same source counts once per rule (first evidence of each source)."""
+    """The same source counts once per rule (first evidence of each source); neutralized evidence is out."""
     seen: set[str] = set()
     counted = []
     for item in run.evidences:
+        if item.scored_polarity is None:
+            continue
         if item.source_id not in seen:
             seen.add(item.source_id)
             counted.append(item)
@@ -29,7 +31,7 @@ def counted_evidences(run: RuleRun) -> list[EvidenceItem]:
 
 def score_rule(run: RuleRun, rule: CatalogRule | None) -> RuleScore:
     counted = counted_evidences(run)
-    positive = sum(e.polarity == "positiva" for e in counted)
+    positive = sum(e.scored_polarity == "positiva" for e in counted)
     negative = len(counted) - positive
     total = positive + negative
     return RuleScore(

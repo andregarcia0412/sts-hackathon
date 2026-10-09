@@ -36,6 +36,14 @@ def parse_catalog(raw: dict, questionnaire: dict | None = None) -> Catalog:
 
 def _validate_questionnaire(catalog: Catalog) -> None:
     q = catalog.questionnaire
+    for rule_id, lock in q.travas.items():
+        rule = catalog.get(rule_id)
+        if rule is None or not rule.forca_coluna:
+            raise CatalogError(f"questionnaire lock on {rule_id}: not a state gate of the catalog")
+        for question_id, answer in lock.items():
+            question = q.question(rule.criterio, question_id)
+            if question is None or answer not in question.opcoes:
+                raise CatalogError(f"questionnaire lock {rule_id}: invalid {question_id} = {answer}")
     for criterion, questions in q.perguntas.items():
         vocabulary = catalog.criteria[criterion].estados.all_states()
         known = {question.id: question for question in questions}
@@ -73,6 +81,11 @@ def _validate(catalog: Catalog) -> None:
             raise CatalogError(f"{rule.id}: status {rule.status} needs motivo_status")
         if rule.needs_llm and not rule.prompt:
             raise CatalogError(f"{rule.id}: applicable LLM rule without prompt")
+        if rule.forca_coluna and rule.papel != "gate":
+            raise CatalogError(f"{rule.id}: forca_coluna needs papel: gate")
+        for target in rule.requer_gate:
+            if target not in seen:
+                raise CatalogError(f"{rule.id}: requer_gate on unknown rule {target}")
 
 
 def load_catalog(path: Path = CATALOG_PATH, questionnaire_path: Path | None = QUESTIONNAIRE_PATH) -> Catalog:

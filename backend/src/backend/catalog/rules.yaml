@@ -5,10 +5,14 @@
 # Fields per rule:
 #   bloco: web | doc | transversal      modo: llm | procedural | design | regra
 #   papel: media (counts in the mean) | informativa (out of the mean) | gate (forces the criterion state)
+#   forca_coluna: negativa — state gate: predominant negative evidence forces the negative column (graph/states.py),
+#     unless the coherence gate exempts it (strong positive score in NOV/CRI/INC)
+#   requer_gate: [..] — the state gate acts only if one of these gates fired in another criterion (cross-criteria)
+#   fonte_de_referencia: true — a source with negative evidence here is the prior reference (consistency, spec 02)
 #   status: aplicavel | parcial | na    (parcial/na never call the LLM; motivo_status goes to the report)
 #   roteamento: doc -> file_type[#anchor]; web -> query families
 #   prompt: rule-specific instruction (positiva quando / negativa quando) used by the sub-agent prompt
-versao: "2026.10.09-2"
+versao: "2026.10.09-3"
 
 tipos_de_arquivo:
   - dossie
@@ -245,6 +249,8 @@ regras:
     fontes_normativas: ["Frascati 2015 §2.15", "UK DSIT ¶12, ¶22, ¶24", "Guia ANPEI 2017 pp. 19 e 26", "Guia MCTI 2020 Ap. B.3"]
     modo: llm
     papel: gate
+    forca_coluna: negativa
+    fonte_de_referencia: true
     roteamento: ["metodo#1", "metodo#2", "configuracao", "cronologia"]
     prompt: >-
       (CHK-CONFIG) NEGATIVA quando a solução vem de produto contratado, manual, catálogo, SDK ou runbook e o
@@ -260,6 +266,7 @@ regras:
     fontes_normativas: ["Frascati 2015 §2.70–2.72", "IPCTN 2020 Anexo I"]
     modo: llm
     papel: media
+    fonte_de_referencia: true
     roteamento: ["metodo#1", "metodo#2", "dossie#trabalho_documentado"]
     prompt: >-
       NEGATIVA quando o trabalho é sistema de negócio com métodos conhecidos, customização, integração de
@@ -313,6 +320,8 @@ regras:
     fontes_normativas: ["Históricos PRJ01, 04, 09, 11, 12, 19, 20", "Frascati 2015 §2.72"]
     modo: llm
     papel: gate
+    forca_coluna: negativa
+    fonte_de_referencia: true
     roteamento: ["metodo#1", "metodo#2", "cronologia", "dossie#referencia_anterior"]
     prompt: >-
       (CHK-CONFIG + CHK-TEMPO) NEGATIVA quando metodo.md §1 cita manual/catálogo/produto contratado anterior ao
@@ -486,6 +495,7 @@ regras:
     fontes_normativas: ["Frascati 2015 §2.17 e §2.56", "Guia MCTI 2020 Ap. B.1", "FAQ MCTI P17", "Históricos PRJ01, 04, 09, 11, 12, 19, 20"]
     modo: llm
     papel: gate
+    forca_coluna: negativa
     roteamento: ["metodo#2", "configuracao", "metodo#1"]
     prompt: >-
       (CHK-CONFIG) NEGATIVA quando o mecanismo é configurar, ativar, cadastrar, mapear, traduzir sintaxe ou ajustar
@@ -680,7 +690,9 @@ regras:
     evidencia: Decisão técnica registrada.
     fontes_normativas: ["CRA SR&ED"]
     modo: llm
-    papel: media
+    papel: gate
+    forca_coluna: negativa
+    requer_gate: [NOV-D4, NOV-D10]
     roteamento: ["observacoes", "metodo#2", "metodo#6"]
     prompt: >-
       POSITIVA quando o registro mostra que a equipe atacou a barreira com o mecanismo. NEGATIVA quando desviou
@@ -737,7 +749,9 @@ regras:
     evidencia: O que mudou entre v1 e v2 e por quê.
     fontes_normativas: ["Frascati 2015 §2.57, §2.72", "UK DSIT ¶14, ¶35", "Históricos PRJ01, 04, 09, 11, 12"]
     modo: llm
-    papel: media
+    papel: gate
+    forca_coluna: negativa
+    requer_gate: [NOV-D4, NOV-D10]
     roteamento: ["cronologia", "metodo#2", "metodo#3", "observacoes", "resultados"]
     prompt: >-
       (CHK-CONFIG + CHK-FALHAS) NEGATIVA quando as mudanças entre versões são correção de parâmetro, permissão,
@@ -843,7 +857,8 @@ regras:
     evidencia: metodo.md#3, versões dos comparadores na cronologia, ensaios em medicoes.csv.
     fontes_normativas: ["Guia MCTI 2020 §6.4", "FAQ MCTI P4", "CRA SR&ED", "IE TDM §3.6", "Históricos PRJ02, 13, 14, 16 × PRJ04, 09, 12"]
     modo: llm
-    papel: media
+    papel: gate
+    forca_coluna: negativa
     roteamento: ["metodo#3", "cronologia", "medicoes", "resultados"]
     prompt: >-
       (CHK-VERSOES) POSITIVA quando alternativas (incluindo comparadores conhecidos) rodaram nas mesmas entradas
@@ -1045,7 +1060,8 @@ regras:
     evidencia: Natureza do que está documentado.
     fontes_normativas: ["Históricos PRJ01, 04, 09, 11, 12, 19, 20"]
     modo: llm
-    papel: media
+    papel: gate
+    forca_coluna: negativa
     roteamento: ["metodo#3", "metodo#4", "configuracao"]
     prompt: >-
       (CHK-CONFIG) NEGATIVA quando o que está documentado é uma receita de configuração de produto existente.

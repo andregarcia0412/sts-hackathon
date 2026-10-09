@@ -6,6 +6,7 @@ from backend.catalog.models import Catalog
 from backend.criteria.schemas import CriterionResult
 from backend.extraction.schema import CanonicalProject
 from backend.graph.classify import CLASS_LABELS, ClassSuggestion
+from backend.graph.consistency import ConsistencyReport
 from backend.graph.models import EdgeData, NodeData
 from backend.graph.scoring import RuleScore, score_criterion
 from backend.graph.states import CriterionState
@@ -42,6 +43,7 @@ def build_graph(
     scores: dict[str, list[RuleScore]],
     states: dict[str, CriterionState],
     suggestion: ClassSuggestion,
+    consistency: ConsistencyReport | None = None,
 ) -> tuple[list[NodeData], list[EdgeData]]:
     g = _Graph(analysis_id)
     project = g.node(f"project:{canonical.project_code}", "project", canonical.context.title or canonical.project_code,
@@ -82,6 +84,7 @@ def build_graph(
                     rule_id=item.rule_id, polarity=item.polarity, quote=item.quote, explanation=item.explanation,
                     origin=item.origin, nature=item.nature, query=item.query, source_id=item.source_id,
                     source_alias=item.source_alias, counted=item.id in (score.counted_evidence_ids if score else []),
+                    adjustment=item.adjustment.model_dump() if item.adjustment else None,
                 )
                 g.edge(evidence_node, "sustenta" if item.polarity == "positiva" else "contraria", rule_node)
                 source_node = _source_node(g, canonical, result, item.source_id)
@@ -127,6 +130,14 @@ def build_graph(
             for source_id in entry.selected:
                 if f"source:{source_id}" in g.nodes or any(s.id == source_id for s in result.web_sources):
                     g.edge(node, "trouxe", _source_node(g, canonical, result, source_id))
+    if consistency and consistency.neutralized:
+        node = g.node("consistency:analysis", "consistency", "Consistência entre critérios",
+                      **consistency.model_dump())
+        for item in consistency.neutralized:
+            if f"rule:{item.by_rule}" in g.nodes:
+                g.edge(node, "por", f"rule:{item.by_rule}")
+            if f"evidence:{item.evidence_id}" in g.nodes:
+                g.edge(node, "neutraliza", f"evidence:{item.evidence_id}")
     return list(g.nodes.values()), list(g.edges.values())
 
 

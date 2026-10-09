@@ -86,6 +86,7 @@ class RunSnapshot(CamelModel):
     rejudged: bool = False  # only the conclusion stage ran again, over the saved evidence
     coherence: dict[str, Coherence] = Field(default_factory=dict)  # criterion → coherence gate record
     judgements: dict[str, CriterionState] = Field(default_factory=dict)  # re-judge only: the full new states
+    neutralized: int = 0  # evidences neutralized by the consistency between criteria (spec 02)
 
 
 class Distribution(CamelModel):

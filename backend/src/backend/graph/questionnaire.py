@@ -13,17 +13,17 @@ from backend.graph.answer import NO_RECORD, Answer
 from backend.graph.coherence import Contradiction, contradiction_block
 from backend.graph.options import JudgeOptions
 from backend.graph.states import (
-    CONFIG_GATES,
     NUMERIC_IN_CRITERION,
     NUMERIC_NATURES,
     Caveat,
     CriterionState,
     MissingLinkInfo,
     _describe,
-    _net_negative,
     coherence_exempt,
     column_of,
+    gate_message,
     judge_system,
+    state_gate_hits,
     with_coherence,
 )
 from backend.llm import LLM
@@ -89,14 +89,16 @@ def _evidence_ids(result: CriterionResult, rule_id: str | None = None, polarity:
             if (polarity is None or e.polarity == polarity) and (source_id is None or e.source_id == source_id)]
 
 
-def locks(result: CriterionResult, questions: list[Question], exempt_score: int | None,
-          ) -> tuple[dict[str, Answer], list[str], list[str]]:
-    """Answers the gates give in code (NOV-W3 full coverage; configuration gates with predominant negative evidence).
-
-    With a strong positive score (coherence gate) a configuration gate does not lock: the conflict is recorded."""
+def locks(result: CriterionResult, catalog: Catalog, exempt_score: int | None,
+          cross: set[str] | frozenset[str] = frozenset()) -> tuple[dict[str, Answer], list[str], list[str], list[str]]:
+    """Answers the gates give in code: NOV-W3 with full coverage, and the state gates of the catalog with
+    predominant negative evidence (`travas`). With a strong positive score (coherence gate) a gate does not lock:
+    the conflict is recorded. Returns (locked answers, gate notes, conflicts, fired gates)."""
+    questions = catalog.questionnaire.perguntas[result.criterion]
     locked: dict[str, Answer] = {}
     gates: list[str] = []
     conflicts: list[str] = []
+    fired: list[str] = []
     closest = result.closest_doc
     if result.criterion == "NOV" and closest and closest.cobertura == "total":
         if question := _question_for_rule(questions, "NOV-W3"):
@@ -104,20 +106,18 @@ def locks(result: CriterionResult, questions: list[Question], exempt_score: int 
             locked[question.id] = Answer(pergunta=question.id, resposta="sim", origem="gate",
                                          evidencias=_evidence_ids(result, source_id=closest.source_id),
                                          explicacao=f"Documento anterior com cobertura total: {closest.title}.")
-    for rule_id in CONFIG_GATES.get(result.criterion, ()):
-        question = _question_for_rule(questions, rule_id)
-        if question is None or question.id in locked or not _net_negative(result, rule_id):
+    for hit in state_gate_hits(result, catalog, cross, exempt_score):
+        gates.append(gate_message(hit, exempt_score))
+        if not hit.forced:
+            conflicts.append(hit.rule_id)
             continue
-        if exempt_score is not None:
-            conflicts.append(rule_id)
-            gates.append(f"gate {rule_id} em conflito com score {exempt_score}: não aplicado, critério julgado de "
-                         "novo com a regra destacada")
-            continue
-        gates.append(f"gate {rule_id}: evidência negativa predominante (referência/configuração já fornecia a função)")
-        locked[question.id] = Answer(pergunta=question.id, resposta="sim", origem="gate",
-                                     evidencias=_evidence_ids(result, rule_id, "negativa"),
-                                     explicacao=f"{rule_id} com evidência negativa predominante.")
-    return locked, gates, conflicts
+        fired.append(hit.rule_id)
+        for question_id, answer in catalog.questionnaire.travas.get(hit.rule_id, {}).items():
+            locked.setdefault(question_id, Answer(
+                pergunta=question_id, resposta=answer, origem="gate",
+                evidencias=_evidence_ids(result, hit.rule_id, "negativa"),
+                explicacao=f"{hit.rule_id} com evidência negativa predominante ({hit.title})."))
+    return locked, gates, conflicts, fired
 
 
 def _validate(out: QuestionnaireOut, asked: list[Question], known: set[str],
@@ -210,7 +210,8 @@ def _justification(catalog: Catalog, result: CriterionResult, questions: dict[st
 
 
 def build_state(catalog: Catalog, result: CriterionResult, answers: dict[str, Answer], has_numeric: bool,
-                gates: list[str], conflicts: list[str], caveat: Caveat | None) -> CriterionState:
+                gates: list[str], conflicts: list[str], caveat: Caveat | None,
+                fired: list[str] | None = None) -> CriterionState:
     criterion = result.criterion
     questionnaire = catalog.questionnaire
     questions = {q.id: q for q in questionnaire.perguntas[criterion]}
@@ -235,7 +236,7 @@ def build_state(catalog: Catalog, result: CriterionResult, answers: dict[str, An
         criterion=criterion, state=line.estado, column=column, llm_state=raw_line.estado,
         justification=_justification(catalog, result, questions, line.estado, decisive),
         decisive_evidence_ids=list(dict.fromkeys(i for a in decisive for i in a.evidencias)),
-        gates=gates, gate_conflicts=list(conflicts), answers=ordered,
+        gates=gates, gate_conflicts=list(conflicts), fired_gates=list(fired or []), answers=ordered,
         decision_rule=f"{criterion} linha {index + 1}: {line.label()} → {line.estado}",
     )
     if criterion == "REP" and effective.get("R3") == "sim":
@@ -266,13 +267,14 @@ def _redo(contradiction: Contradiction, previous: CriterionState, questions: lis
 async def judge_by_questionnaire(llm: LLM, catalog: Catalog, result: CriterionResult,
                                  numeric_record_in_analysis: bool, analyst_argument: str | None = None, *,
                                  score: int | None = None, n_rules: int = 0,
-                                 options: JudgeOptions | None = None) -> CriterionState:
+                                 options: JudgeOptions | None = None,
+                                 cross: set[str] | frozenset[str] = frozenset()) -> CriterionState:
     options = options or JudgeOptions(judge_mode="questionario")
     criterion = result.criterion
     questions = catalog.questionnaire.perguntas[criterion]
     table = catalog.questionnaire.decisao[criterion]
     exempt = coherence_exempt(criterion, score, n_rules, options)
-    locked, gates, conflicts = locks(result, questions, exempt)
+    locked, gates, conflicts, fired = locks(result, catalog, exempt, cross)
     if criterion in NUMERIC_IN_CRITERION:
         has_numeric = any(e.polarity == "positiva" and e.nature in NUMERIC_NATURES
                           for r in result.rules for e in r.evidences)
@@ -301,6 +303,6 @@ async def judge_by_questionnaire(llm: LLM, catalog: Catalog, result: CriterionRe
             caveat = Caveat(recorte_sustentado=out.recorte_sustentado, limitacao=out.limitacao,
                             evidencia_necessaria=out.evidencia_necessaria)
         merged = {qid: a.model_copy() for qid, a in fixed.items()} | answers
-        return build_state(catalog, result, merged, has_numeric, gates, conflicts, caveat)
+        return build_state(catalog, result, merged, has_numeric, gates, conflicts, caveat, fired)
 
     return await with_coherence(once, catalog, score, n_rules, options)

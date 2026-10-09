@@ -18,6 +18,8 @@ class JudgeOptions(BaseModel):
     coherence_high: int = 75
     coherence_low: int = 25
     coherence_min_rules: int = 4
+    consistency_neutralize: bool = False  # spec 02 part A: CRI/INC evidence on the prior reference leaves the score
+    consistency_text_markers: bool = False  # ... also sources marked only by the containment text of NOV rules
 
     @classmethod
     def from_settings(cls, settings: Settings, **overrides) -> "JudgeOptions":
@@ -28,5 +30,7 @@ class JudgeOptions(BaseModel):
             "coherence_high": settings.coherence_high,
             "coherence_low": settings.coherence_low,
             "coherence_min_rules": settings.coherence_min_rules,
+            "consistency_neutralize": settings.consistency_neutralize,
+            "consistency_text_markers": settings.consistency_use_text_markers,
         }
         return cls(**values | {k: v for k, v in overrides.items() if v is not None})

@@ -135,6 +135,7 @@ def snapshot_of(run: BenchmarkRun, analysis: Analysis | None) -> RunSnapshot:
         criterion_scores=dict(analysis.criterion_scores),
         usage=analysis.usage,
         coherence={c: s.coherence for c, s in analysis.states.items() if s.coherence},
+        neutralized=len(analysis.consistency.neutralized) if analysis.consistency else 0,
     )
     if suggestion := analysis.suggestion:
         snap.suggested_class, snap.inconsistent = suggestion.suggested_class, suggestion.inconsistent
