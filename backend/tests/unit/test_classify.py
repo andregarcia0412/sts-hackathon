@@ -54,3 +54,15 @@ def test_missing_state_gives_no_class():
     result = classify(vector)
     assert result.suggested_class is None
     assert result.inconsistent
+
+
+def test_insufficient_by_the_tree_still_names_the_missing_link():
+    from backend.graph.classify import classify
+    from backend.graph.states import CriterionState
+
+    states = {"NOV": "DEMONSTRADA NO RECORTE", "CRI": "DEMONSTRADA NO RECORTE", "INC": "INVESTIGADA",
+              "SIS": "DOCUMENTADA COMO ACEITE", "REP": "DOCUMENTADA NO ESCOPO"}
+    suggestion = classify({c: CriterionState.of(c, s) for c, s in states.items()})
+    assert suggestion.suggested_class == "insufficient_evidence" and suggestion.incomplete == []
+    assert "SIS = DOCUMENTADA COMO ACEITE" in suggestion.missing_link.elo_ausente
+    assert suggestion.missing_link.evidencias_a_solicitar

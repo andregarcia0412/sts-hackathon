@@ -16,6 +16,14 @@ CLASS_LABELS: dict[str, str] = {
 CORE = ("NOV", "CRI", "INC")
 SCOPE_STATE = "DOCUMENTADA NO ESCOPO"
 LIMIT_STATE = "DOCUMENTADA COM LIMITE"
+# What to ask the team for when a criterion keeps the class out of the R&D column (generalized from the tree).
+TO_REQUEST = {
+    "NOV": "comparação do mecanismo com a referência anterior e as alternativas conhecidas, com o modo de falha de cada uma",
+    "CRI": "mecanismo próprio com parâmetros-chave preenchidos e a hipótese registrada antes dos ensaios",
+    "INC": "execução da hipótese contra comparadores, com medições por versão",
+    "SIS": "registro do experimento: alternativas nas mesmas entradas, referência e critérios fixados antes",
+    "REP": "método, configuração e resultados recalculáveis do registro primário para o núcleo alegado",
+}
 
 
 class ClassSuggestion(BaseModel):
@@ -45,6 +53,12 @@ def _finish(cls: SuggestedClass, states: dict[str, CriterionState], inconsistent
             suggestion.incomplete.append("Com ressalvas exige recorte sustentado, limitação e evidência necessária")
     if cls == "insufficient_evidence":
         suggestion.missing_link = _missing_link(states)
+        if not suggestion.missing_link.elo_ausente:  # decided by the tree (e.g. SIS/REP outside the R&D column)
+            outside = {c: s for c, s in states.items() if s.column != "pd"}
+            suggestion.missing_link = MissingLinkInfo(
+                elo_ausente=f"{reason}: " + "; ".join(f"{c} = {s.state}" for c, s in outside.items()),
+                evidencias_a_solicitar=[TO_REQUEST[c] for c in outside if c in TO_REQUEST],
+            )
         if not suggestion.missing_link.elo_ausente:
             suggestion.incomplete.append("Evidência insuficiente exige o elo ausente e as evidências a solicitar")
     return suggestion
