@@ -44,7 +44,7 @@ react-resizable-panels, react-dropzone, react-to-print, lucide-react.
 | `/projetos?q=&status=&banda=&decisao=&de=&ate=&ordem=&pagina=` | Meus projetos: cabeçalho fixo e só a lista rola; cards por situação (também filtram), filtros em menus da marca (critério mais fraco, decisão, período, ordem), busca, situação de cada projeto e "Reenviar arquivo" |
 | `/projetos/novo` | Upload de arquivos (novo projeto) em tela própria: formulário com rolagem, rodapé fixo, "Enviar para análise" só habilitado com nome + material e envios concluídos |
 | `/projetos/:id/analise?metodo=<método>&no=<nó>` | Árvore de evidências: detalhamento (critérios em acordeão) + grafo Critério → Regra → Evidência + decisão do analista por regra |
-| `/projetos/:id/decisao?metodo=<método>&no=<nó>` | Documento de decisão de um método por vez: resumo, pendências antes de decidir (divergências, limites, lacunas), detalhamento em sanfona (`no` abre o critério/regra), classificação final (4 opções), trilha e PDF (sai tudo aberto) |
+| `/projetos/:id/decisao?metodo=<método>&no=<nó>` | Documento de decisão de um método por vez: resumo, pendências antes de decidir (divergências, limites, lacunas), detalhamento em sanfona (`no` abre o critério/regra), classificação final (4 opções), trilha e "Exportar": PDF (sai tudo aberto) ou CSV (uma linha com a decisão e os critérios, formato do back-end) |
 
 Nas telas de análise e decisão há um **assistente** (botão no canto inferior direito)
 que explica notas, evidências e rastreabilidade. Ele entende o item selecionado, números
