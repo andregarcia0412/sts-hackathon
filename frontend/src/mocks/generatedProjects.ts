@@ -5,6 +5,7 @@ import type {
   Project,
   ProjectStatus,
 } from "@/domain/types";
+import { recognizeDocumentKind } from "@/domain/documents";
 import { analysisTemplates } from "@/mocks/projects";
 import { mockUsers } from "@/mocks/users";
 
@@ -90,13 +91,19 @@ const clamp = (value: number, min = 5, max = 95) => Math.round(Math.max(min, Mat
 
 const pick = <T,>(random: () => number, items: readonly T[]) => items[Math.floor(random() * items.length)];
 
+/** Stable number from a project id, to seed per-project values */
+export const hashId = (id: string) =>
+  [...id].reduce((hash, char) => (Math.imul(hash, 31) + char.charCodeAt(0)) | 0, 7);
+
 const pickStatus = (r: number): ProjectStatus =>
   r < 0.5 ? "decided" : r < 0.83 ? "ready" : r < 0.91 ? "processing" : "error";
 
 const outcomeFor = (minScore: number, r: number): DecisionOutcome => {
-  if (minScore >= 55) return r < 0.85 ? "eligible" : "needs_review";
-  if (minScore < 35) return r < 0.8 ? "not_eligible" : "needs_review";
-  return r < 0.5 ? "needs_review" : r < 0.75 ? "eligible" : "not_eligible";
+  if (minScore >= 55) return r < 0.85 ? "eligible" : "with_reservations";
+  if (minScore < 35) return r < 0.8 ? "not_eligible" : "with_reservations";
+  if (r < 0.5) return "with_reservations";
+  if (r < 0.7) return "eligible";
+  return r < 0.85 ? "not_eligible" : "insufficient_evidence";
 };
 
 const generate = (): GeneratedProject[] => {
@@ -116,6 +123,7 @@ const generate = (): GeneratedProject[] => {
         mimeType,
         sizeBytes: Math.round(80_000 + random() * 4_000_000),
         uploadedAt: createdAt,
+        kind: recognizeDocumentKind(fileName),
       }),
     );
     const quality = 25 + random() * 60;
@@ -123,6 +131,9 @@ const generate = (): GeneratedProject[] => {
       template.criteria.map(() => clamp(quality + (random() - 0.5) * 40)),
     );
 
+    // Fields added later come from their own seed, so the main sequence (and every
+    // project generated above) stays the same
+    const extra = seededRandom(hashId(id));
     const project: Project = {
       id,
       ownerId: owner.id,
@@ -131,6 +142,11 @@ const generate = (): GeneratedProject[] => {
       createdAt,
       status,
       documents,
+      cutoffDate: new Date(Date.parse(createdAt) - (7 + extra() * 50) * DAY).toISOString(),
+      readError:
+        status === "error"
+          ? { fileName: documents[Math.floor(extra() * documents.length)].fileName }
+          : undefined,
     };
 
     const decision: Decision | undefined =

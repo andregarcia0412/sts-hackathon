@@ -6,6 +6,7 @@ import { LoginPage } from "@/pages/login/LoginPage";
 import { AnalysisPage } from "@/pages/analysis/AnalysisPage";
 import { DecisionPage } from "@/pages/decision/DecisionPage";
 import { NotFoundPage } from "@/pages/not-found/NotFoundPage";
+import { NewProjectPage } from "@/pages/projects/NewProjectPage";
 import { ProjectsPage } from "@/pages/projects/ProjectsPage";
 
 export const AppRouter = () => {
@@ -22,6 +23,7 @@ export const AppRouter = () => {
         >
           <Route index element={<Navigate to="/projetos" replace />} />
           <Route path="projetos" element={<ProjectsPage />} />
+          <Route path="projetos/novo" element={<NewProjectPage />} />
           <Route path="projetos/:projectId" element={<ProjectLayout />}>
             <Route index element={<Navigate to="analise" replace />} />
             <Route path="analise" element={<AnalysisPage />} />

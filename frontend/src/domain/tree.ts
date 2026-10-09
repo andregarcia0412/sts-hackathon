@@ -108,6 +108,10 @@ export const numberTree = (analysis: Analysis): Map<string, string> =>
     [...indexAnalysis(analysis).values()].map((node) => [node.id, node.number]),
   );
 
+/** Whether `nodeId` is `rootId` itself or one of its descendants (ids are paths) */
+export const isInSubtree = (nodeId: string, rootId: string | undefined) =>
+  !!rootId && (nodeId === rootId || nodeId.startsWith(rootId + NODE_ID_SEPARATOR));
+
 /** Root criterion → … → node. Empty when the id is unknown. */
 export const getNodePath = (
   index: AnalysisIndex,

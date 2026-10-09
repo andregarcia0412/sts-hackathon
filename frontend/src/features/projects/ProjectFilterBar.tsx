@@ -1,18 +1,18 @@
-import { Search, X } from "lucide-react";
-import { useEffect, useEffectEvent, useState } from "react";
-import { DECISION_OUTCOME_LABELS } from "@/domain/labels";
+import { ListFilter } from "lucide-react";
+import { PillSelect } from "@/components/ui/PillSelect";
+import { DECISION_OUTCOMES, DECISION_OUTCOME_LABELS } from "@/domain/labels";
 import { SCORE_BAND_LABELS, SCORE_BANDS } from "@/domain/score";
-import type { DecisionOutcome, ProjectSort } from "@/domain/types";
+import type { ProjectSort } from "@/domain/types";
+import { DateRangeField } from "@/features/projects/DateRangeField";
 import type { ProjectFilters } from "@/features/projects/useProjectFilters";
-
-const SEARCH_DEBOUNCE_MS = 300;
 
 const SORT_LABELS: Record<ProjectSort, string> = {
   recent: "Mais recentes",
   oldest: "Mais antigos",
   name: "Nome (A–Z)",
-  weakest: "Menor nota primeiro",
+  weakest: "Mais fraco primeiro",
 };
+
 
 interface ProjectFilterBarProps {
   filters: ProjectFilters;
@@ -21,127 +21,60 @@ interface ProjectFilterBarProps {
   activeCount: number;
 }
 
-/** All filters in one row above the list (wraps on small screens) */
-export const ProjectFilterBar = ({ filters, update, clear, activeCount }: ProjectFilterBarProps) => {
-  const [search, setSearch] = useState(filters.search ?? "");
-
-  // Debounced: the URL (and the request) only change when typing pauses
-  const onTypingPause = useEffectEvent(() => {
-    if (search !== (filters.search ?? "")) update({ search });
-  });
-  useEffect(() => {
-    const timer = setTimeout(onTypingPause, SEARCH_DEBOUNCE_MS);
-    return () => clearTimeout(timer);
-  }, [search]);
-
-  return (
-    <div role="search" aria-label="Filtrar projetos" className="flex flex-wrap items-end gap-3">
-      <div className="min-w-56 flex-1">
-        <label htmlFor="filter-search" className="mb-1 block text-xs font-medium text-fg-muted">
-          Buscar
-        </label>
-        <div className="relative">
-          <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-fg-muted" aria-hidden />
-          <input
-            id="filter-search"
-            type="search"
-            className="input pl-8"
-            placeholder="Nome do projeto ou empresa"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-      </div>
-
-      <div>
-        <label htmlFor="filter-band" className="mb-1 block text-xs font-medium text-fg-muted">
-          Menor nota
-        </label>
-        <select
-          id="filter-band"
-          className="input w-auto"
-          value={filters.weakestBand ?? ""}
-          onChange={(e) =>
-            update({ weakestBand: (e.target.value || undefined) as ProjectFilters["weakestBand"] })
-          }
-        >
-          <option value="">Qualquer</option>
-          {SCORE_BANDS.map((band) => (
-            <option key={band} value={band}>{SCORE_BAND_LABELS[band]}</option>
-          ))}
-        </select>
-      </div>
-
-      <div>
-        <label htmlFor="filter-outcome" className="mb-1 block text-xs font-medium text-fg-muted">
-          Decisão
-        </label>
-        <select
-          id="filter-outcome"
-          className="input w-auto"
-          value={filters.outcome ?? ""}
-          onChange={(e) =>
-            update({ outcome: (e.target.value || undefined) as DecisionOutcome | "none" | undefined })
-          }
-        >
-          <option value="">Qualquer</option>
-          {(Object.keys(DECISION_OUTCOME_LABELS) as DecisionOutcome[]).map((outcome) => (
-            <option key={outcome} value={outcome}>{DECISION_OUTCOME_LABELS[outcome]}</option>
-          ))}
-          <option value="none">Sem decisão</option>
-        </select>
-      </div>
-
-      <fieldset className="flex items-end gap-1.5">
-        <legend className="mb-1 block text-xs font-medium text-fg-muted">Enviado entre</legend>
-        <input
-          type="date"
-          aria-label="Enviado a partir de"
-          className="input w-auto"
-          value={filters.from ?? ""}
-          max={filters.to}
-          onChange={(e) => update({ from: e.target.value || undefined })}
-        />
-        <span className="pb-2 text-xs text-fg-muted">e</span>
-        <input
-          type="date"
-          aria-label="Enviado até"
-          className="input w-auto"
-          value={filters.to ?? ""}
-          min={filters.from}
-          onChange={(e) => update({ to: e.target.value || undefined })}
-        />
-      </fieldset>
-
-      <div>
-        <label htmlFor="filter-sort" className="mb-1 block text-xs font-medium text-fg-muted">
-          Ordenar por
-        </label>
-        <select
-          id="filter-sort"
-          className="input w-auto"
-          value={filters.sort}
-          onChange={(e) => update({ sort: e.target.value as ProjectSort, page: filters.page })}
-        >
-          {(Object.keys(SORT_LABELS) as ProjectSort[]).map((sort) => (
-            <option key={sort} value={sort}>{SORT_LABELS[sort]}</option>
-          ))}
-        </select>
-      </div>
-
+/** Triage filters in one pill bar; the round button shows how many are on and clears them */
+export const ProjectFilterBar = ({ filters, update, clear, activeCount }: ProjectFilterBarProps) => (
+  <div role="group" aria-label="Filtros" className="flex flex-wrap items-center gap-2 rounded-[28px] bg-surface p-2 lg:rounded-full">
+    <button
+      type="button"
+      onClick={clear}
+      disabled={activeCount === 0}
+      title={activeCount ? "Limpar filtros" : "Nenhum filtro ativo"}
+      aria-label={activeCount ? `Limpar ${activeCount} ${activeCount === 1 ? "filtro" : "filtros"}` : "Nenhum filtro ativo"}
+      className="relative flex size-12 shrink-0 items-center justify-center rounded-full bg-action text-white transition-[filter] hover:brightness-95 disabled:cursor-default disabled:hover:brightness-100"
+    >
+      <ListFilter className="size-5" aria-hidden />
       {activeCount > 0 && (
-        <button
-          type="button"
-          className="btn-ghost mb-0.5"
-          onClick={() => {
-            setSearch("");
-            clear();
-          }}
-        >
-          <X className="size-4" aria-hidden />
-          Limpar filtros ({activeCount})
-        </button>
+        <span className="absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full border-2 border-surface bg-brand-deep text-[11px] font-bold">
+          {activeCount}
+        </span>
       )}
-    </div>
-  );
-};
+    </button>
+
+    <PillSelect
+      label="Força da evidência do critério mais fraco"
+      placeholder="Critério mais fraco"
+      className="w-full sm:w-auto"
+      highlighted={!!filters.weakestBand}
+      value={filters.weakestBand}
+      onChange={(weakestBand) => update({ weakestBand })}
+      options={SCORE_BANDS.map((band) => ({
+        value: band,
+        label: `Mais fraco: ${SCORE_BAND_LABELS[band].toLowerCase()}`,
+      }))}
+    />
+
+    <PillSelect
+      label="Decisão"
+      placeholder="Decisão"
+      className="w-full sm:w-auto"
+      highlighted={!!filters.outcome}
+      value={filters.outcome}
+      onChange={(outcome) => update({ outcome })}
+      options={[
+        ...DECISION_OUTCOMES.map((outcome) => ({ value: outcome, label: DECISION_OUTCOME_LABELS[outcome] })),
+        { value: "none" as const, label: "Sem decisão" },
+      ]}
+    />
+
+    <DateRangeField from={filters.from} to={filters.to} onChange={(range) => update(range)} />
+
+    <PillSelect
+      label="Ordenar por"
+      className="w-full sm:w-auto"
+      value={filters.sort}
+      onChange={(sort) => update({ sort: sort ?? "recent", page: filters.page })}
+      display={(option) => `Ordenar: ${option.label.toLowerCase()}`}
+      options={(Object.keys(SORT_LABELS) as ProjectSort[]).map((sort) => ({ value: sort, label: SORT_LABELS[sort] }))}
+    />
+  </div>
+);

@@ -1,8 +1,9 @@
 # Front-end: Lei do Bem · Apoio à Decisão
 
-Esqueleto do front-end do Hackathon STS 2026 (desafio BNB). O visual é **provisório**:
-a alta fidelidade do designer entra trocando os tokens do tema e os componentes de
-apresentação, sem mexer na lógica.
+Front-end do Hackathon STS 2026 (desafio BNB). O visual de alta fidelidade vem do Figma
+do designer (identidade do BNB: Heebo, vinho `#A6193C`) e está sendo aplicado tela a
+tela. Árvore de evidências, projetos, upload, login e o assistente ("IA Assistente") seguem
+o Figma, assim como o documento de decisão.
 
 > A ferramenta **apoia** a decisão, não decide. As notas são **força da evidência**
 > (0–100), nunca "probabilidade de aprovação".
@@ -15,7 +16,21 @@ npm run dev        # http://localhost:5173
 npm test           # Vitest (funções puras: árvore, grafo)
 npm run lint       # oxlint
 npm run build      # tsc + vite build
+npm run test:e2e   # Playwright: jornadas de usuário no navegador (sobe o Vite na porta 5180)
 ```
+
+Na primeira vez, instale o navegador dos testes: `npx playwright install chromium`.
+`npm run test:e2e:ui` abre o modo visual (passo a passo, com prints) e
+`npm run test:e2e:report` mostra o relatório da última execução.
+
+### Testes ponta a ponta (`e2e/`)
+
+- `journeys.spec.ts`: jornadas como uma pessoa faria à mão, usando só o que aparece na tela
+  (primeira análise até o PDF, contestação e reanálise, upload, triagem da fila, mapa
+  geral com o mouse, só teclado e celular).
+- `login`, `projects`, `analysis`, `decision`: verificações pontuais de cada tela.
+- Todo teste começa com dados de demonstração limpos (contexto novo do navegador) e falha
+  se a página registrar erro no console.
 
 Stack: Vite 8, React 19 (React Compiler ligado), TypeScript, Tailwind v4,
 React Router 7 (modo declarativo), TanStack Query, React Flow + dagre,
@@ -25,10 +40,11 @@ react-resizable-panels, react-dropzone, react-to-print, lucide-react.
 
 | Rota | Tela |
 |---|---|
-| `/login` | Login (mock: analistas de demonstração, qualquer senha) |
-| `/projetos?q=&status=&banda=&decisao=&de=&ate=&ordem=&pagina=` | Meus projetos: resumo por status, filtros, paginação + "Novo projeto" |
-| `/projetos/:id/analise?metodo=<método>&no=<nó>` | Árvore + detalhe + grafo Critério → Regra → Evidência, uma árvore por método |
-| `/projetos/:id/decisao?metodo=<método>` | Documento de decisão (todos os métodos), formulário, trilha e PDF |
+| `/login` | Login e Cadastro do **Lastro** (mock: analistas de demonstração ou conta criada na hora, qualquer senha) |
+| `/projetos?q=&status=&banda=&decisao=&de=&ate=&ordem=&pagina=` | Meus projetos: cabeçalho fixo e só a lista rola; cards por situação (também filtram), filtros em menus da marca (critério mais fraco, decisão, período, ordem), busca, situação de cada projeto e "Reenviar arquivo" |
+| `/projetos/novo` | Upload de arquivos (novo projeto) em tela própria: formulário com rolagem, rodapé fixo, "Enviar para análise" só habilitado com nome + material e envios concluídos |
+| `/projetos/:id/analise?metodo=<método>&no=<nó>` | Árvore de evidências: detalhamento (critérios em acordeão) + grafo Critério → Regra → Evidência + decisão do analista por regra |
+| `/projetos/:id/decisao?metodo=<método>&no=<nó>` | Documento de decisão de um método por vez: resumo, pendências antes de decidir (divergências, limites, lacunas), detalhamento em sanfona (`no` abre o critério/regra), classificação final (4 opções), trilha e PDF (sai tudo aberto) |
 
 Nas telas de análise e decisão há um **assistente** (botão no canto inferior direito)
 que explica notas, evidências e rastreabilidade. Ele entende o item selecionado, números
@@ -46,10 +62,10 @@ src/
   services/    api.ts (camada única de dados, inclusive askAssistant) + queries.ts
   features/
     projects/  tabela, modal de novo projeto, dropzone
-    analysis/  useAnalysisExplorer (seleção + expansão), tree/, detail/, graph/
+    analysis/  useAnalysisExplorer (seleção, visão do grafo), detail/ (painel), graph/
     decision/  relatório imprimível, formulário, trilha
     assistant/ chatbot: provider (conversa por projeto) e widget
-  components/  layout e UI compartilhada (ScoreBadge, PolarityTag, ReferenceLink, estados)
+  components/  layout (AppLayout, ProjectHeader), ícones do design e UI compartilhada (Tag, ReferenceLink, estados)
   pages/       uma pasta por rota
   index.css    tokens do tema (@theme) e CSS de impressão
 ```
@@ -59,8 +75,18 @@ src/
   `src/mocks/assistantEngine.ts`.
 - **Trocar mocks pela API real:** só `src/services/api.ts`. As telas consomem apenas
   essas funções. Os tipos esperados estão em `src/domain/types.ts`.
-- **Visual do designer:** cores e fontes são tokens em `src/index.css` (`--color-score-strong`,
-  `--color-evidence-negative`, ...). Os cards do grafo ficam em `features/analysis/graph/GraphNodes.tsx`.
+- **Visual do designer:** cores, sombras e fonte são tokens em `src/index.css`, com os nomes
+  das variáveis do Figma comentados. A "Etiqueta" do design é `components/ui/Tag.tsx`; os
+  botões são `.btn-primary`, `.btn-secondary` e `.btn-chip`. Os cards do grafo ficam em
+  `features/analysis/graph/GraphNodes.tsx`.
+- **Rótulos qualitativos** ("Sustentado", "Parcialmente", "Contraditório"...): vêm da nota e
+  das evidências em `src/domain/qualitative.ts`. Cada critério usa a palavra do design
+  ("Demonstrada no recorte", "Investigada", "Documentada", "Com limite"…). O número 0–100
+  continua no detalhamento.
+- **Decisão final:** Elegível / Com ressalvas / Não elegível (`src/domain/labels.ts`).
+- **Upload (simulado):** tipo de documento reconhecido pelo nome (`src/domain/documents.ts`),
+  progresso por arquivo, pastas inteiras, PDF/DOCX/TXT/MD/CSV/XLSX/JSON e o consentimento
+  para buscar trabalhos similares na web. Nada sai do navegador até existir o back-end.
 - **Faixas de nota:** `src/domain/score.ts` (`scoreBand()`); o resto da UI segue.
 
 ## Funcionalidades de apoio ao analista
@@ -81,8 +107,14 @@ src/
 
 ## Comportamentos já decididos
 
-- **Grafo mostra os 5 critérios.** Ao entrar na tela, tudo aparece expandido e depois
-  recolhe para só os critérios. Clicar num critério ou regra expande; clicar de novo recolhe.
+- **Grafo por critério + mapa geral.** Por padrão o grafo mostra o critério selecionado
+  com todas as regras e evidências (como no Figma). "Mapa geral" mostra os 5 critérios:
+  na primeira vez tudo aparece expandido e depois recolhe para os critérios; clicar num
+  critério ou regra expande, clicar de novo recolhe.
+- **Decisão do analista por regra.** Cada regra recebe a nota do analista com
+  justificativa obrigatória; evidências podem ser confirmadas ou descartadas (descartar pede
+  o motivo). Um critério conta como "decidido" quando todas as regras têm nota. A decisão
+  final do projeto continua no documento de decisão. Tudo é só acrescentado.
 - **Decisão nunca é sobrescrita.** Cada registro entra na trilha (quem, quando, com base
   em qual análise); a mais recente é a "vigente".
 - **Cada analista vê os próprios projetos.** Decisões e contestações são assinadas pelo

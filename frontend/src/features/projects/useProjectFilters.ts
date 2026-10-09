@@ -1,25 +1,22 @@
 import { useSearchParams } from "react-router-dom";
-import type {
-  DecisionOutcome,
-  ProjectQuery,
-  ProjectSort,
-  ProjectStatus,
-} from "@/domain/types";
+import { paths } from "@/routes/paths";
+import { DECISION_OUTCOMES } from "@/domain/labels";
+import type { DecisionOutcome, ProjectQuery, ProjectSort, ProjectStatus } from "@/domain/types";
 
-export const PAGE_SIZE = 20;
+export const PAGE_SIZE = 8;
 
 /** Filters editable in the UI (owner and page size come from elsewhere) */
 export type ProjectFilters = Omit<ProjectQuery, "ownerId" | "pageSize">;
 
 const STATUSES: ProjectStatus[] = ["processing", "ready", "decided", "error"];
 const BANDS = ["strong", "moderate", "weak"] as const;
-const OUTCOMES: (DecisionOutcome | "none")[] = ["eligible", "not_eligible", "needs_review", "none"];
 const SORTS: ProjectSort[] = ["recent", "oldest", "name", "weakest"];
+const OUTCOMES: (DecisionOutcome | "none")[] = [...DECISION_OUTCOMES, "none"];
+const DATE = /^\d{4}-\d{2}-\d{2}$/;
+const dateParam = (value: string | null) => (value && DATE.test(value) ? value : undefined);
 
 const oneOf = <T extends string>(value: string | null, allowed: readonly T[]) =>
   allowed.includes(value as T) ? (value as T) : undefined;
-
-const DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 const parseFilters = (params: URLSearchParams): ProjectFilters => ({
   search: params.get("q") ?? undefined,
@@ -29,8 +26,8 @@ const parseFilters = (params: URLSearchParams): ProjectFilters => ({
     .filter((s): s is ProjectStatus => !!s),
   weakestBand: oneOf(params.get("banda"), BANDS),
   outcome: oneOf(params.get("decisao"), OUTCOMES),
-  from: DATE.test(params.get("de") ?? "") ? params.get("de")! : undefined,
-  to: DATE.test(params.get("ate") ?? "") ? params.get("ate")! : undefined,
+  from: dateParam(params.get("de")),
+  to: dateParam(params.get("ate")),
   sort: oneOf(params.get("ordem"), SORTS) ?? "recent",
   page: Math.max(1, Number(params.get("pagina")) || 1),
 });
@@ -62,7 +59,10 @@ export const useProjectFilters = () => {
    * Reads the live URL, not the last render: React Router applies navigations
    * in a transition, so two quick changes would otherwise overwrite each other.
    */
-  const update = (patch: Partial<ProjectFilters>) =>
+  const update = (patch: Partial<ProjectFilters>) => {
+    // A late update (e.g. the debounced search) must not pull the analyst back
+    // to the list after they already opened a project
+    if (window.location.pathname !== paths.projects()) return;
     setParams(
       serializeFilters({
         ...parseFilters(new URLSearchParams(window.location.search)),
@@ -72,17 +72,18 @@ export const useProjectFilters = () => {
       // Typing in the search box should not flood the history
       { replace: "search" in patch },
     );
+  };
 
-  const activeCount = [
-    filters.search,
-    filters.statuses?.length,
-    filters.weakestBand,
-    filters.outcome,
-    filters.from,
-    filters.to,
-  ].filter(Boolean).length;
+  // The status cards are the main filter, always visible: not counted here
+  const activeCount = [filters.search, filters.weakestBand, filters.outcome, filters.from || filters.to].filter(
+    Boolean,
+  ).length;
 
-  const clear = () => setParams(new URLSearchParams());
+  /** Clears the bar's filters and the search; keeps the status card and the sort */
+  const clear = () => {
+    const current = parseFilters(new URLSearchParams(window.location.search));
+    setParams(serializeFilters({ statuses: current.statuses, sort: current.sort, page: 1 }));
+  };
 
   return { filters, update, clear, activeCount };
 };

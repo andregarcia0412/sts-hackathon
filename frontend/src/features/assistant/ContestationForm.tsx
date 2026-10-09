@@ -82,15 +82,15 @@ export const ContestationForm = ({
       onSubmit={handleSubmit}
       noValidate
       aria-label={`Registrar contestação de ${label}`}
-      className="space-y-3 rounded-lg border border-score-moderate bg-score-moderate-soft/60 p-3 text-sm"
+      className="space-y-3 rounded-2xl border border-state-attention/30 bg-state-attention-soft p-4 text-sm leading-5"
     >
-      <p className="font-medium">Registrar contestação de {label}</p>
+      <p className="font-semibold">Registrar contestação de {label}</p>
 
       <div>
-        <label htmlFor="ct-reason" className="mb-1 block text-xs font-medium">Motivo</label>
+        <label htmlFor="ct-reason" className="field-label">Motivo</label>
         <select
           id="ct-reason"
-          className="input py-1.5"
+          className="select py-2 text-sm"
           value={reason}
           onChange={(e) => setReason(e.target.value as ContestationReason)}
         >
@@ -101,12 +101,12 @@ export const ContestationForm = ({
       </div>
 
       <div>
-        <label htmlFor="ct-argument" className="mb-1 block text-xs font-medium">
-          Argumento <span className="text-danger">*</span>
+        <label htmlFor="ct-argument" className="field-label">
+          Argumento <span className="text-action">*</span>
         </label>
         <textarea
           id="ct-argument"
-          className="input min-h-20 resize-y py-1.5"
+          className="input min-h-20 resize-y py-2 text-sm"
           placeholder="Por que discorda? Cite arquivo e página, se puder."
           value={argument}
           onChange={(e) => setArgument(e.target.value)}
@@ -119,7 +119,7 @@ export const ContestationForm = ({
 
       {node.kind !== "evidence" ? (
         <div>
-          <label htmlFor="ct-score" className="mb-1 block text-xs font-medium">
+          <label htmlFor="ct-score" className="field-label">
             Nota que você considera justa <span className="font-normal text-fg-muted">(opcional, 0–100)</span>
           </label>
           <input
@@ -128,7 +128,7 @@ export const ContestationForm = ({
             min={0}
             max={100}
             inputMode="numeric"
-            className="input w-24 py-1.5"
+            className="input w-24 py-2 text-sm"
             value={suggestedScore}
             onChange={(e) => setSuggestedScore(e.target.value)}
             aria-invalid={submitted && errors.score}
@@ -155,8 +155,8 @@ export const ContestationForm = ({
       )}
 
       <div className="flex justify-end gap-2">
-        <button type="button" className="btn-ghost" onClick={onCancel}>Cancelar</button>
-        <button type="submit" className="btn-primary py-1.5" disabled={createContestation.isPending}>
+        <button type="button" className="btn-secondary px-4 py-2 text-sm" onClick={onCancel}>Cancelar</button>
+        <button type="submit" className="btn-primary px-4 py-2 text-sm" disabled={createContestation.isPending}>
           {createContestation.isPending ? "Registrando…" : "Registrar"}
         </button>
       </div>

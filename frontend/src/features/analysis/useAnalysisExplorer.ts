@@ -3,25 +3,40 @@ import { useSelectedNode } from "@/features/analysis/useSelectedNode";
 import {
   getAncestorIds,
   getExpandableIds,
+  getNodePath,
+  getRootIds,
   indexAnalysis,
+  isInSubtree,
 } from "@/domain/tree";
 import type { Analysis } from "@/domain/types";
 
 interface FrameRequest {
   /** "selection" falls back to the whole graph when nothing is selected */
   scope: "all" | "selection";
+  /** Camera duration; the overview zooms out more slowly, so the move reads */
+  durationMs?: number;
 }
+
+/** "Mapa geral": zoom out to the whole tree, slower than the other moves */
+export const OVERVIEW_FRAME_MS = 1000;
 
 /** How long the fully expanded overview stays on screen before collapsing */
 export const INTRO_HOLD_MS = 1800;
 
 /**
+ * criterion: the graph shows one criterion with all its rules and evidences
+ * (default, as in the design); overview: the 5 criteria, expandable.
+ */
+export type GraphView = "criterion" | "overview";
+
+/**
  * Selection + expansion state shared by the tree, the graph, the breadcrumb
  * and the detail panel.
  *
- * Intro: on entering the screen everything is expanded (overview of the whole
- * analysis), then it collapses to the 5 criteria. Any user interaction ends
- * the intro early.
+ * The graph starts on the criterion of the selection (the first one when
+ * nothing is selected). "Mapa geral" shows every criterion: there, the intro
+ * expands everything (overview of the whole analysis) and then collapses to
+ * the 5 criteria. Any user interaction ends the intro early.
  *
  * The selected node's ancestors are always expanded, so a deep link or the
  * browser's back button always reveals the selection.
@@ -32,30 +47,53 @@ export const useAnalysisExplorer = (analysis: Analysis) => {
   const selectedId =
     rawSelectedId && index.has(rawSelectedId) ? rawSelectedId : null;
 
-  const [introActive, setIntroActive] = useState(true);
+  const [view, setViewState] = useState<GraphView>("criterion");
+  const [introActive, setIntroActive] = useState(false);
+  const [introPlayed, setIntroPlayed] = useState(false);
+  const focusCriterionId =
+    (selectedId ? getNodePath(index, selectedId)[0]?.id : undefined) ?? getRootIds(index)[0];
   const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set());
   /**
    * Asks the graph to re-frame. Explicit scope instead of reading the selection
    * later: router updates arrive in a transition, after this state.
    */
   const [frameRequest, setFrameRequest] = useState<FrameRequest | null>(null);
-  const requestFrame = (scope: FrameRequest["scope"]) => setFrameRequest({ scope });
+  const requestFrame = (scope: FrameRequest["scope"], durationMs?: number) =>
+    setFrameRequest({ scope, durationMs });
 
   useEffect(() => {
     if (!introActive) return;
     const timer = setTimeout(() => {
       setIntroActive(false);
-      requestFrame("selection");
+      // Collapsed to the criteria: show all of them
+      requestFrame("all", OVERVIEW_FRAME_MS);
     }, INTRO_HOLD_MS);
     return () => clearTimeout(timer);
   }, [introActive]);
 
-  const effectiveExpanded: ReadonlySet<string> = introActive
-    ? new Set(getExpandableIds(index))
-    : new Set([
-        ...expanded,
-        ...(selectedId ? getAncestorIds(index, selectedId) : []),
-      ]);
+  const effectiveExpanded: ReadonlySet<string> =
+    view === "criterion"
+      ? new Set(getExpandableIds(index).filter((id) => isInSubtree(id, focusCriterionId)))
+      : introActive
+        ? new Set(getExpandableIds(index))
+        : new Set([
+            ...expanded,
+            ...(selectedId ? getAncestorIds(index, selectedId) : []),
+          ]);
+
+  const setView = (next: GraphView) => {
+    if (next === view) return;
+    setViewState(next);
+    // The expand-then-collapse intro plays the first time the overview opens
+    if (next === "overview" && !introPlayed) {
+      setIntroPlayed(true);
+      setIntroActive(true);
+    } else {
+      setIntroActive(false);
+    }
+    // Overview: zoom out until the whole tree is on screen
+    requestFrame("all", next === "overview" ? OVERVIEW_FRAME_MS : undefined);
+  };
 
   const setExpandedAfterIntro = (
     update: (current: ReadonlySet<string>) => ReadonlySet<string>,
@@ -101,6 +139,10 @@ export const useAnalysisExplorer = (analysis: Analysis) => {
 
   return {
     index,
+    view,
+    setView,
+    /** Criterion shown by the graph in "criterion" view */
+    focusCriterionId,
     selectedId,
     selectedNode: selectedId ? index.get(selectedId) : undefined,
     expanded: effectiveExpanded,

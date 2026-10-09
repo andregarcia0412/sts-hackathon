@@ -1,3 +1,4 @@
+import { projectCode } from "@/domain/projects";
 import { scoreBand } from "@/domain/score";
 import type {
   ProjectPage,
@@ -35,7 +36,8 @@ export const applyProjectQuery = (
 
   const search = query.search ? normalize(query.search.trim()) : "";
   const matches = owned.filter((p) => {
-    if (search && !normalize(`${p.name} ${p.company ?? ""}`).includes(search)) return false;
+    const haystack = `${p.name} ${p.company ?? ""} projeto ${projectCode(p.id)}`;
+    if (search && !normalize(haystack).includes(search)) return false;
     if (query.statuses?.length && !query.statuses.includes(p.status)) return false;
     if (query.weakestBand) {
       const weakest = weakestScore(p);

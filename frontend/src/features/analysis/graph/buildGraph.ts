@@ -1,31 +1,36 @@
 import { Graph, layout } from "@dagrejs/dagre";
 import type { ReviewMarker } from "@/domain/contestations";
-import { getVisibleNodes } from "@/domain/tree";
+import { getVisibleNodes, isInSubtree } from "@/domain/tree";
 import type { AnalysisIndex } from "@/domain/tree";
-import { NODE_SIZES } from "@/features/analysis/graph/graphTypes";
 import type {
   AnalysisFlowEdge,
   AnalysisFlowNode,
 } from "@/features/analysis/graph/graphTypes";
+import { nodeSize } from "@/features/analysis/graph/nodeSize";
 
-const RANK_SEPARATION = 80;
-const NODE_SEPARATION = 14;
+const RANK_SEPARATION = 40;
+const NODE_SEPARATION = 8;
 
 /**
  * Visible part of the analysis as React Flow nodes (positions not set yet).
  * Critério → Regras → Evidências, only below expanded nodes.
+ * With `rootId`, only that criterion's branch.
  */
 export const buildGraph = (
   index: AnalysisIndex,
   expanded: ReadonlySet<string>,
   reviewMarkers: ReadonlyMap<string, ReviewMarker> = new Map(),
+  rootId?: string,
 ): { nodes: AnalysisFlowNode[]; edges: AnalysisFlowEdge[] } => {
-  const nodes: AnalysisFlowNode[] = getVisibleNodes(index, expanded).map(
+  const visible = getVisibleNodes(index, expanded).filter(
+    (node) => !rootId || isInSubtree(node.id, rootId),
+  );
+  const nodes: AnalysisFlowNode[] = visible.map(
     (node) => ({
       id: node.id,
       type: node.kind,
       position: { x: 0, y: 0 },
-      ...NODE_SIZES[node.kind],
+      ...nodeSize(node),
       data: {
         node,
         expanded: expanded.has(node.id),
@@ -60,8 +65,8 @@ export const layoutGraph = (
   graph.setDefaultEdgeLabel(() => ({}));
 
   for (const node of nodes) {
-    // dagre writes x/y into the label object: never pass the shared constant
-    graph.setNode(node.id, { ...NODE_SIZES[node.data.node.kind] });
+    // dagre writes x/y into the label object: always pass a fresh one
+    graph.setNode(node.id, nodeSize(node.data.node));
   }
   for (const edge of edges) {
     graph.setEdge(edge.source, edge.target);
@@ -73,7 +78,7 @@ export const layoutGraph = (
 
   return nodes.map((node) => {
     const { x, y } = graph.node(node.id);
-    const { width, height } = NODE_SIZES[node.data.node.kind];
+    const { width, height } = nodeSize(node.data.node);
     return { ...node, position: { x: x - width / 2, y: y - height / 2 } };
   });
 };
