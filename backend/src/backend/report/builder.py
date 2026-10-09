@@ -122,6 +122,21 @@ class Parecer(BaseModel):
     decisoes_analista: list[AnalystDecisionInfo] = Field(default_factory=list)
 
 
+def _unique_divergences(divergences: list) -> list[str]:
+    """One line per interview sentence, even when the sub-agent and CHK-DIVERG both recorded it."""
+    from backend.checks.divergences import _normal, _same_sentence
+
+    seen: list[str] = []
+    statements = []
+    for divergence in divergences:
+        quote = _normal(divergence.testimony_quote)
+        if any(_same_sentence(quote, other) for other in seen):
+            continue
+        seen.append(quote)
+        statements.append(divergence.statement)
+    return list(dict.fromkeys(statements))
+
+
 def _evidence_index(analysis: Analysis) -> dict[str, EvidenceItem]:
     return {e.id: e for result in analysis.criteria.values() for run in result.rules for e in run.evidences}
 
@@ -229,7 +244,7 @@ def build_parecer(catalog: Catalog, analysis: Analysis, decisions: list[AnalystD
         used += [_ref(e) for e in evidences if e.polarity == "positiva"]
         contrary += [_ref(e) for e in evidences if e.polarity == "negativa"]
         if result:
-            divergences += [d.statement for d in result.divergences]
+            divergences += [d for d in result.divergences]
             links += [f"{l.description} — solicitar: {l.evidence_to_request}" for l in result.missing_links]
             annex += result.search_log
     versions = analysis.versions
@@ -253,7 +268,7 @@ def build_parecer(catalog: Catalog, analysis: Analysis, decisions: list[AnalystD
         fontes_decisivas=list(dict.fromkeys(decisive_files)),
         evidencias_usadas=used,
         evidencias_contrarias=contrary,
-        divergencias=list(dict.fromkeys(divergences)),
+        divergencias=_unique_divergences(divergences),
         elos_ausentes=list(dict.fromkeys(links)),
         lacunas=gaps,
         anexo_busca=annex,
