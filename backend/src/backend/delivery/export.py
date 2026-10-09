@@ -23,6 +23,7 @@ from backend.benchmark.models import Benchmark
 from backend.benchmark.report_html import report_html
 from backend.catalog.models import CRITERIA_ORDER, Catalog
 from backend.frontend_api.projection import project_analysis
+from backend.graph.decision import decision_graph
 from backend.graph.classify import CLASS_LABELS
 from backend.graph.models import GraphEdge, GraphNode
 from backend.projects.models import Project
@@ -139,6 +140,12 @@ async def frontend_payloads(catalog: Catalog, analysis: Analysis, project: Proje
     graph = GraphRead(analysis_id=str(analysis.id),
                       nodes=[GraphNodeRead(node_id=n.node_id, kind=n.kind, label=n.label, props=n.props) for n in nodes],
                       edges=[GraphEdgeRead(source=e.source, target=e.target, kind=e.kind, props=e.props) for e in edges])
+    decision_nodes, decision_edges = decision_graph(nodes, edges)
+    decision = GraphRead(analysis_id=str(analysis.id),
+                         nodes=[GraphNodeRead(node_id=n.node_id, kind=n.kind, label=n.label, props=n.props)
+                                for n in decision_nodes],
+                         edges=[GraphEdgeRead(source=e.source, target=e.target, kind=e.kind, props=e.props)
+                                for e in decision_edges])
     contestations = await Contestation.find(Contestation.analysis_id == str(analysis.id)).to_list()
     view = project_analysis(catalog, analysis, project, contestations)
     decisions = [{**d.model_dump(mode="json", exclude={"id", "revision_id"}), "id": str(d.id)}
@@ -151,6 +158,7 @@ async def frontend_payloads(catalog: Catalog, analysis: Analysis, project: Proje
         f"GET /analyses/{aid}/status": AnalysisStatusRead.of(analysis).model_dump(mode="json", by_alias=True),
         f"GET /analyses/{aid}/graph": graph.model_dump(mode="json", by_alias=True),
         f"GET /analyses/{aid}/report.json": _camel(parecer.model_dump(mode="json")),
+        f"GET /analyses/{aid}/graph?view=decisao": decision.model_dump(mode="json", by_alias=True),
     }
 
 
@@ -188,7 +196,7 @@ async def export_delivery(benchmark: Benchmark, catalog: Catalog, out: Path, exp
     analyses, missing = await latest_analyses(benchmark)
     outcomes: list[ProjectOutcome] = [ProjectOutcome(code=code, status="falhou", error="sem análise concluída")
                                       for code in missing]
-    rows, full, api = [], [], {}
+    rows, full, api, api_decision = [], [], {}, {}
     summaries = []
     for code in sorted(analyses):
         analysis = analyses[code]
@@ -239,8 +247,12 @@ async def export_delivery(benchmark: Benchmark, catalog: Catalog, out: Path, exp
         }, ensure_ascii=False, indent=1))
         payloads = await frontend_payloads(catalog, analysis, project, parecer)
         _write(folder, "grafo.json", json.dumps(payloads[f"GET /analyses/{analysis.id}/graph"], ensure_ascii=False))
+        decision_key = f"GET /analyses/{analysis.id}/graph?view=decisao"
+        decision = {decision_key: payloads.pop(decision_key)}
         _write(folder, "api.json", json.dumps(payloads, ensure_ascii=False))
+        _write(folder, "api_decisao.json", json.dumps(decision, ensure_ascii=False))
         api |= payloads
+        api_decision |= decision
         summaries.append((await summarize(project)).model_dump(mode="json", by_alias=True))
         row = answer_key_row(parecer)
         if not decisions:
@@ -261,6 +273,7 @@ async def export_delivery(benchmark: Benchmark, catalog: Catalog, out: Path, exp
     api["GET /projects"] = {"items": summaries, "total": len(summaries), "page": 1, "pageSize": len(summaries),
                             "statusCounts": {}}
     _write(out, "frontend/api_mock.json", json.dumps(api, ensure_ascii=False))
+    _write(out, "frontend/api_mock_decisao.json", json.dumps(api_decision, ensure_ascii=False))
     _write(out, "resumo.html", resumo_html(benchmark, outcomes, analyses))
     if benchmark.metrics:
         _write(out, "metricas.json", benchmark.metrics.model_dump_json(by_alias=True, indent=1))
@@ -326,6 +339,8 @@ Conteúdo confidencial (trechos do pacote do desafio): não publicar.
 - `manifest.json` — sha256 de cada arquivo gerado e dos arquivos de entrada, versões e projetos que falharam.
 - `frontend/api_mock.json` e `PRJxx/api.json` — as respostas da API (projeto, análise, grafo, parecer, decisões) por
   rota, para o front rodar sobre dados estáticos.
+- `frontend/api_mock_decisao.json` e `PRJxx/api_decisao.json` — o caminho da decisão de cada caso
+  (`GET /analyses/{id}/graph?view=decisao`): classe → critérios → respostas → evidências → trechos citados.
 - `PRJxx/` — `parecer.pdf`, `parecer.json`, `criterios.csv`, `evidencias.csv`, `contrarias_e_divergencias.csv`,
   `lacunas.csv`, `rastreabilidade.json`, `grafo.json`, `api.json`.
 """

@@ -99,3 +99,25 @@ async def test_coherence_record_becomes_a_node_linked_to_the_criterion(inputs):
     assert node.props["original_state"] == "INDETERMINADA" and node.props["final_state"] == "NÃO DEMONSTRADA"
     links = {(e.kind, e.target) for e in edges if e.source == node.node_id}
     assert ("afeta", "criterion:NOV") in links and ("cita", f"evidence:{ev_neg.id}") in links
+
+
+async def test_decision_view_keeps_only_the_path_from_the_class_to_the_cited_text(db):
+    from backend.graph.decision import decision_graph
+    from backend.graph.judge import JudgeOptions, judge_and_classify
+    from backend.graph.questionnaire import QuestionnaireOut
+    from tests.factories import analysed_project, fake_answers
+    from tests.fakes import FakeLLM
+
+    _, analysis = await analysed_project()
+    outcome = await judge_and_classify(FakeLLM({QuestionnaireOut: fake_answers()}), get_catalog(), analysis.criteria,
+                                       JudgeOptions(judge_mode="questionario"))
+    nodes, edges = build_graph("a1", await synthetic_canonical(), get_catalog(), analysis.criteria, outcome.scores,
+                               outcome.states, outcome.suggestion)
+    kept, kept_edges = decision_graph(nodes, edges)
+    kinds = {n.kind for n in kept}
+    assert {"class", "criterion", "answer", "evidence", "source"} <= kinds
+    assert not kinds & {"rule", "search", "check"} and len(kept) < len(nodes)
+    ids = {n.node_id for n in kept}
+    assert all(e.source in ids and e.target in ids for e in kept_edges)
+    grounding = {e.source for e in kept_edges if e.kind == "fundamenta"}
+    assert grounding and all(any(e.source == ev and e.kind == "cita" for e in kept_edges) for ev in grounding)
