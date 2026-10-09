@@ -101,6 +101,9 @@ const CRITERION_WORDS: Record<CriterionKey, Record<CriterionStatus, string>> = {
   uncertainty: { met: "Investigada", limited: "Investigada com limite", not_met: "Não investigada" },
   systematic: { met: "Documentada", limited: "Documentada com limite", not_met: "Não documentada" },
   transferability: { met: "Documentada", limited: "Documentada com limite", not_met: "Não documentada" },
+  // Same criteria under the back-end's keys
+  systematicity: { met: "Documentada", limited: "Documentada com limite", not_met: "Não documentada" },
+  reproducibility: { met: "Documentada", limited: "Documentada com limite", not_met: "Não documentada" },
   // Formulário MCTI: same vocabulary as the design's Frascati criteria
   novel_element: { met: "Demonstrada no recorte", limited: "Demonstrada com limite", not_met: "Não demonstrada" },
   technological_barrier: { met: "Investigada", limited: "Investigada com limite", not_met: "Não investigada" },
