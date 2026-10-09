@@ -59,6 +59,7 @@ class Settings(BaseSettings):
     judge_mode: Literal["estado", "questionario"] = "estado"
     judge_handbooks: bool = True
     doc_handbook_pitfalls: bool = False
+    justification_flags: bool = False
     coherence_mode: Literal["off", "flag", "reask"] = "reask"
     coherence_high: int = 75
     coherence_low: int = 25

@@ -221,6 +221,7 @@ class AnalysisService:
             fetch_per_front=self.settings.web_fetch_per_front,
             max_table_rows=self.settings.prompt_max_table_rows,
             doc_pitfalls=self.settings.doc_handbook_pitfalls,
+            flag_speculative=self.settings.justification_flags,
         )
         results = await runner.run_all(canonical)
         if analysis.checks:

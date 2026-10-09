@@ -123,6 +123,7 @@ def _describe(result: CriterionResult) -> str:
         lines.append(header)
         for e in rule.evidences:
             mark = f" [{e.adjustment.kind}: {e.adjustment.reason}]" if e.adjustment else ""
+            mark += "".join(f" [{flag}]" for flag in e.flags)
             if e.adjustment and e.adjustment.kind == "consistencia":
                 mark = f" [neutralizada por {e.adjustment.by_rule}: {e.adjustment.reason}]"
             lines.append(f'  [{e.id}] {e.polarity} fonte={e.source_alias} natureza={e.nature}: "{e.quote}" — '

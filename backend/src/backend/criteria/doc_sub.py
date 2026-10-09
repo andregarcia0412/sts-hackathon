@@ -14,6 +14,7 @@ from backend.criteria.common import (
     offline_runs,
     transversal_block,
 )
+from backend.criteria.justification import flags_for
 from backend.criteria.routing import route_fragments
 from backend.criteria.schemas import (
     CriterionResult,
@@ -129,6 +130,7 @@ async def run_doc_sub(
     max_table_rows: int,
     analyst_argument: str | None = None,
     pitfalls: bool = False,
+    flag_speculative: bool = False,
 ) -> CriterionResult:
     result = CriterionResult(criterion=criterion, rules=offline_runs(rules))
     active = [r for r in rules if r.needs_llm]
@@ -197,6 +199,7 @@ async def run_doc_sub(
                 quote=quote,
                 polarity=item.polaridade,
                 explanation=item.justificativa,
+                flags=flags_for(item.justificativa, flag_speculative),
                 query=rule.o_que_verificar,
                 nature=fragment.nature,
                 page=fragment.page,

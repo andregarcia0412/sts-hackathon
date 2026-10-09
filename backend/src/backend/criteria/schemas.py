@@ -40,6 +40,7 @@ class EvidenceItem(BaseModel):
     published_date: date | None = None
     captured_at: datetime | None = None
     adjustment: Adjustment | None = None
+    flags: list[str] = Field(default_factory=list)  # signals for the reviewer (e.g. justificativa_especulativa)
 
     @property
     def scored_polarity(self) -> Polarity | None:
