@@ -13,6 +13,17 @@ uv sync
 uv run backend                      # http://127.0.0.1:8000/docs
 ```
 
+Or everything in Docker (API + Mongo), from the repo root:
+
+```bash
+cp backend/.env.example backend/.env   # same settings; MONGODB_URI is replaced to reach the mongo container
+docker compose up -d --build           # API at http://localhost:8000/docs (API_PORT changes the port)
+docker compose logs -f api
+```
+
+In Docker, a local Ollama on the host is `OLLAMA_HOST=http://host.docker.internal:11434`, and
+`PACKAGE_DIR` must be a path inside the container (mount the package as a volume first).
+
 Switching models only touches `.env`: `OLLAMA_MODEL` is the default of every role and
 `OLLAMA_MODEL_{EXTRACTION,DOC,SEARCH,JUDGE,REPORT,CHAT}` override one role each. Every analysis records
 the model of each role, the prompt hashes, the catalog version and the sha256 of every file.

@@ -21,5 +21,30 @@ services:
       timeout: 5s
       retries: 5
 
+  # FastAPI back-end: http://localhost:8000 (docs at /docs). Settings come from backend/.env
+  # (copy backend/.env.example); only the Mongo address is replaced to reach the container above.
+  api:
+    build: ./backend
+    container_name: sts-api
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    ports:
+      - "${API_PORT:-8000}:8000"
+    env_file:
+      - backend/.env
+    environment:
+      MONGODB_URI: mongodb://${MONGO_USER:-root}:${MONGO_PASSWORD:-root}@mongo:27017/?authSource=admin
+    # Local Ollama on the host machine: OLLAMA_HOST=http://host.docker.internal:11434 in backend/.env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/openapi.json')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
 volumes:
   mongo-data:
