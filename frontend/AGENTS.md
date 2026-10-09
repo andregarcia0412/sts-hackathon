@@ -112,6 +112,10 @@ src/
   sanfona (ausente: o 1º critério; vazio: tudo fechado). As pendências vêm de
   `pendenciesOf()` (`domain/report.ts`): regras contraditórias, parciais, sem evidência,
   contestações abertas e busca na web não aprovada.
+- **Exportar** (documento de decisão): PDF pelo `react-to-print` (impressão do navegador) e
+  CSV por `exportDecisionCsv` (`domain/decisionCsv.ts`): colunas do
+  `historicos_classificados.csv` do back-end, UTF-8 com BOM e `;`, células que começam com
+  `= + - @` recebem `'` para não virarem fórmula no Excel.
 - **Lista de projetos**: os cards de situação são o filtro de status; a barra tem critério
   mais fraco, decisão, período de envio e ordem (o botão redondo conta e limpa os filtros).
 - **Árvore de evidências** (na interface; no código é `graph`, pasta `analysis/graph`): visão "Critério" (padrão: um critério inteiro, como no Figma) e "Mapa geral"

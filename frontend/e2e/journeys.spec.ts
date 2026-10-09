@@ -80,14 +80,24 @@ test("analista faz a primeira análise, decide e gera o documento", async ({ pag
   });
 
   await test.step("exporta o PDF", async () => {
-    // The browser's print dialog cannot be driven: count the calls instead
-    await page.evaluate(() => {
-      (window as unknown as { printCalls: number }).printCalls = 0;
-      window.print = () => {
-        (window as unknown as { printCalls: number }).printCalls++;
-      };
-    });
-    await page.getByRole("button", { name: "Baixar documento" }).click();
+    // react-to-print prints from a hidden iframe; the print dialog itself cannot be driven
+    await page.getByRole("button", { name: "Exportar" }).first().click();
+    await page.getByRole("button", { name: /^PDF/ }).click();
+    await expect(page.locator("iframe#printWindow")).toBeAttached();
+  });
+
+  await test.step("exporta a planilha CSV com a decisão", async () => {
+    const download = page.waitForEvent("download");
+    await page.getByRole("button", { name: "Exportar" }).first().click();
+    await page.getByRole("button", { name: /^CSV/ }).click();
+    const file = await download;
+    expect(file.suggestedFilename()).toMatch(/^parecer_.+_frascati\.csv$/);
+    const stream = await file.createReadStream();
+    let csv = "";
+    for await (const chunk of stream) csv += chunk;
+    expect(csv.startsWith("\uFEFFprojeto_id;titulo;classificacao;")).toBe(true);
+    expect(csv).toContain("Com ressalvas");
+    expect(csv).toContain("Transferibilidade fraca: pedir registros reproduzíveis.");
   });
 
   await test.step("volta para a lista e vê o projeto decidido", async () => {

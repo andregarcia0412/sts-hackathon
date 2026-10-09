@@ -1,3 +1,4 @@
+import { useMutation } from "@tanstack/react-query";
 import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
@@ -29,10 +30,12 @@ import {
 } from "@/features/decision/AnalysisReport";
 import { DecisionForm } from "@/features/decision/DecisionForm";
 import { DecisionTrail } from "@/features/decision/DecisionTrail";
+import { ExportMenu } from "@/features/decision/ExportMenu";
 import { openStateOf, toggledNode } from "@/features/decision/reportState";
+import { saveFile } from "@/lib/download";
 import { formatDate, pluralize } from "@/lib/format";
 import { FRAMEWORK_PARAM, SELECTED_NODE_PARAM, paths, reportAnchorId } from "@/routes/paths";
-import { NotFoundError } from "@/services/api";
+import { NotFoundError, exportDecisionCsv } from "@/services/api";
 import {
   useAnalyses,
   useContestations,
@@ -174,6 +177,16 @@ const DecisionDocument = ({
     contentRef: documentRef,
     documentTitle: `Decisao_${project.name}_${focused.id}`.replace(/[^\w-]+/g, "_"),
   });
+  const csv = useMutation({
+    mutationFn: () => exportDecisionCsv(project.id, focused.id),
+    onSuccess: (file) => saveFile(file.content, file.fileName),
+  });
+  const exportProps = {
+    onPdf: () => print(),
+    onCsv: () => csv.mutate(),
+    csvPending: csv.isPending,
+    error: csv.isError ? "Não foi possível exportar o CSV. Tente novamente." : undefined,
+  };
   useRegisterAssistantContext({ screen: "decision", analysis: focused, selectedNodeId: null });
 
   const reviews = {
@@ -283,9 +296,7 @@ const DecisionDocument = ({
           </nav>
           <hr className="border-border-strong" />
           <div className="flex flex-col gap-2">
-            <button type="button" className="btn-primary w-full" onClick={() => print()}>
-              Baixar documento
-            </button>
+            <ExportMenu {...exportProps} openUp />
             <Link to={treeLink} className="btn-secondary w-full border-transparent">
               Voltar à árvore
             </Link>
@@ -296,9 +307,7 @@ const DecisionDocument = ({
           {/* Phones and tablets: the side panel's controls */}
           <div className="flex flex-wrap items-center gap-2 lg:hidden print:hidden">
             {methodControl}
-            <button type="button" className="btn-primary ml-auto" onClick={() => print()}>
-              Baixar documento
-            </button>
+            <ExportMenu {...exportProps} className="ml-auto" />
             <Link to={treeLink} className="btn-secondary">
               Voltar à árvore
             </Link>
