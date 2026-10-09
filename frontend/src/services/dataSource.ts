@@ -13,8 +13,12 @@ export const dataSource = (): DataSource => {
   return value === "static" || value === "api" ? value : "mock";
 };
 
-export const staticApiDir = (): string =>
-  (import.meta.env.VITE_STATIC_API_DIR as string | undefined)?.trim() || "./static-api";
+export const staticApiDir = (): string => {
+  const raw = (import.meta.env.VITE_STATIC_API_DIR as string | undefined)?.trim() || "/static-api";
+  // Absolute path: the app has nested routes (/projetos/:id/…) and a relative
+  // "./static-api" would resolve against the current route's URL and 404.
+  return raw.startsWith("/") ? raw : `/${raw.replace(/^\.?\//, "")}`;
+};
 
 export const dataSourceLabel = (): string => {
   const source = dataSource();
