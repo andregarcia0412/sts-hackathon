@@ -49,6 +49,9 @@ class CatalogRule(BaseModel):
     absorvida_em: list[str] = Field(default_factory=list)
     aplicacao: str | None = None
     instrucao_prompt: str | None = None
+    forca_coluna: Literal["negativa"] | None = None  # state gate: predominant negative evidence forces the column
+    requer_gate: list[str] = Field(default_factory=list)  # acts only if one of these gates fired (cross-criteria)
+    fonte_de_referencia: bool = False  # its negative sources are the prior reference (consistency between criteria)
 
     @property
     def executavel(self) -> bool:
@@ -104,6 +107,7 @@ class DecisionLine(BaseModel):
 class Questionnaire(BaseModel):
     perguntas: dict[CriterionId, list[Question]]
     decisao: dict[CriterionId, list[DecisionLine]]
+    travas: dict[str, dict[str, str]] = Field(default_factory=dict)  # state gate rule → {question: locked answer}
 
     def question(self, criterion: str, question_id: str) -> Question | None:
         return next((q for q in self.perguntas.get(criterion, []) if q.id == question_id), None)
@@ -129,6 +133,13 @@ class Catalog(BaseModel):
 
     def rules_for(self, criterion: str, block: Block) -> list[CatalogRule]:
         return [r for r in self.executable_rules() if r.criterio == criterion and r.bloco == block]
+
+    def state_gates(self, criterion: str) -> list[CatalogRule]:
+        """Rules that force the negative column of the criterion state (catalog data, not a dict in code)."""
+        return [r for r in self.rules if r.criterio == criterion and r.forca_coluna and r.executavel]
+
+    def reference_rules(self) -> list[CatalogRule]:
+        return [r for r in self.rules if r.fonte_de_referencia]
 
     def prompt_instructions(self) -> list[str]:
         """Transversal rules that become instructions in every document sub-agent prompt."""

@@ -79,8 +79,10 @@ Classes: **Elegível** (eligible) · **Com ressalvas** (with caveats; requires t
 the limitation and the evidence needed) · **Não elegível** (not eligible) · **Evidência
 insuficiente** (insufficient evidence; requires the missing link and the evidence to request).
 The criterion state is suggested by an LLM judge that reads only that criterion's evidence nodes and must
-answer with the exact vocabulary; then code gates force it: NOV-W3 with full coverage, or NOV-D4 /
-NOV-D10 / CRI-D5 with predominant negative evidence → negative column; a positive state without
+answer with the exact vocabulary; then code gates force it: NOV-W3 with full coverage, or a **state gate of the
+catalog** (`forca_coluna: negativa` in `rules.yaml`: NOV-D4, NOV-D10, CRI-D5, SIS-D5 → DOCUMENTADA COMO ACEITE,
+REP-D8 → PARA A CONFIGURAÇÃO, and INC-D5/INC-D9 only when a NOV gate fired — `requer_gate`, judged in a second wave)
+with predominant negative evidence → negative column; a positive state without
 numeric record (medicoes/resultados) → undetermined column. **Coherence gate** (`graph/coherence.py`,
 `COHERENCE_MODE`): a strong criterion score (≥ 75 or ≤ 25 with ≥ 4 rules with evidence) that contradicts the state
 (e.g. INDETERMINADA with score 89, SIS PARCIAL with score 100) makes the judge decide once more with the
@@ -91,7 +93,9 @@ If the contradiction persists, the judge's state stays, the criterion is flagged
 C1–C3, I1–I3, S1–S2, R1–R3), each with evidence ids (no evidence after one new attempt → `nao_fundamentada`, counted
 as `sem_registro`), and the decision table of `catalog/questionario.yaml` turns the answers into the state in code;
 the gates lock answers (NOV-W3 / configuration gates → N1/C1 = sim; numeric record → I3/S1/R1 cannot be sim) and the
-report shows question → answer → evidence. **Handbooks** (`catalog/handbooks/{NOV,CRI,INC,SIS,REP}.md`: pitfalls,
+report shows question → answer → evidence. **Consistency between criteria** (`graph/consistency.py`,
+`CONSISTENCY_NEUTRALIZE`, off by default): CRI/INC positive evidence on a source that NOV-D4/D5/D10 used as proof that
+the prior reference already provided the function gets an `adjustment` and leaves the score (never deleted). **Handbooks** (`catalog/handbooks/{NOV,CRI,INC,SIS,REP}.md`: pitfalls,
 when to use each state — above all when NOT to use the insufficient column —, signals that do not count; no project
 codes) go into the judge's prompt (`JUDGE_HANDBOOKS`) and, optionally, the pitfalls into the document sub-agent
 (`DOC_HANDBOOK_PITFALLS`). In the questionnaire, "sim" in N1/I1 needs package evidence: the web complements, never

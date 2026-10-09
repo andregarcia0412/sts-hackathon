@@ -114,6 +114,16 @@ perguntas:
       regras: [REP-D7]
       explicacao: "Limite excluído desde o início não conta; flag _executado: false de hipótese da pretensão conta."
 
+# A state gate of the catalog (rules.yaml `forca_coluna`) that fires locks this answer instead of running in parallel.
+travas:
+  NOV-D4: {N1: sim}
+  NOV-D10: {N1: sim}
+  CRI-D5: {C1: sim}
+  INC-D5: {I1: sim}
+  INC-D9: {I1: sim}
+  SIS-D5: {S2: aceite}
+  REP-D8: {R2: configuracao}
+
 # The order follows the tree: first "did the reference already do it?", then "is there a record?", then "is it R&D?".
 decisao:
   NOV:

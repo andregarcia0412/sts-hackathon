@@ -55,7 +55,7 @@ def test_questions_never_cite_a_project_code():
 
 def sis_result():
     primary = evidence("SIS-D12", source="PRJ90-S02", nature="registro_primario")
-    acceptance = evidence("SIS-D5", "negativa", source="PRJ90-EV06#3")
+    acceptance = evidence("SIS-D5", source="PRJ90-EV06#3")  # positive: the SIS-D5 state gate does not fire
     return CriterionResult(criterion="SIS", rules=[run("SIS-D12", primary), run("SIS-D5", acceptance)]), primary
 
 
@@ -194,3 +194,14 @@ async def test_web_alone_never_answers_that_the_solution_was_already_available()
     state = await judge_by_questionnaire(llm, get_catalog(), result, True, options=QUESTIONNAIRE)
     assert "I1 = sim exige pelo menos 1 evidência do próprio pacote" in llm.calls_for(QuestionnaireOut)[1][-1]["content"]
     assert state.answers[0].status == "nao_fundamentada" and state.state == "ALEGADA, NÃO VERIFICÁVEL"
+
+
+
+async def test_state_gates_lock_answers_from_the_catalog():
+    sis = CriterionResult(criterion="SIS", rules=[
+        run("SIS-D12", evidence("SIS-D12", source="PRJ90-S02", nature="registro_primario")),
+        run("SIS-D5", evidence("SIS-D5", "negativa", source="PRJ90-EV06#3"))])
+    state = await judge_by_questionnaire(FakeLLM({QuestionnaireOut: fake_answers()}), get_catalog(), sis, True,
+                                         options=QUESTIONNAIRE)
+    assert state.state == "DOCUMENTADA COMO ACEITE" and state.fired_gates == ["SIS-D5"]
+    assert next(a for a in state.answers if a.pergunta == "S2").origem == "gate"

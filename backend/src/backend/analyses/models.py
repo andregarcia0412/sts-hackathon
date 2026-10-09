@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 from backend.criteria.schemas import CriterionResult
 from backend.extraction.schema import CanonicalProject
 from backend.graph.classify import ClassSuggestion
+from backend.graph.consistency import ConsistencyReport
 from backend.graph.scoring import RuleScore
 from backend.graph.states import CriterionState
 from backend.llm.usage import LLMUsage
@@ -56,6 +57,7 @@ class Analysis(Document):
     criterion_scores: dict[str, int | None] = Field(default_factory=dict)
     states: dict[str, CriterionState] = Field(default_factory=dict)
     suggestion: ClassSuggestion | None = None
+    consistency: ConsistencyReport | None = None  # spec 02 part A, when CONSISTENCY_NEUTRALIZE is on
     report: dict[str, Any] | None = None
     usage: LLMUsage | None = None  # LLM calls, tokens and time per role
     error: str | None = None

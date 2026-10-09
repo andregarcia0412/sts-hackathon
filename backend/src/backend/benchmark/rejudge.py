@@ -70,6 +70,7 @@ async def _rejudge_one(llm: LLM, catalog: Catalog, options: JudgeOptions, run: B
             return snap
     copy.scores, copy.criterion_scores = outcome.scores, outcome.criterion_scores
     copy.states, copy.suggestion = outcome.states, outcome.suggestion
+    copy.consistency = outcome.consistency
     copy.usage = usage.model_copy(deep=True)
     copy.started_at, copy.finished_at = started_at, datetime.now(UTC)
     copy.total_s = round(time.monotonic() - started, 3)
