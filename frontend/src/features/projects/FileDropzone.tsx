@@ -5,14 +5,12 @@ import type { FileRejection } from "react-dropzone";
 import { useState } from "react";
 import { formatFileSize } from "@/lib/format";
 
-const ACCEPTED_FILES = {
-  "application/pdf": [".pdf"],
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [
-    ".docx",
-  ],
-  "text/plain": [".txt"],
-};
-
+/*
+ * Any file type is accepted: the back-end identifies each file BY CONTENT
+ * (pdf, csv, xlsx, md, json, txt, docx…) and flags unknown types for
+ * validation instead of rejecting them — the front must not pre-bar them.
+ * Only the size limit applies.
+ */
 const MAX_FILE_SIZE = 20 * 1024 * 1024;
 
 const sameFile = (a: File, b: File) =>
@@ -27,7 +25,6 @@ export const FileDropzone = ({ files, onChange }: FileDropzoneProps) => {
   const [rejections, setRejections] = useState<FileRejection[]>([]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    accept: ACCEPTED_FILES,
     maxSize: MAX_FILE_SIZE,
     multiple: true,
     onDrop: (accepted, rejected) => {
@@ -58,7 +55,8 @@ export const FileDropzone = ({ files, onChange }: FileDropzoneProps) => {
             : "Arraste arquivos ou clique para selecionar"}
         </p>
         <p className="text-xs text-fg-muted">
-          PDF, DOCX ou TXT · até {formatFileSize(MAX_FILE_SIZE)} por arquivo
+          Qualquer tipo de arquivo (PDF, DOCX, TXT, CSV, XLSX, MD, JSON…) · até{" "}
+          {formatFileSize(MAX_FILE_SIZE)} por arquivo
         </p>
       </div>
 
@@ -68,8 +66,8 @@ export const FileDropzone = ({ files, onChange }: FileDropzoneProps) => {
             <li key={file.name}>
               {file.name}:{" "}
               {errors[0]?.code === "file-too-large"
-                ? "arquivo maior que o limite"
-                : "formato não aceito"}
+                ? "arquivo maior que o limite de 20 MB"
+                : "não foi possível adicionar o arquivo"}
             </li>
           ))}
         </ul>
