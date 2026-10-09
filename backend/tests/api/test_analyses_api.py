@@ -17,7 +17,7 @@ def test_upload_starts_analysis_and_status_is_polled(client, auth_headers, fake_
     assert project["latestAnalysisId"]
     status = client.get(f"/analyses/{project['latestAnalysisId']}/status", headers=auth_headers).json()
     assert status["status"] == "concluida"
-    assert [s["name"] for s in status["stages"]][:2] == ["extracao", "NOV"]
+    assert [s["name"] for s in status["stages"]][:3] == ["extracao", "checagens", "NOV"]
     assert all({"status", "startedAt", "finishedAt", "durationS"} <= set(s) for s in status["stages"])
     assert status["suggestedClass"] == "eligible"
     assert status["versions"]["catalogVersion"]

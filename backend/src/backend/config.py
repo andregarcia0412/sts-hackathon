@@ -58,6 +58,7 @@ class Settings(BaseSettings):
     coherence_min_rules: int = 4
     consistency_neutralize: bool = False
     consistency_use_text_markers: bool = False
+    consistency_inc_d2: bool = False
     prompt_max_table_rows: int = 300
     package_dir: Path | None = None
     norms_dir: Path = BACKEND_ROOT / "data" / "normas"

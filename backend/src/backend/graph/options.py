@@ -20,6 +20,7 @@ class JudgeOptions(BaseModel):
     coherence_min_rules: int = 4
     consistency_neutralize: bool = False  # spec 02 part A: CRI/INC evidence on the prior reference leaves the score
     consistency_text_markers: bool = False  # ... also sources marked only by the containment text of NOV rules
+    consistency_inc_d2: bool = False  # INC-D2 support quoting a question flagged by CHK-PERGUNTA counts against
 
     @classmethod
     def from_settings(cls, settings: Settings, **overrides) -> "JudgeOptions":
@@ -32,5 +33,6 @@ class JudgeOptions(BaseModel):
             "coherence_min_rules": settings.coherence_min_rules,
             "consistency_neutralize": settings.consistency_neutralize,
             "consistency_text_markers": settings.consistency_use_text_markers,
+            "consistency_inc_d2": settings.consistency_inc_d2,
         }
         return cls(**values | {k: v for k, v in overrides.items() if v is not None})

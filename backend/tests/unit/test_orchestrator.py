@@ -165,3 +165,17 @@ def analysis_llm_calls(analysis):
     from tests import factories
 
     return factories.LAST_FAKE_LLM.calls
+
+
+async def test_checks_stage_runs_and_feeds_the_document_sub_agent(project):
+    llm = FakeLLM(full_handlers())
+    done = await service(llm).run(str((await service(llm).create(project)).id))
+    assert done.stage("checagens").status == "concluida"
+    assert done.checks.results["CHK-RECALC"].status == "ok" and done.versions.checks_version
+    rep_prompt = next(m for m in llm.calls_for(DocSubOut) if "Transferência/reprodução" in m[-1]["content"])
+    assert "checagens#CHK-RECALC" in rep_prompt[-1]["content"]
+    record = await CanonicalRecord.find_one(CanonicalRecord.analysis_id == str(done.id))
+    assert record.canonical.fragment("PRJ90-CHK-RECALC") is not None
+    # the totality claim of the interview reaches the recorded divergences even if the sub-agent misses it
+    assert any("todos" in d.testimony_quote for r in done.criteria.values() for d in r.divergences)
+    assert await GraphNode.find(GraphNode.analysis_id == str(done.id), GraphNode.kind == "check").count() == 8

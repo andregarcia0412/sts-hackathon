@@ -3,6 +3,7 @@
 import hashlib
 
 from backend.catalog.models import Catalog
+from backend.checks.models import ChecksReport
 from backend.criteria.schemas import CriterionResult
 from backend.extraction.schema import CanonicalProject
 from backend.graph.classify import CLASS_LABELS, ClassSuggestion
@@ -44,6 +45,7 @@ def build_graph(
     states: dict[str, CriterionState],
     suggestion: ClassSuggestion,
     consistency: ConsistencyReport | None = None,
+    checks: ChecksReport | None = None,
 ) -> tuple[list[NodeData], list[EdgeData]]:
     g = _Graph(analysis_id)
     project = g.node(f"project:{canonical.project_code}", "project", canonical.context.title or canonical.project_code,
@@ -130,7 +132,16 @@ def build_graph(
             for source_id in entry.selected:
                 if f"source:{source_id}" in g.nodes or any(s.id == source_id for s in result.web_sources):
                     g.edge(node, "trouxe", _source_node(g, canonical, result, source_id))
-    if consistency and consistency.neutralized:
+    for check_id, check in (checks.results.items() if checks else []):
+        node = g.node(f"check:{check_id}", "check", check_id, status=check.status, facts=check.facts,
+                      notes=check.notes, version=checks.version)
+        for fragment_id in check.fragment_ids:
+            if canonical.fragment(fragment_id):
+                g.edge(node, "usa", _source_node(g, canonical, CriterionResult(criterion=""), fragment_id))
+        for rule in catalog.rules:
+            if check_id in rule.checagens and f"rule:{rule.id}" in g.nodes:
+                g.edge(node, "alimenta", f"rule:{rule.id}")
+    if consistency and (consistency.neutralized or consistency.inverted):
         node = g.node("consistency:analysis", "consistency", "Consistência entre critérios",
                       **consistency.model_dump())
         for item in consistency.neutralized:

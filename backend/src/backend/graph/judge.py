@@ -8,6 +8,7 @@ import asyncio
 from pydantic import BaseModel
 
 from backend.catalog.models import CRITERIA_ORDER, Catalog
+from backend.checks.models import ChecksReport
 from backend.criteria.schemas import CriterionResult
 from backend.graph.classify import ClassSuggestion, classify
 from backend.graph.consistency import ConsistencyReport, apply_consistency
@@ -42,10 +43,13 @@ def rules_with_evidence(scores: list[RuleScore]) -> int:
 
 
 async def judge_and_classify(llm: LLM, catalog: Catalog, results: dict[str, CriterionResult],
-                             options: JudgeOptions | None = None) -> JudgeOutcome:
+                             options: JudgeOptions | None = None, checks: ChecksReport | None = None) -> JudgeOutcome:
     options = options or JudgeOptions()
-    consistency = (apply_consistency(results, catalog, options.consistency_text_markers)
-                   if options.consistency_neutralize else None)  # before the score: it changes what counts
+    consistency = None
+    if options.consistency_neutralize or options.consistency_inc_d2:  # before the score: it changes what counts
+        consistency = apply_consistency(results, catalog, options.consistency_text_markers, checks=checks,
+                                        neutralize=options.consistency_neutralize,
+                                        inc_d2=options.consistency_inc_d2)
     scores, criterion_scores = score_results(results, catalog)
     numeric = numeric_record_in(results)
     if options.judge_mode == "questionario" and catalog.questionnaire is None:

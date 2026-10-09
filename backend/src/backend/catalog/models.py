@@ -49,6 +49,7 @@ class CatalogRule(BaseModel):
     absorvida_em: list[str] = Field(default_factory=list)
     aplicacao: str | None = None
     instrucao_prompt: str | None = None
+    checagens: list[str] = Field(default_factory=list)  # CHK-* that feed the rule (routed as citable fragments)
     forca_coluna: Literal["negativa"] | None = None  # state gate: predominant negative evidence forces the column
     requer_gate: list[str] = Field(default_factory=list)  # acts only if one of these gates fired (cross-criteria)
     fonte_de_referencia: bool = False  # its negative sources are the prior reference (consistency between criteria)

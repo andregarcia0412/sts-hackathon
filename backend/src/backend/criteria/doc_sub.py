@@ -4,12 +4,25 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
+from backend.catalog.handbooks import pitfalls as handbook_pitfalls
 from backend.catalog.models import Catalog, CatalogRule
 from backend.criteria.citation import clean_quote, quote_in
-from backend.catalog.handbooks import pitfalls as handbook_pitfalls
-from backend.criteria.common import DATA_NOT_INSTRUCTIONS, argument_block, describe_rules, offline_runs, transversal_block
+from backend.criteria.common import (
+    DATA_NOT_INSTRUCTIONS,
+    argument_block,
+    describe_rules,
+    offline_runs,
+    transversal_block,
+)
 from backend.criteria.routing import route_fragments
-from backend.criteria.schemas import CriterionResult, Divergence, EvidenceItem, MissingLink, RuleRun, evidence_id
+from backend.criteria.schemas import (
+    CriterionResult,
+    Divergence,
+    EvidenceItem,
+    MissingLink,
+    RuleRun,
+    evidence_id,
+)
 from backend.errors import safe_error_message
 from backend.extraction.schema import CanonicalProject, Fragment
 from backend.llm import LLM
@@ -69,6 +82,10 @@ Regras de resposta:
 - `elos_ausentes`: o que falta para verificar o núcleo alegado (ex.: MEMO-xx sem versão, saída ou registro)
   e a evidência a solicitar à equipe.
 - Números: copie-os do registro; nunca recalcule com arredondamento.
+
+Fragmentos do tipo `checagem` (checagens#CHK-...) são checagens determinísticas calculadas pelo sistema a partir do
+registro (recálculo, cronologia, versões, falhas, configuração, escopo, pergunta registrada): são fatos derivados e
+citáveis como qualquer fragmento (trecho literal do JSON), mas nunca substituem o registro primário.
 
 Cuidados com os dados do pacote (checagens CHK):
 - célula vazia é ausência (null), nunca zero; some contadores só dentro do mesmo ensaio_id;

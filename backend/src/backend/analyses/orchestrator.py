@@ -9,14 +9,16 @@ from datetime import UTC, datetime
 from backend.analyses.models import Analysis, AnalysisVersions, CanonicalRecord, Stage
 from backend.analyses.worker import is_orphan, worker_id
 from backend.catalog.models import Catalog
+from backend.checks.divergences import add_check_divergences
+from backend.checks.runner import run_checks, with_check_fragments
 from backend.config import LLM_ROLES, Settings
 from backend.criteria.agent import CriteriaRunner
 from backend.errors import safe_error_message
 from backend.extraction.pipeline import extract_project
 from backend.extraction.schema import SCHEMA_VERSION, CanonicalProject
 from backend.graph.builder import build_graph
-from backend.graph.queries import save_graph
 from backend.graph.judge import JudgeOptions, judge_and_classify
+from backend.graph.queries import save_graph
 from backend.llm import LLM
 from backend.llm.prompts import prompt_hashes
 from backend.llm.usage import current_usage, meter_scope
@@ -28,8 +30,8 @@ from backend.storage import read_file
 
 logger = logging.getLogger(__name__)
 
-EXTRACTION, GRAPH, REPORT = "extracao", "grafo", "parecer"
-STAGES: tuple[str, ...] = (EXTRACTION, "NOV", "SIS", "REP", "CRI", "INC", GRAPH, REPORT)
+EXTRACTION, CHECKS, GRAPH, REPORT = "extracao", "checagens", "grafo", "parecer"
+STAGES: tuple[str, ...] = (EXTRACTION, CHECKS, "NOV", "SIS", "REP", "CRI", "INC", GRAPH, REPORT)
 ProviderFactory = Callable[[], dict[str, SearchProvider]]
 
 
@@ -138,6 +140,7 @@ class AnalysisService:
                     raise RuntimeError(f"OLLAMA_MODEL is not set in .env (roles without model: {', '.join(missing)})")
                 canonical = await self._extract(analysis, project)
                 if canonical is not None:
+                    canonical = await self._checks(analysis, canonical)
                     await self._criteria_graph_report(analysis, canonical)
             except Exception as error:  # defensive: never leave an analysis "running"
                 analysis.error = safe_error_message(error)
@@ -181,6 +184,19 @@ class AnalysisService:
                               f"pendente de validação: {', '.join(pending)}" if pending else None)
         return canonical
 
+    async def _checks(self, analysis: Analysis, canonical: CanonicalProject) -> CanonicalProject:
+        """Deterministic checks (zero tokens): facts and citable fragments for the criterion agents."""
+        await self._set_stage(analysis, CHECKS, "rodando")
+        analysis.checks = run_checks(canonical)
+        analysis.versions.checks_version = analysis.checks.version
+        failed = [c for c, r in analysis.checks.results.items() if r.status == "falhou"]
+        canonical = with_check_fragments(canonical, analysis.checks)
+        if record := await CanonicalRecord.find_one(CanonicalRecord.analysis_id == str(analysis.id)):
+            record.canonical = canonical  # the check fragments are citable: keep them with the canonical
+            await record.save()
+        await self._set_stage(analysis, CHECKS, "concluida", f"checagens que falharam: {', '.join(failed)}" if failed else None)
+        return canonical
+
     async def _criteria_graph_report(self, analysis: Analysis, canonical: CanonicalProject) -> None:
         runner = CriteriaRunner(
             self.llm, self.catalog, self.providers(),
@@ -192,18 +208,20 @@ class AnalysisService:
             doc_pitfalls=self.settings.doc_handbook_pitfalls,
         )
         results = await runner.run_all(canonical)
+        if analysis.checks:
+            add_check_divergences(results, canonical, analysis.checks)
         analysis.criteria = results
 
         await self._set_stage(analysis, GRAPH, "rodando")
         try:
             options = JudgeOptions.from_settings(self.settings)
             analysis.versions.judge = options.model_dump()
-            outcome = await judge_and_classify(self.llm, self.catalog, results, options)
+            outcome = await judge_and_classify(self.llm, self.catalog, results, options, analysis.checks)
             analysis.scores, analysis.criterion_scores = outcome.scores, outcome.criterion_scores
             analysis.states, analysis.suggestion = outcome.states, outcome.suggestion
             analysis.consistency = outcome.consistency
             nodes, edges = build_graph(str(analysis.id), canonical, self.catalog, results, analysis.scores,
-                                       analysis.states, analysis.suggestion, analysis.consistency)
+                                       analysis.states, analysis.suggestion, analysis.consistency, analysis.checks)
             await save_graph(str(analysis.id), nodes, edges)
         except Exception as error:
             await self._set_stage(analysis, GRAPH, "falhou", safe_error_message(error))
