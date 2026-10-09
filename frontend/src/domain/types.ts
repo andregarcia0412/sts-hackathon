@@ -17,6 +17,8 @@ export interface ProjectDocument {
   mimeType: string;
   sizeBytes: number;
   uploadedAt: string; // ISO
+  /** Recognized type ("Dossiê", "Registro técnico", "Depoimento"…), see domain/documents.ts */
+  kind?: string;
 }
 
 export interface Project {
@@ -29,6 +31,12 @@ export interface Project {
   status: ProjectStatus;
   documents: ProjectDocument[];
   freeText?: string; // descrição escrita pelo empresário
+  /** Cut-off date of the period the material covers ("Corte"), when known */
+  cutoffDate?: string;
+  /** status "error": the file that could not be read (the analysis waits for a new one) */
+  readError?: { fileName: string };
+  /** Analyst allowed the search for similar work on the web (Novidade, Criatividade) */
+  webSearch?: boolean;
 }
 
 export interface CriterionScoreSummary {
@@ -47,6 +55,10 @@ export interface ProjectSummary extends Project {
   lastDecision?: Pick<Decision, "outcome" | "decidedAt" | "analystName">;
   contestationCount?: number;
   openContestationCount?: number;
+  /** Primary method: criteria with every rule rated by the analyst */
+  decidedCriteria?: { decided: number; total: number };
+  /** status "processing": share of the work done (0–1), when known */
+  processingProgress?: number;
 }
 
 export type ProjectSort = "recent" | "oldest" | "name" | "weakest";
@@ -172,7 +184,12 @@ export interface Analysis {
   adjustments?: (AnalysisChange & { contestationId: string })[];
 }
 
-export type DecisionOutcome = "eligible" | "not_eligible" | "needs_review";
+export type DecisionOutcome =
+  | "eligible"
+  | "with_reservations"
+  | "not_eligible"
+  /** The material lacks something essential to tell R&D from routine */
+  | "insufficient_evidence";
 
 export interface RuleOverride {
   /** Node id of the rule in its analysis tree */
@@ -200,6 +217,7 @@ export interface NewProjectInput {
   company?: string;
   freeText?: string;
   files: File[];
+  webSearch: boolean;
 }
 
 export type NewDecisionInput = Omit<Decision, "decidedAt">;
@@ -261,3 +279,48 @@ export type NewContestationInput = Omit<
   Contestation,
   "id" | "createdAt" | "status" | "resolution"
 >;
+
+/*
+ * Analyst review inside the analysis screen (append-only, part of the trail):
+ * evidences are confirmed or discarded, rules get the analyst's rating.
+ * The latest entry per node is the current one.
+ */
+export type RuleRating =
+  | "sustained"
+  | "partial"
+  | "contradictory"
+  | "not_sustained"
+  | "needs_expert";
+
+export interface RuleDecision {
+  id: string;
+  projectId: string;
+  analysisId: string;
+  /** Path id of the rule in the analysis tree */
+  nodeId: string;
+  /** Snapshot like "1.4 PROJ-14 Barreira tecnológica" */
+  nodeLabel: string;
+  rating: RuleRating;
+  /** System's reading at the time, for the trail */
+  suggested?: RuleRating;
+  justification: string;
+  author: string;
+  createdAt: string;
+}
+
+export type EvidenceVerdict = "confirmed" | "discarded";
+
+export interface EvidenceReview {
+  id: string;
+  projectId: string;
+  analysisId: string;
+  nodeId: string;
+  nodeLabel: string;
+  verdict: EvidenceVerdict;
+  note?: string;
+  author: string;
+  createdAt: string;
+}
+
+export type NewRuleDecisionInput = Omit<RuleDecision, "id" | "createdAt">;
+export type NewEvidenceReviewInput = Omit<EvidenceReview, "id" | "createdAt">;

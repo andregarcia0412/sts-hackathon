@@ -1,42 +1,144 @@
 @import "tailwindcss";
 
 /*
- * Design tokens (provisional).
- * The designer's palette replaces only the values below; components use the
- * semantic names (bg-surface, text-fg-muted, text-score-strong, ...).
+ * Design tokens from the high-fidelity design (Figma "Hackathon-STS", BNB
+ * identity: Heebo, wine #A6193C). Components use the semantic names
+ * (bg-surface, text-fg-muted, text-state-positive, ...), never raw hex.
  */
-@theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Source Serif 4", ui-serif, Georgia, serif;
+/* Short viewports (login without scroll): compact spacing */
+@custom-variant short (@media (max-height: 66rem));
+@custom-variant shorter (@media (max-height: 48rem));
 
-  --color-canvas: oklch(0.975 0.003 250);
-  --color-surface: oklch(1 0 0);
-  --color-surface-muted: oklch(0.955 0.005 250);
-  --color-border: oklch(0.9 0.008 250);
-  --color-border-strong: oklch(0.8 0.01 250);
-  --color-fg: oklch(0.22 0.02 255);
-  --color-fg-muted: oklch(0.48 0.02 255);
-  --color-accent: oklch(0.5 0.15 255);
-  --color-accent-fg: oklch(0.99 0 0);
-  --color-accent-soft: oklch(0.94 0.035 255);
-  --color-danger: oklch(0.55 0.19 27);
+@theme {
+  --font-sans: "Heebo", ui-sans-serif, system-ui, sans-serif;
+
+  /* Neutrals (neutro/*) */
+  --color-canvas: #f4f4f4;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f9f9f9; /* neutros/250: cards of the graph */
+  --color-surface-sunken: #eeeeee; /* neutro/100 */
+  --color-border: #e4e4e4; /* neutro/200 */
+  --color-border-strong: #cfcfcf; /* neutro/300 */
+  --color-divider: #f1eded; /* list rows */
+  --color-guide: #cccccc; /* neutros/400: tree guide lines in the detail panel */
+  --color-track: #eeeaea; /* progress track, list header line */
+  --color-strip: #bdb8b8; /* list: criteria strip */
+  --color-fg: #161616; /* neutro/900 */
+  --color-fg-soft: #303030; /* neutro/800 */
+  --color-fg-secondary: #4a4a4a; /* neutro/700 */
+  --color-fg-muted: #646464; /* neutro/600 */
+  --color-fg-subtle: #767676; /* neutros/550 */
+  --color-fg-faint: #979797; /* neutro/400 */
+
+  /* Brand (marca/*, vinhos/*) */
+  --color-accent: #a6193c; /* marca/primaria */
+  --color-accent-fg: #ffffff;
+  --color-accent-soft: #fbeff2; /* marca/primaria-suave */
+  --color-action: #df2c59; /* vinhos/050: primary buttons, selection */
+  --color-brand-deep: #770025; /* vinhos/200: criterion card */
+  --color-brand-number: rgb(32 5 12 / 0.32); /* vermelhos/150: criterion number circle */
+  --color-brand-blush: #ffc9cc; /* vermelhos/050 */
+  --color-brand-orange: #f68b1f; /* background glow */
+  --color-danger: #b3261e;
+
+  /* States (estado/*): always icon + text, color is never the only signal */
+  --color-state-positive: #1b7f4b;
+  --color-state-positive-strong: #00692c;
+  --color-state-positive-soft: #e7f5ec;
+  --color-state-attention: #8a5200;
+  --color-state-attention-strong: #7e450a;
+  --color-state-attention-soft: #fff1db;
+  --color-state-negative: #b3261e;
+  --color-state-negative-soft: #fcebea;
+  --color-state-attention-bar: #e8a64a; /* list: weakest-criterion strip */
+  --color-state-attention-mark: #c77700; /* list: weakest-criterion marker */
+  --color-state-neutral: #4a4a4a;
+  --color-state-neutral-soft: #eeeeee;
+
+  /* Status cards of the project list (colors from the design) */
+  --color-card-orange: #f88a27;
+  --color-card-orange-strong: #e5620d;
+  --color-card-blue: #3690fa;
+  --color-card-green: #009036; /* verdes/100 */
 
   /* Score bands: evidence strength (not approval probability) */
-  --color-score-strong: oklch(0.52 0.13 155);
-  --color-score-strong-soft: oklch(0.95 0.04 155);
-  --color-score-moderate: oklch(0.6 0.13 75);
-  --color-score-moderate-soft: oklch(0.96 0.05 85);
-  --color-score-weak: oklch(0.55 0.17 30);
-  --color-score-weak-soft: oklch(0.95 0.035 30);
+  --color-score-strong: var(--color-state-positive);
+  --color-score-strong-soft: var(--color-state-positive-soft);
+  --color-score-moderate: var(--color-state-attention);
+  --color-score-moderate-soft: var(--color-state-attention-soft);
+  --color-score-weak: var(--color-state-negative);
+  --color-score-weak-soft: var(--color-state-negative-soft);
 
   /* Evidence polarity */
-  --color-evidence-positive: oklch(0.52 0.13 155);
-  --color-evidence-positive-soft: oklch(0.95 0.04 155);
-  --color-evidence-negative: oklch(0.55 0.17 30);
-  --color-evidence-negative-soft: oklch(0.95 0.035 30);
+  --color-evidence-positive: var(--color-state-positive);
+  --color-evidence-positive-soft: var(--color-state-positive-soft);
+  --color-evidence-negative: var(--color-state-negative);
+  --color-evidence-negative-soft: var(--color-state-negative-soft);
+
+  --shadow-card: 0 4px 8px rgb(0 0 0 / 0.1);
+  --shadow-card-accent: 0 4px 8px rgb(119 0 37 / 0.2);
+  --shadow-dock: 0 -4px 12px rgb(22 22 22 / 0.08);
+  --shadow-float: 0 4px 24px rgb(136 211 177 / 0.25); /* "sombra": login card, assistant */
+
+  /* The assistant panel grows out of its round button and shrinks back into it */
+  --animate-assistant-in: assistant-in 380ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-assistant-out: assistant-out 280ms cubic-bezier(0.4, 0, 1, 1) both;
+  --animate-assistant-content-in: assistant-content-in 380ms ease-out both;
+  --animate-assistant-content-out: assistant-content-out 140ms ease-in both;
+  /* Click on the assistant button: one full turn of the star, then the panel opens */
+  --animate-star-spin: star-spin 600ms cubic-bezier(0.65, 0, 0.35, 1) both;
+  --animate-dropdown-in: dropdown-in 140ms ease-out both;
+
+  @keyframes dropdown-in {
+    from {
+      opacity: 0;
+      transform: translateY(-4px) scale(0.98);
+    }
+  }
+
+  /* From the button: a small circle in the corner (radius 240px × 0.15 ≈ the 72px button) */
+  @keyframes assistant-in {
+    from {
+      opacity: 0.5;
+      transform: scale(0.15);
+      border-radius: 240px;
+    }
+  }
+  @keyframes assistant-out {
+    to {
+      opacity: 0;
+      transform: scale(0.15);
+      border-radius: 240px;
+    }
+  }
+  @keyframes star-spin {
+    50% {
+      transform: rotate(180deg) scale(1.15);
+    }
+    to {
+      transform: rotate(360deg) scale(1);
+    }
+  }
+  /* The content shows up once the panel is almost open, and leaves first */
+  @keyframes assistant-content-in {
+    0%,
+    45% {
+      opacity: 0;
+    }
+  }
+  @keyframes assistant-content-out {
+    to {
+      opacity: 0;
+    }
+  }
 }
 
 @layer base {
+  :root {
+    /* Material keyboard_arrow_down, for native selects */
+    --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234a4a4a'%3E%3Cpath d='M12 14.975q-.2 0-.388-.075t-.312-.2l-4.6-4.6q-.275-.275-.275-.7t.275-.7t.7-.275t.7.275L12 12.6l3.9-3.9q.275-.275.7-.275t.7.275t.275.7t-.275.7l-4.6 4.6q-.15.15-.325.213t-.375.062'/%3E%3C/svg%3E");
+  }
+
   html {
     color-scheme: light;
   }
@@ -46,36 +148,100 @@
   }
 
   :focus-visible {
-    @apply outline-2 outline-offset-2 outline-accent;
+    @apply outline-2 outline-offset-2 outline-action;
   }
 }
 
-/* Provisional primitives, restyled when the high-fidelity design arrives */
+/* Primitives of the design system ("Botão", fields) */
 @layer components {
+  /* Pill text field of the design (login, upload): hover, focus and error states */
+  .input-pill {
+    @apply h-12 w-full rounded-full border border-border-strong bg-surface px-4 text-base leading-5 text-fg transition-colors placeholder:text-fg-muted hover:border-fg-faint focus-visible:border-action focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-action aria-invalid:border-danger disabled:cursor-not-allowed disabled:bg-surface-sunken;
+  }
+
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-md bg-accent px-3.5 py-2 text-sm font-medium text-accent-fg transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-action px-6 py-3 text-base leading-5 font-semibold whitespace-nowrap text-white transition-[filter] hover:brightness-95 disabled:cursor-not-allowed disabled:bg-surface-sunken disabled:text-fg-muted disabled:hover:brightness-100;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-md border border-border-strong bg-surface px-3.5 py-2 text-sm font-medium text-fg transition-colors hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-border-strong bg-surface px-6 py-3 text-base leading-5 font-semibold whitespace-nowrap text-fg transition-colors hover:bg-surface-muted disabled:cursor-not-allowed disabled:bg-surface-sunken disabled:text-fg-muted;
+  }
+
+  /* Small pill: "Projeto 037", "Regra 4" */
+  .btn-chip {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-full border border-border-strong bg-surface px-4 py-2 text-xs leading-5 font-semibold whitespace-nowrap text-fg transition-colors hover:bg-surface-muted disabled:cursor-default disabled:hover:bg-surface;
   }
 
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium text-fg-muted transition-colors hover:bg-surface-muted hover:text-fg disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium text-fg-muted transition-colors hover:bg-surface-sunken hover:text-fg disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  /* Inline text actions ("Confirmar", "Descartar") */
+  .btn-link {
+    @apply text-xs leading-4 font-semibold text-accent hover:underline disabled:cursor-not-allowed disabled:opacity-50 disabled:no-underline;
   }
 
   .input {
-    @apply w-full rounded-md border border-border-strong bg-surface px-3 py-2 text-sm placeholder:text-fg-muted/70 focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-accent;
+    @apply w-full rounded-2xl border border-border-strong bg-surface px-3 py-3 text-base leading-5 placeholder:text-fg-muted focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-action;
+  }
+
+  /* Native select drawn like the design's "Seletor" (arrow = Material keyboard_arrow_down) */
+  .select {
+    @apply w-full cursor-pointer appearance-none rounded-2xl border border-border-strong bg-surface bg-no-repeat py-3 pr-11 pl-3 text-base leading-5 focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-action;
+    background-image: var(--select-arrow);
+    background-position: right 12px center;
+    background-size: 24px;
+  }
+
+  /* Small label above filters ("Detalhe/12 Medium") */
+  .field-label {
+    @apply mb-1 block text-xs leading-4 font-medium text-fg-muted;
+  }
+
+  /* Translucent card of the design (panels, tables, filter bar) */
+  .card {
+    @apply rounded-2xl border border-border bg-white/80;
   }
 
   .label {
-    @apply mb-1 block text-sm font-medium;
+    @apply mb-2 block text-base leading-4 font-semibold text-fg-soft;
+  }
+
+  /* "Rótulo/11 Caixa alta" */
+  .caps-label {
+    @apply text-[11px] leading-4 font-semibold tracking-[0.06em] uppercase;
   }
 }
 
 /* React Flow: nodes are clickable even though built-in selection is off */
 .react-flow__node {
   cursor: pointer;
+}
+
+/* Scroll area with a visible scrollbar ("demonstrador de scroll" in the design) */
+@utility scroll-visible {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-fg-faint) transparent;
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: var(--color-fg-faint);
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+/* Assistant open/close: still fires animationend (the panel unmounts on it) */
+@media (prefers-reduced-motion: reduce) {
+  .assistant-motion,
+  .assistant-motion > *,
+  .animate-star-spin {
+    animation-duration: 1ms !important;
+  }
 }
 
 /* Print / PDF export of the decision document */
@@ -87,6 +253,8 @@
 
   body {
     background: white;
+    /* Keep the document's colors (summary highlight, pendencies) on paper */
+    print-color-adjust: exact;
   }
 
   h2,

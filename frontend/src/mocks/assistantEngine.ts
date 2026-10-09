@@ -265,7 +265,7 @@ const explainTraceability = (
         base,
         {
           type: "text",
-          text: "Selecione um item no grafo ou cite um número (ex.: 3.1.1) para eu mostrar o caminho completo dele.",
+          text: "Selecione um item na árvore ou cite um número (ex.: 3.1.1) para eu mostrar o caminho completo dele.",
         },
       ],
       sources: [],
@@ -429,7 +429,7 @@ const help = (context: AssistantContext): AssistantAnswer => ({
       type: "text",
       text:
         context.screen === "analysis"
-          ? "Selecione um item no grafo ou na árvore e pergunte sobre ele, ou cite um número (ex.: 3.1) ou código (ex.: PROJ-13)."
+          ? "Selecione um item na árvore e pergunte sobre ele, ou cite um número (ex.: 3.1) ou código (ex.: PROJ-13)."
           : "Cite um número do documento (ex.: 3.1.1) ou um código de regra (ex.: PROJ-13) na pergunta.",
     },
   ],
@@ -441,7 +441,7 @@ const needsTarget = (index: AnalysisIndex): AssistantAnswer => ({
   blocks: [
     {
       type: "text",
-      text: "Sobre qual item? Selecione um critério, regra ou evidência no grafo, ou cite o número (ex.: 3.1) ou o código (ex.: PROJ-13). Visão geral:",
+      text: "Sobre qual item? Selecione um critério, regra ou evidência na árvore, ou cite o número (ex.: 3.1) ou o código (ex.: PROJ-13). Visão geral:",
     },
     { type: "list", items: criteriaOverview(index) },
   ],
