@@ -236,3 +236,24 @@ async def test_an_insufficient_state_decided_by_a_no_still_names_the_missing_lin
                                          result, True, options=QUESTIONNAIRE)
     assert state.state == "INSUFICIENTE PARA O NÚCLEO ALEGADO"
     assert "R1" in state.missing_link.elo_ausente and state.missing_link.evidencias_a_solicitar
+
+
+def test_a_hypothesis_without_record_is_never_routine():
+    assert state_for("CRI", C1="nao", C2="sim", C3="sim", C4="sim") == "DEMONSTRADA NO RECORTE"
+    assert state_for("CRI", C1="nao", C2="sim", C3="sim", C4="nao") == "INDETERMINADA"
+    assert state_for("CRI", C1="nao", C2="sim", C3="sim", C4="sem_registro") == "INDETERMINADA"
+    assert state_for("CRI", C1="nao", C2="nao", C3="sim", C4="nao") == "NÃO DEMONSTRADA"  # renaming is routine
+
+
+async def test_the_timeline_answers_c4_when_the_method_holds_the_hypothesis():
+    from backend.checks.runner import run_checks
+    from tests.factories import synthetic_canonical
+
+    checks = run_checks(await synthetic_canonical())  # documento-inicial before the trials
+    cri = CriterionResult(criterion="CRI", rules=[run("CRI-D10", evidence("CRI-D10", source="PRJ90-EV06#2"))])
+    cri.rules[0].evidences[0].source_alias = "evidencias/metodo.md#2"
+    llm = FakeLLM({QuestionnaireOut: fake_answers({"C4": "nao"})})
+    state = await judge_by_questionnaire(llm, get_catalog(), cri, True, options=QUESTIONNAIRE, checks=checks)
+    c4 = next(a for a in state.answers if a.pergunta == "C4")
+    assert (c4.resposta, c4.origem) == ("sim", "gate") and "CHK-TEMPO" in c4.explicacao
+    assert state.state == "DEMONSTRADA NO RECORTE"

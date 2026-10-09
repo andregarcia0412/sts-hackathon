@@ -370,7 +370,7 @@ def fake_state(states: dict[str, str] | None = None):
     return handler
 
 
-ELIGIBLE_ANSWERS = {"N1": "nao", "N2": "sim", "N3": "sim", "C1": "nao", "C2": "sim", "C3": "sim",
+ELIGIBLE_ANSWERS = {"N1": "nao", "N2": "sim", "N3": "sim", "C1": "nao", "C2": "sim", "C3": "sim", "C4": "sim",
                     "I1": "nao", "I2": "experimental", "I3": "sim", "S1": "sim", "S2": "experimento",
                     "R1": "sim", "R2": "conhecimento", "R3": "nao"}
 
@@ -402,7 +402,7 @@ def fake_answers(answers: dict[str, str] | None = None):
 ANSWERS_FOR_STATE = {
     "NOV": {"DEMONSTRADA NO RECORTE": {"N1": "nao", "N2": "sim", "N3": "sim"}, "NÃO DEMONSTRADA": {"N1": "sim"},
             "INDETERMINADA": {"N1": "nao", "N2": "sem_registro"}},
-    "CRI": {"DEMONSTRADA NO RECORTE": {"C1": "nao", "C2": "sim", "C3": "sim"}, "NÃO DEMONSTRADA": {"C1": "sim"},
+    "CRI": {"DEMONSTRADA NO RECORTE": {"C1": "nao", "C2": "sim", "C3": "sim", "C4": "sim"}, "NÃO DEMONSTRADA": {"C1": "sim"},
             "INDETERMINADA": {"C1": "nao", "C3": "nao"}},
     "INC": {"INVESTIGADA": {"I1": "nao", "I2": "experimental", "I3": "sim"}, "NÃO CARACTERIZADA": {"I1": "sim"},
             "ALEGADA, NÃO VERIFICÁVEL": {"I1": "nao", "I3": "sem_registro"}},

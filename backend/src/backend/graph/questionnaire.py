@@ -134,6 +134,15 @@ def comparators_measured(checks: ChecksReport | None) -> list[str]:
     return [f"{metric}: {', '.join(sorted(found))}" for metric, found in versions.items() if len(found) >= 2]
 
 
+def hypothesis_before_trials(checks: ChecksReport | None, result: CriterionResult) -> bool:
+    """CHK-TEMPO shows the initial document before the trials and the criterion cites the mechanism and hypothesis
+    of the method (§2): the hypothesis was registered before the trials — the record answers C4 by itself."""
+    timeline = checks.get("CHK-TEMPO") if checks else None
+    if timeline is None or not timeline.facts.get("documento_inicial_antes_dos_ensaios"):
+        return False
+    return any(e.source_alias.endswith("metodo.md#2") for r in result.rules for e in r.evidences)
+
+
 def _validate(out: QuestionnaireOut, asked: list[Question], known: set[str],
               documentary: set[str]) -> tuple[dict[str, Answer], list[str]]:
     by_id = {a.pergunta.strip().upper(): a for a in out.respostas}
@@ -300,6 +309,10 @@ async def judge_by_questionnaire(llm: LLM, catalog: Catalog, result: CriterionRe
     table = catalog.questionnaire.decisao[criterion]
     exempt = coherence_exempt(criterion, score, n_rules, options)
     locked, gates, conflicts, fired = locks(result, catalog, exempt, cross)
+    if criterion == "CRI" and "C4" not in locked and hypothesis_before_trials(checks, result):
+        locked["C4"] = Answer(pergunta="C4", resposta="sim", origem="gate",
+                              explicacao="checagens#CHK-TEMPO: o documento inicial é anterior aos ensaios e o "
+                                         "mecanismo e a hipótese estão no método (§2)")
     if criterion == "NOV" and "N3" not in locked and (compared := comparators_measured(checks)):
         locked["N3"] = Answer(pergunta="N3", resposta="sim", origem="gate",
                               explicacao="checagens#CHK-RECALC: versões comparadas na mesma métrica — "
