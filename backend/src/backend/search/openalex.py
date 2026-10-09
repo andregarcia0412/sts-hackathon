@@ -10,8 +10,9 @@ OPENALEX_URL = "https://api.openalex.org/works"
 MAX_RETRY_AFTER_S = 60.0
 
 
-def retry_after_seconds(value: str | None, default: float) -> float:
-    """`Retry-After` in seconds or as an HTTP date; capped, never negative."""
+def retry_after_seconds(value: str | None, default: float) -> float | None:
+    """`Retry-After` in seconds or as an HTTP date; None when longer than the cap (a daily budget is exhausted:
+    waiting would only slow the analysis down — fail now, the error is logged and never cached)."""
     if not value:
         return default
     try:
@@ -22,7 +23,7 @@ def retry_after_seconds(value: str | None, default: float) -> float:
         except (TypeError, ValueError):
             return default
         seconds = (moment - datetime.now(UTC)).total_seconds()
-    return max(0.0, min(seconds, MAX_RETRY_AFTER_S))
+    return None if seconds > MAX_RETRY_AFTER_S else max(0.0, seconds)
 
 
 def rebuild_abstract(inverted_index: dict[str, list[int]] | None) -> str:
@@ -61,8 +62,10 @@ class OpenAlexProvider:
                 response = await self._http.get(OPENALEX_URL, params=params)
             if response.status_code != 429 or attempt > self._retries:
                 break
-            # rate limited: wait what the server asks (outside the semaphore) and try again
-            await asyncio.sleep(retry_after_seconds(response.headers.get("Retry-After"), self._backoff_s * attempt))
+            wait = retry_after_seconds(response.headers.get("Retry-After"), self._backoff_s * attempt)
+            if wait is None:
+                break  # budget exhausted for hours (no OPENALEX_API_KEY?): do not hold the analysis
+            await asyncio.sleep(wait)  # rate limited: wait what the server asks (outside the semaphore), try again
         response.raise_for_status()  # an error is never cached as an empty result (CachedProvider stores successes)
         return [self._to_hit(work) for work in response.json().get("results", [])]
 
