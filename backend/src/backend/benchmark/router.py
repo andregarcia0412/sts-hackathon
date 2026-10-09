@@ -18,6 +18,7 @@ from backend.benchmark.schemas import (
     RejudgeRequest,
 )
 from backend.benchmark.rejudge import create_rejudge, run_rejudge
+from backend.benchmark.report_html import report_html
 from backend.benchmark.service import analyses_of, progress, refresh, start_benchmark
 from backend.config import settings
 from backend.graph.judge import JudgeOptions
@@ -129,6 +130,15 @@ async def get_benchmark(benchmark_id: str, user: CurrentUser, request: Request) 
 def _rows(benchmark: Benchmark) -> list[BenchmarkProjectRow]:
     return [BenchmarkProjectRow.of(snap, benchmark.expected.get(snap.code))
             for snap in sorted(benchmark.snapshots, key=lambda s: (s.set, s.code, s.repeat))]
+
+
+@router.get("/{benchmark_id}/report.html")
+async def benchmark_report_html(benchmark_id: str, user: CurrentUser, request: Request) -> Response:
+    """The pitch report: static, self-contained HTML (no external resource), opens offline."""
+    benchmark = await _owned(benchmark_id, user, request)
+    if benchmark.status != "concluido":
+        raise HTTPException(status.HTTP_409_CONFLICT, "Benchmark still running")
+    return Response(report_html(benchmark), media_type="text/html; charset=utf-8")
 
 
 @router.get("/{benchmark_id}/projects")

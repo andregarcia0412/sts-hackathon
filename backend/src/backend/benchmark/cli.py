@@ -13,6 +13,7 @@ from backend.analyses.orchestrator import AnalysisService
 from backend.benchmark.metrics import headline
 from backend.benchmark.models import Benchmark, BenchmarkMetrics
 from backend.benchmark.rejudge import create_rejudge, run_rejudge
+from backend.benchmark.report_html import report_html
 from backend.benchmark.router import DEFAULT_ANSWER_KEY, DEFAULT_DIRS, DEFAULT_PRELIMINARY
 from backend.benchmark.schemas import BenchmarkRead
 from backend.benchmark.service import analyses_of, progress, refresh, start_benchmark
@@ -168,7 +169,34 @@ def parser() -> argparse.ArgumentParser:
     return parser
 
 
+async def _report(benchmark_id: str, out: Path) -> None:
+    await init_db()
+    try:
+        benchmark = await Benchmark.get(PydanticObjectId(benchmark_id))
+        if benchmark is None or benchmark.metrics is None:
+            raise SystemExit(f"benchmark not found or still running: {benchmark_id}")
+        out.write_text(report_html(benchmark), encoding="utf-8")
+        metrics = out.with_name(out.stem + ".json") if out.suffix == ".html" else out.with_suffix(".json")
+        metrics.write_text(benchmark.metrics.model_dump_json(by_alias=True, indent=1), encoding="utf-8")
+        print(f"relatório em {out} · métricas em {metrics}")
+    finally:
+        await close_db()
+
+
+def report_main(argv: list[str]) -> None:
+    cli = argparse.ArgumentParser(prog="backend-benchmark report", description="Pitch report of a benchmark (HTML)")
+    cli.add_argument("benchmark_id")
+    cli.add_argument("--out", type=Path, default=Path("metricas.html"), help="keep it outside the repository")
+    args = cli.parse_args(argv)
+    asyncio.run(_report(args.benchmark_id, args.out))
+
+
 def main() -> None:
+    import sys
+
+    if len(sys.argv) > 1 and sys.argv[1] == "report":  # subcommand, detected before the run parser (--projects…)
+        report_main(sys.argv[2:])
+        return
     cli = parser()
     args = cli.parse_args()
     if args.repeats < 1:

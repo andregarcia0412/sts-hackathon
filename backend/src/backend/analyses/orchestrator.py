@@ -6,7 +6,9 @@ import time
 from collections.abc import Callable
 from datetime import UTC, datetime
 
-from backend.analyses.models import Analysis, AnalysisVersions, CanonicalRecord, Stage
+from beanie import PydanticObjectId
+
+from backend.analyses.models import Analysis, AnalysisVersions, Batch, CanonicalRecord, Stage
 from backend.analyses.worker import is_orphan, worker_id
 from backend.catalog.models import Catalog
 from backend.checks.divergences import add_check_divergences
@@ -20,6 +22,7 @@ from backend.graph.builder import build_graph
 from backend.graph.judge import JudgeOptions, judge_and_classify
 from backend.graph.queries import save_graph
 from backend.llm import LLM
+from backend.llm.calls import calls_scope, save_calls, set_stage, summarize
 from backend.llm.prompts import prompt_hashes
 from backend.llm.usage import current_usage, meter_scope
 from backend.projects.importer import IncomingFile
@@ -94,6 +97,7 @@ class AnalysisService:
             stage = analysis.stage(name)
             moment = datetime.now(UTC)
             if status == "rodando":
+                set_stage(name)  # the per-call LLM log of this task (and of what it gathers) belongs to this stage
                 stage.started_at = moment
             else:
                 stage.finished_at = moment
@@ -112,6 +116,13 @@ class AnalysisService:
         which would wipe counters mutated in place by the calls running in parallel."""
         if (meter := current_usage()) is not None:
             analysis.usage = meter.model_copy(deep=True)
+
+    @staticmethod
+    async def _benchmark_of(analysis: Analysis) -> str | None:
+        if not analysis.batch_id:
+            return None
+        batch = await Batch.get(PydanticObjectId(analysis.batch_id))
+        return batch.benchmark_id if batch else None
 
     async def _load_files(self, project: Project) -> list[IncomingFile]:
         return [
@@ -133,7 +144,7 @@ class AnalysisService:
             file_hashes={doc.file_name: doc.sha256 for doc in project.active_documents()},
         )
         await analysis.save()
-        with meter_scope() as usage:
+        with meter_scope() as usage, calls_scope() as calls:
             try:
                 missing = [role for role, model in models.items() if model is None]
                 if missing:
@@ -148,6 +159,8 @@ class AnalysisService:
                 if analysis.stage(EXTRACTION).status == "pendente":
                     analysis.stage(EXTRACTION).status, analysis.stage(EXTRACTION).error = "falhou", analysis.error
         analysis.usage = usage.model_copy(deep=True)
+        analysis.calls = summarize(calls)
+        await save_calls(str(analysis.id), await self._benchmark_of(analysis), calls)
         analysis.versions.prompts = prompt_hashes()
         analysis.finished_at = datetime.now(UTC)
         analysis.total_s = round(time.monotonic() - started, 3)

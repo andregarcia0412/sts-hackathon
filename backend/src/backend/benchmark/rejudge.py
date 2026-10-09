@@ -21,6 +21,7 @@ from backend.errors import safe_error_message
 from backend.graph.judge import JudgeOptions, judge_and_classify
 from backend.llm import LLM
 from backend.llm.prompts import prompt_hashes
+from backend.llm.calls import calls_scope, stage_scope, summarize
 from backend.llm.usage import meter_scope
 
 
@@ -61,7 +62,7 @@ async def _rejudge_one(llm: LLM, catalog: Catalog, options: JudgeOptions, run: B
                        analysis: Analysis) -> RunSnapshot:
     started_at, started = datetime.now(UTC), time.monotonic()
     copy = analysis.model_copy(deep=True)
-    with meter_scope() as usage:
+    with meter_scope() as usage, calls_scope() as calls, stage_scope("grafo"):
         try:
             outcome = await judge_and_classify(llm, catalog, copy.criteria, options)
         except Exception as error:  # defensive: one analysis failing must not lose the others
@@ -72,6 +73,7 @@ async def _rejudge_one(llm: LLM, catalog: Catalog, options: JudgeOptions, run: B
     copy.states, copy.suggestion = outcome.states, outcome.suggestion
     copy.consistency = outcome.consistency
     copy.usage = usage.model_copy(deep=True)
+    copy.calls = summarize(calls)
     copy.started_at, copy.finished_at = started_at, datetime.now(UTC)
     copy.total_s = round(time.monotonic() - started, 3)
     snap = snapshot_of(run, copy)

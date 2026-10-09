@@ -143,3 +143,10 @@ def test_close_a_benchmark_stuck_running(client, auth_headers, fake_pipeline, pa
     closed = client.post(f"/benchmarks/{body['id']}/close", headers=auth_headers).json()
     assert closed["status"] == "concluido" and "fechado à força" in closed["errors"]
     assert closed["metrics"]["reliability"]["failed"] == 1
+
+
+def test_report_html_endpoint(client, auth_headers, fake_pipeline, package_root):
+    benchmark_id = client.post("/benchmarks", json={"projects": ["PRJ90"]}, headers=auth_headers).json()["id"]
+    page = client.get(f"/benchmarks/{benchmark_id}/report.html", headers=auth_headers)
+    assert page.status_code == 200 and page.headers["content-type"].startswith("text/html")
+    assert "Matriz de confusão" in page.text and "O que o sistema barrou" in page.text

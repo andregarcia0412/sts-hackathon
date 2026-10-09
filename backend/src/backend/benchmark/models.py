@@ -8,6 +8,7 @@ from backend.api_schema import CamelModel
 from backend.benchmark.reference import ExpectedCase
 from backend.graph.coherence import Coherence
 from backend.graph.states import CriterionState
+from backend.llm.calls import CallsSummary
 from backend.llm.usage import LLMUsage, RoleUsage
 from backend.projects.models import now
 
@@ -93,6 +94,15 @@ class RunSnapshot(CamelModel):
     judgements: dict[str, CriterionState] = Field(default_factory=dict)  # re-judge only: the full new states
     neutralized: int = 0  # evidences neutralized by the consistency between criteria (spec 02)
     files_total: int = 0
+    calls: CallsSummary | None = None  # per model / per stage
+    rules_na: int = 0
+    rules_partial: int = 0
+    dropped_invented: int = 0  # citations not found verbatim, or of an inexistent fragment/source
+    dropped_testimony: int = 0  # testimony refused as evidence (T9)
+    dropped_later: int = 0  # web sources after the reference date refused as prior art (T3)
+    evidences_without_source: int = 0
+    incoherent: int = 0  # criteria left in conflict with their score (coherence gate)
+    flagged_speculative: int = 0  # justifications marked speculative (spec 09)
     files_by_agent: int = 0  # files the extraction agent had to map (the rest: deterministic, spec 05)
 
 
@@ -200,6 +210,69 @@ class CoherenceMetrics(CamelModel):
     changed_column_misses: int = 0
 
 
+class ModelMetrics(CamelModel):
+    calls: int = 0
+    failures: int = 0
+    retries: int = 0
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+    latency_s: Distribution = Field(default_factory=Distribution)
+    roles: dict[str, int] = Field(default_factory=dict)
+    stages: dict[str, int] = Field(default_factory=dict)
+    cost: float | None = None  # with MODEL_PRICES only; never invented
+
+
+class CostMetrics(CamelModel):
+    priced_models: list[str] = Field(default_factory=list)
+    unpriced_models: list[str] = Field(default_factory=list)
+    total: float | None = None
+    per_run: Distribution = Field(default_factory=Distribution)
+    unit: str = "USD por milhão de tokens (MODEL_PRICES)"
+
+
+class ManualComparison(CamelModel):
+    manual_minutes: float
+    source: str
+    median_minutes: float | None = None
+    p95_minutes: float | None = None
+    reduction: float | None = None  # 1 - median / manual
+
+
+class CoverageMetrics(CamelModel):
+    active_rules: int = 0  # in the catalog
+    executed_per_run: Distribution = Field(default_factory=Distribution)
+    na_per_run: Distribution = Field(default_factory=Distribution)
+    partial_per_run: Distribution = Field(default_factory=Distribution)
+    with_state: float | None = None  # criteria with a suggested state / criteria
+
+
+class DefensibilityMetrics(CamelModel):
+    evidences: int = 0
+    with_source: float | None = None  # must be 1.0
+    invented_citations_refused: int = 0
+    testimony_refused: int = 0
+    later_sources_separated: int = 0
+    divergences_recorded: int = 0
+    queries_sanitized_terms_removed: int = 0
+    queries_ungrounded_dropped: int = 0
+    evidences_neutralized: int = 0
+    speculative_flagged: int = 0
+    criteria_incoherent: int = 0
+
+
+class CompletenessMetrics(CamelModel):
+    with_caveats: int = 0
+    with_caveats_complete: float | None = None
+    insufficient: int = 0
+    insufficient_with_missing_link: float | None = None
+
+
+class SafetyMetrics(CamelModel):
+    false_eligible: int = 0
+    false_not_eligible: int = 0
+    no_class_rate: float | None = None
+
+
 class BenchmarkMetrics(CamelModel):
     accuracy: dict[str, AccuracyMetrics] = Field(default_factory=dict)  # "oficial" / "preliminar"
     timing: TimingMetrics = Field(default_factory=TimingMetrics)
@@ -208,6 +281,14 @@ class BenchmarkMetrics(CamelModel):
     usage: UsageMetrics = Field(default_factory=UsageMetrics)
     determinism: DeterminismMetrics | None = None
     coherence: CoherenceMetrics = Field(default_factory=CoherenceMetrics)
+    by_model: dict[str, ModelMetrics] = Field(default_factory=dict)
+    by_stage: dict[str, ModelMetrics] = Field(default_factory=dict)
+    cost: CostMetrics = Field(default_factory=CostMetrics)
+    time_vs_manual: ManualComparison | None = None
+    coverage: CoverageMetrics = Field(default_factory=CoverageMetrics)
+    defensibility: DefensibilityMetrics = Field(default_factory=DefensibilityMetrics)
+    completeness: CompletenessMetrics = Field(default_factory=CompletenessMetrics)
+    safety: SafetyMetrics = Field(default_factory=SafetyMetrics)
     class_distribution: dict[str, dict[str, int]] = Field(default_factory=dict)  # "sugerida"/reference → class → n
     by_set: dict[str, TimingMetrics] = Field(default_factory=dict)
 

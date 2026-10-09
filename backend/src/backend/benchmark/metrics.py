@@ -9,8 +9,15 @@ from collections.abc import Iterable
 from backend.benchmark.models import (
     AccuracyMetrics,
     BenchmarkMetrics,
-    CoherenceMetrics,
     ClassScores,
+    CoherenceMetrics,
+    CompletenessMetrics,
+    CostMetrics,
+    CoverageMetrics,
+    DefensibilityMetrics,
+    ManualComparison,
+    ModelMetrics,
+    SafetyMetrics,
     DeterminismMetrics,
     Distribution,
     DivergenceSnapshot,
@@ -272,6 +279,115 @@ def coherence(runs: list[RunSnapshot], expected: dict[str, ExpectedCase], catalo
     return metrics
 
 
+def _merge_usage(target: ModelMetrics, usage, durations: list[float]) -> None:
+    target.calls += usage.calls
+    target.failures += usage.failures
+    target.retries += usage.retries
+    target.prompt_tokens += usage.prompt_tokens
+    target.completion_tokens += usage.completion_tokens
+    durations += usage.durations_s
+
+
+def _price(prices: dict[str, tuple[float, float]], model: str, prompt: int, completion: int) -> float | None:
+    if model not in prices:
+        return None
+    inp, out = prices[model]
+    return round((prompt * inp + completion * out) / 1_000_000, 6)
+
+
+def per_model(runs: list[RunSnapshot], prices: dict[str, tuple[float, float]]) -> tuple[dict, dict, CostMetrics]:
+    models: dict[str, ModelMetrics] = {}
+    stages: dict[str, ModelMetrics] = {}
+    latency: dict[str, list[float]] = defaultdict(list)
+    stage_latency: dict[str, list[float]] = defaultdict(list)
+    run_costs: list[float | None] = []
+    for run in runs:
+        if run.calls is None:
+            continue
+        run_cost, priced_all = 0.0, True
+        for model, usage in run.calls.by_model.items():
+            metrics = models.setdefault(model, ModelMetrics())
+            _merge_usage(metrics, usage, latency[model])
+            for role, n in run.calls.by_model_role.get(model, {}).items():
+                metrics.roles[role] = metrics.roles.get(role, 0) + n
+            for stage, n in run.calls.by_model_stage.get(model, {}).items():
+                metrics.stages[stage] = metrics.stages.get(stage, 0) + n
+            price = _price(prices, model, usage.prompt_tokens, usage.completion_tokens)
+            if price is None:
+                priced_all = priced_all and usage.calls == 0
+            else:
+                run_cost += price
+        for stage, usage in run.calls.by_stage.items():
+            _merge_usage(stages.setdefault(stage, ModelMetrics()), usage, stage_latency[stage])
+        run_costs.append(round(run_cost, 6) if priced_all else None)
+    for model, metrics in models.items():
+        metrics.latency_s = distribution(latency[model])
+        metrics.cost = _price(prices, model, metrics.prompt_tokens, metrics.completion_tokens)
+    for stage, metrics in stages.items():
+        metrics.latency_s = distribution(stage_latency[stage])
+    cost = CostMetrics(priced_models=sorted(m for m in models if m in prices),
+                       unpriced_models=sorted(m for m in models if m not in prices))
+    if models and not cost.unpriced_models:
+        cost.total = round(sum(m.cost or 0 for m in models.values()), 6)
+        cost.per_run = distribution(run_costs)
+    return models, stages, cost
+
+
+def manual_comparison(runs: list[RunSnapshot], minutes: float | None, source: str | None) -> ManualComparison | None:
+    """Only with a cited source for the manual time (never an invented baseline)."""
+    if not minutes or not source:
+        return None
+    times = distribution(r.total_s for r in runs if r.status == "concluida")
+    median = round(times.median / 60, 2) if times.median is not None else None
+    return ManualComparison(manual_minutes=minutes, source=source, median_minutes=median,
+                            p95_minutes=round(times.p95 / 60, 2) if times.p95 is not None else None,
+                            reduction=round(1 - median / minutes, 4) if median is not None else None)
+
+
+def coverage(runs: list[RunSnapshot], catalog: Catalog) -> CoverageMetrics:
+    active = sum(1 for r in catalog.rules if r.executavel and r.criterio)
+    states = [s for r in runs for s in r.states.values()]
+    return CoverageMetrics(active_rules=active,
+                           executed_per_run=distribution(r.rules_total - r.rules_not_executed for r in runs),
+                           na_per_run=distribution(r.rules_na for r in runs),
+                           partial_per_run=distribution(r.rules_partial for r in runs),
+                           with_state=_rate(sum(1 for s in states if s), len(states)))
+
+
+def defensibility(runs: list[RunSnapshot]) -> DefensibilityMetrics:
+    evidences = sum(r.evidences_positive + r.evidences_negative for r in runs)
+    return DefensibilityMetrics(
+        evidences=evidences,
+        with_source=_rate(evidences - sum(r.evidences_without_source for r in runs), evidences),
+        invented_citations_refused=sum(r.dropped_invented for r in runs),
+        testimony_refused=sum(r.dropped_testimony for r in runs),
+        later_sources_separated=sum(r.dropped_later + r.web_not_prior_art for r in runs),
+        divergences_recorded=sum(len(r.divergences) for r in runs),
+        queries_sanitized_terms_removed=sum(r.sanitized_terms_removed for r in runs),
+        queries_ungrounded_dropped=sum(r.web_queries_ungrounded for r in runs),
+        evidences_neutralized=sum(r.neutralized for r in runs),
+        speculative_flagged=sum(r.flagged_speculative for r in runs),
+        criteria_incoherent=sum(r.incoherent for r in runs),
+    )
+
+
+def completeness(runs: list[RunSnapshot]) -> CompletenessMetrics:
+    caveats = [r for r in runs if r.suggested_class == "eligible_with_caveats"]
+    insufficient = [r for r in runs if r.suggested_class == "insufficient_evidence"]
+    return CompletenessMetrics(with_caveats=len(caveats),
+                               with_caveats_complete=_rate(sum(not r.incomplete for r in caveats), len(caveats)),
+                               insufficient=len(insufficient),
+                               insufficient_with_missing_link=_rate(sum(not r.incomplete for r in insufficient),
+                                                                    len(insufficient)))
+
+
+def safety(accuracy_by_reference: dict[str, AccuracyMetrics], runs: list[RunSnapshot]) -> SafetyMetrics:
+    official = accuracy_by_reference.get("oficial")
+    return SafetyMetrics(false_eligible=official.false_eligible if official else 0,
+                         false_not_eligible=official.false_not_eligible if official else 0,
+                         no_class_rate=_rate(sum(1 for r in runs if r.suggested_class is None), len(runs)))
+
+
 def class_distribution(runs: list[RunSnapshot], expected: dict[str, ExpectedCase]) -> dict[str, dict[str, int]]:
     result: dict[str, dict[str, int]] = defaultdict(lambda: defaultdict(int))
     for run in runs:
@@ -281,10 +397,24 @@ def class_distribution(runs: list[RunSnapshot], expected: dict[str, ExpectedCase
     return {k: dict(v) for k, v in result.items()}
 
 
-def compute(runs: list[RunSnapshot], expected: dict[str, ExpectedCase], catalog: Catalog) -> BenchmarkMetrics:
+def compute(runs: list[RunSnapshot], expected: dict[str, ExpectedCase], catalog: Catalog,
+            settings=None) -> BenchmarkMetrics:
+    from backend.config import settings as default_settings
+
+    settings = settings or default_settings
     references = sorted({case.source for case in expected.values()})
+    accuracies = {ref: accuracy(runs, expected, ref, catalog) for ref in references}
+    models, stages, cost = per_model(runs, settings.prices())
     return BenchmarkMetrics(
-        accuracy={ref: accuracy(runs, expected, ref, catalog) for ref in references},
+        by_model=models,
+        by_stage=stages,
+        cost=cost,
+        time_vs_manual=manual_comparison(runs, settings.manual_analysis_minutes, settings.manual_analysis_source),
+        coverage=coverage(runs, catalog),
+        defensibility=defensibility(runs),
+        completeness=completeness(runs),
+        safety=safety(accuracies, runs),
+        accuracy=accuracies,
         timing=timing(runs),
         reliability=reliability(runs),
         evidence=evidence(runs),

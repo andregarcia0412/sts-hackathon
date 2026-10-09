@@ -49,6 +49,13 @@ class Settings(BaseSettings):
 
     analysis_concurrency: int = 2
 
+    # Benchmark report: price per million tokens per model, "model=input/output;model2=price" (empty = tokens only)
+    model_prices: str = ""
+    # Minutes a manual analysis takes today, with its source (mentoring, measured by the team). Without a source the
+    # report does not show the comparison.
+    manual_analysis_minutes: float | None = None
+    manual_analysis_source: str | None = None
+
     judge_mode: Literal["estado", "questionario"] = "estado"
     judge_handbooks: bool = True
     doc_handbook_pitfalls: bool = False
@@ -79,6 +86,20 @@ class Settings(BaseSettings):
         if isinstance(value, str):
             return [origin.strip() for origin in value.split(",") if origin.strip()]
         return value
+
+    def prices(self) -> dict[str, tuple[float, float]]:
+        """model → (input, output) price per million tokens; a single value prices both."""
+        prices = {}
+        for item in filter(None, (part.strip() for part in self.model_prices.split(";"))):
+            model, _, value = item.rpartition("=")
+            parts = [float(v) for v in value.split("/")]
+            prices[model.strip()] = (parts[0], parts[-1])
+        return prices
+
+    @field_validator("manual_analysis_minutes", "manual_analysis_source", mode="before")
+    @classmethod
+    def _empty_is_none(cls, value: object) -> object:
+        return value or None
 
     @field_validator("package_dir", mode="before")
     @classmethod
