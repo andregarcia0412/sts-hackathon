@@ -41,6 +41,7 @@ class Settings(BaseSettings):
 
     openalex_api_key: str | None = None
     openalex_mailto: str | None = None
+    openalex_max_concurrency: int = 2
 
     web_queries_per_front: int = 3
     web_results_per_query: int = 5

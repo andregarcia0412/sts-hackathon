@@ -29,6 +29,7 @@ class BenchmarkConfig(CamelModel):
     catalog_version: str | None = None
     prompts: dict[str, str] = Field(default_factory=dict)
     backend_version: str | None = None
+    search: dict[str, int] = Field(default_factory=dict)  # web search budget and concurrency of the run
     rejudged_from: str | None = None  # re-judge benchmark: id of the benchmark whose analyses were re-judged
     judge_options: dict[str, Any] = Field(default_factory=dict)
 
@@ -77,6 +78,8 @@ class RunSnapshot(CamelModel):
     gate_dropped: int = 0
     web_searches: int = 0
     web_search_errors: int = 0
+    web_searches_by_base: dict[str, int] = Field(default_factory=dict)
+    web_search_errors_by_base: dict[str, int] = Field(default_factory=dict)
     web_sources: int = 0
     web_not_prior_art: int = 0
     sanitized_terms_removed: int = 0
@@ -149,6 +152,7 @@ class EvidenceMetrics(CamelModel):
     rule_coverage: float | None = None  # executed with evidence / rules run
     gate_drop_rate: float | None = None  # dropped / (dropped + accepted)
     web_search_error_rate: float | None = None
+    web_search_error_rate_by_base: dict[str, float | None] = Field(default_factory=dict)  # openalex, patentes, web
     web_not_prior_art_share: float | None = None
     sanitized_terms_removed: int = 0
     divergences_per_run: Distribution = Field(default_factory=Distribution)
@@ -162,6 +166,7 @@ class UsageMetrics(CamelModel):
     calls_per_run: Distribution = Field(default_factory=Distribution)
     web_search_calls: int = 0
     web_fetch_calls: int = 0
+    web_retries: int = 0
 
 
 class DeterminismMetrics(CamelModel):

@@ -60,6 +60,8 @@ class Analysis(Document):
     consistency: ConsistencyReport | None = None  # spec 02 part A, when CONSISTENCY_NEUTRALIZE is on
     report: dict[str, Any] | None = None
     usage: LLMUsage | None = None  # LLM calls, tokens and time per role
+    worker: str | None = None  # "host:pid:boot_id" of the process that runs it (analyses/worker.py)
+    heartbeat_at: datetime | None = None  # last stage change, seen by servers on other hosts
     error: str | None = None
 
     class Settings:

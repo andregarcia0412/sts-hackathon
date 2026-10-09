@@ -207,6 +207,7 @@ uv run backend-ingest-norms    # (re)index data/normas (also done in the backgro
 uv run backend-calibrate historicos_classificados.csv nosso.csv   # confusion matrix vs the answer key
 uv run backend-benchmark --projects PRJ01,PRJ21   # benchmark (all 40 without --projects; --repeats 2 = determinism)
 uv run backend-benchmark --rejudge <benchmark_id> [--coherence off|flag|reask|force] [--judge-mode estado|questionario]
+uv run backend-benchmark --close <benchmark_id>   # close a benchmark whose CLI died
 uv run pytest                  # unit + API tests, needs Mongo; no network
 uv run pytest -m live          # opt-in: PRJ21 end to end with the real Ollama (reads backend/.env)
 uv add <package>               # always manage dependencies with uv, never pip
@@ -243,7 +244,11 @@ run, metrics). Accuracy is reported **per reference and never mixed**: `oficial`
 divergences (**not** an answer key; outside the repo like all package data). Also: time per stage,
 LLM calls/tokens per role, failures, rule coverage, gate drop rate, divergences, and agreement between
 repeats. Benchmark projects/batches carry `benchmark_id` and are hidden from the analyst's lists.
-There is no coordinator task: `refresh` closes the benchmark when every analysis has finished.
+There is no coordinator task: `refresh` closes the benchmark when every analysis has finished;
+`--close <id>` / `POST /benchmarks/{id}/close` closes one stuck in "rodando" (unfinished analyses count as failures).
+Every analysis records its `worker` (`host:pid:boot_id`) and `heartbeat_at`: a server start only fails the analyses
+whose process is gone, so `uv run backend` (and its reload) never kills a CLI benchmark running in another process.
+OpenAlex: `OPENALEX_MAILTO` (polite pool) for batch runs, 429 waits for `Retry-After`, `OPENALEX_MAX_CONCURRENCY`.
 **Re-judge** (`benchmark/rejudge.py`, `POST /benchmarks/{id}/rejudge`): runs only the conclusion stage
 (`graph/judge.py → judge_and_classify`, the same function the orchestrator uses) over the saved evidence of the
 finished analyses of a benchmark, on in-memory copies (the source analyses are never written), and saves a new

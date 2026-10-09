@@ -7,6 +7,7 @@ from collections.abc import Callable
 from datetime import UTC, datetime
 
 from backend.analyses.models import Analysis, AnalysisVersions, CanonicalRecord, Stage
+from backend.analyses.worker import is_orphan, worker_id
 from backend.catalog.models import Catalog
 from backend.config import LLM_ROLES, Settings
 from backend.criteria.agent import CriteriaRunner
@@ -46,6 +47,8 @@ class AnalysisService:
             previous_analysis_id=str(previous.id) if previous else None,
             batch_id=batch_id,
             stages=[Stage(name=name) for name in STAGES],
+            worker=worker_id(),  # the job runner is in-process: whoever creates it runs it
+            heartbeat_at=datetime.now(UTC),
         )
         await analysis.insert()
         project.latest_analysis_id = str(analysis.id)
@@ -53,10 +56,16 @@ class AnalysisService:
         await project.save()
         return analysis
 
-    @staticmethod
-    async def mark_interrupted() -> None:
-        """Analyses left running by a restart are failures, never silently resumed."""
+    def stale_after_s(self) -> float:
+        """A worker of another host silent for this long is gone (a stage can take this long on retries)."""
+        return 2 * self.settings.ollama_timeout_s * (self.settings.ollama_retries + 1)
+
+    async def mark_interrupted(self) -> None:
+        """Analyses left running by a restart are failures, never silently resumed. Only those whose process is
+        gone: a CLI benchmark running in another process (or the reloaded server's sibling) keeps its analyses."""
         for analysis in await Analysis.find({"status": {"$in": ["pendente", "rodando"]}}).to_list():
+            if not is_orphan(analysis.worker, analysis.heartbeat_at, self.stale_after_s()):
+                continue
             analysis.status = "falhou"
             analysis.error = "interrompida: o servidor reiniciou durante o processamento"
             for stage in analysis.stages:
@@ -91,6 +100,7 @@ class AnalysisService:
                     stage.duration_s = round((moment - started).total_seconds(), 3)
             stage.status = status
             stage.error = error
+            analysis.heartbeat_at = moment
             self._snapshot_usage(analysis)
             await analysis.save()
 
@@ -112,6 +122,7 @@ class AnalysisService:
         project = await Project.get(analysis.project_id)
         started = time.monotonic()
         analysis.status, analysis.started_at = "rodando", datetime.now(UTC)
+        analysis.worker, analysis.heartbeat_at = worker_id(), analysis.started_at
         models = self.models_by_role()
         analysis.versions = AnalysisVersions(
             schema_version=SCHEMA_VERSION,

@@ -87,6 +87,9 @@ async def compare(base: str, target: str, user: CurrentUser, request: Request) -
                         for r in roles if old.config.models.get(r) != new.config.models.get(r)},
         prompts_changed=[p for p in prompts if old.config.prompts.get(p) != new.config.prompts.get(p)],
         catalog_changed=old.config.catalog_version != new.config.catalog_version,
+        search_changed={k: {"base": old.config.search.get(k), "target": new.config.search.get(k)}
+                        for k in sorted(set(old.config.search) | set(new.config.search))
+                        if old.config.search.get(k) != new.config.search.get(k)},
     )
 
 
@@ -107,6 +110,14 @@ async def rejudge_benchmark(benchmark_id: str, body: RejudgeRequest, user: Curre
     await runner.submit(lambda: run_rejudge(benchmark, service.llm, service.catalog, options, concurrency=1))
     benchmark = await Benchmark.get(benchmark.id)
     return BenchmarkRead.of(benchmark, progress(benchmark, {}))
+
+
+@router.post("/{benchmark_id}/close")
+async def close_benchmark(benchmark_id: str, user: CurrentUser, request: Request) -> BenchmarkRead:
+    """Closes a benchmark stuck in "rodando" (its CLI died): finished analyses count, the rest are failures."""
+    benchmark = await refresh(await _owned(benchmark_id, user, request), request.app.state.analysis_service.catalog,
+                              force=True)
+    return BenchmarkRead.of(benchmark, progress(benchmark, await analyses_of(benchmark)))
 
 
 @router.get("/{benchmark_id}")

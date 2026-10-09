@@ -94,13 +94,45 @@ async def test_extraction_failure_fails_the_analysis_and_marks_project(project, 
     assert (await Project.get(project.id)).status == "error"
 
 
-async def test_unfinished_analyses_are_marked_interrupted_on_startup(project):
+async def test_unfinished_analyses_are_marked_interrupted_only_when_their_process_is_gone(project):
+    import os
+    import socket
+    import subprocess
+    from datetime import UTC, datetime, timedelta
+
+    from backend.analyses.worker import boot_id
+
     svc = service()
-    analysis = await svc.create(project)
-    analysis.status = "rodando"
-    await analysis.save()
-    await AnalysisService.mark_interrupted()
-    assert (await Analysis.get(analysis.id)).status == "falhou"
+    dead = subprocess.Popen(["true"])
+    dead.wait()
+    host, boot = socket.gethostname(), boot_id()
+    cases = {
+        "alive": f"{host}:{os.getpid()}:{boot}",  # e.g. the CLI benchmark running in another live process
+        "dead": f"{host}:{dead.pid}:{boot}",  # e.g. the server before a reload
+        "rebooted": f"{host}:{os.getpid()}:another-boot",
+        "legacy": None,  # analyses saved before the worker field existed
+        "other_host_recent": f"elsewhere:1:{boot}",
+        "other_host_silent": f"elsewhere:1:{boot}",
+    }
+    ids = {}
+    for name, worker in cases.items():
+        analysis = await svc.create(project)
+        analysis.status, analysis.worker = "rodando", worker
+        silent = name == "other_host_silent"
+        analysis.heartbeat_at = datetime.now(UTC) - timedelta(seconds=svc.stale_after_s() + 1 if silent else 1)
+        await analysis.save()
+        ids[name] = analysis.id
+    await svc.mark_interrupted()
+    status = {name: (await Analysis.get(i)).status for name, i in ids.items()}
+    assert status == {"alive": "rodando", "dead": "falhou", "rebooted": "falhou", "legacy": "falhou",
+                      "other_host_recent": "rodando", "other_host_silent": "falhou"}
+
+
+async def test_the_worker_and_heartbeat_are_recorded(project):
+    from backend.analyses.worker import worker_id
+
+    done = await service().run(str((await service().create(project)).id))
+    assert done.worker == worker_id() and done.heartbeat_at is not None
 
 
 async def test_missing_model_fails_the_analysis_instead_of_leaving_it_pending(project):

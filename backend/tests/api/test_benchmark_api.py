@@ -117,3 +117,29 @@ def test_rejudge_endpoint_creates_a_comparable_benchmark(client, auth_headers, f
     other = client.post("/auth/register", json={"email": "y@sts.com", "password": "yyyyyyyy"}).json()
     headers = {"Authorization": f"Bearer {other['access_token']}"}
     assert client.post(f"/benchmarks/{source}/rejudge", json={}, headers=headers).status_code == 404
+
+
+def test_close_a_benchmark_stuck_running(client, auth_headers, fake_pipeline, package_root):
+    import asyncio
+
+    from backend.analyses.models import Analysis
+
+    body = client.post("/benchmarks", json={"projects": ["PRJ90", "PRJ92"]}, headers=auth_headers).json()
+
+    async def reopen():  # as if the CLI had died with one analysis still running
+        from beanie import PydanticObjectId
+
+        from backend.benchmark.models import Benchmark
+
+        benchmark = await Benchmark.get(PydanticObjectId(body["id"]))
+        analysis = await Analysis.get(PydanticObjectId(benchmark.runs[1].analysis_id))
+        analysis.status = "rodando"
+        await analysis.save()
+        benchmark.status, benchmark.metrics, benchmark.snapshots = "rodando", None, []
+        await benchmark.save()
+
+    client.portal.call(reopen) if hasattr(client, "portal") else asyncio.run(reopen())
+    assert client.get(f"/benchmarks/{body['id']}", headers=auth_headers).json()["status"] == "rodando"
+    closed = client.post(f"/benchmarks/{body['id']}/close", headers=auth_headers).json()
+    assert closed["status"] == "concluido" and "fechado à força" in closed["errors"]
+    assert closed["metrics"]["reliability"]["failed"] == 1
