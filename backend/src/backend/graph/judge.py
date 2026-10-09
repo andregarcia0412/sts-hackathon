@@ -11,6 +11,7 @@ from backend.catalog.models import CRITERIA_ORDER, Catalog
 from backend.criteria.schemas import CriterionResult
 from backend.graph.classify import ClassSuggestion, classify
 from backend.graph.options import JudgeOptions
+from backend.graph.questionnaire import judge_by_questionnaire
 from backend.graph.scoring import RuleScore, score_criterion, score_rule
 from backend.graph.states import CriterionState, judge_state, numeric_record_in
 from backend.llm import LLM
@@ -40,9 +41,12 @@ async def judge_and_classify(llm: LLM, catalog: Catalog, results: dict[str, Crit
     options = options or JudgeOptions()
     scores, criterion_scores = score_results(results, catalog)
     numeric = numeric_record_in(results)
+    if options.judge_mode == "questionario" and catalog.questionnaire is None:
+        raise ValueError("JUDGE_MODE=questionario needs catalog/questionario.yaml")
+    judge = judge_by_questionnaire if options.judge_mode == "questionario" else judge_state
     judged = await asyncio.gather(*(
-        judge_state(llm, catalog, results[c], numeric, score=criterion_scores.get(c),
-                    n_rules=rules_with_evidence(scores.get(c, [])), options=options)
+        judge(llm, catalog, results[c], numeric, score=criterion_scores.get(c),
+              n_rules=rules_with_evidence(scores.get(c, [])), options=options)
         for c in CRITERIA_ORDER
     ))
     states = dict(zip(CRITERIA_ORDER, judged, strict=True))

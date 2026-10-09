@@ -1,0 +1,129 @@
+# Judge questionnaire (JUDGE_MODE=questionario). Data, not code: versioned with the catalog (rules.yaml `versao`).
+# The judge answers closed questions about facts, each answer with the evidence that sustains it; the CODE turns
+# the answers into the criterion state with the decision table below (first matching line wins; `senao` closes).
+# Generalizes the decision tree of the historical cases — never cite a project code here (principle 12).
+#
+# Options: sim | nao | sem_registro (the package lacks the record needed to answer), unless a question lists
+# its own. Every answer other than sem_registro must cite at least one evidence id of the criterion;
+# sem_registro must say what is missing (it becomes the missing link of "Evidência insuficiente").
+# exige_registro_numerico: "sim" needs positive numeric evidence (registro_primario/derivado) in the criterion,
+# otherwise the code turns it into sem_registro (the numeric-record gate of the state judge).
+
+perguntas:
+  NOV:
+    - id: N1
+      texto: >-
+        A referência anterior (manual, catálogo, dicionário, produto contratado), datada antes do início, já
+        fornecia a função aplicada no projeto?
+      regras: [NOV-D4, NOV-D10, NOV-W3]
+    - id: N2
+      texto: >-
+        Há um mecanismo próprio descrito com parâmetros (regra de decisão, limiares, janelas), além do título ou de
+        adjetivos?
+      regras: [NOV-D1, NOV-D12]
+    - id: N3
+      texto: >-
+        O mecanismo foi comparado com a referência ou com as alternativas conhecidas, com o modo de falha de cada
+        uma?
+      regras: [NOV-D2]
+  CRI:
+    - id: C1
+      texto: >-
+        A mudança se resume a configurar, ativar, cadastrar, mapear ou ajustar parâmetro dentro da faixa já
+        suportada, sem alterar o algoritmo?
+      regras: [CRI-D5]
+    - id: C2
+      texto: >-
+        Há elemento técnico próprio (combinação original, não renomeação de técnica conhecida) com a hipótese
+        registrada antes dos testes?
+      regras: [CRI-D1, CRI-D10]
+    - id: C3
+      texto: >-
+        Os parâmetros-chave do mecanismo estão preenchidos (não nulos) na configuração, com regra de decisão
+        concreta?
+      regras: [CRI-D8]
+  INC:
+    - id: I1
+      texto: >-
+        A solução da barreira já estava acessível (manual, produto, literatura, especialista) a um profissional
+        competente?
+      regras: [INC-W1, INC-W2, INC-D5]
+    - id: I2
+      texto: As falhas registradas foram de que tipo?
+      opcoes: [experimental, operacional, nenhuma, sem_registro]
+      descricao_opcoes:
+        experimental: hipótese refutada, comparador falhou no ensaio
+        operacional: parâmetro, permissão, cadastro, receita do fornecedor
+        nenhuma: o registro não mostra falha
+      regras: [INC-D4, INC-D9]
+    - id: I3
+      texto: >-
+        A hipótese foi executada e confrontada com comparadores, com registro por versão (medições)?
+      regras: [INC-D12]
+      exige_registro_numerico: true
+  SIS:
+    - id: S1
+      texto: >-
+        Cada versão alegada tem ensaio identificado nas medições, com parâmetros não nulos e métrica de desempenho
+        (não só contagem de entrega)?
+      regras: [SIS-D12, SIS-D14]
+      exige_registro_numerico: true
+    - id: S2
+      texto: O método era de que tipo?
+      opcoes: [experimento, aceite, sem_registro]
+      descricao_opcoes:
+        experimento: alternativas nas mesmas entradas + referência fixada antes + critérios prévios
+        aceite: roteiros com resultado esperado repetidos até passar
+      regras: [SIS-D5]
+  REP:
+    - id: R1
+      texto: >-
+        O registro traz método, configuração e resultados recalculáveis do registro primário para o núcleo
+        alegado?
+      regras: [REP-D2, REP-D9]
+      exige_registro_numerico: true
+    - id: R2
+      texto: O que a documentação permite reproduzir?
+      opcoes: [conhecimento, configuracao]
+      descricao_opcoes:
+        conhecimento: o mecanismo e o resultado do ensaio
+        configuracao: a configuração de um produto
+      regras: [REP-D8]
+    - id: R3
+      texto: >-
+        Alguma hipótese ou cenário da própria pretensão ficou sem ensaio, ou algum critério prévio não foi atingido?
+        Um limite excluído desde o início não conta.
+      opcoes: [sim, nao]
+      regras: [REP-D7]
+
+# The order follows the tree: first "did the reference already do it?", then "is there a record?", then "is it R&D?".
+decisao:
+  NOV:
+    - {quando: {N1: sim}, estado: "NÃO DEMONSTRADA"}
+    - {quando: {N2: sem_registro}, estado: "INDETERMINADA"}
+    - {quando: {N3: sem_registro}, estado: "INDETERMINADA"}
+    - {quando: {N1: nao, N2: sim, N3: sim}, estado: "DEMONSTRADA NO RECORTE"}
+    - {quando: {N2: nao}, estado: "NÃO DEMONSTRADA"}
+    - {senao: true, estado: "INDETERMINADA"}
+  CRI:
+    - {quando: {C1: sim}, estado: "NÃO DEMONSTRADA"}
+    - {quando: {C3: nao}, estado: "INDETERMINADA"}
+    - {quando: {C2: sim}, estado: "DEMONSTRADA NO RECORTE"}
+    - {quando: {C2: nao}, estado: "NÃO DEMONSTRADA"}
+    - {senao: true, estado: "INDETERMINADA"}
+  INC:
+    - {quando: {I1: sim}, estado: "NÃO CARACTERIZADA"}
+    - {quando: {I2: operacional, I3: [nao, sem_registro]}, estado: "NÃO CARACTERIZADA"}
+    - {quando: {I3: sem_registro}, estado: "ALEGADA, NÃO VERIFICÁVEL"}
+    - {quando: {I3: sim, I1: nao}, estado: "INVESTIGADA"}
+    - {senao: true, estado: "ALEGADA, NÃO VERIFICÁVEL"}
+  SIS:
+    - {quando: {S1: [nao, sem_registro]}, estado: "PARCIAL"}
+    - {quando: {S2: experimento}, estado: "DOCUMENTADA"}
+    - {quando: {S2: aceite}, estado: "DOCUMENTADA COMO ACEITE"}
+    - {senao: true, estado: "PARCIAL"}
+  REP:
+    - {quando: {R1: [nao, sem_registro]}, estado: "INSUFICIENTE PARA O NÚCLEO ALEGADO"}
+    - {quando: {R2: configuracao}, estado: "DOCUMENTADA PARA A CONFIGURAÇÃO"}
+    - {quando: {R3: sim}, estado: "DOCUMENTADA COM LIMITE"}
+    - {senao: true, estado: "DOCUMENTADA NO ESCOPO"}

@@ -1,5 +1,6 @@
 """Criterion state: suggested by an LLM judge over the evidence nodes, then forced by gates in code."""
 
+from collections.abc import Awaitable, Callable
 from typing import Literal
 
 from pydantic import BaseModel, Field
@@ -9,6 +10,7 @@ from backend.catalog.models import Catalog
 from backend.criteria.common import DATA_NOT_INSTRUCTIONS, argument_block
 from backend.criteria.schemas import CriterionResult
 from backend.errors import safe_error_message
+from backend.graph.answer import Answer
 from backend.graph.coherence import (
     CONFLICT_NOTE,
     CORE,
@@ -68,6 +70,8 @@ class CriterionState(BaseModel):
     error: str | None = None
     gate_conflicts: list[str] = Field(default_factory=list)  # configuration gates not applied: strong positive score
     coherence: Coherence | None = None
+    answers: list[Answer] = Field(default_factory=list)  # questionnaire mode: the judge's answers
+    decision_rule: str | None = None  # questionnaire mode: the line of the decision table that matched
 
     @classmethod
     def of(cls, criterion: str, state: str, **extra) -> "CriterionState":
@@ -215,17 +219,22 @@ def _contradiction(state: CriterionState, score: int | None, n_rules: int, catal
                            n_rules, catalog, options, include_gate_conflicts)
 
 
-async def judge_state(llm: LLM, catalog: Catalog, result: CriterionResult, numeric_record_in_analysis: bool,
-                      analyst_argument: str | None = None, *, score: int | None = None, n_rules: int = 0,
-                      options: JudgeOptions | None = None) -> CriterionState:
-    """The LLM suggests the state, gates force it in code, and the coherence gate (options) checks it against the
-    criterion score: at most one new judgement per criterion, and the code never picks the state from the score."""
-    options = options or JudgeOptions()
-    active = options.coherence_mode != "off"
-    strength = strength_of(score, n_rules, options) if active else None
-    exempt = score if strength == "forte_positivo" and result.criterion in CORE else None
-    first = await _judge_once(llm, catalog, result, numeric_record_in_analysis, analyst_argument, None, exempt)
-    if not active or first.state is None:
+JudgeOnce = Callable[[Contradiction | None, CriterionState | None], Awaitable[CriterionState]]
+
+
+def coherence_exempt(criterion: str, score: int | None, n_rules: int, options: JudgeOptions) -> int | None:
+    """The score that keeps the configuration gates from forcing (coherence gate active, strong positive score)."""
+    if options.coherence_mode == "off" or criterion not in CORE:
+        return None
+    return score if strength_of(score, n_rules, options) == "forte_positivo" else None
+
+
+async def with_coherence(judge_once: JudgeOnce, catalog: Catalog, score: int | None, n_rules: int,
+                         options: JudgeOptions) -> CriterionState:
+    """Coherence gate around one judgement (state judge or questionnaire): at most one new judgement per criterion,
+    and the code never picks the state from the score (except `force`, a re-judge-only diagnostic ceiling)."""
+    first = await judge_once(None, None)
+    if options.coherence_mode == "off" or first.state is None:
         return first
     contradiction = _contradiction(first, score, n_rules, catalog, options)
     if contradiction is None:
@@ -238,8 +247,7 @@ async def judge_state(llm: LLM, catalog: Catalog, result: CriterionResult, numer
         first.state, first.column = forced, column_of(first.criterion, forced, catalog)
         record.status = "resolvida"
     elif options.coherence_mode == "reask":
-        second = await _judge_once(llm, catalog, result, numeric_record_in_analysis, analyst_argument, contradiction,
-                                   exempt)
+        second = await judge_once(contradiction, first)
         record.rejudged = True
         if second.state is not None:
             if _contradiction(second, score, n_rules, catalog, options, include_gate_conflicts=False) is None:
@@ -249,6 +257,20 @@ async def judge_state(llm: LLM, catalog: Catalog, result: CriterionResult, numer
         first.gates.append(CONFLICT_NOTE)
     first.coherence = record
     return first
+
+
+async def judge_state(llm: LLM, catalog: Catalog, result: CriterionResult, numeric_record_in_analysis: bool,
+                      analyst_argument: str | None = None, *, score: int | None = None, n_rules: int = 0,
+                      options: JudgeOptions | None = None) -> CriterionState:
+    """The LLM suggests the state, gates force it in code, and the coherence gate checks it against the score."""
+    options = options or JudgeOptions()
+    exempt = coherence_exempt(result.criterion, score, n_rules, options)
+
+    async def once(contradiction: Contradiction | None, _previous: CriterionState | None) -> CriterionState:
+        return await _judge_once(llm, catalog, result, numeric_record_in_analysis, analyst_argument, contradiction,
+                                 exempt)
+
+    return await with_coherence(once, catalog, score, n_rules, options)
 
 
 def numeric_record_in(results: dict[str, CriterionResult]) -> bool:
