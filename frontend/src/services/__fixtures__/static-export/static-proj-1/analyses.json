@@ -1,0 +1,70 @@
+[
+  {
+    "id": "static-analysis-1",
+    "projectId": "static-proj-1",
+    "framework": "frascati",
+    "generatedAt": "2026-10-09T12:05:00.000Z",
+    "criteria": [
+      {
+        "id": "crit-novelty",
+        "key": "novelty",
+        "name": "Novidade",
+        "score": 80,
+        "summary": "Estado da técnica não cobre o recorte",
+        "rules": [
+          {
+            "id": "crit-novelty.rule-nov-d1",
+            "code": "NOV-D1",
+            "name": "Referência anterior distinta",
+            "score": 80,
+            "explanation": "Nenhuma referência anterior traz a mesma função no recorte",
+            "normativeSource": { "label": "Manual de Frascati §2.18" },
+            "evidences": [
+              {
+                "id": "crit-novelty.rule-nov-d1.ev-1",
+                "title": "NOV-D1 · metodo.md#2",
+                "polarity": "positive",
+                "explanation": "O método descreve a função nova no recorte",
+                "projectExcerpt": {
+                  "documentId": "static-doc-1",
+                  "fileName": "evidencias/metodo.md",
+                  "page": null,
+                  "excerpt": "função nova no recorte declarada"
+                },
+                "references": []
+              }
+            ],
+            "scoreExplanation": {
+              "method": "Nota = positivas ÷ (positivas + negativas) × 100",
+              "baseline": 0,
+              "factors": [
+                { "kind": "evidence", "refId": "crit-novelty.rule-nov-d1.ev-1", "label": "NOV-D1 · metodo.md#2", "points": 80 }
+              ]
+            }
+          },
+          {
+            "id": "crit-novelty.rule-nov-d9",
+            "code": "NOV-D9",
+            "name": "Regra sem evidência",
+            "score": null,
+            "explanation": "Sem evidência no pacote",
+            "normativeSource": { "label": "Manual de Frascati §2.18" },
+            "evidences": []
+          }
+        ],
+        "scoreExplanation": {
+          "method": "Média simples das regras com evidência",
+          "baseline": 0,
+          "factors": [
+            { "kind": "rule", "refId": "crit-novelty.rule-nov-d1", "label": "NOV-D1 Referência anterior distinta", "points": 80, "value": 80, "weight": 1 }
+          ]
+        }
+      }
+    ],
+    "version": 1,
+    "status": "concluida",
+    "suggestedClass": "eligible",
+    "inconsistent": false,
+    "adjustments": []
+  }
+]

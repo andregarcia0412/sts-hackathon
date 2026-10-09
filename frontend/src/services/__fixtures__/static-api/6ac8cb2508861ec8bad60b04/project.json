@@ -1,0 +1,126 @@
+{
+ "id": "6ac8cb2508861ec8bad60b04",
+ "ownerId": "6ac8cb2308861ec8bad60aa3",
+ "name": "PRJ01",
+ "company": null,
+ "createdAt": "2026-10-09T11:08:21.106000",
+ "status": "ready",
+ "documents": [
+  {
+   "id": "doc-a114414b1a",
+   "fileName": "atividades.csv",
+   "mimeType": "text/csv",
+   "sizeBytes": 2896,
+   "uploadedAt": "2026-10-09T11:08:21.882000",
+   "sha256": "239547c69188be5e083f86995950a3a76f6be809130e8ee4f2162b0ec2af2b2a"
+  },
+  {
+   "id": "doc-9d2c4b1c9a",
+   "fileName": "atividades.xlsx",
+   "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+   "sizeBytes": 6449,
+   "uploadedAt": "2026-10-09T11:08:21.883000",
+   "sha256": "15655b23bccc4ea01f02a084c08d06181001d106b118217b5dee4fe36329e3e5"
+  },
+  {
+   "id": "doc-14e8d3492c",
+   "fileName": "dossie_projeto.pdf",
+   "mimeType": "application/pdf",
+   "sizeBytes": 76419,
+   "uploadedAt": "2026-10-09T11:08:21.885000",
+   "sha256": "3c7651340a291e8ede5e783e75898dc90cc611fac5af719defc1c793b1ecdc39"
+  },
+  {
+   "id": "doc-2e956fd021",
+   "fileName": "evidencias/configuracao.json",
+   "mimeType": "application/json",
+   "sizeBytes": 4531,
+   "uploadedAt": "2026-10-09T11:08:21.886000",
+   "sha256": "46a089a8d8883723cf13190d9760b10900d76f346df3b3033fbbae30170585ad"
+  },
+  {
+   "id": "doc-a4be940830",
+   "fileName": "evidencias/cronologia.csv",
+   "mimeType": "text/csv",
+   "sizeBytes": 661,
+   "uploadedAt": "2026-10-09T11:08:21.887000",
+   "sha256": "fcf913b6d5fd57397f7c4e0c0bf43283a802f019d924552b1142f232387d97c6"
+  },
+  {
+   "id": "doc-f66599e381",
+   "fileName": "evidencias/entradas.csv",
+   "mimeType": "text/csv",
+   "sizeBytes": 274,
+   "uploadedAt": "2026-10-09T11:08:21.889000",
+   "sha256": "ee157ee18f16f84537de7061396f863aac44fc4a1aac3b128f4a26381961e483"
+  },
+  {
+   "id": "doc-705f39836f",
+   "fileName": "evidencias/medicoes.csv",
+   "mimeType": "text/csv",
+   "sizeBytes": 466,
+   "uploadedAt": "2026-10-09T11:08:21.890000",
+   "sha256": "81c65dc06ee2c45b0d9a7eca9e8535addd27e46d9cab066462ec41e8d172b378"
+  },
+  {
+   "id": "doc-e9f3cfbde9",
+   "fileName": "evidencias/metodo.md",
+   "mimeType": "text/markdown",
+   "sizeBytes": 3135,
+   "uploadedAt": "2026-10-09T11:08:21.892000",
+   "sha256": "2c776c7f2cee283cac15a411194e7f4553c16cafccfbac776099c45e99243f95"
+  },
+  {
+   "id": "doc-eac28a1e8b",
+   "fileName": "evidencias/observacoes.csv",
+   "mimeType": "text/csv",
+   "sizeBytes": 539,
+   "uploadedAt": "2026-10-09T11:08:21.893000",
+   "sha256": "59a0151c9c98768ca4f5d4cf2bc7ef36346fe1ff64a918d2d5b84f6d911b4e49"
+  },
+  {
+   "id": "doc-414c8f34c4",
+   "fileName": "evidencias/resultados.csv",
+   "mimeType": "text/csv",
+   "sizeBytes": 871,
+   "uploadedAt": "2026-10-09T11:08:21.894000",
+   "sha256": "3503f65087c1d7d9ca5c781a6c1e60f18047d42046d237260531fe14805a93b4"
+  },
+  {
+   "id": "doc-b5e3063d29",
+   "fileName": "evidencias/revisao_tecnica.md",
+   "mimeType": "text/markdown",
+   "sizeBytes": 1045,
+   "uploadedAt": "2026-10-09T11:08:21.895000",
+   "sha256": "28a87a4ee342dd3925e5adb6816cdf247decce8f1120608531713b2d9062908a"
+  },
+  {
+   "id": "doc-6bced0b7ed",
+   "fileName": "inventario_evidencias.csv",
+   "mimeType": "text/csv",
+   "sizeBytes": 1853,
+   "uploadedAt": "2026-10-09T11:08:21.897000",
+   "sha256": "58c4cced3325a4625f4c45b3cee7169609245edb9360331fbf4101e6e8252a1b"
+  },
+  {
+   "id": "doc-05ed465397",
+   "fileName": "registro_tecnico.pdf",
+   "mimeType": "application/pdf",
+   "sizeBytes": 77190,
+   "uploadedAt": "2026-10-09T11:08:21.898000",
+   "sha256": "7a12a2ba5fe9aa1bce787b8fb6b379dd6b7d7c4cf7f3bf1659a7bfa6665f9723"
+  },
+  {
+   "id": "doc-5dd0a0438c",
+   "fileName": "transcricao_entrevista_tecnica.pdf",
+   "mimeType": "application/pdf",
+   "sizeBytes": 76571,
+   "uploadedAt": "2026-10-09T11:08:21.900000",
+   "sha256": "de379e92afd5a4190c4d677b38d6ea13977388208da5eecc438451ca05ee8e45"
+  }
+ ],
+ "freeText": null,
+ "code": "PRJ01",
+ "supersededDocuments": [],
+ "latestAnalysisId": "6ac8cb2508861ec8bad60b3e"
+}

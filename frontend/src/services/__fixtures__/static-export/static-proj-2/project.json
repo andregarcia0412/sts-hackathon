@@ -1,0 +1,12 @@
+{
+  "id": "static-proj-2",
+  "ownerId": "user-1",
+  "name": "Ponte de Concreto — Em processamento",
+  "createdAt": "2026-10-09T12:30:00.000Z",
+  "status": "processing",
+  "documents": [],
+  "freeText": null,
+  "code": "PRJ92",
+  "supersededDocuments": [],
+  "latestAnalysisId": null
+}

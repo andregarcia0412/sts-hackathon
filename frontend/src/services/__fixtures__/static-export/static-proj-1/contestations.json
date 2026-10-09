@@ -1,0 +1,15 @@
+[
+  {
+    "id": "static-ct-1",
+    "projectId": "static-proj-1",
+    "analysisId": "static-analysis-1",
+    "nodeId": "crit-novelty.rule-nov-d1",
+    "nodeLabel": "NOV-D1",
+    "reason": "score_too_high",
+    "argument": "A referência anterior já cobre o recorte.",
+    "author": "Ana",
+    "status": "open",
+    "resolution": null,
+    "createdAt": "2026-10-09T13:00:00.000Z"
+  }
+]

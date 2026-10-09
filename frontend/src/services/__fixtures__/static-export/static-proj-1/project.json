@@ -1,0 +1,21 @@
+{
+  "id": "static-proj-1",
+  "ownerId": "user-1",
+  "name": "Sensor de Solo — Caso Estático",
+  "company": "AgroExemplo LTDA",
+  "createdAt": "2026-10-09T12:00:00.000Z",
+  "status": "ready",
+  "documents": [
+    {
+      "id": "static-doc-1",
+      "fileName": "dossie_projeto.pdf",
+      "mimeType": "application/pdf",
+      "sizeBytes": 1024,
+      "uploadedAt": "2026-10-09T12:00:00.000Z"
+    }
+  ],
+  "freeText": null,
+  "code": "PRJ91",
+  "supersededDocuments": [],
+  "latestAnalysisId": "static-analysis-1"
+}
