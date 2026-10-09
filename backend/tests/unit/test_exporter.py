@@ -135,6 +135,21 @@ async def test_benchmark_projects_are_hidden(analysed, db, tmp_path):
     assert str(hidden.id) not in ids and not (out / str(hidden.id)).exists()
 
 
+async def test_include_benchmark_exports_the_analysed_benchmark_projects(analysed, db, tmp_path):
+    """Spec 13 fix: the static front exists to show the ANALYSED cases — the benchmark
+    runs (PRJ01, PRJ02…) are the real demo data. `--include-benchmark` brings them in."""
+    owner = (await User.find_one()).id
+    analysed_case = await Project(owner_id=str(owner), name="PRJ01", code="PRJ01", documents=[],
+                                  status="ready", benchmark_id="bm-2").insert()
+    from backend.analyses.models import Analysis as A
+    await A(project_id=str(analysed_case.id), owner_id=str(owner), version=1, status="concluida",
+            criteria={}, stages=[]).insert()
+    out = tmp_path / "frontend-static"
+    result = await export_frontend(out, include_benchmark=True)
+    assert sorted(p.code for p in result.projects) == ["PRJ01", "PRJ91", "PRJ92"]
+    assert (out / str(analysed_case.id) / "analyses.json").is_file()
+
+
 async def test_failed_report_stage_omits_report_json(analysed, db, tmp_path):
     _, project_ids, _ = analysed
     analysis = await Analysis.find_one(Analysis.project_id == project_ids[0])
