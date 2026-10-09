@@ -1,10 +1,12 @@
 import { Check, ChevronDown } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
-import type { KeyboardEvent } from "react";
+import type { KeyboardEvent, ReactNode } from "react";
 
 export interface PillSelectOption<T extends string> {
   value: T;
   label: string;
+  /** Small note next to the option in the list (e.g. "sugestão do sistema") */
+  hint?: string;
 }
 
 interface PillSelectProps<T extends string> {
@@ -19,6 +21,12 @@ interface PillSelectProps<T extends string> {
   display?: (option: PillSelectOption<T>) => string;
   /** Wine border when it is filtering something */
   highlighted?: boolean;
+  /** Draws the chosen option on the control and in the list (default: its label) */
+  renderOption?: (option: PillSelectOption<T>) => ReactNode;
+  /** The placeholder is only a prompt, not a choice (e.g. a required rating) */
+  allowEmpty?: boolean;
+  /** Open the list upwards (control near the bottom of the screen) */
+  openUp?: boolean;
   className?: string;
 }
 
@@ -35,15 +43,18 @@ export const PillSelect = <T extends string>({
   placeholder,
   display = (option) => option.label,
   highlighted = false,
+  renderOption,
+  allowEmpty = true,
+  openUp = false,
   className = "",
 }: PillSelectProps<T>) => {
   const id = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   // "No filter" first when there is a placeholder
-  const items: { value: T | undefined; label: string }[] = [
-    ...(placeholder ? [{ value: undefined, label: placeholder }] : []),
-    ...options,
+  const items: { value: T | undefined; label: string; hint?: string; option?: PillSelectOption<T> }[] = [
+    ...(placeholder && allowEmpty ? [{ value: undefined, label: placeholder }] : []),
+    ...options.map((option) => ({ ...option, option })),
   ];
   const selectedIndex = Math.max(0, items.findIndex((item) => item.value === value));
   const [active, setActive] = useState(selectedIndex);
@@ -120,7 +131,13 @@ export const PillSelect = <T extends string>({
           highlighted || open ? "border-action" : "border-border-strong"
         }`}
       >
-        <span id={`${id}-valor`}>{chosen ? display(chosen) : placeholder}</span>
+        <span id={`${id}-valor`} className="flex min-w-0 items-center">
+          {chosen ? (
+            renderOption ? renderOption(chosen) : display(chosen)
+          ) : (
+            <span className={allowEmpty ? "" : "text-fg-muted"}>{placeholder}</span>
+          )}
+        </span>
         <ChevronDown
           className={`size-5 shrink-0 text-fg-secondary transition-transform duration-200 ${open ? "rotate-180" : ""}`}
           aria-hidden
@@ -131,7 +148,7 @@ export const PillSelect = <T extends string>({
           id={`${id}-lista`}
           role="listbox"
           aria-labelledby={`${id}-rotulo`}
-          className="absolute top-full left-0 z-30 mt-2 flex max-h-80 min-w-full flex-col gap-0.5 overflow-y-auto rounded-2xl border border-border bg-surface p-1.5 shadow-[0_12px_32px_rgb(22_22_22/0.16)] animate-dropdown-in"
+          className={`absolute left-0 z-30 flex ${openUp ? "bottom-full mb-2" : "top-full mt-2"}  max-h-80 min-w-full flex-col gap-0.5 overflow-y-auto rounded-2xl border border-border bg-surface p-1.5 shadow-[0_12px_32px_rgb(22_22_22/0.16)] animate-dropdown-in`}
         >
           {items.map((item, index) => {
             const selected = item.value === value;
@@ -147,7 +164,10 @@ export const PillSelect = <T extends string>({
                   index === active ? "bg-accent-soft" : ""
                 } ${selected ? "font-semibold text-accent" : item.value === undefined ? "text-fg-muted" : "text-fg"}`}
               >
-                {item.label}
+                <span className="flex min-w-0 items-center gap-2">
+                  {item.option && renderOption ? renderOption(item.option) : item.label}
+                  {item.hint && <span className="text-xs font-normal text-fg-muted">{item.hint}</span>}
+                </span>
                 <Check className={`size-4 shrink-0 ${selected ? "" : "invisible"}`} aria-hidden />
               </li>
             );

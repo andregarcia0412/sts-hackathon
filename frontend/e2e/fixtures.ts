@@ -56,7 +56,7 @@ export const combobox = (page: Page, label: string) =>
   page.getByRole("combobox", { name: new RegExp(`^${label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`) });
 
 /** Opens the pill dropdown and picks an option, like a person would */
-export const chooseOption = async (page: Page, label: string, option: string) => {
+export const chooseOption = async (page: Page, label: string, option: string | RegExp) => {
   await combobox(page, label).click();
-  await page.getByRole("option", { name: option, exact: true }).click();
+  await page.getByRole("option", { name: option, exact: typeof option === "string" }).click();
 };

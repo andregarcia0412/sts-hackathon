@@ -1,4 +1,4 @@
-import { USERS, expect, signInAs, test } from "./fixtures.ts";
+import { USERS, chooseOption, expect, signInAs, test } from "./fixtures.ts";
 
 test.beforeEach(async ({ page }) => {
   await signInAs(page, USERS.ana);
@@ -46,7 +46,7 @@ test("nota da regra exige justificativa e persiste após recarregar", async ({ p
   await page.goto("/projetos/p1/analise?no=crit-novelty.rule-proj-12");
   await page.getByRole("button", { name: "Confirmar nota da regra" }).click();
   await expect(page.getByText(/justificativa é obrigatória/)).toBeVisible();
-  await page.getByLabel("Nota da regra", { exact: true }).selectOption("sustained");
+  await chooseOption(page, "Nota da regra", /^Sustentado/);
   await page.getByLabel(/Justificativa/).fill("Evidência 1.1.1 é direta.");
   await page.getByRole("button", { name: "Confirmar nota da regra" }).click();
   await expect(page.getByText("Registrada:")).toBeVisible();

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { KeyboardArrowDownIcon } from "@/components/icons/MaterialIcons";
+import { PillSelect } from "@/components/ui/PillSelect";
 import { Tag } from "@/components/ui/Tag";
 import {
   RULE_RATING,
@@ -82,34 +82,25 @@ export const RuleDecisionDock = ({ node, projectId, analysisId, current }: RuleD
       </div>
 
       <div className="flex flex-col gap-1">
-        <label htmlFor={fieldId} className="label mb-0">
+        <span id={fieldId} aria-hidden className="label mb-0">
           Nota da regra
-        </label>
-        {/* Native select for keyboard/screen readers, drawn as the design's tag */}
-        <div className="relative flex h-12 items-center justify-between rounded-full border border-border-strong bg-surface px-2 py-1 focus-within:outline-2 focus-within:outline-action">
-          {rating ? (
-            <Tag tone={RULE_RATING[rating].tone} label={RULE_RATING[rating].label} />
-          ) : (
-            <span className="px-1 text-base leading-5 text-fg-muted">Escolha a nota</span>
+        </span>
+        <PillSelect
+          label="Nota da regra"
+          placeholder="Escolha a nota"
+          allowEmpty={false}
+          openUp
+          value={rating || undefined}
+          onChange={(value) => value && setRating(value)}
+          renderOption={(option) => (
+            <Tag tone={RULE_RATING[option.value].tone} label={RULE_RATING[option.value].label} />
           )}
-          <KeyboardArrowDownIcon className="size-6 text-fg-secondary" />
-          <select
-            id={fieldId}
-            value={rating}
-            onChange={(e) => setRating(e.target.value as RuleRating)}
-            className="absolute inset-0 cursor-pointer opacity-0"
-          >
-            <option value="" disabled>
-              Escolha a nota
-            </option>
-            {RULE_RATINGS.map((r) => (
-              <option key={r} value={r}>
-                {RULE_RATING[r].label}
-                {r === suggested ? " (sugestão do sistema)" : ""}
-              </option>
-            ))}
-          </select>
-        </div>
+          options={RULE_RATINGS.map((r) => ({
+            value: r,
+            label: RULE_RATING[r].label,
+            hint: r === suggested ? "sugestão do sistema" : undefined,
+          }))}
+        />
         {showErrors && !rating && (
           <p role="alert" className="text-xs text-danger">
             Escolha a nota da regra.
