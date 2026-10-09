@@ -211,7 +211,7 @@ Main endpoints: `POST /projects` (multipart files or .zip; starts the analysis) 
 
 ```bash
 docker compose up -d mongo     # from the repo root; Mongo 8 on localhost:27017 (root/root, nofile 64000)
-docker compose up -d --build   # or API + Mongo in Docker (backend/Dockerfile, settings from backend/.env)
+docker compose up -d --build   # or API + Mongo + nginx in Docker: http://localhost (backend/Dockerfile, backend/nginx/nginx.conf, settings from backend/.env)
 cd backend
 cp .env.example .env           # set OLLAMA_API_KEY, OLLAMA_MODEL (and per-role overrides), PACKAGE_DIR
 uv sync
