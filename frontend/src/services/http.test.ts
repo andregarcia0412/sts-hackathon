@@ -81,18 +81,18 @@ describe("http + api in api mode (spec 14 E2/E3)", () => {
     expect(page.items.length).toBeGreaterThan(0); // the ~400 mock projects answer instead
   });
 
-  it("maps the backend's 4 outcomes to the front's 3 when saving a decision", async () => {
+  it("maps the backend's outcomes to the front's vocabulary when saving a decision", async () => {
     const api = await loggedInApi(vi.fn().mockResolvedValue(json(201, {
-      projectId: "p1", analysisId: "a1", outcome: "insufficient_evidence",
+      projectId: "p1", analysisId: "a1", outcome: "eligible_with_caveats",
       justification: "sem elo", analystName: "Ana", decidedAt: "2026-10-09T15:00:00Z",
     })));
     const saved = await api.saveDecision({
-      projectId: "p1", analysisId: "a1", outcome: "needs_review", justification: "faltam dados", analystName: "Ana",
+      projectId: "p1", analysisId: "a1", outcome: "with_reservations", justification: "com limitação", analystName: "Ana",
     });
     const decisionCall = fetchCalls().find(([u]) => (u as string).includes("/decisions"))!;
     expect(JSON.parse((decisionCall[1] as { body: string }).body))
-      .toMatchObject({ outcome: "insufficient_evidence" }); // mapped to the backend's vocabulary
-    expect(saved.outcome).toBe("needs_review"); // the front keeps its vocabulary
+      .toMatchObject({ outcome: "eligible_with_caveats" }); // mapped to the backend's vocabulary
+    expect(saved.outcome).toBe("with_reservations"); // the front keeps its vocabulary
   });
 
   it("uploads the package as multipart and returns the created project", async () => {
@@ -101,7 +101,7 @@ describe("http + api in api mode (spec 14 E2/E3)", () => {
       status: "processing", documents: [],
     })));
     const file = new File([" conteudo "], "dossie.pdf", { type: "application/pdf" });
-    const project = await api.createProject({ name: "Novo", files: [file] }, "u1");
+    const project = await api.createProject({ name: "Novo", files: [file], webSearch: false }, "u1");
     const uploadCall = fetchCalls().find(([u]) => (u as string).endsWith("/projects"))!;
     expect((uploadCall[1] as { method: string }).method).toBe("POST");
     expect((uploadCall[1] as { body: FormData }).body).toBeInstanceOf(FormData); // multipart, not JSON

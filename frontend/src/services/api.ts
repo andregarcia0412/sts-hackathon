@@ -542,17 +542,18 @@ export const listDecisions = async (projectId: string): Promise<Decision[]> => {
 // Writes (E3): real API first, mock as the never-failing fallback
 // ---------------------------------------------------------------------------
 
-/** The front has 3 outcomes; the back-end's decision trail has 4 (the class vocabulary). */
+/** The front's 4 outcomes vs the back-end's decision-trail vocabulary. */
 const OUTCOME_TO_API: Record<string, string> = {
   eligible: "eligible",
-  needs_review: "insufficient_evidence",
+  with_reservations: "eligible_with_caveats",
   not_eligible: "not_eligible",
+  insufficient_evidence: "insufficient_evidence",
 };
 const OUTCOME_FROM_API: Record<string, string> = {
   eligible: "eligible",
-  eligible_with_caveats: "eligible",
-  insufficient_evidence: "needs_review",
+  eligible_with_caveats: "with_reservations",
   not_eligible: "not_eligible",
+  insufficient_evidence: "insufficient_evidence",
 };
 
 export const saveDecision = async (
