@@ -32,4 +32,4 @@ blob-report
 .vercel
 .env*
 !.env.example
-static-api
+/static-api
