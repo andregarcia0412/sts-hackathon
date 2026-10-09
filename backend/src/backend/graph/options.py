@@ -13,6 +13,7 @@ JudgeMode = Literal["estado", "questionario"]
 
 class JudgeOptions(BaseModel):
     judge_mode: JudgeMode = "estado"  # estado = the LLM picks the label; questionario = answers → table in code
+    handbooks: bool = False  # the criterion handbook goes into the judge's system prompt
     coherence_mode: CoherenceMode = "off"
     coherence_high: int = 75
     coherence_low: int = 25
@@ -22,6 +23,7 @@ class JudgeOptions(BaseModel):
     def from_settings(cls, settings: Settings, **overrides) -> "JudgeOptions":
         values = {
             "judge_mode": settings.judge_mode,
+            "handbooks": settings.judge_handbooks,
             "coherence_mode": settings.coherence_mode,
             "coherence_high": settings.coherence_high,
             "coherence_low": settings.coherence_low,

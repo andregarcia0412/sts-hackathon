@@ -182,3 +182,15 @@ async def test_answers_reach_the_graph_and_the_report(db):
     sis = next(s for s in parecer.criterios if s.chave == "SIS")
     assert [a.pergunta for a in sis.respostas] == ["S1", "S2"] and sis.regra_de_decisao.startswith("SIS linha 2")
     assert render_pdf(parecer).startswith(b"%PDF")
+
+
+async def test_web_alone_never_answers_that_the_solution_was_already_available():
+    web = evidence("INC-W1", "negativa", source="src-patent", nature="web", origin="web")
+    result = CriterionResult(criterion="INC", rules=[run("INC-W1", web)])
+    llm = FakeLLM({QuestionnaireOut: QuestionnaireOut(respostas=[
+        {"pergunta": "I1", "resposta": "sim", "evidencias": [web.id]},
+        {"pergunta": "I2", "resposta": "sem_registro", "o_que_falta": "x"},
+        {"pergunta": "I3", "resposta": "sem_registro", "o_que_falta": "x"}])})
+    state = await judge_by_questionnaire(llm, get_catalog(), result, True, options=QUESTIONNAIRE)
+    assert "I1 = sim exige pelo menos 1 evidência do próprio pacote" in llm.calls_for(QuestionnaireOut)[1][-1]["content"]
+    assert state.answers[0].status == "nao_fundamentada" and state.state == "ALEGADA, NÃO VERIFICÁVEL"

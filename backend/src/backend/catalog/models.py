@@ -77,6 +77,7 @@ class Question(BaseModel):
     descricao_opcoes: dict[str, str] = Field(default_factory=dict)
     regras: list[str] = Field(default_factory=list)
     exige_registro_numerico: bool = False  # "sim" needs numeric evidence (medicoes/resultados) in the criterion
+    sim_exige_documento: bool = False  # "sim" must cite package evidence: the web complements, never decides alone
     explicacao: str = ""  # the handbook pitfall that applies to this question
 
 

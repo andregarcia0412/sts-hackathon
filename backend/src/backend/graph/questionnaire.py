@@ -23,6 +23,7 @@ from backend.graph.states import (
     _net_negative,
     coherence_exempt,
     column_of,
+    judge_system,
     with_coherence,
 )
 from backend.llm import LLM
@@ -119,7 +120,8 @@ def locks(result: CriterionResult, questions: list[Question], exempt_score: int 
     return locked, gates, conflicts
 
 
-def _validate(out: QuestionnaireOut, asked: list[Question], known: set[str]) -> tuple[dict[str, Answer], list[str]]:
+def _validate(out: QuestionnaireOut, asked: list[Question], known: set[str],
+              documentary: set[str]) -> tuple[dict[str, Answer], list[str]]:
     by_id = {a.pergunta.strip().upper(): a for a in out.respostas}
     answers: dict[str, Answer] = {}
     errors: list[str] = []
@@ -138,6 +140,9 @@ def _validate(out: QuestionnaireOut, asked: list[Question], known: set[str]) -> 
             errors.append(f"{question.id}: sem_registro exige o_que_falta (o elo ausente)")
         elif answer.resposta != NO_RECORD and not answer.evidencias:
             errors.append(f"{question.id} = {answer.resposta} exige pelo menos 1 ID de evidência deste critério")
+        elif answer.resposta == "sim" and question.sim_exige_documento and not set(answer.evidencias) & documentary:
+            errors.append(f"{question.id} = sim exige pelo menos 1 evidência do próprio pacote (a web complementa, "
+                          "não decide sozinha)")
     return answers, errors
 
 
@@ -163,18 +168,20 @@ def _user_prompt(catalog: Catalog, result: CriterionResult, asked: list[Question
 
 
 async def _ask(llm: LLM, catalog: Catalog, result: CriterionResult, asked: list[Question], fixed: list[Answer],
-               analyst_argument: str | None, contradiction: str | None) -> tuple[dict[str, Answer], QuestionnaireOut]:
+               analyst_argument: str | None, contradiction: str | None,
+               options: JudgeOptions) -> tuple[dict[str, Answer], QuestionnaireOut]:
     """One structured call (+ one new attempt with the errors); answers still invalid become `nao_fundamentada`."""
     known = {e.id for r in result.rules for e in r.evidences}
-    messages = [{"role": "system", "content": QUESTIONNAIRE_SYSTEM},
+    documentary = {e.id for r in result.rules for e in r.evidences if e.origin == "doc"}
+    messages = [{"role": "system", "content": judge_system(QUESTIONNAIRE_SYSTEM, result.criterion, options)},
                 {"role": "user", "content": _user_prompt(catalog, result, asked, fixed, analyst_argument, contradiction)}]
     out = await llm.structured(messages, QuestionnaireOut, role="judge")
-    answers, errors = _validate(out, asked, known)
+    answers, errors = _validate(out, asked, known, documentary)
     if errors:
         retry = messages + [{"role": "user", "content": "Respostas inválidas:\n- " + "\n- ".join(errors)
                              + "\nResponda de novo todas as perguntas pedidas, corrigindo esses pontos."}]
         out = await llm.structured(retry, QuestionnaireOut, role="judge")
-        answers, errors = _validate(out, asked, known)
+        answers, errors = _validate(out, asked, known, documentary)
         for error in errors:
             question_id = error.split(":")[0].split(" ")[0]
             answer = answers.setdefault(question_id, Answer(pergunta=question_id, resposta=NO_RECORD))
@@ -285,7 +292,8 @@ async def judge_by_questionnaire(llm: LLM, catalog: Catalog, result: CriterionRe
                                   "</contradicao>")
         asked = [q for q in questions if q.id not in fixed]
         try:
-            answers, out = await _ask(llm, catalog, result, asked, list(fixed.values()), analyst_argument, block)
+            answers, out = await _ask(llm, catalog, result, asked, list(fixed.values()), analyst_argument, block,
+                                      options)
         except Exception as error:
             return CriterionState(criterion=criterion, state=None,
                                   error=f"questionário do juiz falhou: {safe_error_message(error)}")
