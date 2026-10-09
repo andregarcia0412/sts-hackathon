@@ -258,6 +258,7 @@ const DecisionDocument = ({
           project.cutoffDate ? `Corte: ${formatDate(project.cutoffDate)}` : `Enviado em ${formatDate(project.createdAt)}`,
           pluralize(project.documents.length, "documento", "documentos"),
           `${pluralize(evidenceCount, "evidência localizada", "evidências localizadas")} (${framework.label})`,
+          ...(focused.illustrative ? [`${framework.label}: exemplo ilustrativo, o back-end ainda não gera este método`] : []),
           current
             ? `Decisão vigente: ${DECISION_OUTCOME_LABELS[current.outcome]} (${formatDate(current.decidedAt)})`
             : "Sem decisão registrada",
@@ -313,9 +314,11 @@ const DecisionDocument = ({
             </Link>
           </div>
 
+          {/* relative: the screen-reader-only texts inside are positioned against
+              this box, so they never stretch the page past the window */}
           <article
             ref={documentRef}
-            className="scroll-visible flex flex-col gap-12 rounded-3xl bg-surface px-5 py-8 shadow-card sm:px-12 sm:py-12 lg:min-h-0 lg:flex-1 lg:overflow-y-auto print:overflow-visible print:rounded-none print:px-0 print:py-0 print:shadow-none"
+            className="scroll-visible relative flex flex-col gap-12 rounded-3xl bg-surface px-5 py-8 shadow-card sm:px-12 sm:py-12 lg:min-h-0 lg:flex-1 lg:overflow-y-auto print:overflow-visible print:rounded-none print:px-0 print:py-0 print:shadow-none"
           >
             <ReportHeader
               project={project}

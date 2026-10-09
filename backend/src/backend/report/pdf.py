@@ -85,6 +85,13 @@ def render_pdf(parecer: Parecer) -> bytes:
         doc.p(f"Fonte: {section.fonte or '-'} · Norma: {section.fonte_normativa}", size=8)
         for gate in section.gates:
             doc.p(f"Gate aplicado: {gate}", size=8)
+        if section.respostas:
+            doc.bullets([f"{a.pergunta} — {a.texto} → {a.resposta}"
+                         + (f": {a.explicacao}" if a.explicacao else "")
+                         + (f" [{', '.join(a.fontes)}]" if a.fontes else "")
+                         + (f" (falta: {a.o_que_falta})" if a.o_que_falta and a.resposta == "sem_registro" else "")
+                         + (" (gate do sistema)" if a.origem == "gate" else "") for a in section.respostas], size=7)
+            doc.p(f"Tabela de decisão: {section.regra_de_decisao or '-'}", size=7)
 
     doc.h2("Evidências utilizadas (favoráveis)")
     doc.bullets([f"{e.regra} [{e.fonte}] “{e.trecho}” — {e.explicacao}" for e in parecer.evidencias_usadas])

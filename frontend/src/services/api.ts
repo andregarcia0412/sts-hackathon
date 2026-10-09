@@ -20,6 +20,7 @@ import type { AssistantAnswer, AssistantContext } from "@/domain/assistant";
 import { answerQuestion } from "@/mocks/assistantEngine";
 import { debateOpening, debateReply } from "@/mocks/debateEngine";
 import { generatedProjects, hashId, synthesizeAnalyses } from "@/mocks/generatedProjects";
+import { isIllustrativeAnalysisId, withIllustrativeMcti } from "@/mocks/illustrativeMcti";
 import type { GeneratedProject } from "@/mocks/generatedProjects";
 import { applyProjectQuery } from "@/mocks/projectQuery";
 import { applyAdjustments, reanalyze } from "@/mocks/reanalysis";
@@ -36,6 +37,27 @@ import {
   mockDecisions,
   mockProjects,
 } from "@/mocks/projects";
+import { dataSource, dataSourceLabel } from "@/services/dataSource";
+import {
+  staticContestations,
+  staticDecisions,
+  staticEvidenceReviews,
+  staticGetAnalyses,
+  staticGetProject,
+  staticListProjects,
+  staticRuleDecisions,
+  staticUsers,
+} from "@/services/staticProvider";
+import {
+  ApiError,
+  apiJson,
+  apiPost,
+  apiPostForm,
+  saveTokens,
+} from "@/services/http";
+
+export { dataSourceLabel };
+export { ApiError };
 
 /*
  * Service layer. Screens only talk to these functions.
@@ -72,7 +94,7 @@ export class AuthError extends Error {
  * copied into db.projects, which then takes precedence.
  */
 // Bump the version when src/mocks changes, or browsers keep the old copy
-const STORAGE_KEY = "lei-do-bem:mock-db:v6";
+const STORAGE_KEY = "lei-do-bem:mock-db:v7";
 
 interface MockDb {
   projects: Project[];
@@ -205,11 +227,45 @@ const storedProject = (projectId: string): Project => {
   return copy;
 };
 
+/** A project of the static export enters the mock db on first write (spec 14 E1):
+ *  mutations stay on the mock path; reads never mix the two sources. */
+export const adoptStaticProject = async (projectId: string): Promise<boolean> => {
+  if (db.projects.some((p) => p.id === projectId)) return true;
+  const exported = await staticGetProject(projectId);
+  if (!exported) return false;
+  db.projects.push(structuredClone(exported));
+  return true;
+};
+
 /** Contestations as stored, with defaults for records saved before "status" existed */
 const contestationsOf = (projectId: string): Contestation[] =>
   db.contestations
     .filter((c) => c.projectId === projectId)
     .map((c) => ({ ...c, status: c.status ?? "open" }));
+
+/*
+ * The back-end (and its static export) only produces Frascati: the screens get
+ * an illustrative MCTI analysis next to it (mocks/illustrativeMcti.ts). What
+ * the analyst records on it stays in the browser, like the mock.
+ */
+const illustrativeById = new Map<string, Analysis>();
+
+const withExampleMethods = (analyses: Analysis[]): Analysis[] =>
+  withIllustrativeMcti(analyses).map((analysis) => {
+    if (!analysis.illustrative) return analysis;
+    const shown = withScoreExplanations(applyAdjustments(analysis, contestationsOf(analysis.projectId)));
+    illustrativeById.set(shown.id, shown);
+    return shown;
+  });
+
+/** Records kept in the browser need the project only in the mock (static and API projects live elsewhere) */
+const ensureLocalProject = async (projectId: string) => {
+  if (dataSource() === "mock") findProject(projectId);
+  else if (dataSource() === "static") await adoptStaticProject(projectId);
+};
+
+const byCreatedAt = <T extends { createdAt: string }>(items: T[]) =>
+  [...items].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 
 /** Analyses as the analyst sees them: with accepted contestations applied */
 const analysesOf = (projectId: string): Analysis[] => {
@@ -299,6 +355,13 @@ const processingProgressOf = (project: Project) => {
 
 export const listDemoUsers = async (): Promise<User[]> => {
   await delay(150);
+  if (dataSource() === "static") {
+    const exported = await staticUsers();
+    if (exported && exported.length > 0) return structuredClone(exported);
+  }
+  // The back-end has no list of users (only /users/me) and checks real passwords:
+  // the "any password" shortcut is a mock/static convenience
+  if (dataSource() === "api") return [];
   return structuredClone(mockUsers);
 };
 
@@ -307,7 +370,25 @@ const allUsers = () => [...mockUsers, ...db.users];
 const sameEmail = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
 
 export const login = async (email: string, password: string): Promise<User> => {
+  if (dataSource() === "api") {
+    try {
+      const tokens = await apiPost<{ access_token: string; refresh_token: string }>("/auth/login", {
+        email,
+        password,
+      });
+      saveTokens({ accessToken: tokens.access_token, refreshToken: tokens.refresh_token });
+      return { id: "", name: email.split("@")[0], email }; // id resolved by /users/me on session restore
+    } catch {
+      throw new AuthError();
+    }
+  }
   await delay();
+  if (dataSource() === "static") {
+    const exported = await staticUsers();
+    const user = exported?.find((u) => sameEmail(u.email, email));
+    if (!user || !password) throw new AuthError();
+    return structuredClone(user);
+  }
   const user = allUsers().find((u) => sameEmail(u.email, email));
   if (!user || !password) throw new AuthError();
   return structuredClone(user);
@@ -328,6 +409,12 @@ export const registerUser = async (name: string, email: string, password: string
 
 export const getUser = async (userId: string): Promise<User> => {
   await delay(100);
+  if (dataSource() === "static") {
+    const exported = await staticUsers();
+    const user = exported?.find((u) => u.id === userId);
+    if (!user) throw new AuthError("Sessão expirada");
+    return structuredClone(user);
+  }
   const user = allUsers().find((u) => u.id === userId);
   if (!user) throw new AuthError("Sessão expirada");
   return structuredClone(user);
@@ -339,6 +426,17 @@ export const getUser = async (userId: string): Promise<User> => {
 
 /** One page of the analyst's projects, with filters (server-side in the real API) */
 export const listProjects = async (query: ProjectQuery): Promise<ProjectPage> => {
+  if (dataSource() === "static") return staticListProjects(query);
+  if (dataSource() === "api") {
+    try {
+      const params = new URLSearchParams({ sort: query.sort, page: String(query.page), pageSize: String(query.pageSize) });
+      if (query.ownerId) params.set("ownerId", query.ownerId);
+      if (query.search) params.set("search", query.search);
+      return await apiJson<ProjectPage>(`/projects?${params}`);
+    } catch {
+      /* the back-end being down must never break the demo */
+    }
+  }
   await delay();
   const generated = generatedById();
   const summaries = allProjects().map((p) => toSummary(p, generated.get(p.id)));
@@ -346,6 +444,18 @@ export const listProjects = async (query: ProjectQuery): Promise<ProjectPage> =>
 };
 
 export const getProject = async (projectId: string): Promise<Project> => {
+  if (dataSource() === "static") {
+    const exported = await staticGetProject(projectId);
+    if (exported) return exported;
+  }
+  if (dataSource() === "api") {
+    try {
+      return await apiJson<Project>(`/projects/${projectId}`);
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 404) throw new NotFoundError("Projeto");
+      /* fall back to the mock */
+    }
+  }
   await delay();
   return structuredClone(findProject(projectId));
 };
@@ -354,6 +464,18 @@ export const createProject = async (
   input: NewProjectInput,
   ownerId: string,
 ): Promise<Project> => {
+  if (dataSource() === "api") {
+    try {
+      const form = new FormData();
+      form.set("name", input.name.trim());
+      if (input.company) form.set("company", input.company.trim());
+      if (input.freeText) form.set("freeText", input.freeText.trim());
+      for (const file of input.files) form.append("files", file, file.name);
+      return await apiPostForm<Project>("/projects", form); // 201 + the created project; the analysis starts in the background
+    } catch {
+      /* fall back to the mock */
+    }
+  }
   await delay();
   const now = new Date().toISOString();
   const project: Project = {
@@ -401,6 +523,20 @@ export const resendDocument = async (projectId: string, file: File): Promise<Pro
  * Resolves to null while the project is still being processed.
  */
 export const getAnalyses = async (projectId: string): Promise<Analysis[] | null> => {
+  if (dataSource() === "static") {
+    const exported = await staticGetAnalyses(projectId);
+    if (exported !== null) return withExampleMethods(exported);
+    const exists = await staticGetProject(projectId);
+    if (exists) return null; // project in the export without a finished analysis
+  }
+  if (dataSource() === "api") {
+    try {
+      const analyses = await apiJson<Analysis[] | null>(`/projects/${projectId}/analyses`);
+      return analyses && withExampleMethods(analyses);
+    } catch {
+      /* fall back to the mock */
+    }
+  }
   await delay();
   findProject(projectId);
   const analyses = analysesOf(projectId);
@@ -412,14 +548,63 @@ export const getAnalyses = async (projectId: string): Promise<Analysis[] | null>
 
 /** Decision trail, oldest first. Every save adds a new entry (never edits). */
 export const listDecisions = async (projectId: string): Promise<Decision[]> => {
+  // Decisions saved in the browser (static mode, or the API unreachable) join the trail
+  const local = db.decisions.filter((d) => d.projectId === projectId);
+  const byDate = (items: Decision[]) => [...items].sort((a, b) => a.decidedAt.localeCompare(b.decidedAt));
+  if (dataSource() === "static") return byDate([...(await staticDecisions(projectId)), ...structuredClone(local)]);
+  if (dataSource() === "api") {
+    try {
+      const saved = await apiJson<(Decision & { outcome: string })[]>(`/projects/${projectId}/decisions`);
+      const mapped = saved.map((d) => ({ ...d, outcome: (OUTCOME_FROM_API[d.outcome] ?? d.outcome) as Decision["outcome"] }));
+      return byDate([...mapped, ...structuredClone(local)]);
+    } catch {
+      /* fall back to the mock */
+    }
+  }
   await delay();
   return structuredClone(decisionsOf(projectId));
+};
+
+// ---------------------------------------------------------------------------
+// Writes (E3): real API first, mock as the never-failing fallback
+// ---------------------------------------------------------------------------
+
+/** The front's 4 outcomes vs the back-end's decision-trail vocabulary. */
+const OUTCOME_TO_API: Record<string, string> = {
+  eligible: "eligible",
+  with_reservations: "eligible_with_caveats",
+  not_eligible: "not_eligible",
+  insufficient_evidence: "insufficient_evidence",
+};
+const OUTCOME_FROM_API: Record<string, string> = {
+  eligible: "eligible",
+  eligible_with_caveats: "with_reservations",
+  not_eligible: "not_eligible",
+  insufficient_evidence: "insufficient_evidence",
 };
 
 export const saveDecision = async (
   input: NewDecisionInput,
 ): Promise<Decision> => {
+  if (dataSource() === "api") {
+    try {
+      const saved = await apiPost<Decision & { outcome: string }>(
+        `/projects/${input.projectId}/decisions`,
+        {
+          ...input,
+          outcome: OUTCOME_TO_API[input.outcome] ?? input.outcome,
+          // The illustrative MCTI analysis does not exist in the back-end
+          analysisIds: input.analysisIds?.filter((id) => !isIllustrativeAnalysisId(id)),
+          ruleOverrides: input.ruleOverrides?.filter((o) => !o.analysisId || !isIllustrativeAnalysisId(o.analysisId)),
+        },
+      );
+      return { ...saved, outcome: (OUTCOME_FROM_API[saved.outcome] ?? saved.outcome) as Decision["outcome"] };
+    } catch {
+      /* fall back to the mock */
+    }
+  }
   await delay();
+  if (dataSource() === "static") await adoptStaticProject(input.projectId);
   const project = storedProject(input.projectId);
   const decision: Decision = { ...input, decidedAt: new Date().toISOString() };
   db.decisions.push(decision);
@@ -438,14 +623,18 @@ export interface ExportedFile {
  * GET /analyses/{analysisId}/report.csv, file name from Content-Disposition.
  */
 export const exportDecisionCsv = async (projectId: string, analysisId: string): Promise<ExportedFile> => {
-  await delay();
-  const project = findProject(projectId);
-  const stored = analysesOf(projectId).find((a) => a.id === analysisId);
-  if (!stored) throw new NotFoundError("Análise");
-  const analysis = withScoreExplanations(structuredClone(stored));
-  const pendencies = pendenciesOf(analysis, project, contestationsOf(projectId));
+  // The same reads as the screen, so every data source exports what the analyst sees
+  const [project, analyses, decisions, contestations] = await Promise.all([
+    getProject(projectId),
+    getAnalyses(projectId),
+    listDecisions(projectId),
+    listContestations(projectId),
+  ]);
+  const analysis = analyses?.find((a) => a.id === analysisId);
+  if (!analysis) throw new NotFoundError("Análise");
+  const pendencies = pendenciesOf(analysis, project, contestations);
   const csv = toCsv(decisionCsvColumns(analysis.criteria.length), [
-    decisionCsvRow(project, analysis, decisionsOf(projectId).at(-1), pendencies),
+    decisionCsvRow(project, analysis, decisions.at(-1), pendencies),
   ]);
   return {
     fileName: decisionCsvFileName(project, analysis),
@@ -455,6 +644,16 @@ export const exportDecisionCsv = async (projectId: string, analysisId: string): 
 
 /** Contestations of a project, oldest first. Append-only, like decisions. */
 export const listContestations = async (projectId: string): Promise<Contestation[]> => {
+  // Contestations kept in the browser (static mode, illustrative MCTI) join the back-end's
+  const local = structuredClone(contestationsOf(projectId));
+  if (dataSource() === "static") return byCreatedAt([...(await staticContestations(projectId)), ...local]);
+  if (dataSource() === "api") {
+    try {
+      return byCreatedAt([...(await apiJson<Contestation[]>(`/projects/${projectId}/contestations`)), ...local]);
+    } catch {
+      /* fall back to the mock */
+    }
+  }
   await delay();
   return structuredClone(
     contestationsOf(projectId).sort((a, b) => a.createdAt.localeCompare(b.createdAt)),
@@ -464,8 +663,15 @@ export const listContestations = async (projectId: string): Promise<Contestation
 export const createContestation = async (
   input: NewContestationInput,
 ): Promise<Contestation> => {
+  if (dataSource() === "api" && !isIllustrativeAnalysisId(input.analysisId)) {
+    try {
+      return await apiPost<Contestation>(`/projects/${input.projectId}/contestations`, input);
+    } catch {
+      /* fall back to the mock */
+    }
+  }
   await delay();
-  findProject(input.projectId);
+  await ensureLocalProject(input.projectId);
   const contestation: Contestation = {
     ...input,
     id: newId("ct"),
@@ -483,13 +689,23 @@ export const createContestation = async (
  * changes show up in the analysis from then on.
  */
 export const requestReanalysis = async (contestationId: string): Promise<Contestation> => {
+  // A contestation kept in the browser is reanalysed by the mock
+  if (dataSource() === "api" && !db.contestations.some((c) => c.id === contestationId)) {
+    try {
+      return await apiPost<Contestation>(`/contestations/${contestationId}/reanalysis`, {});
+    } catch {
+      /* fall back to the mock */
+    }
+  }
   await delay(REANALYSIS_LATENCY_MS);
   const stored = db.contestations.find((c) => c.id === contestationId);
   if (!stored) throw new NotFoundError("Contestação");
   const current = { ...stored, status: stored.status ?? "open" };
   if (current.status === "resolved") return structuredClone(current);
 
-  const analysis = analysesOf(current.projectId).find((a) => a.id === current.analysisId);
+  const analysis =
+    analysesOf(current.projectId).find((a) => a.id === current.analysisId) ??
+    illustrativeById.get(current.analysisId);
   if (!analysis) throw new NotFoundError("Análise");
   stored.status = "resolved";
   stored.resolution = reanalyze(analysis, current, new Date().toISOString());
@@ -499,13 +715,29 @@ export const requestReanalysis = async (contestationId: string): Promise<Contest
 
 /** Analyst's rule ratings, oldest first. Append-only: the latest per rule is the current one. */
 export const listRuleDecisions = async (projectId: string): Promise<RuleDecision[]> => {
+  const local = structuredClone(db.ruleDecisions.filter((d) => d.projectId === projectId));
+  if (dataSource() === "static") return byCreatedAt([...(await staticRuleDecisions(projectId)), ...local]);
+  if (dataSource() === "api") {
+    try {
+      return byCreatedAt([...(await apiJson<RuleDecision[]>(`/projects/${projectId}/rule-decisions`)), ...local]);
+    } catch {
+      /* fall back to the mock */
+    }
+  }
   await delay();
-  return structuredClone(db.ruleDecisions.filter((d) => d.projectId === projectId));
+  return local;
 };
 
 export const createRuleDecision = async (input: NewRuleDecisionInput): Promise<RuleDecision> => {
+  if (dataSource() === "api" && !isIllustrativeAnalysisId(input.analysisId)) {
+    try {
+      return await apiPost<RuleDecision>(`/projects/${input.projectId}/rule-decisions`, input);
+    } catch {
+      /* fall back to the mock */
+    }
+  }
   await delay();
-  findProject(input.projectId);
+  await ensureLocalProject(input.projectId);
   const decision: RuleDecision = { ...input, id: newId("rd"), createdAt: new Date().toISOString() };
   db.ruleDecisions.push(decision);
   persist();
@@ -514,15 +746,31 @@ export const createRuleDecision = async (input: NewRuleDecisionInput): Promise<R
 
 /** Evidences confirmed or discarded by the analyst, oldest first. Append-only. */
 export const listEvidenceReviews = async (projectId: string): Promise<EvidenceReview[]> => {
+  const local = structuredClone(db.evidenceReviews.filter((r) => r.projectId === projectId));
+  if (dataSource() === "static") return byCreatedAt([...(await staticEvidenceReviews(projectId)), ...local]);
+  if (dataSource() === "api") {
+    try {
+      return byCreatedAt([...(await apiJson<EvidenceReview[]>(`/projects/${projectId}/evidence-reviews`)), ...local]);
+    } catch {
+      /* fall back to the mock */
+    }
+  }
   await delay();
-  return structuredClone(db.evidenceReviews.filter((r) => r.projectId === projectId));
+  return local;
 };
 
 export const createEvidenceReview = async (
   input: NewEvidenceReviewInput,
 ): Promise<EvidenceReview> => {
+  if (dataSource() === "api" && !isIllustrativeAnalysisId(input.analysisId)) {
+    try {
+      return await apiPost<EvidenceReview>(`/projects/${input.projectId}/evidence-reviews`, input);
+    } catch {
+      /* fall back to the mock */
+    }
+  }
   await delay();
-  findProject(input.projectId);
+  await ensureLocalProject(input.projectId);
   const review: EvidenceReview = { ...input, id: newId("er"), createdAt: new Date().toISOString() };
   db.evidenceReviews.push(review);
   persist();
@@ -542,6 +790,22 @@ export const askAssistant = async (
   question: string,
   context: AssistantContext,
 ): Promise<AssistantAnswer> => {
+  // The back-end does not know the illustrative MCTI analysis: the mock answers about it
+  if (dataSource() === "api" && !context.analysis?.illustrative) {
+    try {
+      return await apiPost<AssistantAnswer>("/assistant/ask", {
+        question,
+        context: {
+          screen: context.screen,
+          analysis: { id: context.analysis?.id },
+          selectedNodeId: context.selectedNodeId,
+          debateNodeId: context.debateNodeId ?? null,
+        },
+      });
+    } catch {
+      /* fall back to the mock */
+    }
+  }
   await delay(ASSISTANT_LATENCY_MS);
   return context.debateNodeId
     ? debateReply(question, context)
@@ -553,6 +817,20 @@ export const openDebate = async (
   nodeId: string,
   context: AssistantContext,
 ): Promise<AssistantAnswer> => {
+  if (dataSource() === "api" && !context.analysis?.illustrative) {
+    try {
+      return await apiPost<AssistantAnswer>("/assistant/debate", {
+        nodeId,
+        context: {
+          screen: context.screen,
+          analysis: { id: context.analysis?.id },
+          selectedNodeId: context.selectedNodeId,
+        },
+      });
+    } catch {
+      /* fall back to the mock */
+    }
+  }
   await delay(ASSISTANT_LATENCY_MS);
   return debateOpening({ ...context, debateNodeId: nodeId }, nodeId);
 };

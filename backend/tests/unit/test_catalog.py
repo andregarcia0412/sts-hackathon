@@ -89,3 +89,18 @@ def test_duplicate_id_is_rejected():
     }
     with pytest.raises(CatalogError, match="duplicate"):
         parse_catalog(raw)
+
+
+def test_state_gates_are_catalog_data():
+    from pathlib import Path
+
+    from backend.catalog.loader import get_catalog
+
+    catalog = get_catalog()
+    gates = {c: [r.id for r in catalog.state_gates(c)] for c in catalog.criteria}
+    assert gates == {"NOV": ["NOV-D4", "NOV-D10"], "CRI": ["CRI-D5"], "INC": ["INC-D5", "INC-D9"],
+                     "SIS": ["SIS-D5"], "REP": ["REP-D8"]}
+    assert catalog.get("INC-D9").requer_gate == ["NOV-D4", "NOV-D10"]
+    assert [r.id for r in catalog.reference_rules()] == ["NOV-D4", "NOV-D5", "NOV-D10"]
+    source = (Path(__file__).parents[2] / "src/backend/graph/states.py").read_text(encoding="utf-8")
+    assert "CONFIG_GATES" not in source  # no gate dict left in code

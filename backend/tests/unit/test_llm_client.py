@@ -117,3 +117,23 @@ async def test_schema_attempts_are_configurable():
     client, fake = make_client(["a", "b", '{"value": 2}'], ollama_schema_retries=2)
     assert (await client.structured([{"role": "user", "content": "?"}], Answer)).value == 2
     assert len(fake.requests) == 3
+
+
+async def test_web_transport_retries_are_metered():
+    from backend.llm.usage import meter_scope
+
+    class FlakyWeb:
+        calls = 0
+
+        async def web_fetch(self, url):
+            FlakyWeb.calls += 1
+            if FlakyWeb.calls == 1:
+                raise ConnectionError("reset")
+            return SimpleNamespace(title="t", content="c")
+
+    config = Settings(_env_file=None, ollama_model="m", ollama_retries=1, ollama_api_key="k")
+    client = LLMClient(config, chat_client=FakeOllama([]), web_client=FlakyWeb(), retry_backoff_s=0)
+    with meter_scope() as usage:
+        page = await client.web_fetch("https://x")
+    assert page.content == "c"
+    assert (usage.web_fetch_calls, usage.web_retries, usage.web_failures) == (1, 1, 0)

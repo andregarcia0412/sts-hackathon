@@ -35,7 +35,7 @@ async def test_full_pipeline_records_stages_versions_and_graph(project):
     assert all(s.duration_s is not None for s in done.stages)
     assert done.total_s is not None
     assert done.versions.catalog_version == get_catalog().versao
-    assert done.versions.schema_version == "1.0"
+    assert done.versions.schema_version == "1.1"
     assert done.versions.models["doc"] == "fake-doc"
     assert "criteria.doc" in done.versions.prompts
     assert set(done.versions.file_hashes) == {d.file_name for d in project.active_documents()}
@@ -94,13 +94,45 @@ async def test_extraction_failure_fails_the_analysis_and_marks_project(project, 
     assert (await Project.get(project.id)).status == "error"
 
 
-async def test_unfinished_analyses_are_marked_interrupted_on_startup(project):
+async def test_unfinished_analyses_are_marked_interrupted_only_when_their_process_is_gone(project):
+    import os
+    import socket
+    import subprocess
+    from datetime import UTC, datetime, timedelta
+
+    from backend.analyses.worker import boot_id
+
     svc = service()
-    analysis = await svc.create(project)
-    analysis.status = "rodando"
-    await analysis.save()
-    await AnalysisService.mark_interrupted()
-    assert (await Analysis.get(analysis.id)).status == "falhou"
+    dead = subprocess.Popen(["true"])
+    dead.wait()
+    host, boot = socket.gethostname(), boot_id()
+    cases = {
+        "alive": f"{host}:{os.getpid()}:{boot}",  # e.g. the CLI benchmark running in another live process
+        "dead": f"{host}:{dead.pid}:{boot}",  # e.g. the server before a reload
+        "rebooted": f"{host}:{os.getpid()}:another-boot",
+        "legacy": None,  # analyses saved before the worker field existed
+        "other_host_recent": f"elsewhere:1:{boot}",
+        "other_host_silent": f"elsewhere:1:{boot}",
+    }
+    ids = {}
+    for name, worker in cases.items():
+        analysis = await svc.create(project)
+        analysis.status, analysis.worker = "rodando", worker
+        silent = name == "other_host_silent"
+        analysis.heartbeat_at = datetime.now(UTC) - timedelta(seconds=svc.stale_after_s() + 1 if silent else 1)
+        await analysis.save()
+        ids[name] = analysis.id
+    await svc.mark_interrupted()
+    status = {name: (await Analysis.get(i)).status for name, i in ids.items()}
+    assert status == {"alive": "rodando", "dead": "falhou", "rebooted": "falhou", "legacy": "falhou",
+                      "other_host_recent": "rodando", "other_host_silent": "falhou"}
+
+
+async def test_the_worker_and_heartbeat_are_recorded(project):
+    from backend.analyses.worker import worker_id
+
+    done = await service().run(str((await service().create(project)).id))
+    assert done.worker == worker_id() and done.heartbeat_at is not None
 
 
 async def test_missing_model_fails_the_analysis_instead_of_leaving_it_pending(project):
@@ -133,3 +165,22 @@ def analysis_llm_calls(analysis):
     from tests import factories
 
     return factories.LAST_FAKE_LLM.calls
+
+
+async def test_checks_stage_runs_and_feeds_the_document_sub_agent(project):
+    llm = FakeLLM(full_handlers())
+    done = await service(llm).run(str((await service(llm).create(project)).id))
+    assert done.stage("checagens").status == "concluida"
+    assert done.checks.results["CHK-RECALC"].status == "ok" and done.versions.checks_version
+    rep_prompt = next(m for m in llm.calls_for(DocSubOut) if "Transferência/reprodução" in m[-1]["content"])
+    assert "checagens#CHK-RECALC" in rep_prompt[-1]["content"]
+    record = await CanonicalRecord.find_one(CanonicalRecord.analysis_id == str(done.id))
+    assert record.canonical.fragment("PRJ90-CHK-RECALC") is not None
+    # the totality claim of the interview reaches the recorded divergences even if the sub-agent misses it
+    assert any("todos" in d.testimony_quote for r in done.criteria.values() for d in r.divergences)
+    assert await GraphNode.find(GraphNode.analysis_id == str(done.id), GraphNode.kind == "check").count() == 8
+
+
+async def test_the_analysis_counts_files_mapped_by_the_agent(project):
+    done = await service().run(str((await service().create(project)).id))
+    assert done.mapping_sources == {"deterministico": 9, "agente": 1}  # only the loose note needs the agent

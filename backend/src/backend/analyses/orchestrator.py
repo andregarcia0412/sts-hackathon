@@ -6,19 +6,23 @@ import time
 from collections.abc import Callable
 from datetime import UTC, datetime
 
-from backend.analyses.models import Analysis, AnalysisVersions, CanonicalRecord, Stage
-from backend.catalog.models import CRITERIA_ORDER, Catalog
+from beanie import PydanticObjectId
+
+from backend.analyses.models import Analysis, AnalysisVersions, Batch, CanonicalRecord, Stage
+from backend.analyses.worker import is_orphan, worker_id
+from backend.catalog.models import Catalog
+from backend.checks.divergences import add_check_divergences
+from backend.checks.runner import run_checks, with_check_fragments
 from backend.config import LLM_ROLES, Settings
 from backend.criteria.agent import CriteriaRunner
 from backend.errors import safe_error_message
 from backend.extraction.pipeline import extract_project
 from backend.extraction.schema import SCHEMA_VERSION, CanonicalProject
 from backend.graph.builder import build_graph
-from backend.graph.classify import classify
+from backend.graph.judge import JudgeOptions, judge_and_classify
 from backend.graph.queries import save_graph
-from backend.graph.scoring import score_criterion, score_rule
-from backend.graph.states import judge_state, numeric_record_in
 from backend.llm import LLM
+from backend.llm.calls import calls_scope, save_calls, set_stage, summarize
 from backend.llm.prompts import prompt_hashes
 from backend.llm.usage import current_usage, meter_scope
 from backend.projects.importer import IncomingFile
@@ -29,8 +33,8 @@ from backend.storage import read_file
 
 logger = logging.getLogger(__name__)
 
-EXTRACTION, GRAPH, REPORT = "extracao", "grafo", "parecer"
-STAGES: tuple[str, ...] = (EXTRACTION, "NOV", "SIS", "REP", "CRI", "INC", GRAPH, REPORT)
+EXTRACTION, CHECKS, GRAPH, REPORT = "extracao", "checagens", "grafo", "parecer"
+STAGES: tuple[str, ...] = (EXTRACTION, CHECKS, "NOV", "SIS", "REP", "CRI", "INC", GRAPH, REPORT)
 ProviderFactory = Callable[[], dict[str, SearchProvider]]
 
 
@@ -48,6 +52,8 @@ class AnalysisService:
             previous_analysis_id=str(previous.id) if previous else None,
             batch_id=batch_id,
             stages=[Stage(name=name) for name in STAGES],
+            worker=worker_id(),  # the job runner is in-process: whoever creates it runs it
+            heartbeat_at=datetime.now(UTC),
         )
         await analysis.insert()
         project.latest_analysis_id = str(analysis.id)
@@ -55,10 +61,16 @@ class AnalysisService:
         await project.save()
         return analysis
 
-    @staticmethod
-    async def mark_interrupted() -> None:
-        """Analyses left running by a restart are failures, never silently resumed."""
+    def stale_after_s(self) -> float:
+        """A worker of another host silent for this long is gone (a stage can take this long on retries)."""
+        return 2 * self.settings.ollama_timeout_s * (self.settings.ollama_retries + 1)
+
+    async def mark_interrupted(self) -> None:
+        """Analyses left running by a restart are failures, never silently resumed. Only those whose process is
+        gone: a CLI benchmark running in another process (or the reloaded server's sibling) keeps its analyses."""
         for analysis in await Analysis.find({"status": {"$in": ["pendente", "rodando"]}}).to_list():
+            if not is_orphan(analysis.worker, analysis.heartbeat_at, self.stale_after_s()):
+                continue
             analysis.status = "falhou"
             analysis.error = "interrompida: o servidor reiniciou durante o processamento"
             for stage in analysis.stages:
@@ -85,6 +97,7 @@ class AnalysisService:
             stage = analysis.stage(name)
             moment = datetime.now(UTC)
             if status == "rodando":
+                set_stage(name)  # the per-call LLM log of this task (and of what it gathers) belongs to this stage
                 stage.started_at = moment
             else:
                 stage.finished_at = moment
@@ -93,6 +106,7 @@ class AnalysisService:
                     stage.duration_s = round((moment - started).total_seconds(), 3)
             stage.status = status
             stage.error = error
+            analysis.heartbeat_at = moment
             self._snapshot_usage(analysis)
             await analysis.save()
 
@@ -102,6 +116,13 @@ class AnalysisService:
         which would wipe counters mutated in place by the calls running in parallel."""
         if (meter := current_usage()) is not None:
             analysis.usage = meter.model_copy(deep=True)
+
+    @staticmethod
+    async def _benchmark_of(analysis: Analysis) -> str | None:
+        if not analysis.batch_id:
+            return None
+        batch = await Batch.get(PydanticObjectId(analysis.batch_id))
+        return batch.benchmark_id if batch else None
 
     async def _load_files(self, project: Project) -> list[IncomingFile]:
         return [
@@ -114,6 +135,7 @@ class AnalysisService:
         project = await Project.get(analysis.project_id)
         started = time.monotonic()
         analysis.status, analysis.started_at = "rodando", datetime.now(UTC)
+        analysis.worker, analysis.heartbeat_at = worker_id(), analysis.started_at
         models = self.models_by_role()
         analysis.versions = AnalysisVersions(
             schema_version=SCHEMA_VERSION,
@@ -122,13 +144,14 @@ class AnalysisService:
             file_hashes={doc.file_name: doc.sha256 for doc in project.active_documents()},
         )
         await analysis.save()
-        with meter_scope() as usage:
+        with meter_scope() as usage, calls_scope() as calls:
             try:
                 missing = [role for role, model in models.items() if model is None]
                 if missing:
                     raise RuntimeError(f"OLLAMA_MODEL is not set in .env (roles without model: {', '.join(missing)})")
                 canonical = await self._extract(analysis, project)
                 if canonical is not None:
+                    canonical = await self._checks(analysis, canonical)
                     await self._criteria_graph_report(analysis, canonical)
             except Exception as error:  # defensive: never leave an analysis "running"
                 analysis.error = safe_error_message(error)
@@ -136,6 +159,8 @@ class AnalysisService:
                 if analysis.stage(EXTRACTION).status == "pendente":
                     analysis.stage(EXTRACTION).status, analysis.stage(EXTRACTION).error = "falhou", analysis.error
         analysis.usage = usage.model_copy(deep=True)
+        analysis.calls = summarize(calls)
+        await save_calls(str(analysis.id), await self._benchmark_of(analysis), calls)
         analysis.versions.prompts = prompt_hashes()
         analysis.finished_at = datetime.now(UTC)
         analysis.total_s = round(time.monotonic() - started, 3)
@@ -164,12 +189,27 @@ class AnalysisService:
             await self._set_stage(analysis, EXTRACTION, "falhou", message)
             return None
         await CanonicalRecord(analysis_id=str(analysis.id), canonical=canonical).insert()
+        for extracted in canonical.files:
+            analysis.mapping_sources[extracted.mapping_source] = analysis.mapping_sources.get(extracted.mapping_source, 0) + 1
         if not project.code and canonical.project_code != "PRJ":
             project.code = canonical.project_code
             await project.save()
         pending = [f.path for f in canonical.files if f.status != "reconhecido"]
         await self._set_stage(analysis, EXTRACTION, "concluida",
                               f"pendente de validação: {', '.join(pending)}" if pending else None)
+        return canonical
+
+    async def _checks(self, analysis: Analysis, canonical: CanonicalProject) -> CanonicalProject:
+        """Deterministic checks (zero tokens): facts and citable fragments for the criterion agents."""
+        await self._set_stage(analysis, CHECKS, "rodando")
+        analysis.checks = run_checks(canonical)
+        analysis.versions.checks_version = analysis.checks.version
+        failed = [c for c, r in analysis.checks.results.items() if r.status == "falhou"]
+        canonical = with_check_fragments(canonical, analysis.checks)
+        if record := await CanonicalRecord.find_one(CanonicalRecord.analysis_id == str(analysis.id)):
+            record.canonical = canonical  # the check fragments are citable: keep them with the canonical
+            await record.save()
+        await self._set_stage(analysis, CHECKS, "concluida", f"checagens que falharam: {', '.join(failed)}" if failed else None)
         return canonical
 
     async def _criteria_graph_report(self, analysis: Analysis, canonical: CanonicalProject) -> None:
@@ -180,24 +220,24 @@ class AnalysisService:
             results_per_query=self.settings.web_results_per_query,
             fetch_per_front=self.settings.web_fetch_per_front,
             max_table_rows=self.settings.prompt_max_table_rows,
+            doc_pitfalls=self.settings.doc_handbook_pitfalls,
+            flag_speculative=self.settings.justification_flags,
         )
         results = await runner.run_all(canonical)
+        if analysis.checks:
+            add_check_divergences(results, canonical, analysis.checks)
         analysis.criteria = results
 
         await self._set_stage(analysis, GRAPH, "rodando")
         try:
-            analysis.scores = {
-                c: [score_rule(run, self.catalog.get(run.rule_id)) for run in result.rules] for c, result in results.items()
-            }
-            analysis.criterion_scores = {c: score_criterion(s) for c, s in analysis.scores.items()}
-            numeric = numeric_record_in(results)
-            judged = await asyncio.gather(
-                *(judge_state(self.llm, self.catalog, results[c], numeric) for c in CRITERIA_ORDER)
-            )
-            analysis.states = dict(zip(CRITERIA_ORDER, judged, strict=True))
-            analysis.suggestion = classify(analysis.states)
+            options = JudgeOptions.from_settings(self.settings)
+            analysis.versions.judge = options.model_dump()
+            outcome = await judge_and_classify(self.llm, self.catalog, results, options, analysis.checks)
+            analysis.scores, analysis.criterion_scores = outcome.scores, outcome.criterion_scores
+            analysis.states, analysis.suggestion = outcome.states, outcome.suggestion
+            analysis.consistency = outcome.consistency
             nodes, edges = build_graph(str(analysis.id), canonical, self.catalog, results, analysis.scores,
-                                       analysis.states, analysis.suggestion)
+                                       analysis.states, analysis.suggestion, analysis.consistency, analysis.checks)
             await save_graph(str(analysis.id), nodes, edges)
         except Exception as error:
             await self._set_stage(analysis, GRAPH, "falhou", safe_error_message(error))

@@ -41,12 +41,32 @@ class Settings(BaseSettings):
 
     openalex_api_key: str | None = None
     openalex_mailto: str | None = None
+    openalex_max_concurrency: int = 2
 
     web_queries_per_front: int = 3
     web_results_per_query: int = 5
     web_fetch_per_front: int = 6
 
     analysis_concurrency: int = 2
+
+    # Benchmark report: price per million tokens per model, "model=input/output;model2=price" (empty = tokens only)
+    model_prices: str = ""
+    # Minutes a manual analysis takes today, with its source (mentoring, measured by the team). Without a source the
+    # report does not show the comparison.
+    manual_analysis_minutes: float | None = None
+    manual_analysis_source: str | None = None
+
+    judge_mode: Literal["estado", "questionario"] = "estado"
+    judge_handbooks: bool = True
+    doc_handbook_pitfalls: bool = False
+    justification_flags: bool = False
+    coherence_mode: Literal["off", "flag", "reask"] = "reask"
+    coherence_high: int = 75
+    coherence_low: int = 25
+    coherence_min_rules: int = 4
+    consistency_neutralize: bool = False
+    consistency_use_text_markers: bool = False
+    consistency_inc_d2: bool = False
     prompt_max_table_rows: int = 300
     package_dir: Path | None = None
     norms_dir: Path = BACKEND_ROOT / "data" / "normas"
@@ -67,6 +87,20 @@ class Settings(BaseSettings):
         if isinstance(value, str):
             return [origin.strip() for origin in value.split(",") if origin.strip()]
         return value
+
+    def prices(self) -> dict[str, tuple[float, float]]:
+        """model → (input, output) price per million tokens; a single value prices both."""
+        prices = {}
+        for item in filter(None, (part.strip() for part in self.model_prices.split(";"))):
+            model, _, value = item.rpartition("=")
+            parts = [float(v) for v in value.split("/")]
+            prices[model.strip()] = (parts[0], parts[-1])
+        return prices
+
+    @field_validator("manual_analysis_minutes", "manual_analysis_source", mode="before")
+    @classmethod
+    def _empty_is_none(cls, value: object) -> object:
+        return value or None
 
     @field_validator("package_dir", mode="before")
     @classmethod

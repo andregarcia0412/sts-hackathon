@@ -12,6 +12,8 @@ from backend.errors import safe_error_message
 from backend.extraction.schema import CanonicalProject
 from backend.llm import LLM
 from backend.search.base import SearchProvider
+from backend.llm.calls import set_stage
+from backend.search.session import SearchSession
 
 StageCallback = Callable[..., object]
 FIRST_WAVE = ("NOV", "SIS", "REP")
@@ -44,11 +46,16 @@ class CriteriaRunner:
         results_per_query: int = 5,
         fetch_per_front: int = 6,
         max_table_rows: int = 300,
+        doc_pitfalls: bool = False,
+        flag_speculative: bool = False,
     ) -> None:
         self.llm, self.catalog, self.providers = llm, catalog, providers
         self._on_stage = on_stage
         self.queries_per_front, self.results_per_query = queries_per_front, results_per_query
         self.fetch_per_front, self.max_table_rows = fetch_per_front, max_table_rows
+        self.doc_pitfalls = doc_pitfalls
+        self.flag_speculative = flag_speculative
+        self.session = SearchSession()  # one per analysis: NOV, CRI and INC reuse each other's searches and pages
 
     async def on_stage(self, name: str, status: str, error: str | None = None) -> None:
         if self._on_stage is None:
@@ -58,14 +65,17 @@ class CriteriaRunner:
             await outcome
 
     async def run_criterion(self, criterion: str, canonical: CanonicalProject, closest: ClosestDoc | None = None) -> CriterionResult:
+        set_stage(criterion)  # this task's LLM calls belong to the criterion (per-call log)
         await self.on_stage(criterion, "rodando")
         web_rules = self.catalog.rules_for(criterion, "web")
         doc_rules = self.catalog.rules_for(criterion, "doc")
-        tasks = [run_doc_sub(self.llm, self.catalog, criterion, doc_rules, canonical, self.max_table_rows)]
+        tasks = [run_doc_sub(self.llm, self.catalog, criterion, doc_rules, canonical, self.max_table_rows,
+                             pitfalls=self.doc_pitfalls, flag_speculative=self.flag_speculative)]
         if web_rules:
             tasks.append(
                 run_web_sub(self.llm, self.catalog, criterion, web_rules, canonical, self.providers,
-                            self.queries_per_front, self.results_per_query, self.fetch_per_front, closest)
+                            self.queries_per_front, self.results_per_query, self.fetch_per_front, closest,
+                            session=self.session)
             )
         try:
             parts = await asyncio.gather(*tasks)

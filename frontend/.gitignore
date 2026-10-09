@@ -31,3 +31,5 @@ blob-report
 # Vercel
 .vercel
 .env*
+!.env.example
+/static-api

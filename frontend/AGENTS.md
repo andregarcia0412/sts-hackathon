@@ -156,6 +156,11 @@ src/
   salvos: as análises deles são sintetizadas na leitura. Um projeto gerado que muda (ex.:
   recebe decisão) é copiado para o banco salvo.
 - A sessão de login fica em `localStorage["lei-do-bem:session"]` (mock).
+- **Fontes de dados** (`VITE_DATA_SOURCE`, `services/dataSource.ts`): `mock` (padrão), `static`
+  (JSONs exportados do back-end, pasta `static-api/`) e `api` (back-end real). O back-end só
+  gera Frascati: nos modos `static` e `api` o front acrescenta um **Formulário MCTI
+  ilustrativo** (`mocks/illustrativeMcti.ts`), marcado como exemplo nas telas e no CSV. O que o
+  analista registra nele fica no navegador e nunca vai para o back-end.
 
 ## Armadilhas conhecidas
 
@@ -175,7 +180,13 @@ src/
   próprio contêiner (`scrollTo` / `scrollTop`), como em `scrollDocumentTo` (documento),
   no chat e no `PillSelect`.
 - **`sr-only` dentro de contêiner com rolagem**: o `<main>` é `relative` para que esses
-  elementos absolutos não aumentem o tamanho do documento.
+  elementos absolutos não aumentem o tamanho do documento, e cada caixa que rola sozinha
+  (o `<article>` do documento de decisão) também é `relative`: senão eles esticam o `<main>` e
+  a página inteira rola.
+- **Árvore com dados reais**: um critério real tem ~18 regras (o mock tem 2). A visão
+  "Critério" não reduz abaixo de `CRITERION_VIEW_MIN_ZOOM` (o resto se vê arrastando) e o
+  `BracketEdge` divide a espessura da linha pelo zoom; `vector-effect` não serve, porque o
+  React Flow faz o zoom com `transform` de CSS.
 - **Impressão/PDF**: o layout usa `h-dvh` com o `<main>` rolável. Há classes `print:` que
   desfazem isso; mantenha-as ao mexer no layout.
 

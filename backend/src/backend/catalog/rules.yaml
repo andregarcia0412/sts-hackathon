@@ -5,10 +5,16 @@
 # Fields per rule:
 #   bloco: web | doc | transversal      modo: llm | procedural | design | regra
 #   papel: media (counts in the mean) | informativa (out of the mean) | gate (forces the criterion state)
+#   forca_coluna: negativa — state gate: predominant negative evidence forces the negative column (graph/states.py),
+#     unless the coherence gate exempts it (strong positive score in NOV/CRI/INC)
+#   requer_gate: [..] — the state gate acts only if one of these gates fired in another criterion (cross-criteria)
+#   fonte_de_referencia: true — a source with negative evidence here is the prior reference (consistency, spec 02)
 #   status: aplicavel | parcial | na    (parcial/na never call the LLM; motivo_status goes to the report)
 #   roteamento: doc -> file_type[#anchor]; web -> query families
+#   checagens: deterministic checks (checks/, CHK-*) that feed the rule: their result is routed to it as a citable
+#     fragment of nature `derivado` (file type `checagem`)
 #   prompt: rule-specific instruction (positiva quando / negativa quando) used by the sub-agent prompt
-versao: "2026.10.08-1"
+versao: "2026.10.09-6"
 
 tipos_de_arquivo:
   - dossie
@@ -217,6 +223,7 @@ regras:
     modo: llm
     papel: media
     roteamento: ["metodo#1", "dossie#referencia_anterior"]
+    checagens: [CHK-RECALC]
     prompt: >-
       POSITIVA quando metodo.md §1 nomeia alternativas conhecidas E onde cada uma falha no problema estudado.
       NEGATIVA quando o §1 mostra que a referência anterior já resolve o problema (manual, catálogo, produto).
@@ -245,7 +252,10 @@ regras:
     fontes_normativas: ["Frascati 2015 §2.15", "UK DSIT ¶12, ¶22, ¶24", "Guia ANPEI 2017 pp. 19 e 26", "Guia MCTI 2020 Ap. B.3"]
     modo: llm
     papel: gate
+    forca_coluna: negativa
+    fonte_de_referencia: true
     roteamento: ["metodo#1", "metodo#2", "configuracao", "cronologia"]
+    checagens: [CHK-CONFIG]
     prompt: >-
       (CHK-CONFIG) NEGATIVA quando a solução vem de produto contratado, manual, catálogo, SDK ou runbook e o
       trabalho foi configurar/ativar/mapear/ajustar parâmetros dentro da faixa já suportada. POSITIVA quando a
@@ -260,6 +270,7 @@ regras:
     fontes_normativas: ["Frascati 2015 §2.70–2.72", "IPCTN 2020 Anexo I"]
     modo: llm
     papel: media
+    fonte_de_referencia: true
     roteamento: ["metodo#1", "metodo#2", "dossie#trabalho_documentado"]
     prompt: >-
       NEGATIVA quando o trabalho é sistema de negócio com métodos conhecidos, customização, integração de
@@ -276,6 +287,7 @@ regras:
     modo: llm
     papel: media
     roteamento: ["resultados", "medicoes", "metodo#1"]
+    checagens: [CHK-RECALC]
     prompt: >-
       (CHK-RECALC) Compare o mecanismo com os comparadores conhecidos nas mesmas entradas. POSITIVA quando
       resultados.csv mostra ganho do mecanismo sobre os comparadores conhecidos do §1. NEGATIVA quando a única
@@ -313,7 +325,10 @@ regras:
     fontes_normativas: ["Históricos PRJ01, 04, 09, 11, 12, 19, 20", "Frascati 2015 §2.72"]
     modo: llm
     papel: gate
+    forca_coluna: negativa
+    fonte_de_referencia: true
     roteamento: ["metodo#1", "metodo#2", "cronologia", "dossie#referencia_anterior"]
+    checagens: [CHK-CONFIG, CHK-TEMPO]
     prompt: >-
       (CHK-CONFIG + CHK-TEMPO) NEGATIVA quando metodo.md §1 cita manual/catálogo/produto contratado anterior ao
       início (cronologia) que já descreve a função que o §2 aplica. POSITIVA quando a referência anterior falha
@@ -329,6 +344,7 @@ regras:
     modo: llm
     papel: media
     roteamento: ["metodo#6", "revisao", "dossie#limite_da_conclusao"]
+    checagens: [CHK-ESCOPO]
     prompt: >-
       (CHK-ESCOPO) POSITIVA quando o limite da conclusão delimita o recorte ensaiado e a novidade alegada cabe
       nele. NEGATIVA quando a novidade alegada vai além do que foi ensaiado.
@@ -431,6 +447,7 @@ regras:
     modo: llm
     papel: media
     roteamento: ["metodo#2", "cronologia"]
+    checagens: [CHK-TEMPO]
     prompt: >-
       (CHK-TEMPO) POSITIVA quando o §2 traz hipótese técnica e a cronologia mostra o registro do método/protocolo
       ANTES dos ensaios. NEGATIVA quando não há hipótese (só objetivo de produto ou configuração) ou ela foi
@@ -472,6 +489,7 @@ regras:
     modo: llm
     papel: media
     roteamento: ["metodo#3", "cronologia", "resultados", "observacoes"]
+    checagens: [CHK-FALHAS, CHK-VERSOES]
     prompt: >-
       (CHK-VERSOES + CHK-FALHAS) POSITIVA quando há comparadores/alternativas executados e versões abandonadas por
       falha EXPERIMENTAL. NEGATIVA quando as únicas "alternativas" são versões de configuração corrigidas
@@ -486,7 +504,9 @@ regras:
     fontes_normativas: ["Frascati 2015 §2.17 e §2.56", "Guia MCTI 2020 Ap. B.1", "FAQ MCTI P17", "Históricos PRJ01, 04, 09, 11, 12, 19, 20"]
     modo: llm
     papel: gate
+    forca_coluna: negativa
     roteamento: ["metodo#2", "configuracao", "metodo#1"]
+    checagens: [CHK-CONFIG]
     prompt: >-
       (CHK-CONFIG) NEGATIVA quando o mecanismo é configurar, ativar, cadastrar, mapear, traduzir sintaxe ou ajustar
       parâmetro dentro da faixa já suportada pelo produto/manual. POSITIVA quando há regra de decisão, estrutura
@@ -530,6 +550,7 @@ regras:
     modo: llm
     papel: media
     roteamento: ["metodo#2", "metodo#4", "configuracao"]
+    checagens: [CHK-VERSOES]
     prompt: >-
       (CHK-VERSOES) POSITIVA quando há limiares, pesos, janelas, regras de empate ou pseudocódigo com valores
       concretos e parâmetros-chave não nulos em configuracao.json. NEGATIVA quando os parâmetros-chave são null
@@ -550,6 +571,7 @@ regras:
     modo: llm
     papel: media
     roteamento: ["metodo#1", "metodo#2", "resultados"]
+    checagens: [CHK-VERSOES]
     prompt: >-
       (CHK-VERSOES) POSITIVA quando o acoplamento/combinação do §2 foi testado contra os comparadores conhecidos do
       §1 (aparecem como versões em resultados.csv). NEGATIVA quando é técnica conhecida renomeada.
@@ -638,6 +660,7 @@ regras:
     modo: llm
     papel: media
     roteamento: ["atividades", "dossie#pergunta_registrada", "metodo#2"]
+    checagens: [CHK-PERGUNTA]
     prompt: >-
       POSITIVA quando a pergunta registrada é técnica e específica (método, condição, métrica). NEGATIVA quando é
       pergunta de configuração/integração de produto conhecido ou de negócio.
@@ -667,6 +690,7 @@ regras:
     papel: media
     polaridade_especial: "T4: falha experimental (v1 falha na hipótese → v2 corrige) conta A FAVOR."
     roteamento: ["resultados", "medicoes", "observacoes", "metodo#3", "cronologia"]
+    checagens: [CHK-FALHAS]
     prompt: >-
       (CHK-FALHAS) POSITIVA quando há falha EXPERIMENTAL registrada (hipótese não confirmada, critério prévio não
       atingido, comparador que falha). NEGATIVA quando a única falha é OPERACIONAL (parâmetro, permissão,
@@ -680,7 +704,9 @@ regras:
     evidencia: Decisão técnica registrada.
     fontes_normativas: ["CRA SR&ED"]
     modo: llm
-    papel: media
+    papel: gate
+    forca_coluna: negativa
+    requer_gate: [NOV-D4, NOV-D10]
     roteamento: ["observacoes", "metodo#2", "metodo#6"]
     prompt: >-
       POSITIVA quando o registro mostra que a equipe atacou a barreira com o mecanismo. NEGATIVA quando desviou
@@ -725,6 +751,7 @@ regras:
     modo: llm
     papel: media
     roteamento: ["cronologia", "dossie#cabecalho"]
+    checagens: [CHK-TEMPO]
     prompt: >-
       (CHK-TEMPO) POSITIVA quando a cronologia mostra início (registro do problema) e fim (revisão final) com
       versões de ensaio entre eles. NEGATIVA quando não dá para delimitar a etapa incerta.
@@ -737,8 +764,11 @@ regras:
     evidencia: O que mudou entre v1 e v2 e por quê.
     fontes_normativas: ["Frascati 2015 §2.57, §2.72", "UK DSIT ¶14, ¶35", "Históricos PRJ01, 04, 09, 11, 12"]
     modo: llm
-    papel: media
+    papel: gate
+    forca_coluna: negativa
+    requer_gate: [NOV-D4, NOV-D10]
     roteamento: ["cronologia", "metodo#2", "metodo#3", "observacoes", "resultados"]
+    checagens: [CHK-CONFIG, CHK-FALHAS]
     prompt: >-
       (CHK-CONFIG + CHK-FALHAS) NEGATIVA quando as mudanças entre versões são correção de parâmetro, permissão,
       cadastro, mapeamento ou receita do fornecedor. POSITIVA quando a mudança entre versões responde a falha da
@@ -773,6 +803,7 @@ regras:
     modo: llm
     papel: media
     roteamento: ["medicoes", "resultados", "cronologia", "metodo#3", "revisao"]
+    checagens: [CHK-VERSOES]
     prompt: >-
       (CHK-VERSOES) POSITIVA quando medicoes.csv tem ensaios da versão da hipótese E dos comparadores nas mesmas
       entradas. NEGATIVA quando só há plano, diagrama, memorando (MEMO-xx sem versão/saída) ou contagem de entrega.
@@ -793,6 +824,7 @@ regras:
     modo: llm
     papel: media
     roteamento: ["dossie#cabecalho", "dossie#contexto", "cronologia"]
+    checagens: [CHK-TEMPO]
     prompt: >-
       (CHK-TEMPO) POSITIVA quando há objetivo/escopo e datas de início e fim verificáveis na cronologia. NEGATIVA
       quando faltam datas ou o objeto é uma área/departamento e não um projeto.
@@ -807,6 +839,7 @@ regras:
     modo: llm
     papel: media
     roteamento: ["cronologia", "metodo#3"]
+    checagens: [CHK-TEMPO]
     prompt: >-
       (CHK-TEMPO) POSITIVA quando a cronologia registra problema e protocolo/critérios ANTES do primeiro ensaio.
       NEGATIVA quando os critérios aparecem depois dos ensaios ou não há plano.
@@ -843,8 +876,10 @@ regras:
     evidencia: metodo.md#3, versões dos comparadores na cronologia, ensaios em medicoes.csv.
     fontes_normativas: ["Guia MCTI 2020 §6.4", "FAQ MCTI P4", "CRA SR&ED", "IE TDM §3.6", "Históricos PRJ02, 13, 14, 16 × PRJ04, 09, 12"]
     modo: llm
-    papel: media
+    papel: gate
+    forca_coluna: negativa
     roteamento: ["metodo#3", "cronologia", "medicoes", "resultados"]
+    checagens: [CHK-VERSOES]
     prompt: >-
       (CHK-VERSOES) POSITIVA quando alternativas (incluindo comparadores conhecidos) rodaram nas mesmas entradas
       com critérios fixados antes. NEGATIVA quando é aceite: roteiros com resultado esperado repetidos até passar
@@ -865,6 +900,7 @@ regras:
     modo: llm
     papel: media
     roteamento: ["observacoes", "resultados", "metodo#6", "cronologia"]
+    checagens: [CHK-FALHAS]
     prompt: >-
       (CHK-FALHAS) POSITIVA quando há registro de caminho que falhou e do motivo da mudança de rumo (falha
       experimental). NEGATIVA quando não há desvio registrado ou os desvios são só correções de configuração.
@@ -906,6 +942,7 @@ regras:
     modo: llm
     papel: media
     roteamento: ["cronologia", "medicoes", "configuracao", "resultados"]
+    checagens: [CHK-VERSOES]
     prompt: >-
       (CHK-VERSOES) POSITIVA quando toda versão citada na cronologia/configuração tem ensaio em medicoes.csv.
       NEGATIVA quando há versão alegada sem ensaio, parâmetros null ou só contagem de entrega.
@@ -935,6 +972,7 @@ regras:
     modo: llm
     papel: media
     roteamento: ["resultados"]
+    checagens: [CHK-RECALC]
     prompt: >-
       (CHK-RECALC) NEGATIVA quando os resultados são só natureza=entrega (taxa vazia). POSITIVA quando há
       resultados de natureza=desempenho com operação e base explícitas. Vazio não é zero.
@@ -964,6 +1002,7 @@ regras:
     modo: llm
     papel: media
     roteamento: ["metodo#4", "metodo#5", "resultados", "medicoes"]
+    checagens: [CHK-RECALC]
     prompt: >-
       (CHK-RECALC) POSITIVA quando método, parâmetros e resultados com base de cálculo permitem repetir. NEGATIVA
       quando falta parte essencial (versão, saída, parâmetros null).
@@ -979,6 +1018,7 @@ regras:
     papel: media
     polaridade_especial: "T4: falha experimental registrada conta A FAVOR."
     roteamento: ["resultados", "medicoes", "observacoes"]
+    checagens: [CHK-FALHAS]
     prompt: >-
       (CHK-FALHAS) POSITIVA quando falhas EXPERIMENTAIS (comparador que falha, critério prévio não atingido) estão
       registradas com números. Se não há falha registrada, não há evidência.
@@ -1017,6 +1057,7 @@ regras:
     modo: llm
     papel: media
     roteamento: ["cronologia", "resultados", "metodo#3"]
+    checagens: [CHK-VERSOES]
     prompt: >-
       (CHK-VERSOES) POSITIVA quando a cadeia fecha: cronologia aponta para o método, resultados apontam para os
       ensaios de medicoes.csv. NEGATIVA quando há elo quebrado (resultado sem ensaio, versão sem registro).
@@ -1031,6 +1072,7 @@ regras:
     modo: llm
     papel: media
     roteamento: ["metodo#6", "metodo#7", "revisao", "configuracao", "dossie#limite_da_conclusao"]
+    checagens: [CHK-ESCOPO]
     prompt: >-
       (CHK-ESCOPO) NEGATIVA quando há lacuna DENTRO da pretensão original (hipótese do protocolo não ensaiada,
       flag *_executado:false, critério prévio não atingido) — descreva a limitação concreta. POSITIVA quando os
@@ -1045,8 +1087,10 @@ regras:
     evidencia: Natureza do que está documentado.
     fontes_normativas: ["Históricos PRJ01, 04, 09, 11, 12, 19, 20"]
     modo: llm
-    papel: media
+    papel: gate
+    forca_coluna: negativa
     roteamento: ["metodo#3", "metodo#4", "configuracao"]
+    checagens: [CHK-CONFIG]
     prompt: >-
       (CHK-CONFIG) NEGATIVA quando o que está documentado é uma receita de configuração de produto existente.
       POSITIVA quando o documentado é o mecanismo próprio e seus resultados.
@@ -1061,6 +1105,7 @@ regras:
     modo: llm
     papel: media
     roteamento: ["resultados", "medicoes"]
+    checagens: [CHK-RECALC]
     prompt: >-
       (CHK-RECALC) Para contagem, some numeradores e denominadores SOMENTE dentro do mesmo ensaio_id. POSITIVA
       quando os valores de resultados.csv batem com medicoes.csv do mesmo ensaio. NEGATIVA quando não batem ou o

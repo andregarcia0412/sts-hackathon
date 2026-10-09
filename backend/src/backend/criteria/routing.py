@@ -16,7 +16,7 @@ class RoutedFragments:
 def route_fragments(canonical: CanonicalProject, rules: list[CatalogRule], max_table_rows: int) -> RoutedFragments:
     wanted: list[tuple[str, str | None]] = []
     for rule in rules:
-        for target in rule.roteamento:
+        for target in [*rule.roteamento, *(f"checagem#{check}" for check in rule.checagens)]:
             file_type, _, anchor = target.partition("#")
             if (file_type, anchor or None) not in wanted:
                 wanted.append((file_type, anchor or None))

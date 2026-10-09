@@ -79,9 +79,27 @@ Classes: **Elegível** (eligible) · **Com ressalvas** (with caveats; requires t
 the limitation and the evidence needed) · **Não elegível** (not eligible) · **Evidência
 insuficiente** (insufficient evidence; requires the missing link and the evidence to request).
 The criterion state is suggested by an LLM judge that reads only that criterion's evidence nodes and must
-answer with the exact vocabulary; then code gates force it: NOV-W3 with full coverage, or NOV-D4 /
-NOV-D10 / CRI-D5 with predominant negative evidence → negative column; a positive state without
-numeric record (medicoes/resultados) → undetermined column. The class comes from the exact answer-key
+answer with the exact vocabulary; then code gates force it: NOV-W3 with full coverage, or a **state gate of the
+catalog** (`forca_coluna: negativa` in `rules.yaml`: NOV-D4, NOV-D10, CRI-D5, SIS-D5 → DOCUMENTADA COMO ACEITE,
+REP-D8 → PARA A CONFIGURAÇÃO, and INC-D5/INC-D9 only when a NOV gate fired — `requer_gate`, judged in a second wave)
+with predominant negative evidence → negative column; a positive state without
+numeric record (medicoes/resultados) → undetermined column. **Coherence gate** (`graph/coherence.py`,
+`COHERENCE_MODE`): a strong criterion score (≥ 75 or ≤ 25 with ≥ 4 rules with evidence) that contradicts the state
+(e.g. INDETERMINADA with score 89, SIS PARCIAL with score 100) makes the judge decide once more with the
+contradiction spelled out; a configuration gate does not force against a strong positive score (it is judged again).
+If the contradiction persists, the judge's state stays, the criterion is flagged "revisar" and the class gets
+`inconsistent` — the code never picks the state from the score. **Questionnaire mode** (`JUDGE_MODE=questionario`,
+`graph/questionnaire.py`): instead of picking the label, the judge answers closed questions about facts (N1–N3,
+C1–C3, I1–I3, S1–S2, R1–R3), each with evidence ids (no evidence after one new attempt → `nao_fundamentada`, counted
+as `sem_registro`), and the decision table of `catalog/questionario.yaml` turns the answers into the state in code;
+the gates lock answers (NOV-W3 / configuration gates → N1/C1 = sim; numeric record → I3/S1/R1 cannot be sim) and the
+report shows question → answer → evidence. **Consistency between criteria** (`graph/consistency.py`,
+`CONSISTENCY_NEUTRALIZE`, off by default): CRI/INC positive evidence on a source that NOV-D4/D5/D10 used as proof that
+the prior reference already provided the function gets an `adjustment` and leaves the score (never deleted). **Handbooks** (`catalog/handbooks/{NOV,CRI,INC,SIS,REP}.md`: pitfalls,
+when to use each state — above all when NOT to use the insufficient column —, signals that do not count; no project
+codes) go into the judge's prompt (`JUDGE_HANDBOOKS`) and, optionally, the pitfalls into the document sub-agent
+(`DOC_HANDBOOK_PITFALLS`). In the questionnaire, "sim" in N1/I1 needs package evidence: the web complements, never
+decides alone. The class comes from the exact answer-key
 patterns; a mixed vector gets a suggestion from the decision tree of the historical cases **in code**
 (`graph/classify.py`) and the flag `inconsistent`.
 
@@ -106,15 +124,25 @@ Fixed-order pipeline; each stage reads and writes **only** through the canonical
 graph. No module calls another directly:
 
 1. **Extraction** → converts the package into the **canonical JSON** (the single input for every
-   module). **Every file goes through the extraction agent** (LLM), which identifies its type by
-   content and maps its structure (section headings with line numbers, table header row and ID column).
+   module). The known files are mapped **deterministically by content** (`extraction/structure.py`: header columns,
+   JSON keys, headings; the XLSX header on row 5; footer and page numbers ignored), producing the same
+   `FileMapping` the agent would; the **extraction agent** (LLM) is the fallback for files not recognized with
+   confidence, with missing required sections, or contradicting the inventory (`ExtractedFile.mapping_source`).
    **Code slices** the verbatim text from that mapping, so no sentence or number passes through
    generation; an invented heading is dropped. A fragment with a stable ID is the unit of citation
    (file, page/line, verbatim text, nature). Unrecognized file → "pendente de validação".
-2. **Deterministic checks** (`CHK-*`: recompute `medicoes` × `resultados`, timeline, versions) run
-   **via LLM instructions** inside the document sub-agents in the MVP; Python checks are post-MVP.
+2. **Deterministic checks** (`checks/`, stage `checagens`, zero tokens): CHK-RECALC (recompute `resultados` from
+   `medicoes`, only within the same trial, empty ≠ zero), CHK-TEMPO, CHK-VERSOES, CHK-FALHAS (with the direction of the
+   metric), CHK-CONFIG, CHK-ESCOPO, CHK-DIVERG (interview × record: different number, another version, another base,
+   absence/totality of failures, kept × changed parameter) and CHK-PERGUNTA (question that names the known solution).
+   Files by `file_type` (content), never by name. Each check becomes a **citable fragment** (`checagens#CHK-X`,
+   nature `derivado`) routed to the rules that list it in `checagens:`; CHK-DIVERG candidates are added to the
+   recorded divergences. `Analysis.checks`, node `kind="check"` in the graph.
 3. **Web research** (`-W` rules; OpenAlex, Google Patents, market, technical documentation) and
    **LLM rules over documents** (`-D` rules), in parallel.
+   Every query must share a stem with the project's own technical terms (`search/grounding.py`, from the canonical
+   only, bilingual glossary; dropped otherwise and logged), and one `SearchSession` per analysis reuses a
+   near-identical query of the same front (Jaccard ≥ 0,6, `SearchLogEntry.reused_from`) and reads each URL once.
 4. **Evidence graph** → the system's memory; per-criterion states and suggested class.
    MongoDB with two collections (`nodes`, `edges`) traversed with `$graphLookup`. Deterministic IDs
    (hash of rule + source + quote), idempotent inserts.
@@ -139,7 +167,7 @@ The **frontend is the source of truth for the API contract**: `frontend/src/doma
 
 ```
 backend/
-  pyproject.toml            # uv, Python >= 3.13; scripts: backend, backend-import, backend-ingest-norms, backend-calibrate, backend-benchmark
+  pyproject.toml            # uv, Python >= 3.13; scripts: backend, backend-import, backend-ingest-norms, backend-calibrate, backend-benchmark, backend-checks, backend-entrega
   .env.example              # every setting, documented (Ollama models per role live here)
   data/normas/              # normative PDFs for the chatbot (BM25 index, no embeddings)
   src/backend/
@@ -147,11 +175,12 @@ backend/
     config.py               # Settings; LLM roles: extraction, doc, search, judge, report, chat
     llm/                    # LLMClient (Ollama chat/structured/web_search/web_fetch, temperature 0, retries) + prompt registry
                             # + usage meter (calls/tokens/time per role, saved on every Analysis)
-    catalog/                # rules.yaml (versioned), loader + Mongo sync, GET /regras, /regras/{id}
+    catalog/                # rules.yaml (versioned), questionario.yaml (judge questions + decision table), handbooks/, loader + Mongo sync, GET /regras
     storage.py              # GridFS: immutable originals with sha256
     projects/               # Project + files (superseded, never deleted), upload (multipart/.zip), list (ProjectQuery), CLI import
     extraction/             # 1. raw text → extraction agent (mapping) → slicer (verbatim fragments) → canonical JSON + context
     search/                 # OpenAlex, Ollama web (patents/market/docs), Mongo cache, T6 sanitizer
+    checks/                 # deterministic CHK-* checks (zero tokens), citable fragments, backend-checks CLI
     criteria/               # 2. generic criterion agent: sub Doc + sub Web, citation gate, routing; NOV before CRI/INC
     graph/                  # 3. scoring, state judge + gates, class (patterns + tree), nodes/edges, $graphLookup trace
     analyses/               # 4. orchestrator (stages, versions, background jobs), batches, status/graph/canonical routes
@@ -159,6 +188,7 @@ backend/
     review/                 # decisions, contestations (+ reanalysis), rule decisions, evidence reviews — append-only
     frontend_api/           # projection to the hifi Analysis tree (crit-x.rule-y.ev-z), ProjectQuery
     assistant/              # 6. chatbot: graph + catalog + norms (BM25), citation and numbers gates, debate
+    delivery/               # delivery of the 20 cases: run (resumable) + export (pareceres, CSV/JSON, API mock for the front)
     benchmark/              # pipeline benchmark: runs the package sets, accuracy vs references, time, cost, gates, determinism
     users/, auth/           # User (email, name, argon2), JWT access/refresh, CurrentUser dependency
   tests/                    # unit/ (fakes, no network), api/ (TestClient), live/ (opt-in, real Ollama)
@@ -173,7 +203,7 @@ Main endpoints: `POST /projects` (multipart files or .zip; starts the analysis) 
 · `GET /analyses/{id}/graph/trace/{node}` · `GET /analyses/{id}/report.{json,csv,pdf}` · `POST /batches`
 (`packageDir` inside `PACKAGE_DIR`) · `POST /batches/upload` (.zip) · `GET /batches/{id}[/report.csv]` ·
 `GET|POST /projects/{id}/decisions|contestations|rule-decisions|evidence-reviews` ·
-`POST /benchmarks` · `GET /benchmarks[/{id}[/projects|/report.csv]]` · `GET /benchmarks/compare?base=&target=` ·
+`POST /benchmarks` · `POST /benchmarks/{id}/rejudge|close|delivery` · `GET /benchmarks/{id}/report.html` · `GET /benchmarks[/{id}[/projects|/report.csv]]` · `GET /benchmarks/compare?base=&target=` ·
 `POST /contestations/{id}/reanalysis` · `POST /assistant/ask|debate` · `GET /regras[/{id}]`.
 
 ## Commands
@@ -188,6 +218,13 @@ uv run backend-import <folder> # import + analyse every project folder as a batc
 uv run backend-ingest-norms    # (re)index data/normas (also done in the background on the first start)
 uv run backend-calibrate historicos_classificados.csv nosso.csv   # confusion matrix vs the answer key
 uv run backend-benchmark --projects PRJ01,PRJ21   # benchmark (all 40 without --projects; --repeats 2 = determinism)
+uv run backend-benchmark --rejudge <benchmark_id> [--coherence off|flag|reask|force] [--judge-mode estado|questionario]
+uv run backend-benchmark --close <benchmark_id>   # close a benchmark whose CLI died
+uv run backend-benchmark report <benchmark_id> --out metricas.html   # pitch report (static HTML + metricas.json)
+uv run backend-entrega run [--resume <id>] [--yes]   # analyse the 20 cases (resumable, estimate first)
+uv run backend-entrega export <benchmark_id> [--out <outside the repo>] [--zip] [--require-decisions]
+uv run backend-checks <benchmark_id> [--projects PRJ21]   # deterministic checks over saved canonicals (zero tokens)
+uv run backend-checks <benchmark_id> --parsers   # deterministic mapping × saved canonical fragment ids (zero tokens)
 uv run pytest                  # unit + API tests, needs Mongo; no network
 uv run pytest -m live          # opt-in: PRJ21 end to end with the real Ollama (reads backend/.env)
 uv add <package>               # always manage dependencies with uv, never pip
@@ -224,7 +261,20 @@ run, metrics). Accuracy is reported **per reference and never mixed**: `oficial`
 divergences (**not** an answer key; outside the repo like all package data). Also: time per stage,
 LLM calls/tokens per role, failures, rule coverage, gate drop rate, divergences, and agreement between
 repeats. Benchmark projects/batches carry `benchmark_id` and are hidden from the analyst's lists.
-There is no coordinator task: `refresh` closes the benchmark when every analysis has finished.
+There is no coordinator task: `refresh` closes the benchmark when every analysis has finished;
+`--close <id>` / `POST /benchmarks/{id}/close` closes one stuck in "rodando" (unfinished analyses count as failures).
+Every analysis records its `worker` (`host:pid:boot_id`) and `heartbeat_at`: a server start only fails the analyses
+whose process is gone, so `uv run backend` (and its reload) never kills a CLI benchmark running in another process.
+OpenAlex: `OPENALEX_MAILTO` (polite pool) for batch runs, 429 waits for `Retry-After`, `OPENALEX_MAX_CONCURRENCY`.
+**Pitch metrics** (spec 07): every LLM call is logged (numbers only, never prompt or answer) in `llm_calls` with
+stage and model, summarized per analysis (`Analysis.calls`); the benchmark reports requests/tokens/latency per model
+and per stage, cost (only with `MODEL_PRICES`), time × manual process (only with `MANUAL_ANALYSIS_MINUTES` and its
+`MANUAL_ANALYSIS_SOURCE`), rule coverage, defensibility (what the gates refused), report completeness and safety;
+`GET /benchmarks/{id}/report.html` is a self-contained page.
+**Re-judge** (`benchmark/rejudge.py`, `POST /benchmarks/{id}/rejudge`): runs only the conclusion stage
+(`graph/judge.py → judge_and_classify`, the same function the orchestrator uses) over the saved evidence of the
+finished analyses of a benchmark, on in-memory copies (the source analyses are never written), and saves a new
+benchmark with `config.rejudgedFrom`. ~5 `judge` calls per analysis instead of a full run.
 
 ## Knowledge base
 

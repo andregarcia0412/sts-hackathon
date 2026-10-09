@@ -19,7 +19,11 @@ export const useFrameGraph = () => {
   const { setViewport } = useReactFlow<AnalysisFlowNode>();
   const store = useStoreApi<AnalysisFlowNode>();
 
-  return (nodes: AnalysisFlowNode[], padding: Padding = 0.12, durationMs = ANIMATION_MS) => {
+  /**
+   * `minZoom` above the default keeps the cards readable: the camera then
+   * shows the middle of the bounds and the rest is reached by panning.
+   */
+  return (nodes: AnalysisFlowNode[], padding: Padding = 0.12, durationMs = ANIMATION_MS, minZoom = MIN_FRAME_ZOOM) => {
     if (nodes.length === 0) return;
     const boxes = nodes.map((n) => ({ ...n.position, ...nodeSize(n.data.node) }));
     const x = Math.min(...boxes.map((b) => b.x));
@@ -34,7 +38,7 @@ export const useFrameGraph = () => {
       { x, y, width: right - x, height: bottom - y },
       width,
       height,
-      MIN_FRAME_ZOOM,
+      minZoom,
       MAX_FRAME_ZOOM,
       padding,
     );

@@ -28,7 +28,7 @@ async def test_runs_five_criteria_in_order_and_passes_closest_doc(canonical):
     hit = SearchHit(id="src-a", provider="openalex", title="Closest paper", url="https://doi.org/a", snippet="s")
     providers = {"literatura": FakeSearchProvider("openalex", [hit])}
     llm = FakeLLM({DocSubOut: empty_doc, WebJudgeOut: judge,
-                   QueryPlanOut: QueryPlanOut(queries=[{"frente": "literatura", "query": "q", "regras": []}])})
+                   QueryPlanOut: QueryPlanOut(queries=[{"frente": "literatura", "query": "dependency queue batch", "regras": []}])})
     stages = []
     runner = CriteriaRunner(llm, get_catalog(), providers, on_stage=lambda name, status, error=None: stages.append((name, status)))
     results = await runner.run_all(canonical)
