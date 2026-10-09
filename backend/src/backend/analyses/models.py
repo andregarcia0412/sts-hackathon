@@ -11,6 +11,7 @@ from backend.graph.classify import ClassSuggestion
 from backend.graph.consistency import ConsistencyReport
 from backend.graph.scoring import RuleScore
 from backend.graph.states import CriterionState
+from backend.llm.calls import CallsSummary
 from backend.llm.usage import LLMUsage
 from backend.projects.models import now
 
@@ -64,6 +65,7 @@ class Analysis(Document):
     mapping_sources: dict[str, int] = Field(default_factory=dict)  # files mapped "deterministico" / by the "agente"
     report: dict[str, Any] | None = None
     usage: LLMUsage | None = None  # LLM calls, tokens and time per role
+    calls: CallsSummary | None = None  # per model and per stage (the detail is in the llm_calls collection)
     worker: str | None = None  # "host:pid:boot_id" of the process that runs it (analyses/worker.py)
     heartbeat_at: datetime | None = None  # last stage change, seen by servers on other hosts
     error: str | None = None

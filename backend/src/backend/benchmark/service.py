@@ -145,6 +145,8 @@ def snapshot_of(run: BenchmarkRun, analysis: Analysis | None) -> RunSnapshot:
         usage=analysis.usage,
         coherence={c: s.coherence for c, s in analysis.states.items() if s.coherence},
         neutralized=len(analysis.consistency.neutralized) if analysis.consistency else 0,
+        calls=analysis.calls,
+        incoherent=sum(1 for s in analysis.states.values() if s.coherence and s.coherence.status == "incoerente"),
         files_total=sum(analysis.mapping_sources.values()),
         files_by_agent=analysis.mapping_sources.get("agente", 0),
     )
@@ -153,6 +155,15 @@ def snapshot_of(run: BenchmarkRun, analysis: Analysis | None) -> RunSnapshot:
         snap.incomplete = bool(suggestion.incomplete)
     for result in analysis.criteria.values():
         for rule in result.rules:
+            snap.rules_na += rule.status == "na"
+            snap.rules_partial += rule.status == "parcial"
+            for reason in rule.dropped:
+                if "depoimento" in reason:
+                    snap.dropped_testimony += 1
+                elif "estado da arte" in reason:
+                    snap.dropped_later += 1
+                elif "inexistente" in reason or "não encontrado" in reason:
+                    snap.dropped_invented += 1
             if rule.status in RULES_RUN:
                 snap.rules_total += 1
                 snap.rules_with_evidence += bool(rule.evidences)
@@ -160,6 +171,8 @@ def snapshot_of(run: BenchmarkRun, analysis: Analysis | None) -> RunSnapshot:
             snap.gate_dropped += len(rule.dropped)
             for item in rule.evidences:
                 snap.evidence_ids.append(item.id)
+                snap.evidences_without_source += not (item.source_id and item.quote)
+                snap.flagged_speculative += "justificativa_especulativa" in getattr(item, "flags", [])
                 snap.evidences_positive += item.polarity == "positiva"
                 snap.evidences_negative += item.polarity == "negativa"
         snap.web_searches += len(result.search_log)

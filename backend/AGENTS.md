@@ -219,6 +219,7 @@ uv run backend-calibrate historicos_classificados.csv nosso.csv   # confusion ma
 uv run backend-benchmark --projects PRJ01,PRJ21   # benchmark (all 40 without --projects; --repeats 2 = determinism)
 uv run backend-benchmark --rejudge <benchmark_id> [--coherence off|flag|reask|force] [--judge-mode estado|questionario]
 uv run backend-benchmark --close <benchmark_id>   # close a benchmark whose CLI died
+uv run backend-benchmark report <benchmark_id> --out metricas.html   # pitch report (static HTML + metricas.json)
 uv run backend-checks <benchmark_id> [--projects PRJ21]   # deterministic checks over saved canonicals (zero tokens)
 uv run backend-checks <benchmark_id> --parsers   # deterministic mapping × saved canonical fragment ids (zero tokens)
 uv run pytest                  # unit + API tests, needs Mongo; no network
@@ -262,6 +263,11 @@ There is no coordinator task: `refresh` closes the benchmark when every analysis
 Every analysis records its `worker` (`host:pid:boot_id`) and `heartbeat_at`: a server start only fails the analyses
 whose process is gone, so `uv run backend` (and its reload) never kills a CLI benchmark running in another process.
 OpenAlex: `OPENALEX_MAILTO` (polite pool) for batch runs, 429 waits for `Retry-After`, `OPENALEX_MAX_CONCURRENCY`.
+**Pitch metrics** (spec 07): every LLM call is logged (numbers only, never prompt or answer) in `llm_calls` with
+stage and model, summarized per analysis (`Analysis.calls`); the benchmark reports requests/tokens/latency per model
+and per stage, cost (only with `MODEL_PRICES`), time × manual process (only with `MANUAL_ANALYSIS_MINUTES` and its
+`MANUAL_ANALYSIS_SOURCE`), rule coverage, defensibility (what the gates refused), report completeness and safety;
+`GET /benchmarks/{id}/report.html` is a self-contained page.
 **Re-judge** (`benchmark/rejudge.py`, `POST /benchmarks/{id}/rejudge`): runs only the conclusion stage
 (`graph/judge.py → judge_and_classify`, the same function the orchestrator uses) over the saved evidence of the
 finished analyses of a benchmark, on in-memory copies (the source analyses are never written), and saves a new

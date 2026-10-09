@@ -12,6 +12,7 @@ from backend.errors import safe_error_message
 from backend.extraction.schema import CanonicalProject
 from backend.llm import LLM
 from backend.search.base import SearchProvider
+from backend.llm.calls import set_stage
 from backend.search.session import SearchSession
 
 StageCallback = Callable[..., object]
@@ -62,6 +63,7 @@ class CriteriaRunner:
             await outcome
 
     async def run_criterion(self, criterion: str, canonical: CanonicalProject, closest: ClosestDoc | None = None) -> CriterionResult:
+        set_stage(criterion)  # this task's LLM calls belong to the criterion (per-call log)
         await self.on_stage(criterion, "rodando")
         web_rules = self.catalog.rules_for(criterion, "web")
         doc_rules = self.catalog.rules_for(criterion, "doc")
