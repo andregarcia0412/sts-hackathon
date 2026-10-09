@@ -75,3 +75,14 @@ async def test_a_failed_search_is_reported_to_every_waiter_and_not_cached_as_emp
         await session.search("literatura", "a b c", boom)
     with pytest.raises(RuntimeError):
         await session.search("literatura", "a b c", boom)
+
+
+def test_acronyms_written_in_the_project_ground_a_query():
+    from backend.extraction.schema import CanonicalProject, ProjectContext
+
+    canonical = CanonicalProject(project_code="PRJ90", files=[], fragments=[],
+                                 context=ProjectContext(palavras_chave_pt=["respostas com RAG sobre documentos"]))
+    terms = domain_terms(canonical)
+    assert grounded("RAG citation grounding", terms)
+    assert not grounded("TRL maturity assessment academic research", terms)
+    assert not grounded("technical barrier solution availability literature", terms)

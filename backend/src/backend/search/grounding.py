@@ -12,6 +12,7 @@ from backend.extraction.schema import CanonicalProject
 from backend.search.sanitize import sanitize_query
 
 STEM = 5
+ACRONYM_RE = re.compile(r"\b[A-Z][A-Z0-9]{1,5}\b")  # RAG, MFA, SDK, OCR... as written in the project
 WORD_RE = re.compile(r"[a-z][a-z0-9_]{3,}")  # 4+ letters: "lote", "fila", "tcp"... are domain words too
 STOPWORDS = {
     "sobre", "entre", "quando", "porque", "foram", "sendo", "estes", "estas", "essas", "esses", "outro", "outra",
@@ -40,6 +41,8 @@ GLOSSARY = {
     "versa": ("version",), "migra": ("migration",), "sonda": ("probe", "monitoring"), "agenc": ("branch", "agency"),
     "monit": ("monitoring",), "simul": ("simulation",), "ataqu": ("attack",), "expli": ("explanation",),
     "audit": ("audit",), "cofre": ("vault",), "norma": ("normalization",), "cadas": ("registry",),
+    "trafeg": ("traffic",), "trafego": ("traffic",), "manuten": ("maintenance",), "biometr": ("biometric",),
+    "multifator": ("mfa", "multi"), "recupera": ("recovery",), "dispositivo": ("device",), "presenca": ("liveness",),
     "painel": ("dashboard",), "canal": ("channel",), "canais": ("channel",), "autoriz": ("authorization",),
     "permiss": ("permission", "authorization"), "estado": ("state",), "consist": ("consistency",), "ordem": ("order", "ordering"), "grafo": ("graph",), "aresta": ("edge",),
 }
@@ -69,6 +72,7 @@ def domain_terms(canonical: CanonicalProject) -> set[str]:
               if f.file_type in ("medicoes", "resultados")]
     clean = sanitize_query(" ".join(texts), ctx.termos_sensiveis).sanitized  # no codes, numbers or sensitive names
     stems = _stems(clean)
+    stems |= {a.lower() for a in ACRONYM_RE.findall(clean) if not any(c.isdigit() for c in a)}
     plain_text = _plain(clean)
     for portuguese, english in GLOSSARY.items():
         if _plain(portuguese) in plain_text:
@@ -82,4 +86,5 @@ def grounded(query: str, terms: set[str]) -> bool:
         return True
     words = {w[:STEM] for w in WORD_RE.findall(_plain(query))
              if w not in STOPWORDS and w not in GENERIC_QUERY_WORDS and not any(c.isdigit() for c in w)}
+    words |= {a.lower() for a in ACRONYM_RE.findall(query) if a.lower() not in {"trl", "api", "url", "faq"}}
     return bool(words & terms)
