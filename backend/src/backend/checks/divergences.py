@@ -28,8 +28,7 @@ def add_check_divergences(results: dict[str, CriterionResult], canonical: Canoni
     for divergence in check_divergences(checks):
         if (divergence.testimony_fragment_id, divergence.record_fragment_id) in known:
             continue
-        quote = _normal(divergence.testimony_quote)
-        if any(quote in other or other in quote for other in known_quotes if other):
+        if any(_same_sentence(_normal(divergence.testimony_quote), other) for other in known_quotes if other):
             continue
         results.setdefault(CRITERION, CriterionResult(criterion=CRITERION)).divergences.append(divergence)
         added += 1
@@ -39,3 +38,12 @@ def add_check_divergences(results: dict[str, CriterionResult], canonical: Canoni
 def _normal(text: str) -> str:
     """The same sentence quoted with or without its final period or quotes is the same divergence."""
     return re.sub(r"\W+", " ", text.casefold()).strip()
+
+
+def _same_sentence(a: str, b: str) -> bool:
+    """Equal, or one is the other plus a few characters (a final period, quotes). A short fragment quoted by the
+    sub-agent never suppresses a deterministic candidate: that would fail open the guarantee of the check."""
+    if a == b:
+        return True
+    shorter, longer = sorted((a, b), key=len)
+    return shorter in longer and len(shorter) >= 0.9 * len(longer)
