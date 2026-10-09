@@ -123,16 +123,16 @@ class Parecer(BaseModel):
 
 
 def _unique_divergences(divergences: list) -> list[str]:
-    """One line per interview sentence, even when the sub-agent and CHK-DIVERG both recorded it."""
+    """One line per interview sentence and record, even when the sub-agent and CHK-DIVERG both recorded it."""
     from backend.checks.divergences import _normal, _same_sentence
 
-    seen: list[str] = []
+    seen: list[tuple[str, str]] = []
     statements = []
     for divergence in divergences:
         quote = _normal(divergence.testimony_quote)
-        if any(_same_sentence(quote, other) for other in seen):
+        if any(_same_sentence(quote, other) and record == divergence.record_fragment_id for other, record in seen):
             continue
-        seen.append(quote)
+        seen.append((quote, divergence.record_fragment_id))
         statements.append(divergence.statement)
     return list(dict.fromkeys(statements))
 
