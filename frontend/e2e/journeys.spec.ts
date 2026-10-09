@@ -37,7 +37,7 @@ test("analista faz a primeira análise, decide e gera o documento", async ({ pag
   });
 
   await test.step("dá nota à regra 1.1", async () => {
-    await page.getByLabel("Nota da regra", { exact: true }).selectOption("sustained");
+    await chooseOption(page, "Nota da regra", /^Sustentado/);
     await typeLikeAPerson(page.getByLabel(/Justificativa/), "A comparação com o estado da arte (1.1.1) é direta.");
     await page.getByRole("button", { name: "Confirmar nota da regra" }).click();
     await expect(page.getByText("Registrada:")).toBeVisible();
@@ -47,7 +47,7 @@ test("analista faz a primeira análise, decide e gera o documento", async ({ pag
     await page.locator(".react-flow__node-rule", { hasText: "Tecnologia de amplo domínio" }).click();
     const dock = page.getByRole("form", { name: "Decisão do analista" });
     await expect(dock.getByText("Regra 1.2", { exact: true })).toBeVisible();
-    await page.getByLabel("Nota da regra", { exact: true }).selectOption("partial");
+    await chooseOption(page, "Nota da regra", /^Parcialmente sustentado/);
     await typeLikeAPerson(page.getByLabel(/Justificativa/), "Parte da solução usa tecnologia de amplo domínio.");
     await page.getByRole("button", { name: "Confirmar nota da regra" }).click();
     await expect(page.getByText("Registrada:")).toBeVisible();

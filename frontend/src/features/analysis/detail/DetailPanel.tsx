@@ -1,5 +1,5 @@
 import { TriangleAlert } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ReferenceLink } from "@/components/ui/ReferenceLink";
 import { Tag } from "@/components/ui/Tag";
 import { latestByNode } from "@/domain/reviews";
@@ -89,6 +89,25 @@ export const DetailPanel = ({
     }
   }, [selectedId]);
 
+  // Fade glued to the decision panel while there is more to scroll (design)
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [moreBelow, setMoreBelow] = useState(false);
+  const measureScroll = () => {
+    const container = scrollRef.current;
+    setMoreBelow(!!container && container.scrollHeight - container.scrollTop - container.clientHeight > 2);
+  };
+  useEffect(() => {
+    const container = scrollRef.current;
+    const content = contentRef.current;
+    if (!container || !content) return;
+    const observer = new ResizeObserver(() => {
+      setMoreBelow(container.scrollHeight - container.scrollTop - container.clientHeight > 2);
+    });
+    observer.observe(container);
+    observer.observe(content);
+    return () => observer.disconnect();
+  }, []);
+
   const criteria = [...index.values()].filter((n): n is CriterionNode => n.kind === "criterion");
 
   return (
@@ -100,35 +119,44 @@ export const DetailPanel = ({
         Detalhamento de informações
       </h2>
       {/* Desktop: this list scrolls and the decision stays docked; phone: everything flows with the page */}
-      <div
-        ref={scrollRef}
-        onFocus={() => (focusInPanel.current = true)}
-        onBlur={(e) => {
-          // Removed elements do not report where the focus went: keep the flag then
-          if (e.relatedTarget && !e.currentTarget.contains(e.relatedTarget)) focusInPanel.current = false;
-        }}
-        className="scroll-visible flex flex-col gap-1 px-4 pb-4 lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
-        {criteria.map((node) =>
-          node.id === focusCriterionId ? (
-            <OpenCriterion
-              key={node.id}
-              node={node}
-              explorer={explorer}
-              showInfo={!openRule}
-              openRuleId={openRule?.id}
-              projectId={projectId}
-              analysisId={analysis.id}
-              decisions={decisions}
-              reviews={reviews}
-              changesOf={changesOf}
-              contestationsOf={contestationsOf}
-            />
-          ) : (
-            <ClosedCriterion key={node.id} node={node} onOpen={() => explorer.select(node.id)} />
-          ),
-        )}
-        {/* Fade at the bottom of the scroll area (design): more content below */}
-        <div aria-hidden className="pointer-events-none sticky bottom-0 -mt-10 hidden h-10 shrink-0 bg-gradient-to-b from-white/0 to-white/90 lg:block" />
+      <div className="relative flex flex-col lg:min-h-0 lg:flex-1">
+        <div
+          ref={scrollRef}
+          onScroll={measureScroll}
+          onFocus={() => (focusInPanel.current = true)}
+          onBlur={(e) => {
+            // Removed elements do not report where the focus went: keep the flag then
+            if (e.relatedTarget && !e.currentTarget.contains(e.relatedTarget)) focusInPanel.current = false;
+          }}
+          className="scroll-visible flex flex-col px-4 pb-4 lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
+          <div ref={contentRef} className="flex flex-col gap-1">
+            {criteria.map((node) =>
+              node.id === focusCriterionId ? (
+                <OpenCriterion
+                  key={node.id}
+                  node={node}
+                  explorer={explorer}
+                  showInfo={!openRule}
+                  openRuleId={openRule?.id}
+                  projectId={projectId}
+                  analysisId={analysis.id}
+                  decisions={decisions}
+                  reviews={reviews}
+                  changesOf={changesOf}
+                  contestationsOf={contestationsOf}
+                />
+              ) : (
+                <ClosedCriterion key={node.id} node={node} onOpen={() => explorer.select(node.id)} />
+              ),
+            )}
+          </div>
+        </div>
+        <div
+          aria-hidden
+          className={`pointer-events-none absolute inset-x-0 bottom-0 hidden h-12 bg-gradient-to-b from-white/0 to-white transition-opacity duration-200 lg:block ${
+            moreBelow ? "opacity-100" : "opacity-0"
+          }`}
+        />
       </div>
       {openRule && (
         <RuleDecisionDock
