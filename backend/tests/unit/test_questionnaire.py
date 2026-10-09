@@ -250,8 +250,8 @@ async def test_the_timeline_answers_c4_when_the_method_holds_the_hypothesis():
     from tests.factories import synthetic_canonical
 
     checks = run_checks(await synthetic_canonical())  # documento-inicial before the trials
-    cri = CriterionResult(criterion="CRI", rules=[run("CRI-D10", evidence("CRI-D10", source="PRJ90-EV06#2"))])
-    cri.rules[0].evidences[0].source_alias = "evidencias/metodo.md#2"
+    cri = CriterionResult(criterion="CRI", rules=[run("CRI-D10", evidence("CRI-D10", source="PRJ90-DOSSIE#x"))])
+    assert any(fid.endswith("#2") for fid in checks.get("CHK-CONFIG").fragment_ids)  # the method has its §2
     llm = FakeLLM({QuestionnaireOut: fake_answers({"C4": "nao"})})
     state = await judge_by_questionnaire(llm, get_catalog(), cri, True, options=QUESTIONNAIRE, checks=checks)
     c4 = next(a for a in state.answers if a.pergunta == "C4")
