@@ -178,6 +178,7 @@ class AnalysisService:
             results_per_query=self.settings.web_results_per_query,
             fetch_per_front=self.settings.web_fetch_per_front,
             max_table_rows=self.settings.prompt_max_table_rows,
+            doc_pitfalls=self.settings.doc_handbook_pitfalls,
         )
         results = await runner.run_all(canonical)
         analysis.criteria = results

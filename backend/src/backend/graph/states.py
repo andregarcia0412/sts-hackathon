@@ -5,6 +5,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
+from backend.catalog.handbooks import handbook
 from backend.catalog.loader import get_catalog
 from backend.catalog.models import Catalog
 from backend.criteria.common import DATA_NOT_INSTRUCTIONS, argument_block
@@ -174,9 +175,16 @@ def apply_gates(state: CriterionState, result: CriterionResult, catalog: Catalog
     return state
 
 
+def judge_system(base: str, criterion: str, options: JudgeOptions) -> str:
+    """System prompt of the judge: the common instructions plus, optionally, the criterion handbook (spec 03)."""
+    if not options.handbooks:
+        return base
+    return base + f"\n\n<handbook criterio=\"{criterion}\">\n{handbook(criterion)}\n</handbook>"
+
+
 async def _judge_once(llm: LLM, catalog: Catalog, result: CriterionResult, numeric_record_in_analysis: bool,
                       analyst_argument: str | None, contradiction: Contradiction | None,
-                      exempt_score: int | None) -> CriterionState:
+                      exempt_score: int | None, options: JudgeOptions) -> CriterionState:
     info = catalog.criteria[result.criterion]
     vocabulary = info.estados.all_states()
     user = (
@@ -188,7 +196,8 @@ async def _judge_once(llm: LLM, catalog: Catalog, result: CriterionResult, numer
         user += "\n\n" + contradiction_block(contradiction, result)
     try:
         out = await llm.structured(
-            [{"role": "system", "content": STATE_SYSTEM}, {"role": "user", "content": user}], StateJudgeOut, role="judge"
+            [{"role": "system", "content": judge_system(STATE_SYSTEM, result.criterion, options)},
+             {"role": "user", "content": user}], StateJudgeOut, role="judge"
         )
     except Exception as error:
         return CriterionState(criterion=result.criterion, state=None, error=f"juiz de estado falhou: {safe_error_message(error)}")
@@ -268,7 +277,7 @@ async def judge_state(llm: LLM, catalog: Catalog, result: CriterionResult, numer
 
     async def once(contradiction: Contradiction | None, _previous: CriterionState | None) -> CriterionState:
         return await _judge_once(llm, catalog, result, numeric_record_in_analysis, analyst_argument, contradiction,
-                                 exempt)
+                                 exempt, options)
 
     return await with_coherence(once, catalog, score, n_rules, options)
 

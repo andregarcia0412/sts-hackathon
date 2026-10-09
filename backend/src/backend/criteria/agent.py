@@ -44,11 +44,13 @@ class CriteriaRunner:
         results_per_query: int = 5,
         fetch_per_front: int = 6,
         max_table_rows: int = 300,
+        doc_pitfalls: bool = False,
     ) -> None:
         self.llm, self.catalog, self.providers = llm, catalog, providers
         self._on_stage = on_stage
         self.queries_per_front, self.results_per_query = queries_per_front, results_per_query
         self.fetch_per_front, self.max_table_rows = fetch_per_front, max_table_rows
+        self.doc_pitfalls = doc_pitfalls
 
     async def on_stage(self, name: str, status: str, error: str | None = None) -> None:
         if self._on_stage is None:
@@ -61,7 +63,8 @@ class CriteriaRunner:
         await self.on_stage(criterion, "rodando")
         web_rules = self.catalog.rules_for(criterion, "web")
         doc_rules = self.catalog.rules_for(criterion, "doc")
-        tasks = [run_doc_sub(self.llm, self.catalog, criterion, doc_rules, canonical, self.max_table_rows)]
+        tasks = [run_doc_sub(self.llm, self.catalog, criterion, doc_rules, canonical, self.max_table_rows,
+                             pitfalls=self.doc_pitfalls)]
         if web_rules:
             tasks.append(
                 run_web_sub(self.llm, self.catalog, criterion, web_rules, canonical, self.providers,

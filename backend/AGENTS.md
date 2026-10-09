@@ -91,7 +91,11 @@ If the contradiction persists, the judge's state stays, the criterion is flagged
 C1–C3, I1–I3, S1–S2, R1–R3), each with evidence ids (no evidence after one new attempt → `nao_fundamentada`, counted
 as `sem_registro`), and the decision table of `catalog/questionario.yaml` turns the answers into the state in code;
 the gates lock answers (NOV-W3 / configuration gates → N1/C1 = sim; numeric record → I3/S1/R1 cannot be sim) and the
-report shows question → answer → evidence. The class comes from the exact answer-key
+report shows question → answer → evidence. **Handbooks** (`catalog/handbooks/{NOV,CRI,INC,SIS,REP}.md`: pitfalls,
+when to use each state — above all when NOT to use the insufficient column —, signals that do not count; no project
+codes) go into the judge's prompt (`JUDGE_HANDBOOKS`) and, optionally, the pitfalls into the document sub-agent
+(`DOC_HANDBOOK_PITFALLS`). In the questionnaire, "sim" in N1/I1 needs package evidence: the web complements, never
+decides alone. The class comes from the exact answer-key
 patterns; a mixed vector gets a suggestion from the decision tree of the historical cases **in code**
 (`graph/classify.py`) and the flag `inconsistent`.
 
@@ -157,7 +161,7 @@ backend/
     config.py               # Settings; LLM roles: extraction, doc, search, judge, report, chat
     llm/                    # LLMClient (Ollama chat/structured/web_search/web_fetch, temperature 0, retries) + prompt registry
                             # + usage meter (calls/tokens/time per role, saved on every Analysis)
-    catalog/                # rules.yaml (versioned), questionario.yaml (judge questions + decision table), loader + Mongo sync, GET /regras
+    catalog/                # rules.yaml (versioned), questionario.yaml (judge questions + decision table), handbooks/, loader + Mongo sync, GET /regras
     storage.py              # GridFS: immutable originals with sha256
     projects/               # Project + files (superseded, never deleted), upload (multipart/.zip), list (ProjectQuery), CLI import
     extraction/             # 1. raw text → extraction agent (mapping) → slicer (verbatim fragments) → canonical JSON + context

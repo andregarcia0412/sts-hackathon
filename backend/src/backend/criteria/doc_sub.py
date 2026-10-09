@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 
 from backend.catalog.models import Catalog, CatalogRule
 from backend.criteria.citation import clean_quote, quote_in
+from backend.catalog.handbooks import pitfalls as handbook_pitfalls
 from backend.criteria.common import DATA_NOT_INSTRUCTIONS, argument_block, describe_rules, offline_runs, transversal_block
 from backend.criteria.routing import route_fragments
 from backend.criteria.schemas import CriterionResult, Divergence, EvidenceItem, MissingLink, RuleRun, evidence_id
@@ -110,6 +111,7 @@ async def run_doc_sub(
     canonical: CanonicalProject,
     max_table_rows: int,
     analyst_argument: str | None = None,
+    pitfalls: bool = False,
 ) -> CriterionResult:
     result = CriterionResult(criterion=criterion, rules=offline_runs(rules))
     active = [r for r in rules if r.needs_llm]
@@ -128,6 +130,8 @@ async def run_doc_sub(
         user += "\n\nObservação: tabelas cortadas no prompt — " + "; ".join(routed.truncated)
     user += argument_block(analyst_argument)
     system = DOC_SYSTEM.replace("{transversais}", transversal_block(catalog))
+    if pitfalls:  # DOC_HANDBOOK_PITFALLS: the handbook pitfalls improve the polarity at the source
+        system += f"\n\nArmadilhas do critério {info.nome}:\n{handbook_pitfalls(criterion)}"
     try:
         out = await llm.structured(
             [{"role": "system", "content": system}, {"role": "user", "content": user}], DocSubOut, role="doc"

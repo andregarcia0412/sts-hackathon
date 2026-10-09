@@ -8,6 +8,8 @@
 # sem_registro must say what is missing (it becomes the missing link of "Evidência insuficiente").
 # exige_registro_numerico: "sim" needs positive numeric evidence (registro_primario/derivado) in the criterion,
 # otherwise the code turns it into sem_registro (the numeric-record gate of the state judge).
+# sim_exige_documento: "sim" must cite at least one evidence from the package itself (a web finding about the generic
+# technique complements, it never decides alone; NOV-W3 with full coverage is a separate gate in code).
 
 perguntas:
   NOV:
@@ -16,38 +18,47 @@ perguntas:
         A referência anterior (manual, catálogo, dicionário, produto contratado), datada antes do início, já
         fornecia a função aplicada no projeto?
       regras: [NOV-D4, NOV-D10, NOV-W3]
+      sim_exige_documento: true
+      explicacao: "Achar a técnica genérica na web não basta: sim só se a referência descreve a função que o §2 aplica."
     - id: N2
       texto: >-
         Há um mecanismo próprio descrito com parâmetros (regra de decisão, limiares, janelas), além do título ou de
         adjetivos?
       regras: [NOV-D1, NOV-D12]
+      explicacao: "Título ou adjetivo (\"inteligente\", \"adaptativo\") não é mecanismo; melhora numérica sozinha também não."
     - id: N3
       texto: >-
         O mecanismo foi comparado com a referência ou com as alternativas conhecidas, com o modo de falha de cada
         uma?
       regras: [NOV-D2]
+      explicacao: "Basta a comparação registrada no método ou nas medições; sem_registro só se ela não existe."
   CRI:
     - id: C1
       texto: >-
         A mudança se resume a configurar, ativar, cadastrar, mapear ou ajustar parâmetro dentro da faixa já
         suportada, sem alterar o algoritmo?
       regras: [CRI-D5]
+      explicacao: "\"Nenhum algoritmo foi modificado\" ou \"faixa já admitida\" são o sinal clássico de sim."
     - id: C2
       texto: >-
         Há elemento técnico próprio (combinação original, não renomeação de técnica conhecida) com a hipótese
         registrada antes dos testes?
       regras: [CRI-D1, CRI-D10]
+      explicacao: "Não use o texto da referência anterior (§1) como prova de combinação original; método novo para tarefa comum conta."
     - id: C3
       texto: >-
         Os parâmetros-chave do mecanismo estão preenchidos (não nulos) na configuração, com regra de decisão
         concreta?
       regras: [CRI-D8]
+      explicacao: "Parâmetro-chave nulo (null) na configuração é nao."
   INC:
     - id: I1
       texto: >-
         A solução da barreira já estava acessível (manual, produto, literatura, especialista) a um profissional
         competente?
       regras: [INC-W1, INC-W2, INC-D5]
+      sim_exige_documento: true
+      explicacao: "sim só se a solução da barreira específica do recorte já estava descrita antes do início (referência anterior, manual, produto contratado) ou se a pergunta registrada já nomeia a solução conhecida. Patente ou artigo sobre a técnica genérica não basta: a web complementa, não decide."
     - id: I2
       texto: As falhas registradas foram de que tipo?
       opcoes: [experimental, operacional, nenhuma, sem_registro]
@@ -56,10 +67,12 @@ perguntas:
         operacional: parâmetro, permissão, cadastro, receita do fornecedor
         nenhuma: o registro não mostra falha
       regras: [INC-D4, INC-D9]
+      explicacao: "\"v1 falhou e v2 corrigiu por configuração\" é falha operacional, não experimental."
     - id: I3
       texto: >-
         A hipótese foi executada e confrontada com comparadores, com registro por versão (medições)?
       regras: [INC-D12]
+      explicacao: "Plano, diagrama ou memorando sem IDs de execução não é execução registrada."
       exige_registro_numerico: true
   SIS:
     - id: S1
@@ -67,6 +80,7 @@ perguntas:
         Cada versão alegada tem ensaio identificado nas medições, com parâmetros não nulos e métrica de desempenho
         (não só contagem de entrega)?
       regras: [SIS-D12, SIS-D14]
+      explicacao: "Contagem de entrega (linhas ou fichas processadas) não é métrica de desempenho."
       exige_registro_numerico: true
     - id: S2
       texto: O método era de que tipo?
@@ -75,12 +89,14 @@ perguntas:
         experimento: alternativas nas mesmas entradas + referência fixada antes + critérios prévios
         aceite: roteiros com resultado esperado repetidos até passar
       regras: [SIS-D5]
+      explicacao: "Aceite perfeito (100% de aprovação) não é sinal de experimento; documentação completa de aceite é aceite, não sem_registro."
   REP:
     - id: R1
       texto: >-
         O registro traz método, configuração e resultados recalculáveis do registro primário para o núcleo
         alegado?
       regras: [REP-D2, REP-D9]
+      explicacao: "O mesmo número repetido num PDF não é recálculo; vale o recálculo a partir das medições."
       exige_registro_numerico: true
     - id: R2
       texto: O que a documentação permite reproduzir?
@@ -89,12 +105,14 @@ perguntas:
         conhecimento: o mecanismo e o resultado do ensaio
         configuracao: a configuração de um produto
       regras: [REP-D8]
+      explicacao: "configuracao quando o que se reproduz é a configuração de um produto, não o mecanismo ensaiado."
     - id: R3
       texto: >-
         Alguma hipótese ou cenário da própria pretensão ficou sem ensaio, ou algum critério prévio não foi atingido?
         Um limite excluído desde o início não conta.
       opcoes: [sim, nao]
       regras: [REP-D7]
+      explicacao: "Limite excluído desde o início não conta; flag _executado: false de hipótese da pretensão conta."
 
 # The order follows the tree: first "did the reference already do it?", then "is there a record?", then "is it R&D?".
 decisao:
@@ -115,7 +133,8 @@ decisao:
     - {quando: {I1: sim}, estado: "NÃO CARACTERIZADA"}
     - {quando: {I2: operacional, I3: [nao, sem_registro]}, estado: "NÃO CARACTERIZADA"}
     - {quando: {I3: sem_registro}, estado: "ALEGADA, NÃO VERIFICÁVEL"}
-    - {quando: {I3: sim, I1: nao}, estado: "INVESTIGADA"}
+    # no record that the solution was accessible is not proof that it was (lack of proof is not proof against)
+    - {quando: {I3: sim, I1: [nao, sem_registro]}, estado: "INVESTIGADA"}
     - {senao: true, estado: "ALEGADA, NÃO VERIFICÁVEL"}
   SIS:
     - {quando: {S1: [nao, sem_registro]}, estado: "PARCIAL"}

@@ -99,7 +99,8 @@ async def rejudge(args: argparse.Namespace, service: AnalysisService) -> Benchma
     if source is None:
         raise SystemExit(f"benchmark not found: {args.rejudge}")
     options = JudgeOptions.from_settings(service.settings, coherence_mode=args.coherence,
-                                       judge_mode=args.judge_mode)
+                                       judge_mode=args.judge_mode,
+                                       handbooks=None if args.handbooks is None else args.handbooks == "on")
     benchmark = await create_rejudge(source, source.owner_id, service.models_by_role(), service.catalog, options,
                                      name=args.name if args.name != "benchmark" else None, projects=args.projects,
                                      repeats=args.repeats)
@@ -155,6 +156,7 @@ def parser() -> argparse.ArgumentParser:
                         help="re-judge only: coherence gate mode (default COHERENCE_MODE; force = diagnostic ceiling)")
     parser.add_argument("--judge-mode", choices=["estado", "questionario"],
                         help="re-judge only: state judge or questionnaire (default JUDGE_MODE)")
+    parser.add_argument("--handbooks", choices=["on", "off"], help="re-judge only: default JUDGE_HANDBOOKS")
     return parser
 
 

@@ -8,7 +8,7 @@
 #   status: aplicavel | parcial | na    (parcial/na never call the LLM; motivo_status goes to the report)
 #   roteamento: doc -> file_type[#anchor]; web -> query families
 #   prompt: rule-specific instruction (positiva quando / negativa quando) used by the sub-agent prompt
-versao: "2026.10.09-1"
+versao: "2026.10.09-2"
 
 tipos_de_arquivo:
   - dossie
