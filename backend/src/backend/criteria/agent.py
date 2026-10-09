@@ -12,6 +12,7 @@ from backend.errors import safe_error_message
 from backend.extraction.schema import CanonicalProject
 from backend.llm import LLM
 from backend.search.base import SearchProvider
+from backend.search.session import SearchSession
 
 StageCallback = Callable[..., object]
 FIRST_WAVE = ("NOV", "SIS", "REP")
@@ -51,6 +52,7 @@ class CriteriaRunner:
         self.queries_per_front, self.results_per_query = queries_per_front, results_per_query
         self.fetch_per_front, self.max_table_rows = fetch_per_front, max_table_rows
         self.doc_pitfalls = doc_pitfalls
+        self.session = SearchSession()  # one per analysis: NOV, CRI and INC reuse each other's searches and pages
 
     async def on_stage(self, name: str, status: str, error: str | None = None) -> None:
         if self._on_stage is None:
@@ -68,7 +70,8 @@ class CriteriaRunner:
         if web_rules:
             tasks.append(
                 run_web_sub(self.llm, self.catalog, criterion, web_rules, canonical, self.providers,
-                            self.queries_per_front, self.results_per_query, self.fetch_per_front, closest)
+                            self.queries_per_front, self.results_per_query, self.fetch_per_front, closest,
+                            session=self.session)
             )
         try:
             parts = await asyncio.gather(*tasks)

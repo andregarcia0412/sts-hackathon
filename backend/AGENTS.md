@@ -140,6 +140,9 @@ graph. No module calls another directly:
    recorded divergences. `Analysis.checks`, node `kind="check"` in the graph.
 3. **Web research** (`-W` rules; OpenAlex, Google Patents, market, technical documentation) and
    **LLM rules over documents** (`-D` rules), in parallel.
+   Every query must share a stem with the project's own technical terms (`search/grounding.py`, from the canonical
+   only, bilingual glossary; dropped otherwise and logged), and one `SearchSession` per analysis reuses a
+   near-identical query of the same front (Jaccard ≥ 0,6, `SearchLogEntry.reused_from`) and reads each URL once.
 4. **Evidence graph** → the system's memory; per-criterion states and suggested class.
    MongoDB with two collections (`nodes`, `edges`) traversed with `$graphLookup`. Deterministic IDs
    (hash of rule + source + quote), idempotent inserts.
