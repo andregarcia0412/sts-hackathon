@@ -1,0 +1,38 @@
+"""How the state judge runs. Recorded in every analysis (`AnalysisVersions.judge`) and benchmark config."""
+
+from typing import Literal
+
+from pydantic import BaseModel
+
+from backend.config import Settings
+
+# `force` exists only in the re-judge benchmark: a diagnostic ceiling, never used in a real analysis.
+CoherenceMode = Literal["off", "flag", "reask", "force"]
+JudgeMode = Literal["estado", "questionario"]
+
+
+class JudgeOptions(BaseModel):
+    judge_mode: JudgeMode = "estado"  # estado = the LLM picks the label; questionario = answers → table in code
+    handbooks: bool = False  # the criterion handbook goes into the judge's system prompt
+    coherence_mode: CoherenceMode = "off"
+    coherence_high: int = 75
+    coherence_low: int = 25
+    coherence_min_rules: int = 4
+    consistency_neutralize: bool = False  # spec 02 part A: CRI/INC evidence on the prior reference leaves the score
+    consistency_text_markers: bool = False  # ... also sources marked only by the containment text of NOV rules
+    consistency_inc_d2: bool = False  # INC-D2 support quoting a question flagged by CHK-PERGUNTA counts against
+
+    @classmethod
+    def from_settings(cls, settings: Settings, **overrides) -> "JudgeOptions":
+        values = {
+            "judge_mode": settings.judge_mode,
+            "handbooks": settings.judge_handbooks,
+            "coherence_mode": settings.coherence_mode,
+            "coherence_high": settings.coherence_high,
+            "coherence_low": settings.coherence_low,
+            "coherence_min_rules": settings.coherence_min_rules,
+            "consistency_neutralize": settings.consistency_neutralize,
+            "consistency_text_markers": settings.consistency_use_text_markers,
+            "consistency_inc_d2": settings.consistency_inc_d2,
+        }
+        return cls(**values | {k: v for k, v in overrides.items() if v is not None})

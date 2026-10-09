@@ -1,0 +1,3373 @@
+[
+ {
+  "id": "6ac8e74202341aeec65f949b",
+  "projectId": "6ac8e74202341aeec65f9486",
+  "framework": "frascati",
+  "generatedAt": "2026-10-09T13:12:01.760000",
+  "criteria": [
+   {
+    "id": "crit-novelty",
+    "key": "novelty",
+    "name": "Novidade",
+    "score": 100,
+    "summary": "O patente [ev-dfc9a7af5b617d36] cobre apenas parte do elemento novo, faltando o critério de desempate por menor atraso e a janela de 15 minutos. As buscas (NOV-W4, NOV-W5, NOV-W7) não encontraram solução idêntica anterior, mas não há documentação do mecanismo próprio com parâmetros nem comparação detalhada. Assim falta informação essencial para comprovar a novidade no recorte ensaiado. Portanto o critério permanece indeterminado.",
+    "rules": [
+     {
+      "id": "rule-nov-w1",
+      "code": "NOV-W1",
+      "name": "Data de referência",
+      "score": null,
+      "explanation": "A busca só considera como \"já existia\" o que foi publicado antes de o projeto começar. Data de referência 2025-01-06 (origem: PRJ90-EV01#cabecalho). 1 fonte(s) posterior(es) fora do estado da arte; 11 sem data verificável.",
+      "normativeSource": {
+       "label": "LPI art. 11 §1º",
+       "citation": "Fixar a data de referência = início do projeto; só é estado da arte o que estava acessível ao público antes dela.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "executada",
+      "statusReason": "Data de referência 2025-01-06 (origem: PRJ90-EV01#cabecalho). 1 fonte(s) posterior(es) fora do estado da arte; 11 sem data verificável.",
+      "inMean": false,
+      "block": "web",
+      "normativeSources": [
+       "LPI art. 11 §1º",
+       "INPI Res. 169/2016 itens 3.1 e 3.3",
+       "HMRC GfC3 parte 2, passo 5",
+       "IE TDM §8.1(e)"
+      ]
+     },
+     {
+      "id": "rule-nov-w2",
+      "code": "NOV-W2",
+      "name": "Três frentes de busca",
+      "score": null,
+      "explanation": "A busca cobre artigos, patentes e produtos de mercado, não uma fonte só. Frentes com fontes: literatura (2 buscas, 6 fontes); patentes (2 buscas, 6 fontes); mercado (2 buscas, 6 fontes); documentacao (2 buscas, 6 fontes). Sem fontes: nenhuma.",
+      "normativeSource": {
+       "label": "IT MIMIT 2024 §1.1.3.1",
+       "citation": "Buscar em patentes, literatura científica e soluções de mercado/concorrentes.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "executada",
+      "statusReason": "Frentes com fontes: literatura (2 buscas, 6 fontes); patentes (2 buscas, 6 fontes); mercado (2 buscas, 6 fontes); documentacao (2 buscas, 6 fontes). Sem fontes: nenhuma.",
+      "inMean": false,
+      "block": "web",
+      "normativeSources": [
+       "IT MIMIT 2024 §1.1.3.1",
+       "AU R&DTI"
+      ]
+     },
+     {
+      "id": "rule-nov-w3",
+      "code": "NOV-W3",
+      "name": "Documento mais próximo",
+      "score": 100,
+      "explanation": "Procura o documento publicado mais parecido; se um só já descreve tudo, não é novo.",
+      "normativeSource": {
+       "label": "Frascati 2015 §2.16",
+       "citation": "Comparar o elemento novo declarado (o conhecimento/técnica, não o produto) com o documento mais próximo; se um único documento já descreve o elemento inteiro, não há novidade.",
+       "url": null
+      },
+      "evidences": [
+       {
+        "id": "ev-dfc9a7af5b617d36",
+        "title": "NOV-W3 · https://patents.google.com/patent/US11188228B1/en",
+        "polarity": "positive",
+        "explanation": "A fonte descreve uso de grafo de dependências para ordenar transações, mas não menciona o critério de desempate por menor atraso nem a janela de 15 minutos, portanto cobre apenas parte do elemento novo.",
+        "projectExcerpt": null,
+        "references": [
+         {
+          "label": "https://patents.google.com/patent/US11188228B1/en",
+          "citation": "A graph of the transaction operations may be generated to indicate the dependencies between transactions and an evaluation of the graph may be performed to determine whether the transactions were performed with serializable isolation.",
+          "url": "https://patents.google.com/patent/US11188228B1/en"
+         }
+        ],
+        "ruleCode": "NOV-W3",
+        "source": {
+         "origin": "web",
+         "fragmentId": null,
+         "alias": "https://patents.google.com/patent/US11188228B1/en",
+         "nature": "web",
+         "url": "https://patents.google.com/patent/US11188228B1/en",
+         "publishedDate": "2019-03-25",
+         "capturedAt": "2026-10-09T13:08:55.581000",
+         "query": "financial transaction ordering graph algorithm"
+        },
+        "counted": true,
+        "adjusted": false
+       }
+      ],
+      "scoreExplanation": {
+       "method": "Nota = positivas ÷ (positivas + negativas) × 100; a mesma fonte conta uma vez. Indicador, não decide a classe.",
+       "baseline": 0,
+       "factors": [
+        {
+         "kind": "evidence",
+         "refId": "ev-dfc9a7af5b617d36",
+         "label": "NOV-W3 · https://patents.google.com/patent/US11188228B1/en",
+         "points": 100,
+         "value": null,
+         "weight": null
+        }
+       ]
+      },
+      "counts": {
+       "positive": 1,
+       "negative": 0
+      },
+      "status": "executada",
+      "statusReason": null,
+      "inMean": true,
+      "block": "web",
+      "normativeSources": [
+       "Frascati 2015 §2.16",
+       "INPI itens 4.6 e 4.10",
+       "EPO G-VII 5 etapa (i)"
+      ]
+     },
+     {
+      "id": "rule-nov-w4",
+      "code": "NOV-W4",
+      "name": "Setor, não a empresa",
+      "score": null,
+      "explanation": "Ser novo para o banco não basta; precisa ser novo para o setor. Nenhuma fonte encontrada que demonstre a existência de solução idêntica no setor antes da data de referência.",
+      "normativeSource": {
+       "label": "Frascati 2015 §2.15",
+       "citation": "Comparar com o setor/campo, não com a empresa; o que já existe no mercado mas é novo para a instituição não é novo.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "sem_evidencia",
+      "statusReason": "Nenhuma fonte encontrada que demonstre a existência de solução idêntica no setor antes da data de referência.",
+      "inMean": true,
+      "block": "web",
+      "normativeSources": [
+       "Frascati 2015 §2.15",
+       "UK DSIT ¶6, ¶20, ¶22",
+       "FAQ MCTI P4(a)"
+      ]
+     },
+     {
+      "id": "rule-nov-w5",
+      "code": "NOV-W5",
+      "name": "Segredo industrial preserva novidade",
+      "score": null,
+      "explanation": "Se um concorrente chegou lá mas não publicou como, o projeto ainda pode ser novo. Nenhuma fonte encontrada que mostre o mesmo resultado sem divulgação do método.",
+      "normativeSource": {
+       "label": "UK DSIT ¶11, ¶21",
+       "citation": "Se outra empresa já chegou ao resultado mas o \"como\" não é público, a novidade se mantém.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "sem_evidencia",
+      "statusReason": "Nenhuma fonte encontrada que mostre o mesmo resultado sem divulgação do método.",
+      "inMean": true,
+      "block": "web",
+      "normativeSources": [
+       "UK DSIT ¶11, ¶21",
+       "IE TDM §3.4",
+       "IT MIMIT §1.1.3.1"
+      ]
+     },
+     {
+      "id": "rule-nov-w6",
+      "code": "NOV-W6",
+      "name": "Trabalho simultâneo não elimina",
+      "score": null,
+      "explanation": "Publicações de concorrentes posteriores ao início do projeto não tiram a novidade. citações descartadas pelo gate: trecho não encontrado literalmente em src-1b6e63a219",
+      "normativeSource": {
+       "label": "UK DSIT ¶21",
+       "citation": "Trabalho simultâneo e independente de concorrentes não elimina a novidade, se os resultados deles não estavam acessíveis.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "sem_evidencia",
+      "statusReason": "citações descartadas pelo gate: trecho não encontrado literalmente em src-1b6e63a219",
+      "inMean": true,
+      "block": "web",
+      "normativeSources": [
+       "UK DSIT ¶21",
+       "IE TDM §3.4",
+       "IT MIMIT §1.1.3.1"
+      ]
+     },
+     {
+      "id": "rule-nov-w7",
+      "code": "NOV-W7",
+      "name": "Página conta se achável e acessível",
+      "score": null,
+      "explanation": "Uma página só conta como prova de que algo já existia se tem data e era acessível. Nenhuma página achável e acessível antes da data de referência descrevendo o mecanismo proposto.",
+      "normativeSource": {
+       "label": "INPI Res. 169/2016 item 3.33",
+       "citation": "Página da internet conta como estado da técnica se pode ser achada por buscador público e continuou acessível.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "sem_evidencia",
+      "statusReason": "Nenhuma página achável e acessível antes da data de referência descrevendo o mecanismo proposto.",
+      "inMean": true,
+      "block": "web",
+      "normativeSources": [
+       "INPI Res. 169/2016 item 3.33"
+      ]
+     },
+     {
+      "id": "rule-nov-w8",
+      "code": "NOV-W8",
+      "name": "Busca reproduzível",
+      "score": null,
+      "explanation": "Toda busca fica registrada para quem fiscalizar poder refazer. 8 busca(s) registradas com base, query original × sanitizada, filtros, data/hora, nº de resultados e fontes selecionadas/descartadas (0 com erro ou não enviadas).",
+      "normativeSource": {
+       "label": "PRISMA-S (Rethlefsen et al. 2021)",
+       "citation": "Registrar a busca de forma reproduzível — bases, data, string exata, filtros, nº de resultados, selecionados e por quê.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "executada",
+      "statusReason": "8 busca(s) registradas com base, query original × sanitizada, filtros, data/hora, nº de resultados e fontes selecionadas/descartadas (0 com erro ou não enviadas).",
+      "inMean": false,
+      "block": "web",
+      "normativeSources": [
+       "PRISMA-S (Rethlefsen et al. 2021)",
+       "WIPO Pub. 946"
+      ]
+     },
+     {
+      "id": "rule-nov-d1",
+      "code": "NOV-D1",
+      "name": "Declara o elemento novo",
+      "score": null,
+      "explanation": "O projeto diz com clareza o que criou de novo. falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+      "normativeSource": {
+       "label": "FORMP&D 3.1.7",
+       "citation": "O projeto declara explicitamente o elemento novo — a tecnologia, as funcionalidades/características e a aplicação.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "nao_executada",
+      "statusReason": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "FORMP&D 3.1.7",
+       "Guia MCTI 2020 §6.2",
+       "FAQ MCTI P4(a) e (c)"
+      ]
+     },
+     {
+      "id": "rule-nov-d2",
+      "code": "NOV-D2",
+      "name": "Estado da arte com modo de falha",
+      "score": null,
+      "explanation": "O projeto mostra o que já existia e por que não resolvia. falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+      "normativeSource": {
+       "label": "Guia MCTI 2020 §6.2",
+       "citation": "O projeto descreve o estado da arte no início — alternativas conhecidas e o modo de falha específico de cada uma; só lista de ferramentas → indeterminada.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "nao_executada",
+      "statusReason": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "Guia MCTI 2020 §6.2",
+       "IT MIMIT §1.1.3.1",
+       "IE TDM §8.1(e)",
+       "Históricos PRJ02, 03, 05 × PRJ08"
+      ]
+     },
+     {
+      "id": "rule-nov-d3",
+      "code": "NOV-D3",
+      "name": "Novidade de conhecimento, não de funcionalidade",
+      "score": null,
+      "explanation": "O que conta é o conhecimento técnico novo, não uma funcionalidade nova. falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+      "normativeSource": {
+       "label": "FAQ MCTI P4",
+       "citation": "A novidade é de conhecimento/técnica (o \"como\"), não de funcionalidade, negócio ou mercado.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "nao_executada",
+      "statusReason": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "FAQ MCTI P4",
+       "Frascati 2015 §2.16 e Tab. 2.1(a)",
+       "Guia MCTI 2020 §6.1"
+      ]
+     },
+     {
+      "id": "rule-nov-d4",
+      "code": "NOV-D4",
+      "name": "Não é cópia nem compra de tecnologia",
+      "score": null,
+      "explanation": "Comprar ou configurar uma ferramenta pronta não é novidade. falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+      "normativeSource": {
+       "label": "Frascati 2015 §2.15",
+       "citation": "Não é cópia, imitação, engenharia reversa, compra de tecnologia nem adaptação sem barreira técnica.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "nao_executada",
+      "statusReason": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "Frascati 2015 §2.15",
+       "UK DSIT ¶12, ¶22, ¶24",
+       "Guia ANPEI 2017 pp. 19 e 26",
+       "Guia MCTI 2020 Ap. B.3"
+      ]
+     },
+     {
+      "id": "rule-nov-d5",
+      "code": "NOV-D5",
+      "name": "Exclusões de software",
+      "score": null,
+      "explanation": "Software só conta quando avança a técnica, não quando só usa ferramentas prontas. falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+      "normativeSource": {
+       "label": "Frascati 2015 §2.70–2.72",
+       "citation": "Software não cai nas exclusões (sistema de negócio com métodos conhecidos, funcionalidade de usuário, ferramentas prontas, criptografia padrão, customização, depuração rotineira). Absorve a parte de software da T8.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "nao_executada",
+      "statusReason": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "Frascati 2015 §2.70–2.72",
+       "IPCTN 2020 Anexo I"
+      ]
+     },
+     {
+      "id": "rule-nov-d6",
+      "code": "NOV-D6",
+      "name": "Melhoria substancial com linha de base",
+      "score": null,
+      "explanation": "A melhora precisa ser medida contra o que já existia, não só entre versões. falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+      "normativeSource": {
+       "label": "Decreto 5.798 art. 2º II c",
+       "citation": "A melhoria é substancial e objetiva, com comparação com a linha de base; melhora entre versões sozinha não basta (rotina também melhora).",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "nao_executada",
+      "statusReason": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "Decreto 5.798 art. 2º II c",
+       "Guia MCTI 2020 Ap. B.1",
+       "UK DSIT ¶23–25"
+      ]
+     },
+     {
+      "id": "rule-nov-d8",
+      "code": "NOV-D8",
+      "name": "Patente ou artigo como indício",
+      "score": null,
+      "explanation": "Patentes e artigos ajudam, mas não são obrigatórios. Não há patentes, registros ou artigos nos artefatos do pacote.",
+      "normativeSource": {
+       "label": "IT MIMIT §1.1.3.1",
+       "citation": "Patente, registro de software, artigo ou aprovação por agência de fomento são indícios, não obrigatórios.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "na",
+      "statusReason": "Não há patentes, registros ou artigos nos artefatos do pacote.",
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "IT MIMIT §1.1.3.1",
+       "Frascati Tab. 2.1(d)",
+       "Guia ANPEI 2017 Fig. 1"
+      ]
+     },
+     {
+      "id": "rule-nov-d10",
+      "code": "NOV-D10",
+      "name": "Referência anterior já fornece a função",
+      "score": null,
+      "explanation": "Se o manual que já existia fazia a mesma coisa, não há novidade. falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+      "normativeSource": {
+       "label": "Históricos PRJ01, 04, 09, 11, 12, 19, 20",
+       "citation": "Se a referência anterior — manual, catálogo, dicionário ou produto contratado, datado antes do projeto — já fornece a função aplicada, a novidade não está demonstrada.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "nao_executada",
+      "statusReason": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "Históricos PRJ01, 04, 09, 11, 12, 19, 20",
+       "Frascati 2015 §2.72"
+      ]
+     },
+     {
+      "id": "rule-nov-d11",
+      "code": "NOV-D11",
+      "name": "Novidade vale no recorte ensaiado",
+      "score": null,
+      "explanation": "A novidade só vale para os cenários que foram de fato testados. falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+      "normativeSource": {
+       "label": "Históricos PRJ02, 05, 07, 14",
+       "citation": "A novidade vale no recorte ensaiado (perfis, cenários, cargas); afirmações além dele não são cobertas.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "nao_executada",
+      "statusReason": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "Históricos PRJ02, 05, 07, 14",
+       "LEIA_ME"
+      ]
+     },
+     {
+      "id": "rule-nov-d12",
+      "code": "NOV-D12",
+      "name": "Título não prova novidade",
+      "score": null,
+      "explanation": "Nome bonito não prova nada; vale o mecanismo documentado. falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+      "normativeSource": {
+       "label": "Históricos PRJ09, PRJ19, PRJ02",
+       "citation": "Título ou adjetivo comercial não prova novidade; técnica genérica só conta com elemento técnico próprio testado contra o comparador.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "nao_executada",
+      "statusReason": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "Históricos PRJ09, PRJ19, PRJ02"
+      ]
+     }
+    ],
+    "scoreExplanation": {
+     "method": "Média simples das regras com evidência. Regras sem evidência, N/A, não executadas e NOV-W1/W2/W8 (informativas) ficam fora. Indicador, não decide a classe.",
+     "baseline": 0,
+     "factors": [
+      {
+       "kind": "rule",
+       "refId": "rule-nov-w3",
+       "label": "NOV-W3 Documento mais próximo",
+       "points": 100,
+       "value": 100.0,
+       "weight": 1.0
+      }
+     ]
+    },
+    "criterionId": "NOV",
+    "state": "INDETERMINADA",
+    "column": "insuficiente",
+    "llmState": "INDETERMINADA",
+    "gates": [],
+    "normativeSource": "Frascati 2015 §2.14–2.16; Guia MCTI 2020 §6.2; FORMP&D 3.1.7",
+    "decisiveEvidenceIds": [
+     "ev-dfc9a7af5b617d36"
+    ]
+   },
+   {
+    "id": "crit-creativity",
+    "key": "creativity",
+    "name": "Criatividade técnica",
+    "score": 71,
+    "summary": "A evidência ev-15250e5217cdf0c3 mostra que não há hipótese explícita registrada antes dos ensaios, violando o requisito CRI-D1. Além disso, ev-330da20f89e3be95 indica que o parâmetro crítico 'limiar_desempate' está nulo, impedindo a definição completa do mecanismo (CRI-D8). Embora ev-735e38294f7939f0, ev-04acbd410c34beb8, ev-df5cfe042f8406db e ev-543561480ac6db09 apontem criatividade, a falta desses elementos essenciais impede a demonstração no recorte. Portanto, o critério permanece indeterminado até que as evidências faltantes sejam apresentadas.",
+    "rules": [
+     {
+      "id": "rule-cri-w1",
+      "code": "CRI-W1",
+      "name": "Roteiro problema-solução",
+      "score": null,
+      "explanation": "A partir do que já existia, a solução era óbvia para um técnico? Nenhuma fonte encontrada que discuta se a solução seria óbvia a partir do estado da arte mais próximo (US11188228B1).",
+      "normativeSource": {
+       "label": "EPO G-VII 5",
+       "citation": "(i) achar o estado da arte mais próximo, (ii) definir o problema técnico a partir dele, (iii) verificar se um técnico chegaria à solução de forma óbvia.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "sem_evidencia",
+      "statusReason": "Nenhuma fonte encontrada que discuta se a solução seria óbvia a partir do estado da arte mais próximo (US11188228B1).",
+      "inMean": true,
+      "block": "web",
+      "normativeSources": [
+       "EPO G-VII 5",
+       "INPI Res. 169/2016 itens 5.9–5.21",
+       "LPI art. 13",
+       "Guia MCTI 2020 §6",
+       "Frascati 2002 §84"
+      ]
+     },
+     {
+      "id": "rule-cri-w2",
+      "code": "CRI-W2",
+      "name": "Prática padrão ou tutorial",
+      "score": 100,
+      "explanation": "Se está no tutorial ou no manual do fornecedor, é prática padrão.",
+      "normativeSource": {
+       "label": "Guia do desafio, Parte 4",
+       "citation": "Se a abordagem aparece como prática padrão (documentação oficial, tutorial, manual), é rotina.",
+       "url": null
+      },
+      "evidences": [
+       {
+        "id": "ev-735e38294f7939f0",
+        "title": "CRI-W2 · https://github.com/glebec/batching-toposort",
+        "polarity": "positive",
+        "explanation": "A documentação do projeto \"batching-toposort\" descreve a técnica genérica de ordenação por lotes usando grafos de dependência, mas não menciona o mecanismo específico de desempate por menor atraso e janela de 15 minutos, atendendo ao critério de criatividade técnica.",
+        "projectExcerpt": null,
+        "references": [
+         {
+          "label": "https://github.com/glebec/batching-toposort",
+          "citation": "Efficiently sort interdependent tasks into a sequence of concurrently-executable batches",
+          "url": "https://github.com/glebec/batching-toposort"
+         }
+        ],
+        "ruleCode": "CRI-W2",
+        "source": {
+         "origin": "web",
+         "fragmentId": null,
+         "alias": "https://github.com/glebec/batching-toposort",
+         "nature": "web",
+         "url": "https://github.com/glebec/batching-toposort",
+         "publishedDate": "2019-02-23",
+         "capturedAt": "2026-10-09T13:11:19.293000",
+         "query": "dependency graph batch ordering tutorial"
+        },
+        "counted": true,
+        "adjusted": false
+       }
+      ],
+      "scoreExplanation": {
+       "method": "Nota = positivas ÷ (positivas + negativas) × 100; a mesma fonte conta uma vez. Indicador, não decide a classe.",
+       "baseline": 0,
+       "factors": [
+        {
+         "kind": "evidence",
+         "refId": "ev-735e38294f7939f0",
+         "label": "CRI-W2 · https://github.com/glebec/batching-toposort",
+         "points": 100,
+         "value": null,
+         "weight": null
+        }
+       ]
+      },
+      "counts": {
+       "positive": 1,
+       "negative": 0
+      },
+      "status": "executada",
+      "statusReason": null,
+      "inMean": true,
+      "block": "web",
+      "normativeSources": [
+       "Guia do desafio, Parte 4",
+       "Frascati 2015 §2.72"
+      ]
+     },
+     {
+      "id": "rule-cri-w3",
+      "code": "CRI-W3",
+      "name": "Combinação além da soma",
+      "score": 100,
+      "explanation": "Juntar peças conhecidas só é criativo se o resultado vai além de cada peça.",
+      "normativeSource": {
+       "label": "INPI itens 5.22 e 5.30",
+       "citation": "Combinação de elementos conhecidos só é criativa se o efeito conjunto vai além da soma dos efeitos isolados.",
+       "url": null
+      },
+      "evidences": [
+       {
+        "id": "ev-04acbd410c34beb8",
+        "title": "CRI-W3 · https://patents.google.com/patent/US11854091",
+        "polarity": "positive",
+        "explanation": "A fonte mostra o uso isolado de FIFO como critério de ordenação, sem combinar com grafos de dependência ou o critério de desempate, indicando que a combinação proposta pelo projeto vai além da soma dos efeitos individuais.",
+        "projectExcerpt": null,
+        "references": [
+         {
+          "label": "https://patents.google.com/patent/US11854091",
+          "citation": "A method and apparatus is described for performing transaction tracing. The method may include mapping one or more funds flow transactions into each account to one or more funds flow transactions out of said each account based on a first-in-first-out ordering.",
+          "url": "https://patents.google.com/patent/US11854091"
+         }
+        ],
+        "ruleCode": "CRI-W3",
+        "source": {
+         "origin": "web",
+         "fragmentId": null,
+         "alias": "https://patents.google.com/patent/US11854091",
+         "nature": "web",
+         "url": "https://patents.google.com/patent/US11854091",
+         "publishedDate": "2020-07-24",
+         "capturedAt": "2026-10-09T13:10:54.771000",
+         "query": "financial transaction ordering graph patent"
+        },
+        "counted": true,
+        "adjusted": false
+       }
+      ],
+      "scoreExplanation": {
+       "method": "Nota = positivas ÷ (positivas + negativas) × 100; a mesma fonte conta uma vez. Indicador, não decide a classe.",
+       "baseline": 0,
+       "factors": [
+        {
+         "kind": "evidence",
+         "refId": "ev-04acbd410c34beb8",
+         "label": "CRI-W3 · https://patents.google.com/patent/US11854091",
+         "points": 100,
+         "value": null,
+         "weight": null
+        }
+       ]
+      },
+      "counts": {
+       "positive": 1,
+       "negative": 0
+      },
+      "status": "executada",
+      "statusReason": null,
+      "inMean": true,
+      "block": "web",
+      "normativeSources": [
+       "INPI itens 5.22 e 5.30"
+      ]
+     },
+     {
+      "id": "rule-cri-w4",
+      "code": "CRI-W4",
+      "name": "Conhecimento de outro campo",
+      "score": null,
+      "explanation": "Trazer uma ideia de outra área conta se adaptá-la não era óbvio. citações descartadas pelo gate: trecho não encontrado literalmente em src-8f9bec11dc",
+      "normativeSource": {
+       "label": "UK DSIT ¶6 e ¶23",
+       "citation": "Trazer conhecimento de outro campo conta quando a adaptação não era facilmente dedutível.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "sem_evidencia",
+      "statusReason": "citações descartadas pelo gate: trecho não encontrado literalmente em src-8f9bec11dc",
+      "inMean": true,
+      "block": "web",
+      "normativeSources": [
+       "UK DSIT ¶6 e ¶23",
+       "IT MIMIT 2024 §1.1.3.2",
+       "Frascati Tab. 2.1(b)"
+      ]
+     },
+     {
+      "id": "rule-cri-w5",
+      "code": "CRI-W5",
+      "name": "Problema em aberto ou contra o consenso",
+      "score": null,
+      "explanation": "Se o problema era conhecido e ninguém tinha resolvido, isso conta a favor. citações descartadas pelo gate: trecho não encontrado literalmente em src-0dcb27b958",
+      "normativeSource": {
+       "label": "INPI itens 5.57 e 5.58",
+       "citation": "Indícios a favor — o problema era conhecido há tempo e não resolvido, ou o projeto seguiu caminho contrário ao consenso técnico.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "sem_evidencia",
+      "statusReason": "citações descartadas pelo gate: trecho não encontrado literalmente em src-0dcb27b958",
+      "inMean": true,
+      "block": "web",
+      "normativeSources": [
+       "INPI itens 5.57 e 5.58"
+      ]
+     },
+     {
+      "id": "rule-cri-d1",
+      "code": "CRI-D1",
+      "name": "Hipótese explícita antes dos testes",
+      "score": 0,
+      "explanation": "A equipe tinha uma ideia a testar, registrada antes dos testes.",
+      "normativeSource": {
+       "label": "Guia MCTI 2020 §6.2",
+       "citation": "Há hipótese explícita (ideia proposta para superar a barreira), registrada antes dos testes.",
+       "url": null
+      },
+      "evidences": [
+       {
+        "id": "ev-15250e5217cdf0c3",
+        "title": "CRI-D1 · dossie_projeto.pdf#pergunta_registrada",
+        "polarity": "negative",
+        "explanation": "O registro contém apenas uma pergunta, não uma hipótese explícita antes dos ensaios.",
+        "projectExcerpt": {
+         "documentId": "doc-342ba3550f",
+         "fileName": "dossie_projeto.pdf",
+         "page": 1,
+         "excerpt": "Como ordenar lotes sem violar a precedencia contabil?"
+        },
+        "references": [],
+        "ruleCode": "CRI-D1",
+        "source": {
+         "origin": "doc",
+         "fragmentId": "PRJ90-EV01#pergunta_registrada",
+         "alias": "dossie_projeto.pdf#pergunta_registrada",
+         "nature": "sintese",
+         "url": null,
+         "publishedDate": null,
+         "capturedAt": null,
+         "query": "Há hipótese explícita (ideia proposta para superar a barreira), registrada antes dos testes."
+        },
+        "counted": true,
+        "adjusted": false
+       }
+      ],
+      "scoreExplanation": {
+       "method": "Nota = positivas ÷ (positivas + negativas) × 100; a mesma fonte conta uma vez. Indicador, não decide a classe.",
+       "baseline": 0,
+       "factors": [
+        {
+         "kind": "evidence",
+         "refId": "ev-15250e5217cdf0c3",
+         "label": "CRI-D1 · dossie_projeto.pdf#pergunta_registrada",
+         "points": 0,
+         "value": null,
+         "weight": null
+        }
+       ]
+      },
+      "counts": {
+       "positive": 0,
+       "negative": 1
+      },
+      "status": "executada",
+      "statusReason": null,
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "Guia MCTI 2020 §6.2",
+       "CRA SR&ED",
+       "AU R&DTI",
+       "IE TDM §8.1(f)"
+      ]
+     },
+     {
+      "id": "rule-cri-d2",
+      "code": "CRI-D2",
+      "name": "Barreira técnica concreta",
+      "score": 100,
+      "explanation": "Existe um obstáculo técnico concreto que precisou de solução própria.",
+      "normativeSource": {
+       "label": "IT MIMIT §1.1.3.2",
+       "citation": "Há obstáculo técnico que exigiu solução original, descrito de forma concreta.",
+       "url": null
+      },
+      "evidences": [
+       {
+        "id": "ev-4b3370f04baa1c5a",
+        "title": "CRI-D2 · dossie_projeto.pdf#contexto",
+        "polarity": "positive",
+        "explanation": "Descreve claramente a barreira técnica que impede a conciliação, indicando um obstáculo concreto.",
+        "projectExcerpt": {
+         "documentId": "doc-342ba3550f",
+         "fileName": "dossie_projeto.pdf",
+         "page": 1,
+         "excerpt": "Lotes atrasados travavam a conciliacao noturna."
+        },
+        "references": [],
+        "ruleCode": "CRI-D2",
+        "source": {
+         "origin": "doc",
+         "fragmentId": "PRJ90-EV01#contexto",
+         "alias": "dossie_projeto.pdf#contexto",
+         "nature": "sintese",
+         "url": null,
+         "publishedDate": null,
+         "capturedAt": null,
+         "query": "Há obstáculo técnico que exigiu solução original, descrito de forma concreta."
+        },
+        "counted": true,
+        "adjusted": false
+       }
+      ],
+      "scoreExplanation": {
+       "method": "Nota = positivas ÷ (positivas + negativas) × 100; a mesma fonte conta uma vez. Indicador, não decide a classe.",
+       "baseline": 0,
+       "factors": [
+        {
+         "kind": "evidence",
+         "refId": "ev-4b3370f04baa1c5a",
+         "label": "CRI-D2 · dossie_projeto.pdf#contexto",
+         "points": 100,
+         "value": null,
+         "weight": null
+        }
+       ]
+      },
+      "counts": {
+       "positive": 1,
+       "negative": 0
+      },
+      "status": "executada",
+      "statusReason": null,
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "IT MIMIT §1.1.3.2",
+       "Guia MCTI 2020 §6.3",
+       "FORMP&D 3.1.8"
+      ]
+     },
+     {
+      "id": "rule-cri-d3",
+      "code": "CRI-D3",
+      "name": "Pesquisador na equipe",
+      "score": null,
+      "explanation": "Alguém com perfil de pesquisa formulou a hipótese. atividades.csv só traz responsavel_por_funcao (função, sem titulação); não dá para verificar pesquisador.",
+      "normativeSource": {
+       "label": "Frascati 2015 §2.17, §5.35–5.36",
+       "citation": "A equipe inclui pesquisador; dá para saber quem formulou a hipótese, com qual qualificação e dedicação.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "parcial",
+      "statusReason": "atividades.csv só traz responsavel_por_funcao (função, sem titulação); não dá para verificar pesquisador.",
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "Frascati 2015 §2.17, §5.35–5.36",
+       "Decreto 5.798 art. 2º III",
+       "Guia ANPEI 2017 p. 27"
+      ]
+     },
+     {
+      "id": "rule-cri-d4",
+      "code": "CRI-D4",
+      "name": "Alternativas consideradas e abandonadas",
+      "score": null,
+      "explanation": "A equipe testou outros caminhos e registrou os que não funcionaram. citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-FALHAS; trecho não encontrado literalmente em PRJ90-CHK-VERSOES",
+      "normativeSource": {
+       "label": "IT MIMIT §1.1.3.2",
+       "citation": "Estão registradas as alternativas consideradas e as abandonadas, inclusive os insucessos.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "sem_evidencia",
+      "statusReason": "citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-FALHAS; trecho não encontrado literalmente em PRJ90-CHK-VERSOES",
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "IT MIMIT §1.1.3.2",
+       "IE TDM §3.1",
+       "26 CFR §1.41-4(a)(5)"
+      ]
+     },
+     {
+      "id": "rule-cri-d5",
+      "code": "CRI-D5",
+      "name": "Mudança não rotineira",
+      "score": 100,
+      "explanation": "Configurar ou ajustar parâmetro de ferramenta pronta não é criativo.",
+      "normativeSource": {
+       "label": "Frascati 2015 §2.17 e §2.56",
+       "citation": "A mudança não é rotineira — não se resume a layout, configurar, ativar, cadastrar, mapear campos ou ajustar parâmetro dentro da faixa suportada, sem alterar o algoritmo.",
+       "url": null
+      },
+      "evidences": [
+       {
+        "id": "ev-df5cfe042f8406db",
+        "title": "CRI-D5 · checagens#CHK-CONFIG",
+        "polarity": "positive",
+        "explanation": "A checagem indica que o algoritmo foi modificado, caracterizando mudança não rotineira.",
+        "projectExcerpt": {
+         "documentId": null,
+         "fileName": "checagens",
+         "page": null,
+         "excerpt": "algoritmo_nao_modificado\": false"
+        },
+        "references": [],
+        "ruleCode": "CRI-D5",
+        "source": {
+         "origin": "doc",
+         "fragmentId": "PRJ90-CHK-CONFIG",
+         "alias": "checagens#CHK-CONFIG",
+         "nature": "derivado",
+         "url": null,
+         "publishedDate": null,
+         "capturedAt": null,
+         "query": "A mudança não é rotineira — não se resume a layout, configurar, ativar, cadastrar, mapear campos ou ajustar parâmetro dentro da faixa suportada, sem alterar o algoritmo."
+        },
+        "counted": true,
+        "adjusted": false
+       }
+      ],
+      "scoreExplanation": {
+       "method": "Nota = positivas ÷ (positivas + negativas) × 100; a mesma fonte conta uma vez. Indicador, não decide a classe.",
+       "baseline": 0,
+       "factors": [
+        {
+         "kind": "evidence",
+         "refId": "ev-df5cfe042f8406db",
+         "label": "CRI-D5 · checagens#CHK-CONFIG",
+         "points": 100,
+         "value": null,
+         "weight": null
+        }
+       ]
+      },
+      "counts": {
+       "positive": 1,
+       "negative": 0
+      },
+      "status": "executada",
+      "statusReason": null,
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "Frascati 2015 §2.17 e §2.56",
+       "Guia MCTI 2020 Ap. B.1",
+       "FAQ MCTI P17",
+       "Históricos PRJ01, 04, 09, 11, 12, 19, 20"
+      ]
+     },
+     {
+      "id": "rule-cri-d6",
+      "code": "CRI-D6",
+      "name": "Método novo para tarefa comum conta",
+      "score": 100,
+      "explanation": "Mesmo uma tarefa comum pode ter um método novo, e isso conta.",
+      "normativeSource": {
+       "label": "Frascati 2015 §2.17",
+       "citation": "Método novo para tarefa comum conta (ex.: novo método de processamento de dados).",
+       "url": null
+      },
+      "evidences": [
+       {
+        "id": "ev-543561480ac6db09",
+        "title": "CRI-D6 · evidencias/metodo.md#2",
+        "polarity": "positive",
+        "explanation": "Apresenta um método novo para a tarefa comum de ordenar lotes, diferente das técnicas padrão.",
+        "projectExcerpt": {
+         "documentId": "doc-cf8bb884f2",
+         "fileName": "evidencias/metodo.md",
+         "page": null,
+         "excerpt": "Ordenar lotes por grafo de dependência de saldo, com desempate pelo menor atraso e janela de 15 minutos."
+        },
+        "references": [],
+        "ruleCode": "CRI-D6",
+        "source": {
+         "origin": "doc",
+         "fragmentId": "PRJ90-EV06#2",
+         "alias": "evidencias/metodo.md#2",
+         "nature": "sintese",
+         "url": null,
+         "publishedDate": null,
+         "capturedAt": null,
+         "query": "Método novo para tarefa comum conta (ex.: novo método de processamento de dados)."
+        },
+        "counted": true,
+        "adjusted": false
+       }
+      ],
+      "scoreExplanation": {
+       "method": "Nota = positivas ÷ (positivas + negativas) × 100; a mesma fonte conta uma vez. Indicador, não decide a classe.",
+       "baseline": 0,
+       "factors": [
+        {
+         "kind": "evidence",
+         "refId": "ev-543561480ac6db09",
+         "label": "CRI-D6 · evidencias/metodo.md#2",
+         "points": 100,
+         "value": null,
+         "weight": null
+        }
+       ]
+      },
+      "counts": {
+       "positive": 1,
+       "negative": 0
+      },
+      "status": "executada",
+      "statusReason": null,
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "Frascati 2015 §2.17",
+       "IT MIMIT §1.1.3.2"
+      ]
+     },
+     {
+      "id": "rule-cri-d7",
+      "code": "CRI-D7",
+      "name": "Profissional competente afirma",
+      "score": null,
+      "explanation": "Quem atesta o avanço precisa ser competente na área. revisao_tecnica.md dá só a função \"revisão técnica\"; não há qualificação dos revisores no pacote.",
+      "normativeSource": {
+       "label": "HMRC GfC3 parte 3",
+       "citation": "Quem afirma a criatividade/avanço é profissional competente na área.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "parcial",
+      "statusReason": "revisao_tecnica.md dá só a função \"revisão técnica\"; não há qualificação dos revisores no pacote.",
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "HMRC GfC3 parte 3"
+      ]
+     },
+     {
+      "id": "rule-cri-d8",
+      "code": "CRI-D8",
+      "name": "Regra de decisão com parâmetros concretos",
+      "score": 0,
+      "explanation": "O mecanismo tem regras e números concretos, não só um nome.",
+      "normativeSource": {
+       "label": "Históricos PRJ02, PRJ03, PRJ13 × PRJ08, PRJ10, PRJ17",
+       "citation": "O mecanismo está especificado com regra de decisão e parâmetros concretos; plano ou diagrama sem limiares, empate ou versão → indeterminada.",
+       "url": null
+      },
+      "evidences": [
+       {
+        "id": "ev-330da20f89e3be95",
+        "title": "CRI-D8 · evidencias/configuracao.json#parametros",
+        "polarity": "negative",
+        "explanation": "O parâmetro crítico 'limiar_desempate' está nulo, faltando valores concretos para a regra de decisão.",
+        "projectExcerpt": {
+         "documentId": "doc-44b5f7c61f",
+         "fileName": "evidencias/configuracao.json",
+         "page": null,
+         "excerpt": "{\"janela_min\": 15, \"limiar_desempate\": null}"
+        },
+        "references": [],
+        "ruleCode": "CRI-D8",
+        "source": {
+         "origin": "doc",
+         "fragmentId": "PRJ90-EV05#parametros",
+         "alias": "evidencias/configuracao.json#parametros",
+         "nature": "registro_primario",
+         "url": null,
+         "publishedDate": null,
+         "capturedAt": null,
+         "query": "O mecanismo está especificado com regra de decisão e parâmetros concretos; plano ou diagrama sem limiares, empate ou versão → indeterminada."
+        },
+        "counted": true,
+        "adjusted": false
+       }
+      ],
+      "scoreExplanation": {
+       "method": "Nota = positivas ÷ (positivas + negativas) × 100; a mesma fonte conta uma vez. Indicador, não decide a classe.",
+       "baseline": 0,
+       "factors": [
+        {
+         "kind": "evidence",
+         "refId": "ev-330da20f89e3be95",
+         "label": "CRI-D8 · evidencias/configuracao.json#parametros",
+         "points": 0,
+         "value": null,
+         "weight": null
+        }
+       ]
+      },
+      "counts": {
+       "positive": 0,
+       "negative": 1
+      },
+      "status": "executada",
+      "statusReason": null,
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "Históricos PRJ02, PRJ03, PRJ13 × PRJ08, PRJ10, PRJ17"
+      ]
+     },
+     {
+      "id": "rule-cri-d10",
+      "code": "CRI-D10",
+      "name": "Combinação original testada",
+      "score": null,
+      "explanation": "Combinar técnicas conhecidas de forma original e testada conta; renomear não. citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-VERSOES",
+      "normativeSource": {
+       "label": "Históricos PRJ05, PRJ07, PRJ03",
+       "citation": "A criatividade não exige inventar primitiva; pode estar num acoplamento original testado contra os conhecidos. Renomear técnica conhecida não conta.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "sem_evidencia",
+      "statusReason": "citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-VERSOES",
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "Históricos PRJ05, PRJ07, PRJ03",
+       "Frascati Tab. 2.1(b)"
+      ]
+     }
+    ],
+    "scoreExplanation": {
+     "method": "Média simples das regras com evidência. Regras sem evidência, N/A, não executadas e NOV-W1/W2/W8 (informativas) ficam fora. Indicador, não decide a classe.",
+     "baseline": 0,
+     "factors": [
+      {
+       "kind": "rule",
+       "refId": "rule-cri-w2",
+       "label": "CRI-W2 Prática padrão ou tutorial",
+       "points": 15,
+       "value": 100.0,
+       "weight": 0.1429
+      },
+      {
+       "kind": "rule",
+       "refId": "rule-cri-w3",
+       "label": "CRI-W3 Combinação além da soma",
+       "points": 14,
+       "value": 100.0,
+       "weight": 0.1429
+      },
+      {
+       "kind": "rule",
+       "refId": "rule-cri-d1",
+       "label": "CRI-D1 Hipótese explícita antes dos testes",
+       "points": 0,
+       "value": 0.0,
+       "weight": 0.1429
+      },
+      {
+       "kind": "rule",
+       "refId": "rule-cri-d2",
+       "label": "CRI-D2 Barreira técnica concreta",
+       "points": 14,
+       "value": 100.0,
+       "weight": 0.1429
+      },
+      {
+       "kind": "rule",
+       "refId": "rule-cri-d5",
+       "label": "CRI-D5 Mudança não rotineira",
+       "points": 14,
+       "value": 100.0,
+       "weight": 0.1429
+      },
+      {
+       "kind": "rule",
+       "refId": "rule-cri-d6",
+       "label": "CRI-D6 Método novo para tarefa comum conta",
+       "points": 14,
+       "value": 100.0,
+       "weight": 0.1429
+      },
+      {
+       "kind": "rule",
+       "refId": "rule-cri-d8",
+       "label": "CRI-D8 Regra de decisão com parâmetros concretos",
+       "points": 0,
+       "value": 0.0,
+       "weight": 0.1429
+      }
+     ]
+    },
+    "criterionId": "CRI",
+    "state": "INDETERMINADA",
+    "column": "insuficiente",
+    "llmState": "INDETERMINADA",
+    "gates": [],
+    "normativeSource": "Frascati 2015 §2.17 e Tab. 2.1(b)–(c); Guia MCTI 2020 §6",
+    "decisiveEvidenceIds": [
+     "ev-15250e5217cdf0c3",
+     "ev-330da20f89e3be95"
+    ]
+   },
+   {
+    "id": "crit-uncertainty",
+    "key": "uncertainty",
+    "name": "Incerteza tecnológica",
+    "score": 89,
+    "summary": "As evidências mostram que a solução proposta não era acessível e foi testada contra comparadores conhecidos, com medições por versão. O ensaio experimental (ev-b4935c4344dc1f0e) falhou, indicando incerteza tecnológica. O protótipo da fila por dependência (ev-ad8fcfddf31a8736) foi avaliado contra FIFO e prioridade fixa (ev-0a2db675c85fb595), confirmando a execução da hipótese. As medições versionadas (ev-ad222bf0fb978259) registram os resultados comparativos, atendendo ao critério de investigação.",
+    "rules": [
+     {
+      "id": "rule-inc-w1",
+      "code": "INC-W1",
+      "name": "Solução já disponível ou dedutível",
+      "score": null,
+      "explanation": "Se a solução já estava publicada, não havia incerteza. citações descartadas pelo gate: trecho não encontrado literalmente em src-5a35a960e4",
+      "normativeSource": {
+       "label": "UK DSIT ¶13–14",
+       "citation": "A solução da barreira declarada já estava disponível ou era facilmente dedutível por um profissional competente na data de início?",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "sem_evidencia",
+      "statusReason": "citações descartadas pelo gate: trecho não encontrado literalmente em src-5a35a960e4",
+      "inMean": true,
+      "block": "web",
+      "normativeSources": [
+       "UK DSIT ¶13–14",
+       "CRA SR&ED",
+       "AU R&DTI",
+       "IE TDM §3.4",
+       "HMRC GfC3 parte 2, passo 4"
+      ]
+     },
+     {
+      "id": "rule-inc-w2",
+      "code": "INC-W2",
+      "name": "Não saber internamente não conta",
+      "score": null,
+      "explanation": "Não saber fazer dentro de casa não é incerteza se a solução estava disponível. citações descartadas pelo gate: trecho não encontrado literalmente em src-5a35a960e4",
+      "normativeSource": {
+       "label": "IE TDM §3.4",
+       "citation": "Se a solução era razoavelmente acessível (publicada, consultoria, especialista), a falta de know-how da empresa não é incerteza.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "sem_evidencia",
+      "statusReason": "citações descartadas pelo gate: trecho não encontrado literalmente em src-5a35a960e4",
+      "inMean": true,
+      "block": "web",
+      "normativeSources": [
+       "IE TDM §3.4",
+       "IT MIMIT 2024 §1.1.3.3",
+       "CRA SR&ED"
+      ]
+     },
+     {
+      "id": "rule-inc-w3",
+      "code": "INC-W3",
+      "name": "Problema relatado como em aberto",
+      "score": null,
+      "explanation": "Outros também relatam o problema como não resolvido. Nenhuma fonte encontrada relata o problema de lotes atrasados como aberto ou aponta limitações não resolvidas das soluções existentes.",
+      "normativeSource": {
+       "label": "Guia MCTI 2020 §6.2",
+       "citation": "A literatura ou documentação técnica relata o problema como em aberto ou aponta limitações das soluções existentes.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "sem_evidencia",
+      "statusReason": "Nenhuma fonte encontrada relata o problema de lotes atrasados como aberto ou aponta limitações não resolvidas das soluções existentes.",
+      "inMean": true,
+      "block": "web",
+      "normativeSources": [
+       "Guia MCTI 2020 §6.2",
+       "INPI item 5.57"
+      ]
+     },
+     {
+      "id": "rule-inc-w4",
+      "code": "INC-W4",
+      "name": "TRL como indício",
+      "score": null,
+      "explanation": "Técnica pouco madura no mercado indica mais incerteza. citações descartadas pelo gate: trecho não encontrado literalmente em src-5aa087e125",
+      "normativeSource": {
+       "label": "Guia MCTI 2020 §6.2",
+       "citation": "Maturidade da tecnologia no setor como indício; quanto mais baixo o TRL, maior a incerteza (heurística).",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "sem_evidencia",
+      "statusReason": "citações descartadas pelo gate: trecho não encontrado literalmente em src-5aa087e125",
+      "inMean": true,
+      "block": "web",
+      "normativeSources": [
+       "Guia MCTI 2020 §6.2",
+       "ISO 16290:2013",
+       "Mankins 2009"
+      ]
+     },
+     {
+      "id": "rule-inc-d1",
+      "code": "INC-D1",
+      "name": "Incerteza técnica, não comercial",
+      "score": 100,
+      "explanation": "A dúvida era técnica, não de mercado ou de prazo.",
+      "normativeSource": {
+       "label": "FAQ MCTI P4(b)",
+       "citation": "A incerteza é técnica/científica e intrínseca — não de mercado, prazo, viabilidade comercial nem de regra de negócio ou política.",
+       "url": null
+      },
+      "evidences": [
+       {
+        "id": "ev-0a2db675c85fb595",
+        "title": "INC-D1 · evidencias/metodo.md#1",
+        "polarity": "positive",
+        "explanation": "O fragmento demonstra que há risco técnico porque os métodos conhecidos falham em condição específica, indicando incerteza técnica.",
+        "projectExcerpt": {
+         "documentId": "doc-cf8bb884f2",
+         "fileName": "evidencias/metodo.md",
+         "page": null,
+         "excerpt": "FIFO e prioridade fixa são comparadores conhecidos. Ambos falham quando dois lotes dependem do mesmo saldo."
+        },
+        "references": [],
+        "ruleCode": "INC-D1",
+        "source": {
+         "origin": "doc",
+         "fragmentId": "PRJ90-EV06#1",
+         "alias": "evidencias/metodo.md#1",
+         "nature": "sintese",
+         "url": null,
+         "publishedDate": null,
+         "capturedAt": null,
+         "query": "A incerteza é técnica/científica e intrínseca — não de mercado, prazo, viabilidade comercial nem de regra de negócio ou política."
+        },
+        "counted": true,
+        "adjusted": false
+       }
+      ],
+      "scoreExplanation": {
+       "method": "Nota = positivas ÷ (positivas + negativas) × 100; a mesma fonte conta uma vez. Indicador, não decide a classe.",
+       "baseline": 0,
+       "factors": [
+        {
+         "kind": "evidence",
+         "refId": "ev-0a2db675c85fb595",
+         "label": "INC-D1 · evidencias/metodo.md#1",
+         "points": 100,
+         "value": null,
+         "weight": null
+        }
+       ]
+      },
+      "counts": {
+       "positive": 1,
+       "negative": 0
+      },
+      "status": "executada",
+      "statusReason": null,
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "FAQ MCTI P4(b)",
+       "IT MIMIT §1.1.3.3",
+       "IE TDM §3.5",
+       "Histórico PRJ20"
+      ]
+     },
+     {
+      "id": "rule-inc-d2",
+      "code": "INC-D2",
+      "name": "Pergunta técnica específica",
+      "score": 100,
+      "explanation": "A dúvida foi escrita como uma pergunta técnica clara.",
+      "normativeSource": {
+       "label": "IE TDM §3.5(a)–(b)",
+       "citation": "A incerteza está formulada como pergunta técnica específica (dá para atingir? qual método atende às especificações?).",
+       "url": null
+      },
+      "evidences": [
+       {
+        "id": "ev-c6765670ea0ccc4d",
+        "title": "INC-D2 · dossie_projeto.pdf#pergunta_registrada",
+        "polarity": "positive",
+        "explanation": "A pergunta registrada é técnica e específica, referindo‑se ao método de ordenação sem violar precedência.",
+        "projectExcerpt": {
+         "documentId": "doc-342ba3550f",
+         "fileName": "dossie_projeto.pdf",
+         "page": 1,
+         "excerpt": "Como ordenar lotes sem violar a precedencia contabil?"
+        },
+        "references": [],
+        "ruleCode": "INC-D2",
+        "source": {
+         "origin": "doc",
+         "fragmentId": "PRJ90-EV01#pergunta_registrada",
+         "alias": "dossie_projeto.pdf#pergunta_registrada",
+         "nature": "sintese",
+         "url": null,
+         "publishedDate": null,
+         "capturedAt": null,
+         "query": "A incerteza está formulada como pergunta técnica específica (dá para atingir? qual método atende às especificações?)."
+        },
+        "counted": true,
+        "adjusted": false
+       }
+      ],
+      "scoreExplanation": {
+       "method": "Nota = positivas ÷ (positivas + negativas) × 100; a mesma fonte conta uma vez. Indicador, não decide a classe.",
+       "baseline": 0,
+       "factors": [
+        {
+         "kind": "evidence",
+         "refId": "ev-c6765670ea0ccc4d",
+         "label": "INC-D2 · dossie_projeto.pdf#pergunta_registrada",
+         "points": 100,
+         "value": null,
+         "weight": null
+        }
+       ]
+      },
+      "counts": {
+       "positive": 1,
+       "negative": 0
+      },
+      "status": "executada",
+      "statusReason": null,
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "IE TDM §3.5(a)–(b)",
+       "UK DSIT ¶13",
+       "HMRC GfC3 parte 2, passo 3",
+       "Guia MCTI 2020 §6.3"
+      ]
+     },
+     {
+      "id": "rule-inc-d3",
+      "code": "INC-D3",
+      "name": "Por que um competente não resolveria",
+      "score": 100,
+      "explanation": "Mostra por que um especialista não resolveria só com o que já se sabia.",
+      "normativeSource": {
+       "label": "HMRC GfC3 parte 2, passo 4",
+       "citation": "O projeto explica por que um profissional competente não resolveria aquilo com o conhecimento disponível.",
+       "url": null
+      },
+      "evidences": [
+       {
+        "id": "ev-74f4edd1cd1c6358",
+        "title": "INC-D3 · evidencias/metodo.md#1",
+        "polarity": "positive",
+        "explanation": "Explica que as alternativas conhecidas falham, justificando por que um profissional competente não resolveria o problema com elas.",
+        "projectExcerpt": {
+         "documentId": "doc-cf8bb884f2",
+         "fileName": "evidencias/metodo.md",
+         "page": null,
+         "excerpt": "FIFO e prioridade fixa são comparadores conhecidos. Ambos falham quando dois lotes dependem do mesmo saldo."
+        },
+        "references": [],
+        "ruleCode": "INC-D3",
+        "source": {
+         "origin": "doc",
+         "fragmentId": "PRJ90-EV06#1",
+         "alias": "evidencias/metodo.md#1",
+         "nature": "sintese",
+         "url": null,
+         "publishedDate": null,
+         "capturedAt": null,
+         "query": "O projeto explica por que um profissional competente não resolveria aquilo com o conhecimento disponível."
+        },
+        "counted": true,
+        "adjusted": false
+       }
+      ],
+      "scoreExplanation": {
+       "method": "Nota = positivas ÷ (positivas + negativas) × 100; a mesma fonte conta uma vez. Indicador, não decide a classe.",
+       "baseline": 0,
+       "factors": [
+        {
+         "kind": "evidence",
+         "refId": "ev-74f4edd1cd1c6358",
+         "label": "INC-D3 · evidencias/metodo.md#1",
+         "points": 100,
+         "value": null,
+         "weight": null
+        }
+       ]
+      },
+      "counts": {
+       "positive": 1,
+       "negative": 0
+      },
+      "status": "executada",
+      "statusReason": null,
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "HMRC GfC3 parte 2, passo 4",
+       "UK DSIT ¶14"
+      ]
+     },
+     {
+      "id": "rule-inc-d4",
+      "code": "INC-D4",
+      "name": "Resultado não previsível",
+      "score": 100,
+      "explanation": "O resultado não era previsível; houve falhas da própria hipótese.",
+      "normativeSource": {
+       "label": "IT MIMIT §1.1.3.3",
+       "citation": "Há sinais de que o resultado não era previsível (falhas, reprojetos, hipóteses refutadas), desde que sejam falhas experimentais, não operacionais.",
+       "url": null
+      },
+      "evidences": [
+       {
+        "id": "ev-b4935c4344dc1f0e",
+        "title": "INC-D4 · checagens#CHK-FALHAS",
+        "polarity": "positive",
+        "explanation": "A checagem indica falha experimental (taxa de 75% abaixo do critério de 95%), mostrando resultado não previsível.",
+        "projectExcerpt": {
+         "documentId": null,
+         "fileName": "checagens",
+         "page": null,
+         "excerpt": "ensaio_id\": \"PRJ90-S01\", \"metrica\": \"lotes na ordem\", \"taxa_percentual\": \"75.0\", \"versao\": \"fifo-v1"
+        },
+        "references": [],
+        "ruleCode": "INC-D4",
+        "source": {
+         "origin": "doc",
+         "fragmentId": "PRJ90-CHK-FALHAS",
+         "alias": "checagens#CHK-FALHAS",
+         "nature": "derivado",
+         "url": null,
+         "publishedDate": null,
+         "capturedAt": null,
+         "query": "Há sinais de que o resultado não era previsível (falhas, reprojetos, hipóteses refutadas), desde que sejam falhas experimentais, não operacionais."
+        },
+        "counted": true,
+        "adjusted": false
+       }
+      ],
+      "scoreExplanation": {
+       "method": "Nota = positivas ÷ (positivas + negativas) × 100; a mesma fonte conta uma vez. Indicador, não decide a classe.",
+       "baseline": 0,
+       "factors": [
+        {
+         "kind": "evidence",
+         "refId": "ev-b4935c4344dc1f0e",
+         "label": "INC-D4 · checagens#CHK-FALHAS",
+         "points": 100,
+         "value": null,
+         "weight": null
+        }
+       ]
+      },
+      "counts": {
+       "positive": 1,
+       "negative": 0
+      },
+      "status": "executada",
+      "statusReason": null,
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "IT MIMIT §1.1.3.3",
+       "Guia MCTI 2020 §6.3",
+       "IE TDM §3.1"
+      ]
+     },
+     {
+      "id": "rule-inc-d5",
+      "code": "INC-D5",
+      "name": "Enfrentada, não contornada",
+      "score": 100,
+      "explanation": "A equipe enfrentou o problema em vez de desviar dele.",
+      "normativeSource": {
+       "label": "CRA SR&ED",
+       "citation": "A incerteza foi enfrentada, não contornada com conhecimento disponível (workaround).",
+       "url": null
+      },
+      "evidences": [
+       {
+        "id": "ev-e27344bdd9162d4f",
+        "title": "INC-D5 · dossie_projeto.pdf#trabalho_documentado",
+        "polarity": "positive",
+        "explanation": "O registro mostra que a equipe enfrentou a barreira testando a nova fila contra comparadores conhecidos, não contornando o problema.",
+        "projectExcerpt": {
+         "documentId": "doc-342ba3550f",
+         "fileName": "dossie_projeto.pdf",
+         "page": 1,
+         "excerpt": "Fila por dependencia testada contra FIFO e prioridade fixa nas mesmas 200 entradas."
+        },
+        "references": [],
+        "ruleCode": "INC-D5",
+        "source": {
+         "origin": "doc",
+         "fragmentId": "PRJ90-EV01#trabalho_documentado",
+         "alias": "dossie_projeto.pdf#trabalho_documentado",
+         "nature": "sintese",
+         "url": null,
+         "publishedDate": null,
+         "capturedAt": null,
+         "query": "A incerteza foi enfrentada, não contornada com conhecimento disponível (workaround)."
+        },
+        "counted": true,
+        "adjusted": false
+       }
+      ],
+      "scoreExplanation": {
+       "method": "Nota = positivas ÷ (positivas + negativas) × 100; a mesma fonte conta uma vez. Indicador, não decide a classe.",
+       "baseline": 0,
+       "factors": [
+        {
+         "kind": "evidence",
+         "refId": "ev-e27344bdd9162d4f",
+         "label": "INC-D5 · dossie_projeto.pdf#trabalho_documentado",
+         "points": 100,
+         "value": null,
+         "weight": null
+        }
+       ]
+      },
+      "counts": {
+       "positive": 1,
+       "negative": 0
+      },
+      "status": "executada",
+      "statusReason": null,
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "CRA SR&ED"
+      ]
+     },
+     {
+      "id": "rule-inc-d6",
+      "code": "INC-D6",
+      "name": "Integração só se não dedutível",
+      "score": null,
+      "explanation": "Integrar sistemas só é incerto se não se sabia como combiná-los. O projeto não trata de integração de sistemas; não há evidência de incerteza sobre combinação de componentes.",
+      "normativeSource": {
+       "label": "UK DSIT ¶29–30",
+       "citation": "Integração de sistemas só tem incerteza se não era dedutível como combinar os componentes.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "sem_evidencia",
+      "statusReason": "O projeto não trata de integração de sistemas; não há evidência de incerteza sobre combinação de componentes.",
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "UK DSIT ¶29–30",
+       "Frascati 2015 §2.73"
+      ]
+     },
+     {
+      "id": "rule-inc-d7",
+      "code": "INC-D7",
+      "name": "Protótipo testa conceito",
+      "score": 100,
+      "explanation": "O teste serviu para checar uma ideia arriscada, não só para homologar.",
+      "normativeSource": {
+       "label": "Frascati 2015 §2.18, §2.49–2.50, Tab. 2.3, §2.55–2.56",
+       "citation": "Protótipo/piloto testa conceito técnico arriscado; homologação, pré-produção ou ajuste fino para produzir não é P&D.",
+       "url": null
+      },
+      "evidences": [
+       {
+        "id": "ev-ad8fcfddf31a8736",
+        "title": "INC-D7 · dossie_projeto.pdf#trabalho_documentado",
+        "polarity": "positive",
+        "explanation": "O teste da fila por dependência constitui protótipo que verifica um conceito técnico ainda incerto.",
+        "projectExcerpt": {
+         "documentId": "doc-342ba3550f",
+         "fileName": "dossie_projeto.pdf",
+         "page": 1,
+         "excerpt": "Fila por dependencia testada contra FIFO e prioridade fixa nas mesmas 200 entradas."
+        },
+        "references": [],
+        "ruleCode": "INC-D7",
+        "source": {
+         "origin": "doc",
+         "fragmentId": "PRJ90-EV01#trabalho_documentado",
+         "alias": "dossie_projeto.pdf#trabalho_documentado",
+         "nature": "sintese",
+         "url": null,
+         "publishedDate": null,
+         "capturedAt": null,
+         "query": "Protótipo/piloto testa conceito técnico arriscado; homologação, pré-produção ou ajuste fino para produzir não é P&D."
+        },
+        "counted": true,
+        "adjusted": false
+       }
+      ],
+      "scoreExplanation": {
+       "method": "Nota = positivas ÷ (positivas + negativas) × 100; a mesma fonte conta uma vez. Indicador, não decide a classe.",
+       "baseline": 0,
+       "factors": [
+        {
+         "kind": "evidence",
+         "refId": "ev-ad8fcfddf31a8736",
+         "label": "INC-D7 · dossie_projeto.pdf#trabalho_documentado",
+         "points": 100,
+         "value": null,
+         "weight": null
+        }
+       ]
+      },
+      "counts": {
+       "positive": 1,
+       "negative": 0
+      },
+      "status": "executada",
+      "statusReason": null,
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "Frascati 2015 §2.18, §2.49–2.50, Tab. 2.3, §2.55–2.56"
+      ]
+     },
+     {
+      "id": "rule-inc-d8",
+      "code": "INC-D8",
+      "name": "Início e fim da P&D",
+      "score": 100,
+      "explanation": "Dá para saber quando a pesquisa começou e terminou.",
+      "normativeSource": {
+       "label": "UK DSIT ¶33–34",
+       "citation": "Dá para delimitar início e fim da P&D pela cronologia e versões de ensaio.",
+       "url": null
+      },
+      "evidences": [
+       {
+        "id": "ev-1353281e7625768b",
+        "title": "INC-D8 · checagens#CHK-TEMPO",
+        "polarity": "positive",
+        "explanation": "A checagem de tempo evidencia início (2025‑01‑06) e fim (2025‑02‑10) da fase de P&D com eventos registrados.",
+        "projectExcerpt": {
+         "documentId": null,
+         "fileName": "checagens",
+         "page": null,
+         "excerpt": "data_inicial\": \"2025-01-06"
+        },
+        "references": [],
+        "ruleCode": "INC-D8",
+        "source": {
+         "origin": "doc",
+         "fragmentId": "PRJ90-CHK-TEMPO",
+         "alias": "checagens#CHK-TEMPO",
+         "nature": "derivado",
+         "url": null,
+         "publishedDate": null,
+         "capturedAt": null,
+         "query": "Dá para delimitar início e fim da P&D pela cronologia e versões de ensaio."
+        },
+        "counted": true,
+        "adjusted": false
+       }
+      ],
+      "scoreExplanation": {
+       "method": "Nota = positivas ÷ (positivas + negativas) × 100; a mesma fonte conta uma vez. Indicador, não decide a classe.",
+       "baseline": 0,
+       "factors": [
+        {
+         "kind": "evidence",
+         "refId": "ev-1353281e7625768b",
+         "label": "INC-D8 · checagens#CHK-TEMPO",
+         "points": 100,
+         "value": null,
+         "weight": null
+        }
+       ]
+      },
+      "counts": {
+       "positive": 1,
+       "negative": 0
+      },
+      "status": "executada",
+      "statusReason": null,
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "UK DSIT ¶33–34",
+       "HMRC GfC3 parte 2, passos 6–7",
+       "FAQ MCTI P4(c)"
+      ]
+     },
+     {
+      "id": "rule-inc-d9",
+      "code": "INC-D9",
+      "name": "Bug, ajuste ou falha operacional não é incerteza",
+      "score": 0,
+      "explanation": "Corrigir erro ou ajustar configuração não é incerteza tecnológica.",
+      "normativeSource": {
+       "label": "Frascati 2015 §2.57, §2.72",
+       "citation": "Correção de bugs, troubleshooting, otimização e ajuste fino não são incerteza; inclui falha operacional resolvida por parâmetro, permissão, cadastro, mapeamento ou receita do fornecedor. Absorve a parte de software da T8.",
+       "url": null
+      },
+      "evidences": [
+       {
+        "id": "ev-7280dba2f8737a6b",
+        "title": "INC-D9 · checagens#CHK-CONFIG",
+        "polarity": "negative",
+        "explanation": "A checagem indica que a mudança não foi mera correção de parâmetro ou configuração, afastando a classificação como bug/ajuste operacional.",
+        "projectExcerpt": {
+         "documentId": null,
+         "fileName": "checagens",
+         "page": null,
+         "excerpt": "algoritmo_nao_modificado\": false, \"faixa_ja_admitida\": false, \"indica_funcao_ja_fornecida\": false"
+        },
+        "references": [],
+        "ruleCode": "INC-D9",
+        "source": {
+         "origin": "doc",
+         "fragmentId": "PRJ90-CHK-CONFIG",
+         "alias": "checagens#CHK-CONFIG",
+         "nature": "derivado",
+         "url": null,
+         "publishedDate": null,
+         "capturedAt": null,
+         "query": "Correção de bugs, troubleshooting, otimização e ajuste fino não são incerteza; inclui falha operacional resolvida por parâmetro, permissão, cadastro, mapeamento ou receita do fornecedor. Absorve a parte de software da T8."
+        },
+        "counted": true,
+        "adjusted": false
+       }
+      ],
+      "scoreExplanation": {
+       "method": "Nota = positivas ÷ (positivas + negativas) × 100; a mesma fonte conta uma vez. Indicador, não decide a classe.",
+       "baseline": 0,
+       "factors": [
+        {
+         "kind": "evidence",
+         "refId": "ev-7280dba2f8737a6b",
+         "label": "INC-D9 · checagens#CHK-CONFIG",
+         "points": 0,
+         "value": null,
+         "weight": null
+        }
+       ]
+      },
+      "counts": {
+       "positive": 0,
+       "negative": 1
+      },
+      "status": "executada",
+      "statusReason": null,
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "Frascati 2015 §2.57, §2.72",
+       "UK DSIT ¶14, ¶35",
+       "Históricos PRJ01, 04, 09, 11, 12"
+      ]
+     },
+     {
+      "id": "rule-inc-d10",
+      "code": "INC-D10",
+      "name": "Custo/tempo quando decorre da técnica",
+      "score": null,
+      "explanation": "Meta de custo ou tempo conta quando exige resolver um problema técnico. Não há menção a metas de custo, tempo ou latência como critério técnico no material fornecido.",
+      "normativeSource": {
+       "label": "Frascati 2015 §2.18",
+       "citation": "Incerteza de custo/tempo conta quando decorre da técnica (meta técnica como critério prévio).",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "sem_evidencia",
+      "statusReason": "Não há menção a metas de custo, tempo ou latência como critério técnico no material fornecido.",
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "Frascati 2015 §2.18",
+       "IT MIMIT §1.1.3.3",
+       "IE TDM §3.5"
+      ]
+     },
+     {
+      "id": "rule-inc-d12",
+      "code": "INC-D12",
+      "name": "Investigada exige execução contra comparadores",
+      "score": 100,
+      "explanation": "A hipótese foi de fato testada contra as alternativas, com registro.",
+      "normativeSource": {
+       "label": "Históricos PRJ02, 03, 13–16 × PRJ08, 10, 17",
+       "citation": "A incerteza só é investigada quando a hipótese foi executada e confrontada com os comparadores conhecidos, com registro do resultado; só plano/diagrama/memorando → alegada, não verificável.",
+       "url": null
+      },
+      "evidences": [
+       {
+        "id": "ev-ad222bf0fb978259",
+        "title": "INC-D12 · checagens#CHK-VERSOES",
+        "polarity": "positive",
+        "explanation": "A checagem mostra que medições foram realizadas para as versões hipóteses e comparadores, atendendo ao requisito de execução contra comparadores.",
+        "projectExcerpt": {
+         "documentId": null,
+         "fileName": "checagens",
+         "page": null,
+         "excerpt": "versoes_com_medicao\": [ \"dependencia-v2\", \"fifo-v1\" ]"
+        },
+        "references": [],
+        "ruleCode": "INC-D12",
+        "source": {
+         "origin": "doc",
+         "fragmentId": "PRJ90-CHK-VERSOES",
+         "alias": "checagens#CHK-VERSOES",
+         "nature": "derivado",
+         "url": null,
+         "publishedDate": null,
+         "capturedAt": null,
+         "query": "A incerteza só é investigada quando a hipótese foi executada e confrontada com os comparadores conhecidos, com registro do resultado; só plano/diagrama/memorando → alegada, não verificável."
+        },
+        "counted": true,
+        "adjusted": false
+       }
+      ],
+      "scoreExplanation": {
+       "method": "Nota = positivas ÷ (positivas + negativas) × 100; a mesma fonte conta uma vez. Indicador, não decide a classe.",
+       "baseline": 0,
+       "factors": [
+        {
+         "kind": "evidence",
+         "refId": "ev-ad222bf0fb978259",
+         "label": "INC-D12 · checagens#CHK-VERSOES",
+         "points": 100,
+         "value": null,
+         "weight": null
+        }
+       ]
+      },
+      "counts": {
+       "positive": 1,
+       "negative": 0
+      },
+      "status": "executada",
+      "statusReason": null,
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "Históricos PRJ02, 03, 13–16 × PRJ08, 10, 17"
+      ]
+     }
+    ],
+    "scoreExplanation": {
+     "method": "Média simples das regras com evidência. Regras sem evidência, N/A, não executadas e NOV-W1/W2/W8 (informativas) ficam fora. Indicador, não decide a classe.",
+     "baseline": 0,
+     "factors": [
+      {
+       "kind": "rule",
+       "refId": "rule-inc-d1",
+       "label": "INC-D1 Incerteza técnica, não comercial",
+       "points": 12,
+       "value": 100.0,
+       "weight": 0.1111
+      },
+      {
+       "kind": "rule",
+       "refId": "rule-inc-d2",
+       "label": "INC-D2 Pergunta técnica específica",
+       "points": 11,
+       "value": 100.0,
+       "weight": 0.1111
+      },
+      {
+       "kind": "rule",
+       "refId": "rule-inc-d3",
+       "label": "INC-D3 Por que um competente não resolveria",
+       "points": 11,
+       "value": 100.0,
+       "weight": 0.1111
+      },
+      {
+       "kind": "rule",
+       "refId": "rule-inc-d4",
+       "label": "INC-D4 Resultado não previsível",
+       "points": 11,
+       "value": 100.0,
+       "weight": 0.1111
+      },
+      {
+       "kind": "rule",
+       "refId": "rule-inc-d5",
+       "label": "INC-D5 Enfrentada, não contornada",
+       "points": 11,
+       "value": 100.0,
+       "weight": 0.1111
+      },
+      {
+       "kind": "rule",
+       "refId": "rule-inc-d7",
+       "label": "INC-D7 Protótipo testa conceito",
+       "points": 11,
+       "value": 100.0,
+       "weight": 0.1111
+      },
+      {
+       "kind": "rule",
+       "refId": "rule-inc-d8",
+       "label": "INC-D8 Início e fim da P&D",
+       "points": 11,
+       "value": 100.0,
+       "weight": 0.1111
+      },
+      {
+       "kind": "rule",
+       "refId": "rule-inc-d9",
+       "label": "INC-D9 Bug, ajuste ou falha operacional não é incerteza",
+       "points": 0,
+       "value": 0.0,
+       "weight": 0.1111
+      },
+      {
+       "kind": "rule",
+       "refId": "rule-inc-d12",
+       "label": "INC-D12 Investigada exige execução contra comparadores",
+       "points": 11,
+       "value": 100.0,
+       "weight": 0.1111
+      }
+     ]
+    },
+    "criterionId": "INC",
+    "state": "INVESTIGADA",
+    "column": "pd",
+    "llmState": "INVESTIGADA",
+    "gates": [],
+    "normativeSource": "Frascati 2015 §2.18; Guia MCTI 2020 §6.3",
+    "decisiveEvidenceIds": [
+     "ev-0a2db675c85fb595",
+     "ev-b4935c4344dc1f0e",
+     "ev-ad8fcfddf31a8736",
+     "ev-ad222bf0fb978259"
+    ]
+   },
+   {
+    "id": "crit-systematicity",
+    "key": "systematicity",
+    "name": "Sistematicidade",
+    "score": 100,
+    "summary": "Embora o plano prévio esteja registrado ([ev-defc633b9f559ee1], [ev-06f051d4e9fb5b30]) e a metodologia experimental seja descrita ([ev-d503049264d41ec5]), faltam evidências essenciais como objetivo e escopo do projeto, registro de desvios e controles de desenho experimental, além de ensaios para a versão prioridade‑v1. A classificação de desempenho está presente ([ev-5fd7a3033a366a5f]), mas a ausência desses elos impede a caracterização como DOCUMENTADA. Portanto, o critério está PARCIAL.",
+    "rules": [
+     {
+      "id": "rule-sis-d1",
+      "code": "SIS-D1",
+      "name": "Objetivo, escopo, início e fim",
+      "score": null,
+      "explanation": "O projeto tem objetivo, escopo, começo e fim definidos. Nenhum fragmento menciona objetivo, escopo ou datas de início e fim de forma completa.",
+      "normativeSource": {
+       "label": "FAQ MCTI P4(d)–(e)",
+       "citation": "O projeto tem objetivo, escopo e datas de início e fim (a unidade é o projeto, T1).",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "sem_evidencia",
+      "statusReason": "Nenhum fragmento menciona objetivo, escopo ou datas de início e fim de forma completa.",
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "FAQ MCTI P4(d)–(e)",
+       "Frascati 2015 §2.12",
+       "IT MIMIT 2024 §1.1.3.4"
+      ]
+     },
+     {
+      "id": "rule-sis-d2",
+      "code": "SIS-D2",
+      "name": "Plano datado antes",
+      "score": 100,
+      "explanation": "Existia um plano com critérios definidos antes dos testes.",
+      "normativeSource": {
+       "label": "Guia MCTI 2020 Ap. B.4",
+       "citation": "Há plano com etapas, marcos e indicadores de sucesso definidos no início.",
+       "url": null
+      },
+      "evidences": [
+       {
+        "id": "ev-defc633b9f559ee1",
+        "title": "SIS-D2 · evidencias/cronologia.csv#PRJ90-CR02",
+        "polarity": "positive",
+        "explanation": "O registro mostra que os critérios foram descritos antes do primeiro ensaio, atendendo ao requisito de plano prévio.",
+        "projectExcerpt": {
+         "documentId": "doc-7720ffdd24",
+         "fileName": "evidencias/cronologia.csv",
+         "page": null,
+         "excerpt": "2025-01-20;protocolo-r1;Critérios descritos no método"
+        },
+        "references": [],
+        "ruleCode": "SIS-D2",
+        "source": {
+         "origin": "doc",
+         "fragmentId": "PRJ90-CR02",
+         "alias": "evidencias/cronologia.csv#PRJ90-CR02",
+         "nature": "registro_primario",
+         "url": null,
+         "publishedDate": null,
+         "capturedAt": null,
+         "query": "Há plano com etapas, marcos e indicadores de sucesso definidos no início."
+        },
+        "counted": true,
+        "adjusted": false
+       },
+       {
+        "id": "ev-06f051d4e9fb5b30",
+        "title": "SIS-D2 · checagens#CHK-TEMPO",
+        "polarity": "positive",
+        "explanation": "A checagem confirma que o documento inicial foi registrado antes dos ensaios, evidenciando plano datado previamente.",
+        "projectExcerpt": {
+         "documentId": null,
+         "fileName": "checagens",
+         "page": null,
+         "excerpt": "documento_inicial_antes_dos_ensaios\": true"
+        },
+        "references": [],
+        "ruleCode": "SIS-D2",
+        "source": {
+         "origin": "doc",
+         "fragmentId": "PRJ90-CHK-TEMPO",
+         "alias": "checagens#CHK-TEMPO",
+         "nature": "derivado",
+         "url": null,
+         "publishedDate": null,
+         "capturedAt": null,
+         "query": "Há plano com etapas, marcos e indicadores de sucesso definidos no início."
+        },
+        "counted": true,
+        "adjusted": false
+       }
+      ],
+      "scoreExplanation": {
+       "method": "Nota = positivas ÷ (positivas + negativas) × 100; a mesma fonte conta uma vez. Indicador, não decide a classe.",
+       "baseline": 0,
+       "factors": [
+        {
+         "kind": "evidence",
+         "refId": "ev-defc633b9f559ee1",
+         "label": "SIS-D2 · evidencias/cronologia.csv#PRJ90-CR02",
+         "points": 50,
+         "value": null,
+         "weight": null
+        },
+        {
+         "kind": "evidence",
+         "refId": "ev-06f051d4e9fb5b30",
+         "label": "SIS-D2 · checagens#CHK-TEMPO",
+         "points": 50,
+         "value": null,
+         "weight": null
+        }
+       ]
+      },
+      "counts": {
+       "positive": 2,
+       "negative": 0
+      },
+      "status": "executada",
+      "statusReason": null,
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "Guia MCTI 2020 Ap. B.4",
+       "IE TDM §8.1(f)",
+       "IT MIMIT §1.1.3.4"
+      ]
+     },
+     {
+      "id": "rule-sis-d3",
+      "code": "SIS-D3",
+      "name": "Recursos próprios identificados",
+      "score": null,
+      "explanation": "A equipe e os recursos do projeto estão identificados. Orçamento e dispêndios estão fora do escopo do guia; a equipe só aparece por função (responsavel_por_funcao), sem titulação.",
+      "normativeSource": {
+       "label": "Frascati 2015 §2.19",
+       "citation": "Equipe adequada ao problema, orçamento e fonte de financiamento identificados.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "parcial",
+      "statusReason": "Orçamento e dispêndios estão fora do escopo do guia; a equipe só aparece por função (responsavel_por_funcao), sem titulação.",
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "Frascati 2015 §2.19",
+       "FORMP&D",
+       "IE TDM §8.1(g)–(h)"
+      ]
+     },
+     {
+      "id": "rule-sis-d4",
+      "code": "SIS-D4",
+      "name": "Dispêndios rastreáveis",
+      "score": null,
+      "explanation": "Os gastos do projeto podem ser rastreados. O guia do desafio exclui explicitamente horas, despesas e requisitos fiscais.",
+      "normativeSource": {
+       "label": "Lei 11.196 art. 22 I",
+       "citation": "Dispêndios rastreáveis ao projeto (contas e apontamento de horas).",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "na",
+      "statusReason": "O guia do desafio exclui explicitamente horas, despesas e requisitos fiscais.",
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "Lei 11.196 art. 22 I",
+       "Decreto 5.798 art. 10 I",
+       "Portaria 9.563 art. 6º II"
+      ]
+     },
+     {
+      "id": "rule-sis-d5",
+      "code": "SIS-D5",
+      "name": "Metodologia experimental, não aceite",
+      "score": 100,
+      "explanation": "Os testes foram um experimento comparando alternativas, não só um teste de aceite.",
+      "normativeSource": {
+       "label": "Guia MCTI 2020 §6.4",
+       "citation": "A metodologia é de experimentação (alternativas nas mesmas entradas, referência fixada antes, critérios prévios), não gestão nem teste de aceite (roteiros com resultado esperado repetidos até passar).",
+       "url": null
+      },
+      "evidences": [
+       {
+        "id": "ev-d503049264d41ec5",
+        "title": "SIS-D5 · evidencias/metodo.md#3",
+        "polarity": "positive",
+        "explanation": "Descreve metodologia experimental com alternativas nas mesmas entradas e critério fixado antes da execução.",
+        "projectExcerpt": {
+         "documentId": "doc-cf8bb884f2",
+         "fileName": "evidencias/metodo.md",
+         "page": null,
+         "excerpt": "Três filas nas mesmas 200 entradas. Critério prévio: pelo menos 95% de lotes na ordem correta."
+        },
+        "references": [],
+        "ruleCode": "SIS-D5",
+        "source": {
+         "origin": "doc",
+         "fragmentId": "PRJ90-EV06#3",
+         "alias": "evidencias/metodo.md#3",
+         "nature": "sintese",
+         "url": null,
+         "publishedDate": null,
+         "capturedAt": null,
+         "query": "A metodologia é de experimentação (alternativas nas mesmas entradas, referência fixada antes, critérios prévios), não gestão nem teste de aceite (roteiros com resultado esperado repetidos até passar)."
+        },
+        "counted": true,
+        "adjusted": false
+       }
+      ],
+      "scoreExplanation": {
+       "method": "Nota = positivas ÷ (positivas + negativas) × 100; a mesma fonte conta uma vez. Indicador, não decide a classe.",
+       "baseline": 0,
+       "factors": [
+        {
+         "kind": "evidence",
+         "refId": "ev-d503049264d41ec5",
+         "label": "SIS-D5 · evidencias/metodo.md#3",
+         "points": 100,
+         "value": null,
+         "weight": null
+        }
+       ]
+      },
+      "counts": {
+       "positive": 1,
+       "negative": 0
+      },
+      "status": "executada",
+      "statusReason": null,
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "Guia MCTI 2020 §6.4",
+       "FAQ MCTI P4",
+       "CRA SR&ED",
+       "IE TDM §3.6",
+       "Históricos PRJ02, 13, 14, 16 × PRJ04, 09, 12"
+      ]
+     },
+     {
+      "id": "rule-sis-d7",
+      "code": "SIS-D7",
+      "name": "Desvios registrados",
+      "score": null,
+      "explanation": "Os caminhos que deram errado foram registrados. Não há registro que descreva desvios experimentais nem as razões para mudança de rumo.",
+      "normativeSource": {
+       "label": "IE TDM §3.1",
+       "citation": "Estão registrados os desvios — caminhos que falharam e por que se mudou de rumo.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "sem_evidencia",
+      "statusReason": "Não há registro que descreva desvios experimentais nem as razões para mudança de rumo.",
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "IE TDM §3.1",
+       "IT MIMIT §1.1.3.4"
+      ]
+     },
+     {
+      "id": "rule-sis-d10",
+      "code": "SIS-D10",
+      "name": "Documentação guardada",
+      "score": null,
+      "explanation": "Os documentos ficam guardados pelo tempo exigido. Não é input do pacote; é satisfeita no output pelo dossiê versionado da ferramenta (autor, data, hash).",
+      "normativeSource": {
+       "label": "Decreto 5.798 art. 14 §1º",
+       "citation": "A documentação fica guardada e acessível durante o prazo prescricional.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "na",
+      "statusReason": "Não é input do pacote; é satisfeita no output pelo dossiê versionado da ferramenta (autor, data, hash).",
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "Decreto 5.798 art. 14 §1º",
+       "IE TDM §8.4"
+      ]
+     },
+     {
+      "id": "rule-sis-d12",
+      "code": "SIS-D12",
+      "name": "Execução registrada por versão",
+      "score": null,
+      "explanation": "Cada versão testada tem registro de execução. citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-VERSOES",
+      "normativeSource": {
+       "label": "Históricos PRJ08, 10, 17",
+       "citation": "Cada versão alegada tem ensaio identificado (ensaio_id) em medicoes.csv; plano/memorando sem registro de execução → parcial.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "sem_evidencia",
+      "statusReason": "citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-VERSOES",
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "Históricos PRJ08, 10, 17"
+      ]
+     },
+     {
+      "id": "rule-sis-d13",
+      "code": "SIS-D13",
+      "name": "Controles de desenho experimental",
+      "score": null,
+      "explanation": "O teste tem cuidados de desenho experimental. Ausência de evidência sobre controles de desenho experimental (estrato difícil, repetições, ordem contrabalançada, separação temporal).",
+      "normativeSource": {
+       "label": "Históricos PRJ02, PRJ13, PRJ15, PRJ16",
+       "citation": "Controles como estrato do caso difícil, repetições, ordem contrabalançada e separação temporal do rótulo são indícios fortes (não obrigatórios).",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "sem_evidencia",
+      "statusReason": "Ausência de evidência sobre controles de desenho experimental (estrato difícil, repetições, ordem contrabalançada, separação temporal).",
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "Históricos PRJ02, PRJ13, PRJ15, PRJ16"
+      ]
+     },
+     {
+      "id": "rule-sis-d14",
+      "code": "SIS-D14",
+      "name": "Entrega não é desempenho",
+      "score": 100,
+      "explanation": "Contar o que foi entregue não mostra que o mecanismo funcionou.",
+      "normativeSource": {
+       "label": "LEIA_ME",
+       "citation": "Contagem de entrega não é desempenho e não prova execução; desempenho exige operação e base explícitas (T11).",
+       "url": null
+      },
+      "evidences": [
+       {
+        "id": "ev-5fd7a3033a366a5f",
+        "title": "SIS-D14 · checagens#CHK-RECALC",
+        "polarity": "positive",
+        "explanation": "Os resultados são classificados como desempenho, não apenas entrega, atendendo ao requisito da regra.",
+        "projectExcerpt": {
+         "documentId": null,
+         "fileName": "checagens",
+         "page": null,
+         "excerpt": "natureza\": \"desempenho"
+        },
+        "references": [],
+        "ruleCode": "SIS-D14",
+        "source": {
+         "origin": "doc",
+         "fragmentId": "PRJ90-CHK-RECALC",
+         "alias": "checagens#CHK-RECALC",
+         "nature": "derivado",
+         "url": null,
+         "publishedDate": null,
+         "capturedAt": null,
+         "query": "Contagem de entrega não é desempenho e não prova execução; desempenho exige operação e base explícitas (T11)."
+        },
+        "counted": true,
+        "adjusted": false
+       }
+      ],
+      "scoreExplanation": {
+       "method": "Nota = positivas ÷ (positivas + negativas) × 100; a mesma fonte conta uma vez. Indicador, não decide a classe.",
+       "baseline": 0,
+       "factors": [
+        {
+         "kind": "evidence",
+         "refId": "ev-5fd7a3033a366a5f",
+         "label": "SIS-D14 · checagens#CHK-RECALC",
+         "points": 100,
+         "value": null,
+         "weight": null
+        }
+       ]
+      },
+      "counts": {
+       "positive": 1,
+       "negative": 0
+      },
+      "status": "executada",
+      "statusReason": null,
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "LEIA_ME",
+       "Históricos PRJ08, 10, 17"
+      ]
+     }
+    ],
+    "scoreExplanation": {
+     "method": "Média simples das regras com evidência. Regras sem evidência, N/A, não executadas e NOV-W1/W2/W8 (informativas) ficam fora. Indicador, não decide a classe.",
+     "baseline": 0,
+     "factors": [
+      {
+       "kind": "rule",
+       "refId": "rule-sis-d2",
+       "label": "SIS-D2 Plano datado antes",
+       "points": 34,
+       "value": 100.0,
+       "weight": 0.3333
+      },
+      {
+       "kind": "rule",
+       "refId": "rule-sis-d5",
+       "label": "SIS-D5 Metodologia experimental, não aceite",
+       "points": 33,
+       "value": 100.0,
+       "weight": 0.3333
+      },
+      {
+       "kind": "rule",
+       "refId": "rule-sis-d14",
+       "label": "SIS-D14 Entrega não é desempenho",
+       "points": 33,
+       "value": 100.0,
+       "weight": 0.3333
+      }
+     ]
+    },
+    "criterionId": "SIS",
+    "state": "PARCIAL",
+    "column": "insuficiente",
+    "llmState": "PARCIAL",
+    "gates": [],
+    "normativeSource": "Frascati 2015 §2.19; Guia MCTI 2020 §6.4",
+    "decisiveEvidenceIds": [
+     "ev-defc633b9f559ee1",
+     "ev-06f051d4e9fb5b30",
+     "ev-d503049264d41ec5",
+     "ev-5fd7a3033a366a5f"
+    ]
+   },
+   {
+    "id": "crit-reproducibility",
+    "key": "reproducibility",
+    "name": "Transferência/reprodução",
+    "score": 33,
+    "summary": "Os registros de configuração (ev-e1d5862820beb81a, ev-c46e7c850112db01) demonstram que o conhecimento está documentado, porém o parâmetro limiar_desempate está nulo, impedindo a reprodução completa (ev-9ce01a81198d0271). Além disso, o documento de revisão técnica indica que lotes acima de 500 itens não foram ensaiados, gerando uma lacuna dentro da pretensão original (ev-bebc93da77629a48). Essa combinação de lacunas caracteriza uma limitação técnica, exigindo complementação para que o critério seja plenamente atendido. Portanto, o estado adequado é DOCUMENTADA COM LIMITE.",
+    "rules": [
+     {
+      "id": "rule-rep-d1",
+      "code": "REP-D1",
+      "name": "Conhecimento codificado",
+      "score": 100,
+      "explanation": "O que se aprendeu está escrito, não só na cabeça da equipe.",
+      "normativeSource": {
+       "label": "Frascati 2015 §2.20",
+       "citation": "O conhecimento gerado está codificado num registro, não só no know-how da equipe.",
+       "url": null
+      },
+      "evidences": [
+       {
+        "id": "ev-e1d5862820beb81a",
+        "title": "REP-D1 · evidencias/configuracao.json#parametros",
+        "polarity": "positive",
+        "explanation": "O arquivo configuracao.json registra os parâmetros do mecanismo, demonstrando que o conhecimento está codificado em documento.",
+        "projectExcerpt": {
+         "documentId": "doc-44b5f7c61f",
+         "fileName": "evidencias/configuracao.json",
+         "page": null,
+         "excerpt": "{\"janela_min\": 15, \"limiar_desempate\": null}"
+        },
+        "references": [],
+        "ruleCode": "REP-D1",
+        "source": {
+         "origin": "doc",
+         "fragmentId": "PRJ90-EV05#parametros",
+         "alias": "evidencias/configuracao.json#parametros",
+         "nature": "registro_primario",
+         "url": null,
+         "publishedDate": null,
+         "capturedAt": null,
+         "query": "O conhecimento gerado está codificado num registro, não só no know-how da equipe."
+        },
+        "counted": true,
+        "adjusted": false
+       },
+       {
+        "id": "ev-c46e7c850112db01",
+        "title": "REP-D1 · evidencias/configuracao.json#versoes_registradas",
+        "polarity": "positive",
+        "explanation": "As versões dos algoritmos são listadas no mesmo registro, confirmando a codificação das escolhas técnicas.",
+        "projectExcerpt": {
+         "documentId": "doc-44b5f7c61f",
+         "fileName": "evidencias/configuracao.json",
+         "page": null,
+         "excerpt": "[\"fifo-v1\", \"prioridade-v1\", \"dependencia-v2\"]"
+        },
+        "references": [],
+        "ruleCode": "REP-D1",
+        "source": {
+         "origin": "doc",
+         "fragmentId": "PRJ90-EV05#versoes_registradas",
+         "alias": "evidencias/configuracao.json#versoes_registradas",
+         "nature": "registro_primario",
+         "url": null,
+         "publishedDate": null,
+         "capturedAt": null,
+         "query": "O conhecimento gerado está codificado num registro, não só no know-how da equipe."
+        },
+        "counted": true,
+        "adjusted": false
+       }
+      ],
+      "scoreExplanation": {
+       "method": "Nota = positivas ÷ (positivas + negativas) × 100; a mesma fonte conta uma vez. Indicador, não decide a classe.",
+       "baseline": 0,
+       "factors": [
+        {
+         "kind": "evidence",
+         "refId": "ev-e1d5862820beb81a",
+         "label": "REP-D1 · evidencias/configuracao.json#parametros",
+         "points": 50,
+         "value": null,
+         "weight": null
+        },
+        {
+         "kind": "evidence",
+         "refId": "ev-c46e7c850112db01",
+         "label": "REP-D1 · evidencias/configuracao.json#versoes_registradas",
+         "points": 50,
+         "value": null,
+         "weight": null
+        }
+       ]
+      },
+      "counts": {
+       "positive": 2,
+       "negative": 0
+      },
+      "status": "executada",
+      "statusReason": null,
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "Frascati 2015 §2.20",
+       "IPCTN 2020 Anexo I",
+       "Nonaka 1994"
+      ]
+     },
+     {
+      "id": "rule-rep-d2",
+      "code": "REP-D2",
+      "name": "Detalhe suficiente para repetir",
+      "score": 0,
+      "explanation": "Outro profissional conseguiria repetir com o que está registrado.",
+      "normativeSource": {
+       "label": "Frascati 2015 §2.20",
+       "citation": "O registro traz método, dados, configuração e resultados com detalhe suficiente para outro profissional repetir.",
+       "url": null
+      },
+      "evidences": [
+       {
+        "id": "ev-9ce01a81198d0271",
+        "title": "REP-D2 · evidencias/configuracao.json#parametros",
+        "polarity": "negative",
+        "explanation": "O parâmetro limiar_desempate está nulo, indicando ausência de informação essencial para reproduzir o experimento.",
+        "projectExcerpt": {
+         "documentId": "doc-44b5f7c61f",
+         "fileName": "evidencias/configuracao.json",
+         "page": null,
+         "excerpt": "{\"janela_min\": 15, \"limiar_desempate\": null}"
+        },
+        "references": [],
+        "ruleCode": "REP-D2",
+        "source": {
+         "origin": "doc",
+         "fragmentId": "PRJ90-EV05#parametros",
+         "alias": "evidencias/configuracao.json#parametros",
+         "nature": "registro_primario",
+         "url": null,
+         "publishedDate": null,
+         "capturedAt": null,
+         "query": "O registro traz método, dados, configuração e resultados com detalhe suficiente para outro profissional repetir."
+        },
+        "counted": true,
+        "adjusted": false
+       }
+      ],
+      "scoreExplanation": {
+       "method": "Nota = positivas ÷ (positivas + negativas) × 100; a mesma fonte conta uma vez. Indicador, não decide a classe.",
+       "baseline": 0,
+       "factors": [
+        {
+         "kind": "evidence",
+         "refId": "ev-9ce01a81198d0271",
+         "label": "REP-D2 · evidencias/configuracao.json#parametros",
+         "points": 0,
+         "value": null,
+         "weight": null
+        }
+       ]
+      },
+      "counts": {
+       "positive": 0,
+       "negative": 1
+      },
+      "status": "executada",
+      "statusReason": null,
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "Frascati 2015 §2.20",
+       "UK DSIT ¶34",
+       "NASEM 2019"
+      ]
+     },
+     {
+      "id": "rule-rep-d3",
+      "code": "REP-D3",
+      "name": "Resultados negativos documentados",
+      "score": null,
+      "explanation": "Os resultados ruins também foram registrados. citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-FALHAS",
+      "normativeSource": {
+       "label": "Frascati 2015 §2.20",
+       "citation": "Resultados negativos e hipóteses refutadas também estão documentados.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "sem_evidencia",
+      "statusReason": "citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-FALHAS",
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "Frascati 2015 §2.20",
+       "Guia MCTI 2020 §6.2",
+       "IT MIMIT §1.1.3.5"
+      ]
+     },
+     {
+      "id": "rule-rep-d4",
+      "code": "REP-D4",
+      "name": "Artefatos preservados e versionados",
+      "score": null,
+      "explanation": "Os artefatos do projeto estão guardados com versão. O pacote não tem código executável; o artefato reproduzível é especificação + configuracao.json + registros por versão.",
+      "normativeSource": {
+       "label": "Gundersen & Kjensmo 2018",
+       "citation": "Código, dados, modelos, protótipos e protocolos preservados e versionados.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "parcial",
+      "statusReason": "O pacote não tem código executável; o artefato reproduzível é especificação + configuracao.json + registros por versão.",
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "Gundersen & Kjensmo 2018",
+       "Pineau et al. 2021",
+       "ACM Artifact Review v1.1"
+      ]
+     },
+     {
+      "id": "rule-rep-d5",
+      "code": "REP-D5",
+      "name": "Mecanismo de transferência",
+      "score": null,
+      "explanation": "O conhecimento foi repassado (patente, publicação, treinamento). Não há patentes, registros ou publicações no pacote; a \"Continuidade\" (§7) não é transferência.",
+      "normativeSource": {
+       "label": "Frascati Tab. 2.1(d)",
+       "citation": "Existe mecanismo de transferência (patente, registro, publicação, documentação interna, treinamento).",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "na",
+      "statusReason": "Não há patentes, registros ou publicações no pacote; a \"Continuidade\" (§7) não é transferência.",
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "Frascati Tab. 2.1(d)",
+       "Decreto 5.798 art. 2º II d"
+      ]
+     },
+     {
+      "id": "rule-rep-d6",
+      "code": "REP-D6",
+      "name": "Cadeia plano → resultado rastreável",
+      "score": null,
+      "explanation": "Dá para seguir do plano até o resultado sem buracos. citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-VERSOES; trecho não encontrado literalmente em PRJ90-CHK-VERSOES",
+      "normativeSource": {
+       "label": "IT MIMIT §1.1.3.5",
+       "citation": "As fases planejadas e executadas podem ser rastreadas do plano ao resultado.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "sem_evidencia",
+      "statusReason": "citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-VERSOES; trecho não encontrado literalmente em PRJ90-CHK-VERSOES",
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "IT MIMIT §1.1.3.5"
+      ]
+     },
+     {
+      "id": "rule-rep-d7",
+      "code": "REP-D7",
+      "name": "Limite de escopo — excluído × lacuna na pretensão",
+      "score": 0,
+      "explanation": "Separa o que ficou de fora de propósito do que faltou testar.",
+      "normativeSource": {
+       "label": "Históricos PRJ03, 14, 15, 16 × PRJ05, 06, 07, 18",
+       "citation": "Limite excluído desde o início não gera ressalva; lacuna dentro da pretensão original (hipótese não ensaiada, critério prévio não atingido) gera ressalva com recorte + limitação + evidência necessária.",
+       "url": null
+      },
+      "evidences": [
+       {
+        "id": "ev-bebc93da77629a48",
+        "title": "REP-D7 · evidencias/revisao_tecnica.md#limites_e_pendencias",
+        "polarity": "negative",
+        "explanation": "O documento indica que a hipótese de testar lotes maiores não foi executada, gerando lacuna dentro da pretensão original.",
+        "projectExcerpt": {
+         "documentId": "doc-e200ce87e4",
+         "fileName": "evidencias/revisao_tecnica.md",
+         "page": null,
+         "excerpt": "Lotes acima de 500 itens não foram ensaiados."
+        },
+        "references": [],
+        "ruleCode": "REP-D7",
+        "source": {
+         "origin": "doc",
+         "fragmentId": "PRJ90-EV13#limites_e_pendencias",
+         "alias": "evidencias/revisao_tecnica.md#limites_e_pendencias",
+         "nature": "sintese",
+         "url": null,
+         "publishedDate": null,
+         "capturedAt": null,
+         "query": "Limite excluído desde o início não gera ressalva; lacuna dentro da pretensão original (hipótese não ensaiada, critério prévio não atingido) gera ressalva com recorte + limitação + evidência necessária."
+        },
+        "counted": true,
+        "adjusted": false
+       }
+      ],
+      "scoreExplanation": {
+       "method": "Nota = positivas ÷ (positivas + negativas) × 100; a mesma fonte conta uma vez. Indicador, não decide a classe.",
+       "baseline": 0,
+       "factors": [
+        {
+         "kind": "evidence",
+         "refId": "ev-bebc93da77629a48",
+         "label": "REP-D7 · evidencias/revisao_tecnica.md#limites_e_pendencias",
+         "points": 0,
+         "value": null,
+         "weight": null
+        }
+       ]
+      },
+      "counts": {
+       "positive": 0,
+       "negative": 1
+      },
+      "status": "executada",
+      "statusReason": null,
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "Históricos PRJ03, 14, 15, 16 × PRJ05, 06, 07, 18",
+       "GUIA_DO_PARTICIPANTE"
+      ]
+     },
+     {
+      "id": "rule-rep-d8",
+      "code": "REP-D8",
+      "name": "Documentação de configuração não é conhecimento novo",
+      "score": null,
+      "explanation": "Documentar uma configuração não a transforma em pesquisa. citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-CONFIG",
+      "normativeSource": {
+       "label": "Históricos PRJ01, 04, 09, 11, 12, 19, 20",
+       "citation": "Documentação completa de uma configuração reproduz a configuração, não um conhecimento novo.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "sem_evidencia",
+      "statusReason": "citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-CONFIG",
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "Históricos PRJ01, 04, 09, 11, 12, 19, 20"
+      ]
+     },
+     {
+      "id": "rule-rep-d9",
+      "code": "REP-D9",
+      "name": "Números recalculáveis do registro primário",
+      "score": null,
+      "explanation": "Os números podem ser refeitos a partir dos registros originais. citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-RECALC",
+      "normativeSource": {
+       "label": "LEIA_ME",
+       "citation": "Os números são recalculáveis do registro primário (medicoes.csv → resultados.csv) e ligados a ensaio e versão.",
+       "url": null
+      },
+      "evidences": [],
+      "scoreExplanation": null,
+      "counts": {
+       "positive": 0,
+       "negative": 0
+      },
+      "status": "sem_evidencia",
+      "statusReason": "citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-RECALC",
+      "inMean": true,
+      "block": "doc",
+      "normativeSources": [
+       "LEIA_ME",
+       "Históricos PRJ02, 13, 15"
+      ]
+     }
+    ],
+    "scoreExplanation": {
+     "method": "Média simples das regras com evidência. Regras sem evidência, N/A, não executadas e NOV-W1/W2/W8 (informativas) ficam fora. Indicador, não decide a classe.",
+     "baseline": 0,
+     "factors": [
+      {
+       "kind": "rule",
+       "refId": "rule-rep-d1",
+       "label": "REP-D1 Conhecimento codificado",
+       "points": 33,
+       "value": 100.0,
+       "weight": 0.3333
+      },
+      {
+       "kind": "rule",
+       "refId": "rule-rep-d2",
+       "label": "REP-D2 Detalhe suficiente para repetir",
+       "points": 0,
+       "value": 0.0,
+       "weight": 0.3333
+      },
+      {
+       "kind": "rule",
+       "refId": "rule-rep-d7",
+       "label": "REP-D7 Limite de escopo — excluído × lacuna na pretensão",
+       "points": 0,
+       "value": 0.0,
+       "weight": 0.3333
+      }
+     ]
+    },
+    "criterionId": "REP",
+    "state": "DOCUMENTADA COM LIMITE",
+    "column": "pd",
+    "llmState": "DOCUMENTADA COM LIMITE",
+    "gates": [],
+    "normativeSource": "Frascati 2015 §2.20–2.21",
+    "decisiveEvidenceIds": [
+     "ev-9ce01a81198d0271",
+     "ev-bebc93da77629a48"
+    ]
+   }
+  ],
+  "adjustments": [],
+  "version": 1,
+  "status": "concluida",
+  "suggestedClass": "insufficient_evidence",
+  "inconsistent": true,
+  "classReason": "núcleo alegado não verificável (NOV, CRI)",
+  "decisionPath": [
+   "combinação fora dos padrões do gabarito",
+   "núcleo alegado não verificável (NOV, CRI)"
+  ],
+  "incomplete": [],
+  "caveat": null,
+  "missingLink": {
+   "link": "descrição detalhada do mecanismo proposto (parâmetros de desempate e janela de 15 minutos) e comparação com a referência anterior; Hipótese formal registrada antes dos testes e valor definido para o parâmetro 'limiar_desempate'; Objetivo e escopo do projeto; registro de desvios experimentais e justificativas; controles de desenho experimental (estrato, repetições, ordem contrabalançada, separação temporal); ensaios para a versão prioridade-v1",
+   "evidenceToRequest": [
+    "ev-mech-001",
+    "ev-comp-001",
+    "hipótese_pre_teste.pdf",
+    "configuracao_com_limiar_desempate",
+    "Documento que descreva objetivo, escopo e metas do projeto, datado",
+    "Documento ou registro que descreva desvios experimentais e razões para mudança de rumo",
+    "Protocolo experimental detalhando os controles de desenho adotados",
+    "Medições ou resultados associados à versão prioridade-v1"
+   ]
+  },
+  "divergences": [
+   {
+    "criterionKey": "creativity",
+    "statement": "A entrevista afirma \"A fila por dependencia acertou todos os 200 lotes.\"; o registro evidencias/resultados.csv#PRJ90-S02 mostra \"PRJ90-S02;dependencia-v2;lotes na ordem;contagem;196;200;Lotes;98.0;casos;evidencias/medicoes.csv#PRJ90-S02;desempenho\"; prevalece o registro, por ser primário e identificado por versão.",
+    "testimonyFragmentId": "PRJ90-EV10#conclusao",
+    "recordFragmentId": "PRJ90-S02",
+    "recordAlias": "evidencias/resultados.csv#PRJ90-S02"
+   },
+   {
+    "criterionKey": "uncertainty",
+    "statement": "A entrevista afirma \"A fila por dependencia acertou todos os 200 lotes.\"; o registro evidencias/medicoes.csv#PRJ90-S02-M001 mostra \"PRJ90-S02-M001;PRJ90-S02;dependencia-v2;C001;contador;lotes na ordem;;196;200;;casos\"; prevalece o registro, por ser primário e identificado por versão.",
+    "testimonyFragmentId": "PRJ90-EV10#conclusao",
+    "recordFragmentId": "PRJ90-S02-M001",
+    "recordAlias": "evidencias/medicoes.csv#PRJ90-S02-M001"
+   },
+   {
+    "criterionKey": "systematicity",
+    "statement": "A entrevista afirma \"A fila por dependencia acertou todos os 200 lotes.\"; o registro evidencias/resultados.csv#PRJ90-S02 mostra \"PRJ90-S02;dependencia-v2;lotes na ordem;contagem;196;200;Lotes;98.0;casos;evidencias/medicoes.csv#PRJ90-S02;desempenho\"; prevalece o registro, por ser primário e identificado por versão.",
+    "testimonyFragmentId": "PRJ90-EV10#conclusao",
+    "recordFragmentId": "PRJ90-S02",
+    "recordAlias": "evidencias/resultados.csv#PRJ90-S02"
+   },
+   {
+    "criterionKey": "reproducibility",
+    "statement": "A entrevista afirma \"A fila por dependencia acertou todos os 200 lotes.\"; o registro evidencias/resultados.csv#PRJ90-S02 mostra \"PRJ90-S02;dependencia-v2;lotes na ordem;contagem;196;200;Lotes;98.0;casos;evidencias/medicoes.csv#PRJ90-S02;desempenho\"; prevalece o registro, por ser primário e identificado por versão.",
+    "testimonyFragmentId": "PRJ90-EV10#conclusao",
+    "recordFragmentId": "PRJ90-S02",
+    "recordAlias": "evidencias/resultados.csv#PRJ90-S02"
+   }
+  ],
+  "missingLinks": [
+   "Ausência de documentação que estabeleça metas de custo/tempo como critério técnico da pesquisa. — solicitar: Documento de especificação de metas de custo, latência ou tempo vinculadas a requisitos técnicos.",
+   "Objetivo e escopo do projeto não identificados — solicitar: Documento que descreva objetivo, escopo e metas do projeto, datado",
+   "Registro de desvios experimentais e justificativas — solicitar: Documento ou registro que descreva desvios ocorridos e razões para mudança de rumo",
+   "Controles de desenho experimental (estrato difícil, repetições, ordem contrabalançada, separação temporal) — solicitar: Protocolo experimental detalhando os controles adotados",
+   "Ensaios para a versão 'prioridade-v1' — solicitar: Medições ou resultados associados à versão prioridade-v1"
+  ],
+  "gaps": [
+   {
+    "ruleCode": "NOV-W4",
+    "status": "sem_evidencia",
+    "reason": "Nenhuma fonte encontrada que demonstre a existência de solução idêntica no setor antes da data de referência."
+   },
+   {
+    "ruleCode": "NOV-W5",
+    "status": "sem_evidencia",
+    "reason": "Nenhuma fonte encontrada que mostre o mesmo resultado sem divulgação do método."
+   },
+   {
+    "ruleCode": "NOV-W6",
+    "status": "sem_evidencia",
+    "reason": "citações descartadas pelo gate: trecho não encontrado literalmente em src-1b6e63a219"
+   },
+   {
+    "ruleCode": "NOV-W7",
+    "status": "sem_evidencia",
+    "reason": "Nenhuma página achável e acessível antes da data de referência descrevendo o mecanismo proposto."
+   },
+   {
+    "ruleCode": "NOV-D1",
+    "status": "nao_executada",
+    "reason": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+   },
+   {
+    "ruleCode": "NOV-D2",
+    "status": "nao_executada",
+    "reason": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+   },
+   {
+    "ruleCode": "NOV-D3",
+    "status": "nao_executada",
+    "reason": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+   },
+   {
+    "ruleCode": "NOV-D4",
+    "status": "nao_executada",
+    "reason": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+   },
+   {
+    "ruleCode": "NOV-D5",
+    "status": "nao_executada",
+    "reason": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+   },
+   {
+    "ruleCode": "NOV-D6",
+    "status": "nao_executada",
+    "reason": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+   },
+   {
+    "ruleCode": "NOV-D8",
+    "status": "na",
+    "reason": "Não há patentes, registros ou artigos nos artefatos do pacote."
+   },
+   {
+    "ruleCode": "NOV-D10",
+    "status": "nao_executada",
+    "reason": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+   },
+   {
+    "ruleCode": "NOV-D11",
+    "status": "nao_executada",
+    "reason": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+   },
+   {
+    "ruleCode": "NOV-D12",
+    "status": "nao_executada",
+    "reason": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+   },
+   {
+    "ruleCode": "CRI-W1",
+    "status": "sem_evidencia",
+    "reason": "Nenhuma fonte encontrada que discuta se a solução seria óbvia a partir do estado da arte mais próximo (US11188228B1)."
+   },
+   {
+    "ruleCode": "CRI-W4",
+    "status": "sem_evidencia",
+    "reason": "citações descartadas pelo gate: trecho não encontrado literalmente em src-8f9bec11dc"
+   },
+   {
+    "ruleCode": "CRI-W5",
+    "status": "sem_evidencia",
+    "reason": "citações descartadas pelo gate: trecho não encontrado literalmente em src-0dcb27b958"
+   },
+   {
+    "ruleCode": "CRI-D3",
+    "status": "parcial",
+    "reason": "atividades.csv só traz responsavel_por_funcao (função, sem titulação); não dá para verificar pesquisador."
+   },
+   {
+    "ruleCode": "CRI-D4",
+    "status": "sem_evidencia",
+    "reason": "citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-FALHAS; trecho não encontrado literalmente em PRJ90-CHK-VERSOES"
+   },
+   {
+    "ruleCode": "CRI-D7",
+    "status": "parcial",
+    "reason": "revisao_tecnica.md dá só a função \"revisão técnica\"; não há qualificação dos revisores no pacote."
+   },
+   {
+    "ruleCode": "CRI-D10",
+    "status": "sem_evidencia",
+    "reason": "citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-VERSOES"
+   },
+   {
+    "ruleCode": "INC-W1",
+    "status": "sem_evidencia",
+    "reason": "citações descartadas pelo gate: trecho não encontrado literalmente em src-5a35a960e4"
+   },
+   {
+    "ruleCode": "INC-W2",
+    "status": "sem_evidencia",
+    "reason": "citações descartadas pelo gate: trecho não encontrado literalmente em src-5a35a960e4"
+   },
+   {
+    "ruleCode": "INC-W3",
+    "status": "sem_evidencia",
+    "reason": "Nenhuma fonte encontrada relata o problema de lotes atrasados como aberto ou aponta limitações não resolvidas das soluções existentes."
+   },
+   {
+    "ruleCode": "INC-W4",
+    "status": "sem_evidencia",
+    "reason": "citações descartadas pelo gate: trecho não encontrado literalmente em src-5aa087e125"
+   },
+   {
+    "ruleCode": "INC-D6",
+    "status": "sem_evidencia",
+    "reason": "O projeto não trata de integração de sistemas; não há evidência de incerteza sobre combinação de componentes."
+   },
+   {
+    "ruleCode": "INC-D10",
+    "status": "sem_evidencia",
+    "reason": "Não há menção a metas de custo, tempo ou latência como critério técnico no material fornecido."
+   },
+   {
+    "ruleCode": "SIS-D1",
+    "status": "sem_evidencia",
+    "reason": "Nenhum fragmento menciona objetivo, escopo ou datas de início e fim de forma completa."
+   },
+   {
+    "ruleCode": "SIS-D3",
+    "status": "parcial",
+    "reason": "Orçamento e dispêndios estão fora do escopo do guia; a equipe só aparece por função (responsavel_por_funcao), sem titulação."
+   },
+   {
+    "ruleCode": "SIS-D4",
+    "status": "na",
+    "reason": "O guia do desafio exclui explicitamente horas, despesas e requisitos fiscais."
+   },
+   {
+    "ruleCode": "SIS-D7",
+    "status": "sem_evidencia",
+    "reason": "Não há registro que descreva desvios experimentais nem as razões para mudança de rumo."
+   },
+   {
+    "ruleCode": "SIS-D10",
+    "status": "na",
+    "reason": "Não é input do pacote; é satisfeita no output pelo dossiê versionado da ferramenta (autor, data, hash)."
+   },
+   {
+    "ruleCode": "SIS-D12",
+    "status": "sem_evidencia",
+    "reason": "citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-VERSOES"
+   },
+   {
+    "ruleCode": "SIS-D13",
+    "status": "sem_evidencia",
+    "reason": "Ausência de evidência sobre controles de desenho experimental (estrato difícil, repetições, ordem contrabalançada, separação temporal)."
+   },
+   {
+    "ruleCode": "REP-D3",
+    "status": "sem_evidencia",
+    "reason": "citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-FALHAS"
+   },
+   {
+    "ruleCode": "REP-D4",
+    "status": "parcial",
+    "reason": "O pacote não tem código executável; o artefato reproduzível é especificação + configuracao.json + registros por versão."
+   },
+   {
+    "ruleCode": "REP-D5",
+    "status": "na",
+    "reason": "Não há patentes, registros ou publicações no pacote; a \"Continuidade\" (§7) não é transferência."
+   },
+   {
+    "ruleCode": "REP-D6",
+    "status": "sem_evidencia",
+    "reason": "citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-VERSOES; trecho não encontrado literalmente em PRJ90-CHK-VERSOES"
+   },
+   {
+    "ruleCode": "REP-D8",
+    "status": "sem_evidencia",
+    "reason": "citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-CONFIG"
+   },
+   {
+    "ruleCode": "REP-D9",
+    "status": "sem_evidencia",
+    "reason": "citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-RECALC"
+   }
+  ],
+  "versions": {
+   "schemaVersion": "1.1",
+   "catalogVersion": "2026.10.09-6",
+   "models": {
+    "default": "gpt-oss:120b",
+    "extraction": "gemma4:31b",
+    "doc": "gpt-oss:120b",
+    "search": "gpt-oss:120b",
+    "judge": "gpt-oss:120b",
+    "report": "gpt-oss:120b",
+    "chat": "gpt-oss:120b"
+   },
+   "prompts": {
+    "assistant.answer": "cc7ddd1ee265",
+    "criteria.doc": "0e43a1e2afda",
+    "criteria.web.judge": "5b8f1118030f",
+    "criteria.web.plan": "6535ca5dcb1f",
+    "extraction.context": "43391135d72d",
+    "extraction.file": "0d1624213ed9",
+    "graph.questionnaire": "686a53c2d07b",
+    "graph.state": "72567fd79236",
+    "graph.state.CRI": "132cefeee2a1",
+    "graph.state.INC": "7afe13017685",
+    "graph.state.NOV": "e5a1a3a122c7",
+    "graph.state.REP": "4d0800875294",
+    "graph.state.SIS": "1600e11d5880",
+    "report.text": "8a780884cd93",
+    "review.contestation": "0ecb3b097df3",
+    "web.page_date": "f1b634a630fc"
+   },
+   "fileHashes": {
+    "dossie_projeto.pdf": "9b2a788aaa85d5a230546433c7c5b87a77cbc5d26683ea25fb3bd585214179e9",
+    "transcricao_entrevista_tecnica.pdf": "ea00144db3a2a7051f61242898c389ce4b973d7db3ff820327bc71ef6529b456",
+    "inventario_evidencias.csv": "9f9ac34b113a8c98bbfa47e059842cba84095a4c1f6307ae9756060df1a99395",
+    "evidencias/metodo.md": "66e0a567fda869f055e0d21b0558ad0cb1ef53b0600846a4f11c358ea8ea0e72",
+    "evidencias/revisao_tecnica.md": "4d51383897fd643216a41c62098ffac9eb8e83ab7fba9f9573c2e1c2d690c110",
+    "evidencias/cronologia.csv": "01f11672ac35acb04eaf674490d42e2accd46ede72c0bec5f18e43710695704d",
+    "evidencias/medicoes.csv": "95a698d7ebf751e1e81d8d2a3827bd644b1b13b1385a70f715627d95998d862b",
+    "evidencias/resultados.csv": "5a5f1a7ee1c2f5860ff25b71005d2625accdc61ef1dc514dae504ac744094c04",
+    "evidencias/configuracao.json": "bdbc4efcc03d60fcad6f4533ffa681e49ec676048f7e9d53f7bd29789d582a13",
+    "notas_soltas.txt": "17f4b03a301c1513b46c32657de579de79e78daa5d6b7521bb2450bafd391bf0"
+   },
+   "temperature": 0.0
+  }
+ }
+]

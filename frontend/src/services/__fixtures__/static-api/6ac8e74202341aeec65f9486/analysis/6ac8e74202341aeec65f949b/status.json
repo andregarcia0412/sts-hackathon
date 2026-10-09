@@ -1,0 +1,186 @@
+{
+ "id": "6ac8e74202341aeec65f949b",
+ "projectId": "6ac8e74202341aeec65f9486",
+ "version": 1,
+ "previousAnalysisId": null,
+ "batchId": null,
+ "status": "concluida",
+ "createdAt": "2026-10-09T13:08:18.621000",
+ "startedAt": "2026-10-09T13:08:18.626000",
+ "finishedAt": "2026-10-09T13:12:01.760000",
+ "totalS": 223.134,
+ "stages": [
+  {
+   "name": "extracao",
+   "status": "concluida",
+   "startedAt": "2026-10-09T13:08:18.628000",
+   "finishedAt": "2026-10-09T13:08:21.270000",
+   "durationS": 2.643,
+   "error": "pendente de validação: notas_soltas.txt"
+  },
+  {
+   "name": "checagens",
+   "status": "concluida",
+   "startedAt": "2026-10-09T13:08:21.271000",
+   "finishedAt": "2026-10-09T13:08:21.277000",
+   "durationS": 0.006,
+   "error": null
+  },
+  {
+   "name": "NOV",
+   "status": "falhou",
+   "startedAt": "2026-10-09T13:08:21.278000",
+   "finishedAt": "2026-10-09T13:10:17.561000",
+   "durationS": 116.284,
+   "error": "sub Doc NOV: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+  },
+  {
+   "name": "SIS",
+   "status": "concluida",
+   "startedAt": "2026-10-09T13:08:21.280000",
+   "finishedAt": "2026-10-09T13:08:35.693000",
+   "durationS": 14.414,
+   "error": null
+  },
+  {
+   "name": "REP",
+   "status": "concluida",
+   "startedAt": "2026-10-09T13:08:21.285000",
+   "finishedAt": "2026-10-09T13:09:05.366000",
+   "durationS": 44.082,
+   "error": null
+  },
+  {
+   "name": "CRI",
+   "status": "concluida",
+   "startedAt": "2026-10-09T13:10:17.563000",
+   "finishedAt": "2026-10-09T13:11:27.953000",
+   "durationS": 70.39,
+   "error": null
+  },
+  {
+   "name": "INC",
+   "status": "concluida",
+   "startedAt": "2026-10-09T13:10:17.565000",
+   "finishedAt": "2026-10-09T13:11:40.851000",
+   "durationS": 83.286,
+   "error": null
+  },
+  {
+   "name": "grafo",
+   "status": "concluida",
+   "startedAt": "2026-10-09T13:11:40.853000",
+   "finishedAt": "2026-10-09T13:11:55.040000",
+   "durationS": 14.188,
+   "error": null
+  },
+  {
+   "name": "parecer",
+   "status": "concluida",
+   "startedAt": "2026-10-09T13:11:55.051000",
+   "finishedAt": "2026-10-09T13:12:01.738000",
+   "durationS": 6.687,
+   "error": null
+  }
+ ],
+ "suggestedClass": "insufficient_evidence",
+ "inconsistent": true,
+ "error": null,
+ "versions": {
+  "schemaVersion": "1.1",
+  "catalogVersion": "2026.10.09-6",
+  "models": {
+   "default": "gpt-oss:120b",
+   "extraction": "gemma4:31b",
+   "doc": "gpt-oss:120b",
+   "search": "gpt-oss:120b",
+   "judge": "gpt-oss:120b",
+   "report": "gpt-oss:120b",
+   "chat": "gpt-oss:120b"
+  },
+  "prompts": {
+   "assistant.answer": "cc7ddd1ee265",
+   "criteria.doc": "0e43a1e2afda",
+   "criteria.web.judge": "5b8f1118030f",
+   "criteria.web.plan": "6535ca5dcb1f",
+   "extraction.context": "43391135d72d",
+   "extraction.file": "0d1624213ed9",
+   "graph.questionnaire": "686a53c2d07b",
+   "graph.state": "72567fd79236",
+   "graph.state.CRI": "132cefeee2a1",
+   "graph.state.INC": "7afe13017685",
+   "graph.state.NOV": "e5a1a3a122c7",
+   "graph.state.REP": "4d0800875294",
+   "graph.state.SIS": "1600e11d5880",
+   "report.text": "8a780884cd93",
+   "review.contestation": "0ecb3b097df3",
+   "web.page_date": "f1b634a630fc"
+  },
+  "fileHashes": {
+   "dossie_projeto.pdf": "9b2a788aaa85d5a230546433c7c5b87a77cbc5d26683ea25fb3bd585214179e9",
+   "transcricao_entrevista_tecnica.pdf": "ea00144db3a2a7051f61242898c389ce4b973d7db3ff820327bc71ef6529b456",
+   "inventario_evidencias.csv": "9f9ac34b113a8c98bbfa47e059842cba84095a4c1f6307ae9756060df1a99395",
+   "evidencias/metodo.md": "66e0a567fda869f055e0d21b0558ad0cb1ef53b0600846a4f11c358ea8ea0e72",
+   "evidencias/revisao_tecnica.md": "4d51383897fd643216a41c62098ffac9eb8e83ab7fba9f9573c2e1c2d690c110",
+   "evidencias/cronologia.csv": "01f11672ac35acb04eaf674490d42e2accd46ede72c0bec5f18e43710695704d",
+   "evidencias/medicoes.csv": "95a698d7ebf751e1e81d8d2a3827bd644b1b13b1385a70f715627d95998d862b",
+   "evidencias/resultados.csv": "5a5f1a7ee1c2f5860ff25b71005d2625accdc61ef1dc514dae504ac744094c04",
+   "evidencias/configuracao.json": "bdbc4efcc03d60fcad6f4533ffa681e49ec676048f7e9d53f7bd29789d582a13",
+   "notas_soltas.txt": "17f4b03a301c1513b46c32657de579de79e78daa5d6b7521bb2450bafd391bf0"
+  },
+  "temperature": 0.0
+ },
+ "usage": {
+  "roles": {
+   "extraction": {
+    "calls": 2,
+    "failures": 0,
+    "transportRetries": 0,
+    "schemaRetries": 0,
+    "promptTokens": 2819,
+    "completionTokens": 435,
+    "llmSeconds": 2.624
+   },
+   "doc": {
+    "calls": 9,
+    "failures": 0,
+    "transportRetries": 0,
+    "schemaRetries": 5,
+    "promptTokens": 56190,
+    "completionTokens": 27026,
+    "llmSeconds": 110.963
+   },
+   "search": {
+    "calls": 41,
+    "failures": 0,
+    "transportRetries": 0,
+    "schemaRetries": 0,
+    "promptTokens": 74696,
+    "completionTokens": 11688,
+    "llmSeconds": 194.179
+   },
+   "judge": {
+    "calls": 8,
+    "failures": 0,
+    "transportRetries": 0,
+    "schemaRetries": 0,
+    "promptTokens": 42989,
+    "completionTokens": 10905,
+    "llmSeconds": 60.127
+   },
+   "report": {
+    "calls": 1,
+    "failures": 0,
+    "transportRetries": 0,
+    "schemaRetries": 0,
+    "promptTokens": 1761,
+    "completionTokens": 796,
+    "llmSeconds": 6.674
+   }
+  },
+  "webSearchCalls": 21,
+  "webFetchCalls": 38,
+  "webFailures": 5,
+  "webRetries": 12
+ }
+}

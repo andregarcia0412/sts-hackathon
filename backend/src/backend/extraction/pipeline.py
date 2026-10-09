@@ -17,6 +17,7 @@ from backend.extraction.schema import (
     ProjectContext,
 )
 from backend.extraction.slicer import slice_file
+from backend.extraction.structure import INVENTORY_TYPES, deterministic_mapping, plain
 from backend.extraction.text import RawFile, read_raw
 from backend.llm import LLM
 from backend.projects.importer import IncomingFile
@@ -31,10 +32,19 @@ CONTEXT_SOURCES = {"dossie", "metodo", "registro_tecnico"}
 CONTEXT_ROWS = 3
 
 
-async def _map(llm: LLM, raw: RawFile) -> tuple[FileMapping | None, list[str]]:
-    """Maps a file; retries once when a heading cannot be found verbatim."""
+async def _map(llm: LLM, raw: RawFile) -> tuple[FileMapping | None, list[str], str]:
+    """Maps a file: deterministically when its structure is recognized by content, else by the extraction agent."""
     if raw.format == "binary":
-        return None, ["arquivo binário sem texto"]
+        return None, ["arquivo binário sem texto"], "agente"
+    mapping, reason = deterministic_mapping(raw)
+    if mapping is not None:
+        return mapping, [], "deterministico"
+    mapping, notes = await _map_with_agent(llm, raw)
+    return mapping, [f"mapeado pelo agente: {reason}", *notes], "agente"
+
+
+async def _map_with_agent(llm: LLM, raw: RawFile) -> tuple[FileMapping | None, list[str]]:
+    """The extraction agent; retries once when a heading cannot be found verbatim."""
     notes: list[str] = []
     try:
         mapping = await map_file(llm, raw)
@@ -64,6 +74,17 @@ def _evidence_ids(raw: RawFile, mapping: FileMapping, code: str) -> tuple[dict[s
             by_path[path.strip()] = evidence.strip()
         declared = declared or data.get("projeto_id")
     return by_path, declared
+
+
+def _declared_types(raw: RawFile, mapping: FileMapping, code: str) -> dict[str, str]:
+    """path -> file type declared by the inventory ("tipo" column), for the cross-check of the content mapping."""
+    declared = {}
+    for fragment in slice_file(raw, mapping, code=code, evidence_id=f"{code}-inventario").fragments:
+        data = fragment.data or {}
+        path, kind = data.get(mapping.coluna_arquivo or "arquivo"), data.get("tipo")
+        if path and kind and (file_type := INVENTORY_TYPES.get(plain(kind))):
+            declared[path.strip()] = file_type
+    return declared
 
 
 def _default_evidence_id(code: str, path: str) -> str:
@@ -144,26 +165,36 @@ async def extract_project(
     reference_date: date | None = None,
 ) -> CanonicalProject:
     raws = await asyncio.gather(*(asyncio.to_thread(read_raw, f.path, f.data) for f in files))
-    mapped = await asyncio.gather(*(_map(llm, raw) for raw in raws))
+    mapped = list(await asyncio.gather(*(_map(llm, raw) for raw in raws)))
 
     code = code_hint or "PRJ"
     evidence_by_path: dict[str, str] = {}
-    for raw, (mapping, _) in zip(raws, mapped, strict=True):
+    declared_types: dict[str, str] = {}
+    for raw, (mapping, _, _) in zip(raws, mapped, strict=True):
         if mapping and mapping.tipo == "inventario":
             evidence_by_path, declared = _evidence_ids(raw, mapping, code)
+            declared_types = _declared_types(raw, mapping, code)
             code = code_hint or declared or code
+    # A file identified by content that contradicts the inventory goes to the agent (and the note says why).
+    conflicts = [i for i, (raw, (mapping, _, source)) in enumerate(zip(raws, mapped, strict=True))
+                 if source == "deterministico" and declared_types.get(raw.path) not in (None, mapping.tipo)]
+    for index, (mapping, notes) in zip(conflicts, await asyncio.gather(
+            *(_map_with_agent(llm, raws[i]) for i in conflicts)), strict=True):
+        declared_type = declared_types.get(raws[index].path)
+        mapped[index] = (mapping, [f"mapeado pelo agente: o conteúdo indica {mapped[index][0].tipo}, o inventário "
+                                   f"declara {declared_type}", *notes], "agente")
     if code == "PRJ":
         code = next((m.group(0) for raw in raws for m in [CODE_RE.search(raw.text[:500])] if m), code)
 
     extracted: list[ExtractedFile] = []
     fragments: list[Fragment] = []
     taken: set[str] = set()
-    for raw, (mapping, notes) in zip(raws, mapped, strict=True):
+    for raw, (mapping, notes, source) in zip(raws, mapped, strict=True):
         evidence_id = evidence_by_path.get(raw.path) or _default_evidence_id(code, raw.path)
         if mapping is None:
             extracted.append(
                 ExtractedFile(path=raw.path, sha256=raw.sha256, file_type="desconhecido", evidence_id=evidence_id,
-                              status="nao_extraido", notes=notes)
+                              status="nao_extraido", notes=notes, mapping_source=source)
             )
             continue
         result = slice_file(raw, mapping, code=code, evidence_id=evidence_id)
@@ -186,6 +217,7 @@ async def extract_project(
                 missing_sections=result.missing_sections,
                 notes=notes,
                 fragment_count=len(result.fragments),
+                mapping_source=source,
             )
         )
     context = await _build_context(llm, fragments, code, reference_date)

@@ -1,0 +1,188 @@
+{
+ "id": "6ac8cb2608861ec8bad60b3f",
+ "projectId": "6ac8cb2508861ec8bad60b21",
+ "version": 1,
+ "previousAnalysisId": null,
+ "batchId": "6ac8cb2408861ec8bad60b03",
+ "status": "concluida",
+ "createdAt": "2026-10-09T11:08:22.127000",
+ "startedAt": "2026-10-09T11:08:22.604000",
+ "finishedAt": "2026-10-09T11:15:02.307000",
+ "totalS": 399.703,
+ "stages": [
+  {
+   "name": "extracao",
+   "status": "concluida",
+   "startedAt": "2026-10-09T11:08:22.606000",
+   "finishedAt": "2026-10-09T11:08:27.040000",
+   "durationS": 4.435,
+   "error": null
+  },
+  {
+   "name": "checagens",
+   "status": "concluida",
+   "startedAt": "2026-10-09T11:08:27.042000",
+   "finishedAt": "2026-10-09T11:08:27.049000",
+   "durationS": 0.008,
+   "error": null
+  },
+  {
+   "name": "NOV",
+   "status": "concluida",
+   "startedAt": "2026-10-09T11:08:27.051000",
+   "finishedAt": "2026-10-09T11:11:27.109000",
+   "durationS": 180.058,
+   "error": null
+  },
+  {
+   "name": "SIS",
+   "status": "concluida",
+   "startedAt": "2026-10-09T11:08:27.053000",
+   "finishedAt": "2026-10-09T11:09:05.192000",
+   "durationS": 38.14,
+   "error": null
+  },
+  {
+   "name": "REP",
+   "status": "concluida",
+   "startedAt": "2026-10-09T11:08:27.070000",
+   "finishedAt": "2026-10-09T11:09:13.491000",
+   "durationS": 46.422,
+   "error": null
+  },
+  {
+   "name": "CRI",
+   "status": "concluida",
+   "startedAt": "2026-10-09T11:11:27.111000",
+   "finishedAt": "2026-10-09T11:14:27.156000",
+   "durationS": 180.046,
+   "error": null
+  },
+  {
+   "name": "INC",
+   "status": "concluida",
+   "startedAt": "2026-10-09T11:11:27.113000",
+   "finishedAt": "2026-10-09T11:14:34.802000",
+   "durationS": 187.69,
+   "error": null
+  },
+  {
+   "name": "grafo",
+   "status": "concluida",
+   "startedAt": "2026-10-09T11:14:34.804000",
+   "finishedAt": "2026-10-09T11:14:54.465000",
+   "durationS": 19.661,
+   "error": null
+  },
+  {
+   "name": "parecer",
+   "status": "concluida",
+   "startedAt": "2026-10-09T11:14:54.475000",
+   "finishedAt": "2026-10-09T11:15:02.282000",
+   "durationS": 7.807,
+   "error": null
+  }
+ ],
+ "suggestedClass": "insufficient_evidence",
+ "inconsistent": true,
+ "error": null,
+ "versions": {
+  "schemaVersion": "1.1",
+  "catalogVersion": "2026.10.09-6",
+  "models": {
+   "default": "gpt-oss:120b",
+   "extraction": "gemma4:31b",
+   "doc": "gpt-oss:120b",
+   "search": "gpt-oss:120b",
+   "judge": "gpt-oss:120b",
+   "report": "gpt-oss:120b",
+   "chat": "gpt-oss:120b"
+  },
+  "prompts": {
+   "criteria.doc": "0e43a1e2afda",
+   "criteria.web.judge": "5b8f1118030f",
+   "criteria.web.plan": "6535ca5dcb1f",
+   "extraction.context": "43391135d72d",
+   "extraction.file": "0d1624213ed9",
+   "graph.questionnaire": "686a53c2d07b",
+   "graph.state": "72567fd79236",
+   "graph.state.CRI": "132cefeee2a1",
+   "graph.state.INC": "7afe13017685",
+   "graph.state.NOV": "e5a1a3a122c7",
+   "graph.state.REP": "4d0800875294",
+   "graph.state.SIS": "1600e11d5880",
+   "report.text": "8a780884cd93",
+   "web.page_date": "f1b634a630fc"
+  },
+  "fileHashes": {
+   "atividades.csv": "a16bf012bb4026d7a3791dbc852f3b61e95bbd308b8ef08b4bbee445c92ebd20",
+   "atividades.xlsx": "52e2306d94a5d9c5a87154dc9d9f175893933de49c0a8f8fcdf7453af5cadba4",
+   "dossie_projeto.pdf": "36d6f448d458c7be60228f4d99ab4901efac874fecee09c6618ff038af6ba629",
+   "evidencias/configuracao.json": "2023e5bbbcee11af186a54494eca70d95d01affd9039ae0869acc53fd25e9a31",
+   "evidencias/cronologia.csv": "1f1ffe85107a7f23e0191fdb5bf8c5ab3dbee20dcaba8bf8b6954890827d2025",
+   "evidencias/entradas.csv": "c4e03929460ba72c441f8d58b2388e167ed1a044489c62461f5edca28f66ba3c",
+   "evidencias/medicoes.csv": "d2c3a258b66114468f2482277b903205ab8824d9efd4fbbdc763f2d7a881346f",
+   "evidencias/metodo.md": "71b315bffe967bea2fbb6ee924af40a157d24689871dd5e71ae856a1344d0ace",
+   "evidencias/observacoes.csv": "130048cd3eecb77c0695e471a30f27e77f4bea10430f1a5583df8f22299a13fe",
+   "evidencias/resultados.csv": "40434fa4f784b47fcb2260d4cbf977d33800433f75aa15d7099d69e3c15c7d5b",
+   "evidencias/revisao_tecnica.md": "0ad31bca80e3252113c72ba880fb0270a94d55e57b3637b0028a931215e0196d",
+   "inventario_evidencias.csv": "893a01427878213fb69ec25b35bb385e03ab65ed8b505a0212e1777e6c28faad",
+   "registro_tecnico.pdf": "a8c17ff1d5c0e6e69042c6a38582bb29762a0a260865eb3953f63a02ebe81f78",
+   "transcricao_entrevista_tecnica.pdf": "9a907351480631f425650042a92d45be66e93697e5bf3d4c77def39f25fa9b8d"
+  },
+  "temperature": 0.0
+ },
+ "usage": {
+  "roles": {
+   "extraction": {
+    "calls": 1,
+    "failures": 0,
+    "transportRetries": 0,
+    "schemaRetries": 0,
+    "promptTokens": 4083,
+    "completionTokens": 500,
+    "llmSeconds": 4.287
+   },
+   "doc": {
+    "calls": 5,
+    "failures": 0,
+    "transportRetries": 0,
+    "schemaRetries": 0,
+    "promptTokens": 56867,
+    "completionTokens": 17669,
+    "llmSeconds": 100.043
+   },
+   "search": {
+    "calls": 44,
+    "failures": 0,
+    "transportRetries": 0,
+    "schemaRetries": 0,
+    "promptTokens": 89151,
+    "completionTokens": 13466,
+    "llmSeconds": 378.285
+   },
+   "judge": {
+    "calls": 9,
+    "failures": 0,
+    "transportRetries": 0,
+    "schemaRetries": 0,
+    "promptTokens": 47416,
+    "completionTokens": 13046,
+    "llmSeconds": 77.284
+   },
+   "report": {
+    "calls": 1,
+    "failures": 0,
+    "transportRetries": 0,
+    "schemaRetries": 0,
+    "promptTokens": 1409,
+    "completionTokens": 731,
+    "llmSeconds": 7.794
+   }
+  },
+  "webSearchCalls": 23,
+  "webFetchCalls": 41,
+  "webFailures": 7,
+  "webRetries": 15
+ }
+}

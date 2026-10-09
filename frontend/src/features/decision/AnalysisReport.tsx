@@ -84,6 +84,11 @@ export const ReportHeader = ({
         </InfoColumn>
         <InfoColumn label="Método" value={methodName}>
           {capitalize(criteriaVersion ?? "")} · análise {analysis.id}
+          {analysis.illustrative && (
+            <span className="block font-semibold text-state-attention-strong">
+              Exemplo ilustrativo: o back-end ainda não gera este método
+            </span>
+          )}
           {analysis.suggestedCategory && (
             <span className="block">Classificação sugerida: {SUGGESTED_CATEGORY_LABELS[analysis.suggestedCategory]}</span>
           )}

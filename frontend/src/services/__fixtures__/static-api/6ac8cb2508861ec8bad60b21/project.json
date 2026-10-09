@@ -1,0 +1,126 @@
+{
+ "id": "6ac8cb2508861ec8bad60b21",
+ "ownerId": "6ac8cb2308861ec8bad60aa3",
+ "name": "PRJ02",
+ "company": null,
+ "createdAt": "2026-10-09T11:08:21.901000",
+ "status": "ready",
+ "documents": [
+  {
+   "id": "doc-38809e19f1",
+   "fileName": "atividades.csv",
+   "mimeType": "text/csv",
+   "sizeBytes": 3302,
+   "uploadedAt": "2026-10-09T11:08:21.903000",
+   "sha256": "a16bf012bb4026d7a3791dbc852f3b61e95bbd308b8ef08b4bbee445c92ebd20"
+  },
+  {
+   "id": "doc-a1c8bdd695",
+   "fileName": "atividades.xlsx",
+   "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+   "sizeBytes": 6758,
+   "uploadedAt": "2026-10-09T11:08:21.905000",
+   "sha256": "52e2306d94a5d9c5a87154dc9d9f175893933de49c0a8f8fcdf7453af5cadba4"
+  },
+  {
+   "id": "doc-694d32416c",
+   "fileName": "dossie_projeto.pdf",
+   "mimeType": "application/pdf",
+   "sizeBytes": 76590,
+   "uploadedAt": "2026-10-09T11:08:21.907000",
+   "sha256": "36d6f448d458c7be60228f4d99ab4901efac874fecee09c6618ff038af6ba629"
+  },
+  {
+   "id": "doc-45fa3197b6",
+   "fileName": "evidencias/configuracao.json",
+   "mimeType": "application/json",
+   "sizeBytes": 5361,
+   "uploadedAt": "2026-10-09T11:08:21.909000",
+   "sha256": "2023e5bbbcee11af186a54494eca70d95d01affd9039ae0869acc53fd25e9a31"
+  },
+  {
+   "id": "doc-1c4edc015d",
+   "fileName": "evidencias/cronologia.csv",
+   "mimeType": "text/csv",
+   "sizeBytes": 870,
+   "uploadedAt": "2026-10-09T11:08:21.910000",
+   "sha256": "1f1ffe85107a7f23e0191fdb5bf8c5ab3dbee20dcaba8bf8b6954890827d2025"
+  },
+  {
+   "id": "doc-c07e8e5857",
+   "fileName": "evidencias/entradas.csv",
+   "mimeType": "text/csv",
+   "sizeBytes": 331,
+   "uploadedAt": "2026-10-09T11:08:21.911000",
+   "sha256": "c4e03929460ba72c441f8d58b2388e167ed1a044489c62461f5edca28f66ba3c"
+  },
+  {
+   "id": "doc-6329e6ab45",
+   "fileName": "evidencias/medicoes.csv",
+   "mimeType": "text/csv",
+   "sizeBytes": 2114,
+   "uploadedAt": "2026-10-09T11:08:21.912000",
+   "sha256": "d2c3a258b66114468f2482277b903205ab8824d9efd4fbbdc763f2d7a881346f"
+  },
+  {
+   "id": "doc-cfeab09b96",
+   "fileName": "evidencias/metodo.md",
+   "mimeType": "text/markdown",
+   "sizeBytes": 4059,
+   "uploadedAt": "2026-10-09T11:08:21.913000",
+   "sha256": "71b315bffe967bea2fbb6ee924af40a157d24689871dd5e71ae856a1344d0ace"
+  },
+  {
+   "id": "doc-6f7540bbe6",
+   "fileName": "evidencias/observacoes.csv",
+   "mimeType": "text/csv",
+   "sizeBytes": 553,
+   "uploadedAt": "2026-10-09T11:08:21.914000",
+   "sha256": "130048cd3eecb77c0695e471a30f27e77f4bea10430f1a5583df8f22299a13fe"
+  },
+  {
+   "id": "doc-d951504a5c",
+   "fileName": "evidencias/resultados.csv",
+   "mimeType": "text/csv",
+   "sizeBytes": 1610,
+   "uploadedAt": "2026-10-09T11:08:21.915000",
+   "sha256": "40434fa4f784b47fcb2260d4cbf977d33800433f75aa15d7099d69e3c15c7d5b"
+  },
+  {
+   "id": "doc-5c3e547b70",
+   "fileName": "evidencias/revisao_tecnica.md",
+   "mimeType": "text/markdown",
+   "sizeBytes": 1098,
+   "uploadedAt": "2026-10-09T11:08:21.916000",
+   "sha256": "0ad31bca80e3252113c72ba880fb0270a94d55e57b3637b0028a931215e0196d"
+  },
+  {
+   "id": "doc-fca10aaa95",
+   "fileName": "inventario_evidencias.csv",
+   "mimeType": "text/csv",
+   "sizeBytes": 1853,
+   "uploadedAt": "2026-10-09T11:08:21.917000",
+   "sha256": "893a01427878213fb69ec25b35bb385e03ab65ed8b505a0212e1777e6c28faad"
+  },
+  {
+   "id": "doc-9a0358211d",
+   "fileName": "registro_tecnico.pdf",
+   "mimeType": "application/pdf",
+   "sizeBytes": 78088,
+   "uploadedAt": "2026-10-09T11:08:21.918000",
+   "sha256": "a8c17ff1d5c0e6e69042c6a38582bb29762a0a260865eb3953f63a02ebe81f78"
+  },
+  {
+   "id": "doc-72984b0447",
+   "fileName": "transcricao_entrevista_tecnica.pdf",
+   "mimeType": "application/pdf",
+   "sizeBytes": 77247,
+   "uploadedAt": "2026-10-09T11:08:21.920000",
+   "sha256": "9a907351480631f425650042a92d45be66e93697e5bf3d4c77def39f25fa9b8d"
+  }
+ ],
+ "freeText": null,
+ "code": "PRJ02",
+ "supersededDocuments": [],
+ "latestAnalysisId": "6ac8cb2608861ec8bad60b3f"
+}

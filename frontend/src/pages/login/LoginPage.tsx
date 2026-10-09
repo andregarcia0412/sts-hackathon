@@ -182,22 +182,24 @@ export const LoginPage = () => {
             <button type="submit" className="btn-primary w-full" disabled={pending}>
               {pending ? "Entrando…" : mode === "login" ? "Entrar" : "Criar conta e entrar"}
             </button>
-            <p className="text-center text-xs leading-5 text-fg-muted">
-              Demonstração (qualquer senha): entre como{" "}
-              {demoUsers.data?.map((demo, i, all) => (
-                <span key={demo.id}>
-                  <button
-                    type="button"
-                    className="btn-link"
-                    disabled={pending}
-                    onClick={() => signInMutation.mutate({ email: demo.email, password: "demo" })}
-                  >
-                    {demo.name}
-                  </button>
-                  {i < all.length - 2 ? ", " : i === all.length - 2 ? " ou " : "."}
-                </span>
-              ))}
-            </p>
+            {!!demoUsers.data?.length && (
+              <p className="text-center text-xs leading-5 text-fg-muted">
+                Demonstração (qualquer senha): entre como{" "}
+                {demoUsers.data?.map((demo, i, all) => (
+                  <span key={demo.id}>
+                    <button
+                      type="button"
+                      className="btn-link"
+                      disabled={pending}
+                      onClick={() => signInMutation.mutate({ email: demo.email, password: "demo" })}
+                    >
+                      {demo.name}
+                    </button>
+                    {i < all.length - 2 ? ", " : i === all.length - 2 ? " ou " : "."}
+                  </span>
+                ))}
+              </p>
+            )}
           </div>
         </form>
       </div>

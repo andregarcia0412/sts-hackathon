@@ -4,11 +4,14 @@ from typing import Any, Literal
 from beanie import Document
 from pydantic import BaseModel, Field
 
+from backend.checks.models import ChecksReport
 from backend.criteria.schemas import CriterionResult
 from backend.extraction.schema import CanonicalProject
 from backend.graph.classify import ClassSuggestion
+from backend.graph.consistency import ConsistencyReport
 from backend.graph.scoring import RuleScore
 from backend.graph.states import CriterionState
+from backend.llm.calls import CallsSummary
 from backend.llm.usage import LLMUsage
 from backend.projects.models import now
 
@@ -34,6 +37,8 @@ class AnalysisVersions(BaseModel):
     prompts: dict[str, str] = Field(default_factory=dict)
     file_hashes: dict[str, str] = Field(default_factory=dict)
     temperature: float = 0
+    judge: dict[str, Any] = Field(default_factory=dict)  # JudgeOptions: coherence mode and thresholds
+    checks_version: str | None = None
 
 
 class Analysis(Document):
@@ -55,8 +60,14 @@ class Analysis(Document):
     criterion_scores: dict[str, int | None] = Field(default_factory=dict)
     states: dict[str, CriterionState] = Field(default_factory=dict)
     suggestion: ClassSuggestion | None = None
+    consistency: ConsistencyReport | None = None  # spec 02 part A, when CONSISTENCY_NEUTRALIZE is on
+    checks: ChecksReport | None = None  # deterministic CHK-* checks (zero tokens)
+    mapping_sources: dict[str, int] = Field(default_factory=dict)  # files mapped "deterministico" / by the "agente"
     report: dict[str, Any] | None = None
     usage: LLMUsage | None = None  # LLM calls, tokens and time per role
+    calls: CallsSummary | None = None  # per model and per stage (the detail is in the llm_calls collection)
+    worker: str | None = None  # "host:pid:boot_id" of the process that runs it (analyses/worker.py)
+    heartbeat_at: datetime | None = None  # last stage change, seen by servers on other hosts
     error: str | None = None
 
     class Settings:

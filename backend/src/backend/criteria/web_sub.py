@@ -26,7 +26,9 @@ from backend.extraction.schema import CanonicalProject
 from backend.llm import LLM
 from backend.llm.prompts import register_prompt
 from backend.search.base import SearchHit, SearchProvider
+from backend.search.grounding import domain_terms, grounded
 from backend.search.sanitize import sanitize_query
+from backend.search.session import SearchSession
 
 PROMPT_SNIPPET_CHARS = 1500
 LATER_SOURCES_RULES = {"NOV-W6"}  # NOV-W6 is about simultaneous work: it reads later publications too
@@ -127,12 +129,15 @@ def _select(searches: list[tuple[SearchLogEntry, list[SearchHit]]], limit: int) 
 class WebSub:
     def __init__(self, llm: LLM, catalog: Catalog, criterion: str, rules: list[CatalogRule], canonical: CanonicalProject,
                  providers: dict[str, SearchProvider], queries_per_front: int, results_per_query: int,
-                 fetch_per_front: int, closest_doc: ClosestDoc | None, analyst_argument: str | None = None) -> None:
+                 fetch_per_front: int, closest_doc: ClosestDoc | None, analyst_argument: str | None = None,
+                 session: SearchSession | None = None) -> None:
         self.llm, self.catalog, self.criterion, self.rules = llm, catalog, criterion, rules
         self.canonical, self.providers, self.closest_doc = canonical, providers, closest_doc
         self.queries_per_front, self.results_per_query, self.fetch_per_front = queries_per_front, results_per_query, fetch_per_front
         self.reference = canonical.context.data_referencia
         self.analyst_argument = analyst_argument
+        self.session = session or SearchSession()
+        self.terms = domain_terms(canonical)
 
     def _context(self) -> str:
         ctx = self.canonical.context
@@ -185,8 +190,13 @@ class WebSub:
         if provider is None:
             entry.error = "frente sem provedor configurado"
             return entry, []
+        if not grounded(sanitized.sanitized, self.terms):
+            entry.error = "query sem termo do domínio: não enviada"
+            return entry, []
         try:
-            hits = await provider.search(sanitized.sanitized, before=before, limit=self.results_per_query)
+            hits, entry.reused_from = await self.session.search(
+                planned.frente, sanitized.sanitized,
+                lambda: provider.search(sanitized.sanitized, before=before, limit=self.results_per_query))
         except Exception as error:
             entry.error = safe_error_message(error)
             return entry, []
@@ -195,7 +205,7 @@ class WebSub:
 
     async def _enrich(self, front: str, hit: SearchHit) -> SearchHit:
         try:
-            return await self.providers[front].enrich(hit)
+            return await self.session.page(hit.url, lambda: self.providers[front].enrich(hit))
         except Exception:  # without the full page the search snippet is kept, date unknown
             return hit
 
@@ -351,6 +361,6 @@ class WebSub:
 async def run_web_sub(llm: LLM, catalog: Catalog, criterion: str, rules: list[CatalogRule], canonical: CanonicalProject,
                       providers: dict[str, SearchProvider], queries_per_front: int, results_per_query: int,
                       fetch_per_front: int, closest_doc: ClosestDoc | None = None,
-                      analyst_argument: str | None = None) -> CriterionResult:
+                      analyst_argument: str | None = None, session: SearchSession | None = None) -> CriterionResult:
     return await WebSub(llm, catalog, criterion, rules, canonical, providers, queries_per_front, results_per_query,
-                        fetch_per_front, closest_doc, analyst_argument).run()
+                        fetch_per_front, closest_doc, analyst_argument, session).run()

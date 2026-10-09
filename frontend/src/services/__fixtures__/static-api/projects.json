@@ -1,0 +1,461 @@
+{
+ "items": [
+  {
+   "id": "6ac8cb2508861ec8bad60b04",
+   "ownerId": "6ac8cb2308861ec8bad60aa3",
+   "name": "PRJ01",
+   "company": null,
+   "createdAt": "2026-10-09T11:08:21.106000",
+   "status": "ready",
+   "documents": [
+    {
+     "id": "doc-a114414b1a",
+     "fileName": "atividades.csv",
+     "mimeType": "text/csv",
+     "sizeBytes": 2896,
+     "uploadedAt": "2026-10-09T11:08:21.882000",
+     "sha256": "239547c69188be5e083f86995950a3a76f6be809130e8ee4f2162b0ec2af2b2a"
+    },
+    {
+     "id": "doc-9d2c4b1c9a",
+     "fileName": "atividades.xlsx",
+     "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+     "sizeBytes": 6449,
+     "uploadedAt": "2026-10-09T11:08:21.883000",
+     "sha256": "15655b23bccc4ea01f02a084c08d06181001d106b118217b5dee4fe36329e3e5"
+    },
+    {
+     "id": "doc-14e8d3492c",
+     "fileName": "dossie_projeto.pdf",
+     "mimeType": "application/pdf",
+     "sizeBytes": 76419,
+     "uploadedAt": "2026-10-09T11:08:21.885000",
+     "sha256": "3c7651340a291e8ede5e783e75898dc90cc611fac5af719defc1c793b1ecdc39"
+    },
+    {
+     "id": "doc-2e956fd021",
+     "fileName": "evidencias/configuracao.json",
+     "mimeType": "application/json",
+     "sizeBytes": 4531,
+     "uploadedAt": "2026-10-09T11:08:21.886000",
+     "sha256": "46a089a8d8883723cf13190d9760b10900d76f346df3b3033fbbae30170585ad"
+    },
+    {
+     "id": "doc-a4be940830",
+     "fileName": "evidencias/cronologia.csv",
+     "mimeType": "text/csv",
+     "sizeBytes": 661,
+     "uploadedAt": "2026-10-09T11:08:21.887000",
+     "sha256": "fcf913b6d5fd57397f7c4e0c0bf43283a802f019d924552b1142f232387d97c6"
+    },
+    {
+     "id": "doc-f66599e381",
+     "fileName": "evidencias/entradas.csv",
+     "mimeType": "text/csv",
+     "sizeBytes": 274,
+     "uploadedAt": "2026-10-09T11:08:21.889000",
+     "sha256": "ee157ee18f16f84537de7061396f863aac44fc4a1aac3b128f4a26381961e483"
+    },
+    {
+     "id": "doc-705f39836f",
+     "fileName": "evidencias/medicoes.csv",
+     "mimeType": "text/csv",
+     "sizeBytes": 466,
+     "uploadedAt": "2026-10-09T11:08:21.890000",
+     "sha256": "81c65dc06ee2c45b0d9a7eca9e8535addd27e46d9cab066462ec41e8d172b378"
+    },
+    {
+     "id": "doc-e9f3cfbde9",
+     "fileName": "evidencias/metodo.md",
+     "mimeType": "text/markdown",
+     "sizeBytes": 3135,
+     "uploadedAt": "2026-10-09T11:08:21.892000",
+     "sha256": "2c776c7f2cee283cac15a411194e7f4553c16cafccfbac776099c45e99243f95"
+    },
+    {
+     "id": "doc-eac28a1e8b",
+     "fileName": "evidencias/observacoes.csv",
+     "mimeType": "text/csv",
+     "sizeBytes": 539,
+     "uploadedAt": "2026-10-09T11:08:21.893000",
+     "sha256": "59a0151c9c98768ca4f5d4cf2bc7ef36346fe1ff64a918d2d5b84f6d911b4e49"
+    },
+    {
+     "id": "doc-414c8f34c4",
+     "fileName": "evidencias/resultados.csv",
+     "mimeType": "text/csv",
+     "sizeBytes": 871,
+     "uploadedAt": "2026-10-09T11:08:21.894000",
+     "sha256": "3503f65087c1d7d9ca5c781a6c1e60f18047d42046d237260531fe14805a93b4"
+    },
+    {
+     "id": "doc-b5e3063d29",
+     "fileName": "evidencias/revisao_tecnica.md",
+     "mimeType": "text/markdown",
+     "sizeBytes": 1045,
+     "uploadedAt": "2026-10-09T11:08:21.895000",
+     "sha256": "28a87a4ee342dd3925e5adb6816cdf247decce8f1120608531713b2d9062908a"
+    },
+    {
+     "id": "doc-6bced0b7ed",
+     "fileName": "inventario_evidencias.csv",
+     "mimeType": "text/csv",
+     "sizeBytes": 1853,
+     "uploadedAt": "2026-10-09T11:08:21.897000",
+     "sha256": "58c4cced3325a4625f4c45b3cee7169609245edb9360331fbf4101e6e8252a1b"
+    },
+    {
+     "id": "doc-05ed465397",
+     "fileName": "registro_tecnico.pdf",
+     "mimeType": "application/pdf",
+     "sizeBytes": 77190,
+     "uploadedAt": "2026-10-09T11:08:21.898000",
+     "sha256": "7a12a2ba5fe9aa1bce787b8fb6b379dd6b7d7c4cf7f3bf1659a7bfa6665f9723"
+    },
+    {
+     "id": "doc-5dd0a0438c",
+     "fileName": "transcricao_entrevista_tecnica.pdf",
+     "mimeType": "application/pdf",
+     "sizeBytes": 76571,
+     "uploadedAt": "2026-10-09T11:08:21.900000",
+     "sha256": "de379e92afd5a4190c4d677b38d6ea13977388208da5eecc438451ca05ee8e45"
+    }
+   ],
+   "freeText": null,
+   "code": "PRJ01",
+   "supersededDocuments": [],
+   "latestAnalysisId": "6ac8cb2508861ec8bad60b3e",
+   "scoreSummary": [
+    {
+     "criterionKey": "novelty",
+     "name": "Novidade",
+     "score": 14.0
+    },
+    {
+     "criterionKey": "creativity",
+     "name": "Criatividade técnica",
+     "score": 50.0
+    },
+    {
+     "criterionKey": "uncertainty",
+     "name": "Incerteza tecnológica",
+     "score": 33.0
+    },
+    {
+     "criterionKey": "systematicity",
+     "name": "Sistematicidade",
+     "score": 100.0
+    },
+    {
+     "criterionKey": "reproducibility",
+     "name": "Transferência/reprodução",
+     "score": 100.0
+    }
+   ],
+   "frameworks": [
+    "frascati"
+   ],
+   "lastDecision": null,
+   "contestationCount": 0,
+   "openContestationCount": 0,
+   "suggestedClass": "not_eligible"
+  },
+  {
+   "id": "6ac8cb2508861ec8bad60b21",
+   "ownerId": "6ac8cb2308861ec8bad60aa3",
+   "name": "PRJ02",
+   "company": null,
+   "createdAt": "2026-10-09T11:08:21.901000",
+   "status": "ready",
+   "documents": [
+    {
+     "id": "doc-38809e19f1",
+     "fileName": "atividades.csv",
+     "mimeType": "text/csv",
+     "sizeBytes": 3302,
+     "uploadedAt": "2026-10-09T11:08:21.903000",
+     "sha256": "a16bf012bb4026d7a3791dbc852f3b61e95bbd308b8ef08b4bbee445c92ebd20"
+    },
+    {
+     "id": "doc-a1c8bdd695",
+     "fileName": "atividades.xlsx",
+     "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+     "sizeBytes": 6758,
+     "uploadedAt": "2026-10-09T11:08:21.905000",
+     "sha256": "52e2306d94a5d9c5a87154dc9d9f175893933de49c0a8f8fcdf7453af5cadba4"
+    },
+    {
+     "id": "doc-694d32416c",
+     "fileName": "dossie_projeto.pdf",
+     "mimeType": "application/pdf",
+     "sizeBytes": 76590,
+     "uploadedAt": "2026-10-09T11:08:21.907000",
+     "sha256": "36d6f448d458c7be60228f4d99ab4901efac874fecee09c6618ff038af6ba629"
+    },
+    {
+     "id": "doc-45fa3197b6",
+     "fileName": "evidencias/configuracao.json",
+     "mimeType": "application/json",
+     "sizeBytes": 5361,
+     "uploadedAt": "2026-10-09T11:08:21.909000",
+     "sha256": "2023e5bbbcee11af186a54494eca70d95d01affd9039ae0869acc53fd25e9a31"
+    },
+    {
+     "id": "doc-1c4edc015d",
+     "fileName": "evidencias/cronologia.csv",
+     "mimeType": "text/csv",
+     "sizeBytes": 870,
+     "uploadedAt": "2026-10-09T11:08:21.910000",
+     "sha256": "1f1ffe85107a7f23e0191fdb5bf8c5ab3dbee20dcaba8bf8b6954890827d2025"
+    },
+    {
+     "id": "doc-c07e8e5857",
+     "fileName": "evidencias/entradas.csv",
+     "mimeType": "text/csv",
+     "sizeBytes": 331,
+     "uploadedAt": "2026-10-09T11:08:21.911000",
+     "sha256": "c4e03929460ba72c441f8d58b2388e167ed1a044489c62461f5edca28f66ba3c"
+    },
+    {
+     "id": "doc-6329e6ab45",
+     "fileName": "evidencias/medicoes.csv",
+     "mimeType": "text/csv",
+     "sizeBytes": 2114,
+     "uploadedAt": "2026-10-09T11:08:21.912000",
+     "sha256": "d2c3a258b66114468f2482277b903205ab8824d9efd4fbbdc763f2d7a881346f"
+    },
+    {
+     "id": "doc-cfeab09b96",
+     "fileName": "evidencias/metodo.md",
+     "mimeType": "text/markdown",
+     "sizeBytes": 4059,
+     "uploadedAt": "2026-10-09T11:08:21.913000",
+     "sha256": "71b315bffe967bea2fbb6ee924af40a157d24689871dd5e71ae856a1344d0ace"
+    },
+    {
+     "id": "doc-6f7540bbe6",
+     "fileName": "evidencias/observacoes.csv",
+     "mimeType": "text/csv",
+     "sizeBytes": 553,
+     "uploadedAt": "2026-10-09T11:08:21.914000",
+     "sha256": "130048cd3eecb77c0695e471a30f27e77f4bea10430f1a5583df8f22299a13fe"
+    },
+    {
+     "id": "doc-d951504a5c",
+     "fileName": "evidencias/resultados.csv",
+     "mimeType": "text/csv",
+     "sizeBytes": 1610,
+     "uploadedAt": "2026-10-09T11:08:21.915000",
+     "sha256": "40434fa4f784b47fcb2260d4cbf977d33800433f75aa15d7099d69e3c15c7d5b"
+    },
+    {
+     "id": "doc-5c3e547b70",
+     "fileName": "evidencias/revisao_tecnica.md",
+     "mimeType": "text/markdown",
+     "sizeBytes": 1098,
+     "uploadedAt": "2026-10-09T11:08:21.916000",
+     "sha256": "0ad31bca80e3252113c72ba880fb0270a94d55e57b3637b0028a931215e0196d"
+    },
+    {
+     "id": "doc-fca10aaa95",
+     "fileName": "inventario_evidencias.csv",
+     "mimeType": "text/csv",
+     "sizeBytes": 1853,
+     "uploadedAt": "2026-10-09T11:08:21.917000",
+     "sha256": "893a01427878213fb69ec25b35bb385e03ab65ed8b505a0212e1777e6c28faad"
+    },
+    {
+     "id": "doc-9a0358211d",
+     "fileName": "registro_tecnico.pdf",
+     "mimeType": "application/pdf",
+     "sizeBytes": 78088,
+     "uploadedAt": "2026-10-09T11:08:21.918000",
+     "sha256": "a8c17ff1d5c0e6e69042c6a38582bb29762a0a260865eb3953f63a02ebe81f78"
+    },
+    {
+     "id": "doc-72984b0447",
+     "fileName": "transcricao_entrevista_tecnica.pdf",
+     "mimeType": "application/pdf",
+     "sizeBytes": 77247,
+     "uploadedAt": "2026-10-09T11:08:21.920000",
+     "sha256": "9a907351480631f425650042a92d45be66e93697e5bf3d4c77def39f25fa9b8d"
+    }
+   ],
+   "freeText": null,
+   "code": "PRJ02",
+   "supersededDocuments": [],
+   "latestAnalysisId": "6ac8cb2608861ec8bad60b3f",
+   "scoreSummary": [
+    {
+     "criterionKey": "novelty",
+     "name": "Novidade",
+     "score": 60.0
+    },
+    {
+     "criterionKey": "creativity",
+     "name": "Criatividade técnica",
+     "score": 100.0
+    },
+    {
+     "criterionKey": "uncertainty",
+     "name": "Incerteza tecnológica",
+     "score": 82.0
+    },
+    {
+     "criterionKey": "systematicity",
+     "name": "Sistematicidade",
+     "score": 100.0
+    },
+    {
+     "criterionKey": "reproducibility",
+     "name": "Transferência/reprodução",
+     "score": 100.0
+    }
+   ],
+   "frameworks": [
+    "frascati"
+   ],
+   "lastDecision": null,
+   "contestationCount": 0,
+   "openContestationCount": 0,
+   "suggestedClass": "insufficient_evidence"
+  },
+  {
+   "id": "6ac8e74202341aeec65f9486",
+   "ownerId": "6ac8cb2308861ec8bad60aa3",
+   "name": "Projeto Demo Estático",
+   "company": "Empresa Exemplo LTDA",
+   "createdAt": "2026-10-09T13:08:18.604000",
+   "status": "ready",
+   "documents": [
+    {
+     "id": "doc-342ba3550f",
+     "fileName": "dossie_projeto.pdf",
+     "mimeType": "application/pdf",
+     "sizeBytes": 1448,
+     "uploadedAt": "2026-10-09T13:08:18.607000",
+     "sha256": "9b2a788aaa85d5a230546433c7c5b87a77cbc5d26683ea25fb3bd585214179e9"
+    },
+    {
+     "id": "doc-c7b5dcff1c",
+     "fileName": "transcricao_entrevista_tecnica.pdf",
+     "mimeType": "application/pdf",
+     "sizeBytes": 1525,
+     "uploadedAt": "2026-10-09T13:08:18.609000",
+     "sha256": "ea00144db3a2a7051f61242898c389ce4b973d7db3ff820327bc71ef6529b456"
+    },
+    {
+     "id": "doc-950f9fce92",
+     "fileName": "inventario_evidencias.csv",
+     "mimeType": "text/csv",
+     "sizeBytes": 877,
+     "uploadedAt": "2026-10-09T13:08:18.610000",
+     "sha256": "9f9ac34b113a8c98bbfa47e059842cba84095a4c1f6307ae9756060df1a99395"
+    },
+    {
+     "id": "doc-cf8bb884f2",
+     "fileName": "evidencias/metodo.md",
+     "mimeType": "text/markdown",
+     "sizeBytes": 835,
+     "uploadedAt": "2026-10-09T13:08:18.611000",
+     "sha256": "66e0a567fda869f055e0d21b0558ad0cb1ef53b0600846a4f11c358ea8ea0e72"
+    },
+    {
+     "id": "doc-e200ce87e4",
+     "fileName": "evidencias/revisao_tecnica.md",
+     "mimeType": "text/markdown",
+     "sizeBytes": 199,
+     "uploadedAt": "2026-10-09T13:08:18.613000",
+     "sha256": "4d51383897fd643216a41c62098ffac9eb8e83ab7fba9f9573c2e1c2d690c110"
+    },
+    {
+     "id": "doc-7720ffdd24",
+     "fileName": "evidencias/cronologia.csv",
+     "mimeType": "text/csv",
+     "sizeBytes": 340,
+     "uploadedAt": "2026-10-09T13:08:18.614000",
+     "sha256": "01f11672ac35acb04eaf674490d42e2accd46ede72c0bec5f18e43710695704d"
+    },
+    {
+     "id": "doc-95e1f98da2",
+     "fileName": "evidencias/medicoes.csv",
+     "mimeType": "text/csv",
+     "sizeBytes": 257,
+     "uploadedAt": "2026-10-09T13:08:18.615000",
+     "sha256": "95a698d7ebf751e1e81d8d2a3827bd644b1b13b1385a70f715627d95998d862b"
+    },
+    {
+     "id": "doc-2e4be928f9",
+     "fileName": "evidencias/resultados.csv",
+     "mimeType": "text/csv",
+     "sizeBytes": 344,
+     "uploadedAt": "2026-10-09T13:08:18.617000",
+     "sha256": "5a5f1a7ee1c2f5860ff25b71005d2625accdc61ef1dc514dae504ac744094c04"
+    },
+    {
+     "id": "doc-44b5f7c61f",
+     "fileName": "evidencias/configuracao.json",
+     "mimeType": "application/json",
+     "sizeBytes": 190,
+     "uploadedAt": "2026-10-09T13:08:18.618000",
+     "sha256": "bdbc4efcc03d60fcad6f4533ffa681e49ec676048f7e9d53f7bd29789d582a13"
+    },
+    {
+     "id": "doc-9fe7bb6621",
+     "fileName": "notas_soltas.txt",
+     "mimeType": "text/plain",
+     "sizeBytes": 29,
+     "uploadedAt": "2026-10-09T13:08:18.620000",
+     "sha256": "17f4b03a301c1513b46c32657de579de79e78daa5d6b7521bb2450bafd391bf0"
+    }
+   ],
+   "freeText": null,
+   "code": "PRJ90",
+   "supersededDocuments": [],
+   "latestAnalysisId": "6ac8e74202341aeec65f949b",
+   "scoreSummary": [
+    {
+     "criterionKey": "novelty",
+     "name": "Novidade",
+     "score": 100.0
+    },
+    {
+     "criterionKey": "creativity",
+     "name": "Criatividade técnica",
+     "score": 71.0
+    },
+    {
+     "criterionKey": "uncertainty",
+     "name": "Incerteza tecnológica",
+     "score": 89.0
+    },
+    {
+     "criterionKey": "systematicity",
+     "name": "Sistematicidade",
+     "score": 100.0
+    },
+    {
+     "criterionKey": "reproducibility",
+     "name": "Transferência/reprodução",
+     "score": 33.0
+    }
+   ],
+   "frameworks": [
+    "frascati"
+   ],
+   "lastDecision": null,
+   "contestationCount": 0,
+   "openContestationCount": 0,
+   "suggestedClass": "insufficient_evidence"
+  }
+ ],
+ "total": 3,
+ "page": 1,
+ "pageSize": 3,
+ "statusCounts": {
+  "processing": 0,
+  "ready": 3,
+  "decided": 0,
+  "error": 0
+ }
+}

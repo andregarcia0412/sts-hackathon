@@ -40,6 +40,9 @@ export const AnalysisWorkspace = (props: AnalysisWorkspaceProps) => (
   </ReactFlowProvider>
 );
 
+/** Method the back-end does not produce yet: the front shows a fictitious example (mocks/illustrativeMcti.ts) */
+const ILLUSTRATIVE_NOTE = "Exemplo ilustrativo: o back-end ainda não gera este método";
+
 const WorkspaceContent = ({ project, analysis, analyses }: AnalysisWorkspaceProps) => {
   const navigate = useNavigate();
   const explorer = useAnalysisExplorer(analysis);
@@ -64,6 +67,7 @@ const WorkspaceContent = ({ project, analysis, analyses }: AnalysisWorkspaceProp
     `Enviado em ${formatDate(project.createdAt)}`,
     pluralize(project.documents.length, "documento", "documentos"),
     `Método: ${FRAMEWORKS[analysis.framework].name}`,
+    ...(analysis.illustrative ? [ILLUSTRATIVE_NOTE] : []),
     ...(analysis.suggestedCategory
       ? [`Classificação sugerida: ${SUGGESTED_CATEGORY_LABELS[analysis.suggestedCategory]}`]
       : []),
@@ -80,7 +84,7 @@ const WorkspaceContent = ({ project, analysis, analyses }: AnalysisWorkspaceProp
           options={analyses.map((a) => ({
             value: a.framework,
             label: FRAMEWORKS[a.framework].label,
-            title: FRAMEWORKS[a.framework].description,
+            title: a.illustrative ? ILLUSTRATIVE_NOTE : FRAMEWORKS[a.framework].description,
           }))}
           onChange={(framework) => navigate(paths.analysis(project.id, undefined, framework))}
         />

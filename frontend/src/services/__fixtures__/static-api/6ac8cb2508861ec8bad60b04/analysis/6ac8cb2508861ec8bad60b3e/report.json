@@ -1,0 +1,2714 @@
+{
+ "projeto_id": "PRJ01",
+ "titulo": "Reprocessamento seguro de mensagens duplicadas",
+ "gerado_em": "2026-10-09T11:14:11.832720Z",
+ "classe_sugerida": "not_eligible",
+ "classificacao": "Não elegível",
+ "inconsistente": true,
+ "motivo_classe": "referência anterior/configuração já fornecia a função (NOV, CRI, INC)",
+ "caminho_arvore": [
+  "combinação fora dos padrões do gabarito",
+  "núcleo verificável",
+  "referência anterior/configuração já fornecia a função (NOV, CRI, INC)"
+ ],
+ "incompleto": [],
+ "resumo": "Classe sugerida: Não elegível. A novidade, criatividade técnica e incerteza tecnológica não foram demonstradas, caracterizando rotina. Falta documentação dos controles de desenho experimental e revisão da combinação de estados fora dos padrões.",
+ "justificativa": "As evidências [checagens#CHK-CONFIG], [evidencias/metodo.md#1] mostram que a funcionalidade já existia em manual anterior, indicando ausência de novidade. Não há hipótese pré‑testes nem modificação de algoritmo ([dossie_projeto.pdf#pergunta_registrada], [evidencias/metodo.md#2]), evidenciando falta de criatividade técnica. As patentes citadas e o manual confirmam que a solução de deduplicação era pública antes do projeto, eliminando incerteza tecnológica. Embora o projeto tenha registro de início/fim e plano metodológico (cronologia, configuracoes), falta documentação dos controles de desenho experimental, o que impede confirmar a sistematicidade plena. Assim, o projeto se enquadra como rotina e não como P&D elegível.",
+ "limite": "Conclusão limitada pela ausência de documentação dos controles de desenho experimental e pela necessidade de revisar a combinação de estados fora dos padrões do gabarito.",
+ "texto_gerado_por_llm": true,
+ "ressalva": null,
+ "elo_ausente": null,
+ "criterios": [
+  {
+   "chave": "NOV",
+   "criterio": "Novidade",
+   "estado": "NÃO DEMONSTRADA",
+   "justificativa": "As evidências [checagens#CHK-CONFIG], [checagens#CHK-CONFIG] e [evidencias/metodo.md#1] demonstram que a funcionalidade já era fornecida por manual anterior, indicando ausência de mecanismo novo. Os registros [evidencias/metodo.md#6] e [checagens#CHK-CONFIG] confirmam que o trabalho se limita a ajuste de configuração já conhecida. Assim, a novidade não é demonstrada no recorte, caracterizando rotina.",
+   "fonte": "checagens#CHK-CONFIG",
+   "nota": 14,
+   "fonte_normativa": "Frascati 2015 §2.14–2.16; Guia MCTI 2020 §6.2; FORMP&D 3.1.7",
+   "gates": [
+    "gate NOV-D4: evidência negativa predominante (Não é cópia nem compra de tecnologia)",
+    "gate NOV-D10: evidência negativa predominante (Referência anterior já fornece a função)"
+   ],
+   "regras": [
+    {
+     "regra": "NOV-W1",
+     "titulo": "Data de referência",
+     "status": "executada",
+     "motivo": "Data de referência 2025-01-06 (origem: PRJ01-EV01#cabecalho). 0 fonte(s) posterior(es) fora do estado da arte; 10 sem data verificável.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "LPI art. 11 §1º",
+      "INPI Res. 169/2016 itens 3.1 e 3.3",
+      "HMRC GfC3 parte 2, passo 5",
+      "IE TDM §8.1(e)"
+     ]
+    },
+    {
+     "regra": "NOV-W2",
+     "titulo": "Três frentes de busca",
+     "status": "executada",
+     "motivo": "Frentes com fontes: literatura (2 buscas, 6 fontes); patentes (2 buscas, 6 fontes); mercado (2 buscas, 6 fontes); documentacao (2 buscas, 6 fontes). Sem fontes: nenhuma.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "IT MIMIT 2024 §1.1.3.1",
+      "AU R&DTI"
+     ]
+    },
+    {
+     "regra": "NOV-W3",
+     "titulo": "Documento mais próximo",
+     "status": "sem_evidencia",
+     "motivo": "Nenhuma fonte recuperada descreve o elemento novo (configuração de deduplicação por operação e versão) antes da data de referência.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Frascati 2015 §2.16",
+      "INPI itens 4.6 e 4.10",
+      "EPO G-VII 5 etapa (i)"
+     ]
+    },
+    {
+     "regra": "NOV-W4",
+     "titulo": "Setor, não a empresa",
+     "status": "sem_evidencia",
+     "motivo": "Nenhuma fonte do setor demonstra a mesma solução em uso por outros atores antes da data de referência.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Frascati 2015 §2.15",
+      "UK DSIT ¶6, ¶20, ¶22",
+      "FAQ MCTI P4(a)"
+     ]
+    },
+    {
+     "regra": "NOV-W5",
+     "titulo": "Segredo industrial preserva novidade",
+     "status": "sem_evidencia",
+     "motivo": "Nenhuma fonte apresenta o mesmo resultado sem divulgar o método, de modo a preservar a novidade.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "UK DSIT ¶11, ¶21",
+      "IE TDM §3.4",
+      "IT MIMIT §1.1.3.1"
+     ]
+    },
+    {
+     "regra": "NOV-W6",
+     "titulo": "Trabalho simultâneo não elimina",
+     "status": "sem_evidencia",
+     "motivo": "Não há fontes posteriores à data de referência que descrevam solução equivalente.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "UK DSIT ¶21",
+      "IE TDM §3.4",
+      "IT MIMIT §1.1.3.1"
+     ]
+    },
+    {
+     "regra": "NOV-W7",
+     "titulo": "Página conta se achável e acessível",
+     "status": "sem_evidencia",
+     "motivo": "Nenhuma página achável e acessível antes da data de referência descreve o mecanismo específico de deduplicação por operação e versão.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "INPI Res. 169/2016 item 3.33"
+     ]
+    },
+    {
+     "regra": "NOV-W8",
+     "titulo": "Busca reproduzível",
+     "status": "executada",
+     "motivo": "8 busca(s) registradas com base, query original × sanitizada, filtros, data/hora, nº de resultados e fontes selecionadas/descartadas (0 com erro ou não enviadas).",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "PRISMA-S (Rethlefsen et al. 2021)",
+      "WIPO Pub. 946"
+     ]
+    },
+    {
+     "regra": "NOV-D1",
+     "titulo": "Declara o elemento novo",
+     "status": "executada",
+     "motivo": null,
+     "nota": 0,
+     "positivas": 0,
+     "negativas": 2,
+     "fontes_normativas": [
+      "FORMP&D 3.1.7",
+      "Guia MCTI 2020 §6.2",
+      "FAQ MCTI P4(a) e (c)"
+     ]
+    },
+    {
+     "regra": "NOV-D2",
+     "titulo": "Estado da arte com modo de falha",
+     "status": "sem_evidencia",
+     "motivo": "Não há fragmento que descreva estado da arte e modo de falha das alternativas no §1.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Guia MCTI 2020 §6.2",
+      "IT MIMIT §1.1.3.1",
+      "IE TDM §8.1(e)",
+      "Históricos PRJ02, 03, 05 × PRJ08"
+     ]
+    },
+    {
+     "regra": "NOV-D3",
+     "titulo": "Novidade de conhecimento, não de funcionalidade",
+     "status": "executada",
+     "motivo": null,
+     "nota": 0,
+     "positivas": 0,
+     "negativas": 2,
+     "fontes_normativas": [
+      "FAQ MCTI P4",
+      "Frascati 2015 §2.16 e Tab. 2.1(a)",
+      "Guia MCTI 2020 §6.1"
+     ]
+    },
+    {
+     "regra": "NOV-D4",
+     "titulo": "Não é cópia nem compra de tecnologia",
+     "status": "executada",
+     "motivo": null,
+     "nota": 0,
+     "positivas": 0,
+     "negativas": 2,
+     "fontes_normativas": [
+      "Frascati 2015 §2.15",
+      "UK DSIT ¶12, ¶22, ¶24",
+      "Guia ANPEI 2017 pp. 19 e 26",
+      "Guia MCTI 2020 Ap. B.3"
+     ]
+    },
+    {
+     "regra": "NOV-D5",
+     "titulo": "Exclusões de software",
+     "status": "executada",
+     "motivo": null,
+     "nota": 0,
+     "positivas": 0,
+     "negativas": 2,
+     "fontes_normativas": [
+      "Frascati 2015 §2.70–2.72",
+      "IPCTN 2020 Anexo I"
+     ]
+    },
+    {
+     "regra": "NOV-D6",
+     "titulo": "Melhoria substancial com linha de base",
+     "status": "sem_evidencia",
+     "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em PRJ01-S01; trecho não encontrado literalmente em PRJ01-S02",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Decreto 5.798 art. 2º II c",
+      "Guia MCTI 2020 Ap. B.1",
+      "UK DSIT ¶23–25"
+     ]
+    },
+    {
+     "regra": "NOV-D8",
+     "titulo": "Patente ou artigo como indício",
+     "status": "na",
+     "motivo": "Não há patentes, registros ou artigos nos artefatos do pacote.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "IT MIMIT §1.1.3.1",
+      "Frascati Tab. 2.1(d)",
+      "Guia ANPEI 2017 Fig. 1"
+     ]
+    },
+    {
+     "regra": "NOV-D10",
+     "titulo": "Referência anterior já fornece a função",
+     "status": "executada",
+     "motivo": null,
+     "nota": 0,
+     "positivas": 0,
+     "negativas": 2,
+     "fontes_normativas": [
+      "Históricos PRJ01, 04, 09, 11, 12, 19, 20",
+      "Frascati 2015 §2.72"
+     ]
+    },
+    {
+     "regra": "NOV-D11",
+     "titulo": "Novidade vale no recorte ensaiado",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 1,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Históricos PRJ02, 05, 07, 14",
+      "LEIA_ME"
+     ]
+    },
+    {
+     "regra": "NOV-D12",
+     "titulo": "Título não prova novidade",
+     "status": "executada",
+     "motivo": null,
+     "nota": 0,
+     "positivas": 0,
+     "negativas": 1,
+     "fontes_normativas": [
+      "Históricos PRJ09, PRJ19, PRJ02"
+     ]
+    }
+   ],
+   "respostas": [],
+   "regra_de_decisao": null
+  },
+  {
+   "chave": "CRI",
+   "criterio": "Criatividade técnica",
+   "estado": "NÃO DEMONSTRADA",
+   "justificativa": "As evidências mostram ausência de hipótese pré‑testes ([dossie_projeto.pdf#pergunta_registrada]) e que as mudanças se limitam a configurações padrão conforme manual ([checagens#CHK-CONFIG], [checagens#CHK-CONFIG]). O documento indica ainda que nenhum algoritmo foi modificado, caracterizando rotina ([evidencias/metodo.md#2]).",
+   "fonte": "dossie_projeto.pdf#pergunta_registrada",
+   "nota": 50,
+   "fonte_normativa": "Frascati 2015 §2.17 e Tab. 2.1(b)–(c); Guia MCTI 2020 §6",
+   "gates": [
+    "gate CRI-D5: evidência negativa predominante (Mudança não rotineira)"
+   ],
+   "regras": [
+    {
+     "regra": "CRI-W1",
+     "titulo": "Roteiro problema-solução",
+     "status": "sem_evidencia",
+     "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em src-6da22bca98",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "EPO G-VII 5",
+      "INPI Res. 169/2016 itens 5.9–5.21",
+      "LPI art. 13",
+      "Guia MCTI 2020 §6",
+      "Frascati 2002 §84"
+     ]
+    },
+    {
+     "regra": "CRI-W2",
+     "titulo": "Prática padrão ou tutorial",
+     "status": "sem_evidencia",
+     "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em src-48b19f631b",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Guia do desafio, Parte 4",
+      "Frascati 2015 §2.72"
+     ]
+    },
+    {
+     "regra": "CRI-W3",
+     "titulo": "Combinação além da soma",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 1,
+     "negativas": 0,
+     "fontes_normativas": [
+      "INPI itens 5.22 e 5.30"
+     ]
+    },
+    {
+     "regra": "CRI-W4",
+     "titulo": "Conhecimento de outro campo",
+     "status": "sem_evidencia",
+     "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em src-f7dca0daa3",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "UK DSIT ¶6 e ¶23",
+      "IT MIMIT 2024 §1.1.3.2",
+      "Frascati Tab. 2.1(b)"
+     ]
+    },
+    {
+     "regra": "CRI-W5",
+     "titulo": "Problema em aberto ou contra o consenso",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 1,
+     "negativas": 0,
+     "fontes_normativas": [
+      "INPI itens 5.57 e 5.58"
+     ]
+    },
+    {
+     "regra": "CRI-D1",
+     "titulo": "Hipótese explícita antes dos testes",
+     "status": "executada",
+     "motivo": null,
+     "nota": 0,
+     "positivas": 0,
+     "negativas": 1,
+     "fontes_normativas": [
+      "Guia MCTI 2020 §6.2",
+      "CRA SR&ED",
+      "AU R&DTI",
+      "IE TDM §8.1(f)"
+     ]
+    },
+    {
+     "regra": "CRI-D2",
+     "titulo": "Barreira técnica concreta",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 1,
+     "negativas": 0,
+     "fontes_normativas": [
+      "IT MIMIT §1.1.3.2",
+      "Guia MCTI 2020 §6.3",
+      "FORMP&D 3.1.8"
+     ]
+    },
+    {
+     "regra": "CRI-D3",
+     "titulo": "Pesquisador na equipe",
+     "status": "parcial",
+     "motivo": "atividades.csv só traz responsavel_por_funcao (função, sem titulação); não dá para verificar pesquisador.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Frascati 2015 §2.17, §5.35–5.36",
+      "Decreto 5.798 art. 2º III",
+      "Guia ANPEI 2017 p. 27"
+     ]
+    },
+    {
+     "regra": "CRI-D4",
+     "titulo": "Alternativas consideradas e abandonadas",
+     "status": "executada",
+     "motivo": null,
+     "nota": 0,
+     "positivas": 0,
+     "negativas": 1,
+     "fontes_normativas": [
+      "IT MIMIT §1.1.3.2",
+      "IE TDM §3.1",
+      "26 CFR §1.41-4(a)(5)"
+     ]
+    },
+    {
+     "regra": "CRI-D5",
+     "titulo": "Mudança não rotineira",
+     "status": "executada",
+     "motivo": null,
+     "nota": 0,
+     "positivas": 0,
+     "negativas": 1,
+     "fontes_normativas": [
+      "Frascati 2015 §2.17 e §2.56",
+      "Guia MCTI 2020 Ap. B.1",
+      "FAQ MCTI P17",
+      "Históricos PRJ01, 04, 09, 11, 12, 19, 20"
+     ]
+    },
+    {
+     "regra": "CRI-D6",
+     "titulo": "Método novo para tarefa comum conta",
+     "status": "sem_evidencia",
+     "motivo": "citações descartadas pelo gate: regra só admite evidência positiva",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Frascati 2015 §2.17",
+      "IT MIMIT §1.1.3.2"
+     ]
+    },
+    {
+     "regra": "CRI-D7",
+     "titulo": "Profissional competente afirma",
+     "status": "parcial",
+     "motivo": "revisao_tecnica.md dá só a função \"revisão técnica\"; não há qualificação dos revisores no pacote.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "HMRC GfC3 parte 3"
+     ]
+    },
+    {
+     "regra": "CRI-D8",
+     "titulo": "Regra de decisão com parâmetros concretos",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 1,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Históricos PRJ02, PRJ03, PRJ13 × PRJ08, PRJ10, PRJ17"
+     ]
+    },
+    {
+     "regra": "CRI-D10",
+     "titulo": "Combinação original testada",
+     "status": "executada",
+     "motivo": null,
+     "nota": 0,
+     "positivas": 0,
+     "negativas": 1,
+     "fontes_normativas": [
+      "Históricos PRJ05, PRJ07, PRJ03",
+      "Frascati Tab. 2.1(b)"
+     ]
+    }
+   ],
+   "respostas": [],
+   "regra_de_decisao": null
+  },
+  {
+   "chave": "INC",
+   "criterio": "Incerteza tecnológica",
+   "estado": "NÃO CARACTERIZADA",
+   "justificativa": "As patentes citadas em [https://patents.google.com/patent/US8943144] e [https://patents.google.com/patent/CN118677762A/en] demonstram que a solução de deduplicação já estava disponível publicamente antes do projeto, indicando ausência de incerteza tecnológica. As checagens [checagens#CHK-PERGUNTA] e o manual [atividades.csv#PRJ01-ATV02] confirmam que a equipe utilizou solução conhecida e apenas ajustou configurações, sem desenvolver novo mecanismo. As evidências de que não há hipótese de mecanismo novo ([evidencias/metodo.md#6]) reforçam a caracterização como rotina. Portanto, o critério não se enquadra como P&D investigada.",
+   "fonte": "checagens#CHK-PERGUNTA",
+   "nota": 33,
+   "fonte_normativa": "Frascati 2015 §2.18; Guia MCTI 2020 §6.3",
+   "gates": [
+    "gate INC-D5: evidência negativa predominante (Enfrentada, não contornada)",
+    "gate INC-D9: evidência negativa predominante (Bug, ajuste ou falha operacional não é incerteza)"
+   ],
+   "regras": [
+    {
+     "regra": "INC-W1",
+     "titulo": "Solução já disponível ou dedutível",
+     "status": "executada",
+     "motivo": null,
+     "nota": 0,
+     "positivas": 0,
+     "negativas": 1,
+     "fontes_normativas": [
+      "UK DSIT ¶13–14",
+      "CRA SR&ED",
+      "AU R&DTI",
+      "IE TDM §3.4",
+      "HMRC GfC3 parte 2, passo 4"
+     ]
+    },
+    {
+     "regra": "INC-W2",
+     "titulo": "Não saber internamente não conta",
+     "status": "executada",
+     "motivo": null,
+     "nota": 0,
+     "positivas": 0,
+     "negativas": 1,
+     "fontes_normativas": [
+      "IE TDM §3.4",
+      "IT MIMIT 2024 §1.1.3.3",
+      "CRA SR&ED"
+     ]
+    },
+    {
+     "regra": "INC-W3",
+     "titulo": "Problema relatado como em aberto",
+     "status": "sem_evidencia",
+     "motivo": "Nenhuma fonte encontrada relata o problema como aberto ou indica limitações das soluções existentes.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Guia MCTI 2020 §6.2",
+      "INPI item 5.57"
+     ]
+    },
+    {
+     "regra": "INC-W4",
+     "titulo": "TRL como indício",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 1,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Guia MCTI 2020 §6.2",
+      "ISO 16290:2013",
+      "Mankins 2009"
+     ]
+    },
+    {
+     "regra": "INC-D1",
+     "titulo": "Incerteza técnica, não comercial",
+     "status": "executada",
+     "motivo": null,
+     "nota": 0,
+     "positivas": 0,
+     "negativas": 2,
+     "fontes_normativas": [
+      "FAQ MCTI P4(b)",
+      "IT MIMIT §1.1.3.3",
+      "IE TDM §3.5",
+      "Histórico PRJ20"
+     ]
+    },
+    {
+     "regra": "INC-D2",
+     "titulo": "Pergunta técnica específica",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 2,
+     "negativas": 0,
+     "fontes_normativas": [
+      "IE TDM §3.5(a)–(b)",
+      "UK DSIT ¶13",
+      "HMRC GfC3 parte 2, passo 3",
+      "Guia MCTI 2020 §6.3"
+     ]
+    },
+    {
+     "regra": "INC-D3",
+     "titulo": "Por que um competente não resolveria",
+     "status": "executada",
+     "motivo": null,
+     "nota": 0,
+     "positivas": 0,
+     "negativas": 2,
+     "fontes_normativas": [
+      "HMRC GfC3 parte 2, passo 4",
+      "UK DSIT ¶14"
+     ]
+    },
+    {
+     "regra": "INC-D4",
+     "titulo": "Resultado não previsível",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 1,
+     "negativas": 0,
+     "fontes_normativas": [
+      "IT MIMIT §1.1.3.3",
+      "Guia MCTI 2020 §6.3",
+      "IE TDM §3.1"
+     ]
+    },
+    {
+     "regra": "INC-D5",
+     "titulo": "Enfrentada, não contornada",
+     "status": "executada",
+     "motivo": null,
+     "nota": 0,
+     "positivas": 0,
+     "negativas": 1,
+     "fontes_normativas": [
+      "CRA SR&ED"
+     ]
+    },
+    {
+     "regra": "INC-D6",
+     "titulo": "Integração só se não dedutível",
+     "status": "sem_evidencia",
+     "motivo": "Projeto não envolve integração de sistemas; regra não se aplica.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "UK DSIT ¶29–30",
+      "Frascati 2015 §2.73"
+     ]
+    },
+    {
+     "regra": "INC-D7",
+     "titulo": "Protótipo testa conceito",
+     "status": "executada",
+     "motivo": null,
+     "nota": 0,
+     "positivas": 0,
+     "negativas": 1,
+     "fontes_normativas": [
+      "Frascati 2015 §2.18, §2.49–2.50, Tab. 2.3, §2.55–2.56"
+     ]
+    },
+    {
+     "regra": "INC-D8",
+     "titulo": "Início e fim da P&D",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 1,
+     "negativas": 0,
+     "fontes_normativas": [
+      "UK DSIT ¶33–34",
+      "HMRC GfC3 parte 2, passos 6–7",
+      "FAQ MCTI P4(c)"
+     ]
+    },
+    {
+     "regra": "INC-D9",
+     "titulo": "Bug, ajuste ou falha operacional não é incerteza",
+     "status": "executada",
+     "motivo": null,
+     "nota": 0,
+     "positivas": 0,
+     "negativas": 1,
+     "fontes_normativas": [
+      "Frascati 2015 §2.57, §2.72",
+      "UK DSIT ¶14, ¶35",
+      "Históricos PRJ01, 04, 09, 11, 12"
+     ]
+    },
+    {
+     "regra": "INC-D10",
+     "titulo": "Custo/tempo quando decorre da técnica",
+     "status": "sem_evidencia",
+     "motivo": "Nenhuma meta de custo ou tempo aparece como critério técnico no material disponível.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Frascati 2015 §2.18",
+      "IT MIMIT §1.1.3.3",
+      "IE TDM §3.5"
+     ]
+    },
+    {
+     "regra": "INC-D12",
+     "titulo": "Investigada exige execução contra comparadores",
+     "status": "executada",
+     "motivo": null,
+     "nota": 0,
+     "positivas": 0,
+     "negativas": 1,
+     "fontes_normativas": [
+      "Históricos PRJ02, 03, 13–16 × PRJ08, 10, 17"
+     ]
+    }
+   ],
+   "respostas": [],
+   "regra_de_decisao": null
+  },
+  {
+   "chave": "SIS",
+   "criterio": "Sistematicidade",
+   "estado": "DOCUMENTADA",
+   "justificativa": "O projeto possui registro de início e fim ([evidencias/cronologia.csv#PRJ01-CR01], [evidencias/cronologia.csv#PRJ01-CR05]) e plano de método descrito antes dos ensaios ([evidencias/cronologia.csv#PRJ01-CR02]). Duas versões experimentais foram registradas e comparadas ([evidencias/configuracao.json#versoes_registradas]) com parâmetros definidos previamente ([evidencias/configuracao.json#parametros]) e metodologia detalhada ([evidencias/metodo.md#3]). Todas as versões alegadas têm ensaio documentado ([checagens#CHK-VERSOES]). Falta apenas documentação dos controles de desenho experimental, mas isso não impede a classificação como experimento documentado.",
+   "fonte": "evidencias/cronologia.csv#PRJ01-CR02",
+   "nota": 100,
+   "fonte_normativa": "Frascati 2015 §2.19; Guia MCTI 2020 §6.4",
+   "gates": [],
+   "regras": [
+    {
+     "regra": "SIS-D1",
+     "titulo": "Objetivo, escopo, início e fim",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 4,
+     "negativas": 0,
+     "fontes_normativas": [
+      "FAQ MCTI P4(d)–(e)",
+      "Frascati 2015 §2.12",
+      "IT MIMIT 2024 §1.1.3.4"
+     ]
+    },
+    {
+     "regra": "SIS-D2",
+     "titulo": "Plano datado antes",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 2,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Guia MCTI 2020 Ap. B.4",
+      "IE TDM §8.1(f)",
+      "IT MIMIT §1.1.3.4"
+     ]
+    },
+    {
+     "regra": "SIS-D3",
+     "titulo": "Recursos próprios identificados",
+     "status": "parcial",
+     "motivo": "Orçamento e dispêndios estão fora do escopo do guia; a equipe só aparece por função (responsavel_por_funcao), sem titulação.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Frascati 2015 §2.19",
+      "FORMP&D",
+      "IE TDM §8.1(g)–(h)"
+     ]
+    },
+    {
+     "regra": "SIS-D4",
+     "titulo": "Dispêndios rastreáveis",
+     "status": "na",
+     "motivo": "O guia do desafio exclui explicitamente horas, despesas e requisitos fiscais.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Lei 11.196 art. 22 I",
+      "Decreto 5.798 art. 10 I",
+      "Portaria 9.563 art. 6º II"
+     ]
+    },
+    {
+     "regra": "SIS-D5",
+     "titulo": "Metodologia experimental, não aceite",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 3,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Guia MCTI 2020 §6.4",
+      "FAQ MCTI P4",
+      "CRA SR&ED",
+      "IE TDM §3.6",
+      "Históricos PRJ02, 13, 14, 16 × PRJ04, 09, 12"
+     ]
+    },
+    {
+     "regra": "SIS-D7",
+     "titulo": "Desvios registrados",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 2,
+     "negativas": 0,
+     "fontes_normativas": [
+      "IE TDM §3.1",
+      "IT MIMIT §1.1.3.4"
+     ]
+    },
+    {
+     "regra": "SIS-D10",
+     "titulo": "Documentação guardada",
+     "status": "na",
+     "motivo": "Não é input do pacote; é satisfeita no output pelo dossiê versionado da ferramenta (autor, data, hash).",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Decreto 5.798 art. 14 §1º",
+      "IE TDM §8.4"
+     ]
+    },
+    {
+     "regra": "SIS-D12",
+     "titulo": "Execução registrada por versão",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 1,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Históricos PRJ08, 10, 17"
+     ]
+    },
+    {
+     "regra": "SIS-D13",
+     "titulo": "Controles de desenho experimental",
+     "status": "sem_evidencia",
+     "motivo": "ausência de evidência de controles de desenho experimental (estrato difícil, repetições, ordem contrabalançada, separação temporal do rótulo).",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Históricos PRJ02, PRJ13, PRJ15, PRJ16"
+     ]
+    },
+    {
+     "regra": "SIS-D14",
+     "titulo": "Entrega não é desempenho",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 1,
+     "negativas": 0,
+     "fontes_normativas": [
+      "LEIA_ME",
+      "Históricos PRJ08, 10, 17"
+     ]
+    }
+   ],
+   "respostas": [],
+   "regra_de_decisao": null
+  },
+  {
+   "chave": "REP",
+   "criterio": "Transferência/reprodução",
+   "estado": "DOCUMENTADA NO ESCOPO",
+   "justificativa": "Os artefatos registram parâmetros, versões e configuração estruturada, permitindo a reprodução do método ([evidencias/metodo.md#4]). As checagens de recálculo confirmam que os resultados são recalculáveis a partir dos registros primários ([checagens#CHK-RECALC], [checagens#CHK-RECALC]). Não há hipóteses ou limites excluídos que comprometam a pretensão original ([checagens#CHK-ESCOPO]), e a falha experimental documentada demonstra conhecimento negativo válido ([checagens#CHK-FALHAS]).",
+   "fonte": "evidencias/metodo.md#4",
+   "nota": 100,
+   "fonte_normativa": "Frascati 2015 §2.20–2.21",
+   "gates": [],
+   "regras": [
+    {
+     "regra": "REP-D1",
+     "titulo": "Conhecimento codificado",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 1,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Frascati 2015 §2.20",
+      "IPCTN 2020 Anexo I",
+      "Nonaka 1994"
+     ]
+    },
+    {
+     "regra": "REP-D2",
+     "titulo": "Detalhe suficiente para repetir",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 1,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Frascati 2015 §2.20",
+      "UK DSIT ¶34",
+      "NASEM 2019"
+     ]
+    },
+    {
+     "regra": "REP-D3",
+     "titulo": "Resultados negativos documentados",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 1,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Frascati 2015 §2.20",
+      "Guia MCTI 2020 §6.2",
+      "IT MIMIT §1.1.3.5"
+     ]
+    },
+    {
+     "regra": "REP-D4",
+     "titulo": "Artefatos preservados e versionados",
+     "status": "parcial",
+     "motivo": "O pacote não tem código executável; o artefato reproduzível é especificação + configuracao.json + registros por versão.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Gundersen & Kjensmo 2018",
+      "Pineau et al. 2021",
+      "ACM Artifact Review v1.1"
+     ]
+    },
+    {
+     "regra": "REP-D5",
+     "titulo": "Mecanismo de transferência",
+     "status": "na",
+     "motivo": "Não há patentes, registros ou publicações no pacote; a \"Continuidade\" (§7) não é transferência.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Frascati Tab. 2.1(d)",
+      "Decreto 5.798 art. 2º II d"
+     ]
+    },
+    {
+     "regra": "REP-D6",
+     "titulo": "Cadeia plano → resultado rastreável",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 1,
+     "negativas": 0,
+     "fontes_normativas": [
+      "IT MIMIT §1.1.3.5"
+     ]
+    },
+    {
+     "regra": "REP-D7",
+     "titulo": "Limite de escopo — excluído × lacuna na pretensão",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 1,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Históricos PRJ03, 14, 15, 16 × PRJ05, 06, 07, 18",
+      "GUIA_DO_PARTICIPANTE"
+     ]
+    },
+    {
+     "regra": "REP-D8",
+     "titulo": "Documentação de configuração não é conhecimento novo",
+     "status": "sem_evidencia",
+     "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em PRJ01-CHK-CONFIG",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Históricos PRJ01, 04, 09, 11, 12, 19, 20"
+     ]
+    },
+    {
+     "regra": "REP-D9",
+     "titulo": "Números recalculáveis do registro primário",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 1,
+     "negativas": 0,
+     "fontes_normativas": [
+      "LEIA_ME",
+      "Históricos PRJ02, 13, 15"
+     ]
+    }
+   ],
+   "respostas": [],
+   "regra_de_decisao": null
+  }
+ ],
+ "fontes_decisivas": [
+  "checagens",
+  "evidencias/metodo.md",
+  "dossie_projeto.pdf",
+  "atividades.csv",
+  "evidencias/cronologia.csv",
+  "evidencias/configuracao.json"
+ ],
+ "evidencias_usadas": [
+  {
+   "id": "ev-f8976788dabb5e73",
+   "regra": "NOV-D11",
+   "fonte": "checagens#CHK-ESCOPO",
+   "trecho": "limite_declarado\": \"Aceite limitado aos conectores e à janela configurada. Não há hipótese de mecanismo novo, apenas adequação da configuração ao contrato.",
+   "polaridade": "positiva",
+   "natureza": "derivado",
+   "explicacao": "O escopo declarado limita a aceitação à janela configurada, mostrando que a novidade (configuração) está dentro do recorte ensaiado.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-ccd82e56570373e8",
+   "regra": "CRI-W3",
+   "fonte": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/duplicate-detection",
+   "trecho": "Enabling duplicate detection helps keep track of the application-controlled `MessageId` of all messages sent into a queue or topic during a specified time window.",
+   "polaridade": "positiva",
+   "natureza": "web",
+   "explicacao": "Documento cobre detecção de duplicatas por janela de tempo, mas não menciona uso de chave composta (operação, versão), indicando que a combinação dos dois elementos não está presente.",
+   "url": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/duplicate-detection",
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-fde10ee85c6cd583",
+   "regra": "CRI-W5",
+   "fonte": "https://doi.org/10.51219/jaimld/purshotam-s-yadav/214",
+   "trecho": "In microservice architectures, message duplication is a common challenge that can lead to data inconsistencies and operational errors.",
+   "polaridade": "positiva",
+   "natureza": "web",
+   "explicacao": "Artigo aponta que a duplicação de mensagens é um problema ainda em aberto em arquiteturas de microserviços, apoiando a existência de um problema não resolvido que o projeto busca atender.",
+   "url": "https://doi.org/10.51219/jaimld/purshotam-s-yadav/214",
+   "data_publicacao": "2024-03-30"
+  },
+  {
+   "id": "ev-69d2f786afe5a8cb",
+   "regra": "CRI-D2",
+   "fonte": "dossie_projeto.pdf#contexto",
+   "trecho": "Uma interrupção fazia a mesma confirmação chegar duas vezes ao conciliador.",
+   "polaridade": "positiva",
+   "natureza": "sintese",
+   "explicacao": "Descreve de forma concreta a barreira técnica (duplicação de confirmações) que exigiu solução.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-1b2c9ae29bf0b217",
+   "regra": "CRI-D8",
+   "fonte": "evidencias/configuracao.json#parametros",
+   "trecho": "{\"retencao_inicial_s\": 30, \"retencao_final_s\": 120}",
+   "polaridade": "positiva",
+   "natureza": "registro_primario",
+   "explicacao": "Fornece parâmetros concretos e não nulos que definem a regra de decisão de retenção.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-c3c4b3990251a8c7",
+   "regra": "INC-W4",
+   "fonte": "https://patents.google.com/patent/CN118677762A/en",
+   "trecho": "Example techniques for log message deduplication based on adaptive time windows are described herein.",
+   "polaridade": "positiva",
+   "natureza": "web",
+   "explicacao": "A tecnologia aparece apenas em patente de 2021, indicando estágio de pesquisa (baixo TRL) e ainda não como produto maduro no mercado.",
+   "url": "https://patents.google.com/patent/CN118677762A/en",
+   "data_publicacao": "2021-04-22"
+  },
+  {
+   "id": "ev-a9b0a20b0668a32b",
+   "regra": "INC-D2",
+   "fonte": "atividades.csv#PRJ01-ATV01",
+   "trecho": "Pergunta: Como aplicar idempotência conhecida ao reenvio de mensagens sem bloquear pagamentos legítimos?",
+   "polaridade": "positiva",
+   "natureza": "sintese",
+   "explicacao": "A pergunta registrada é técnica e específica, focada em método e condição de idempotência.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-e6acab3beb418e24",
+   "regra": "INC-D2",
+   "fonte": "dossie_projeto.pdf#pergunta_registrada",
+   "trecho": "Como aplicar idempotência conhecida ao reenvio de mensagens sem bloquear pagamentos legítimos?",
+   "polaridade": "positiva",
+   "natureza": "sintese",
+   "explicacao": "A mesma questão aparece no dossiê, confirmando a especificidade técnica da incerteza.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-038f36fa0ab43ac4",
+   "regra": "INC-D4",
+   "fonte": "checagens#CHK-FALHAS",
+   "trecho": "taxa_percentual\": \"66.666667\",",
+   "polaridade": "positiva",
+   "natureza": "derivado",
+   "explicacao": "A checagem registra uma taxa de sucesso inferior para a versão v1, caracterizando falha experimental da hipótese.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-61fc0f4508f21a62",
+   "regra": "INC-D8",
+   "fonte": "checagens#CHK-TEMPO",
+   "trecho": "data_inicial\": \"2025-01-06\",",
+   "polaridade": "positiva",
+   "natureza": "derivado",
+   "explicacao": "A checagem mostra data inicial 2025‑01‑06 e data final 2025‑04‑07, delimitando claramente o período da P&D.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-36af4c0c6e69c17b",
+   "regra": "SIS-D1",
+   "fonte": "evidencias/cronologia.csv#PRJ01-CR01",
+   "trecho": "PRJ01-CR01;2025-01-06;documento-inicial;Registro do problema e das referências anteriores;registrado;evidencias/metodo.md#1",
+   "polaridade": "positiva",
+   "natureza": "registro_primario",
+   "explicacao": "Data de início do projeto registrada em documento inicial.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-5804b57b693acf4e",
+   "regra": "SIS-D1",
+   "fonte": "evidencias/cronologia.csv#PRJ01-CR05",
+   "trecho": "PRJ01-CR05;2025-04-07;revisao-final;Consolidação do limite de conclusão e pendências;registrado;evidencias/revisao_tecnica.md",
+   "polaridade": "positiva",
+   "natureza": "registro_primario",
+   "explicacao": "Data de fim do projeto registrada em revisão final.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-e99d234a102c73f1",
+   "regra": "SIS-D1",
+   "fonte": "evidencias/configuracao.json#escopo",
+   "trecho": "Sessenta roteiros: 40 envios únicos, 12 retransmissões da mesma chave e oito operações novas após interrupção. A rodada deduplicacao-v1 reteve oito duplicatas; deduplicacao-v2 reteve as 12. As oito operações novas foram liberadas em ambas.",
+   "polaridade": "positiva",
+   "natureza": "registro_primario",
+   "explicacao": "Descrição detalhada do escopo do projeto.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-3f4d5537e9c732ae",
+   "regra": "SIS-D1",
+   "fonte": "dossie_projeto.pdf#cabecalho",
+   "trecho": "PRJ01 | Reprocessamento seguro de mensagens duplicadas",
+   "polaridade": "positiva",
+   "natureza": "sintese",
+   "explicacao": "Objetivo do projeto indicado no cabeçalho.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-df80613a904bde4c",
+   "regra": "SIS-D2",
+   "fonte": "evidencias/cronologia.csv#PRJ01-CR02",
+   "trecho": "PRJ01-CR02;2025-01-22;protocolo-r1;Preparação do recorte e critérios descritos no método;registrado;evidencias/metodo.md#3",
+   "polaridade": "positiva",
+   "natureza": "registro_primario",
+   "explicacao": "Plano com etapas e critérios descritos antes do primeiro ensaio (28/01/2025).",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-b30b5fa5da911a9b",
+   "regra": "SIS-D2",
+   "fonte": "checagens#CHK-TEMPO",
+   "trecho": "documento_inicial_antes_dos_ensaios\": true",
+   "polaridade": "positiva",
+   "natureza": "derivado",
+   "explicacao": "Checagem confirma que o documento inicial foi registrado antes dos ensaios.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-c2f00f82d53a1fbb",
+   "regra": "SIS-D5",
+   "fonte": "evidencias/configuracao.json#versoes_registradas",
+   "trecho": "[\"deduplicacao-v1\", \"deduplicacao-v2\"]",
+   "polaridade": "positiva",
+   "natureza": "registro_primario",
+   "explicacao": "Duas versões alternativas foram executadas, permitindo comparação experimental.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-481527dc10c0d4b4",
+   "regra": "SIS-D5",
+   "fonte": "evidencias/configuracao.json#parametros",
+   "trecho": "{\"retencao_inicial_s\": 30, \"retencao_final_s\": 120}",
+   "polaridade": "positiva",
+   "natureza": "registro_primario",
+   "explicacao": "Parâmetros de retenção definidos antes dos ensaios, fixando critérios experimentais.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-517b9d768a24da45",
+   "regra": "SIS-D5",
+   "fonte": "evidencias/metodo.md#3",
+   "trecho": "Sessenta roteiros: 40 envios únicos, 12 retransmissões da mesma chave e oito operações novas após interrupção. A rodada deduplicacao-v1 reteve oito duplicatas; deduplicacao-v2 reteve as 12. As oito operações novas foram liberadas em ambas.",
+   "polaridade": "positiva",
+   "natureza": "sintese",
+   "explicacao": "Metodologia descreve experimentação com entradas idênticas e critérios pré‑definidos.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-a843eeddc88117c8",
+   "regra": "SIS-D7",
+   "fonte": "checagens#CHK-FALHAS",
+   "trecho": "falhas_por_taxa\": [ { \"ensaio_id\": \"PRJ01-S01\", \"metrica\": \"duplicatas retidas\", \"taxa_percentual\": \"66.666667\", \"versao\": \"deduplicacao-v1\" } ]",
+   "polaridade": "positiva",
+   "natureza": "derivado",
+   "explicacao": "Checagem registra falha experimental na versão v1, indicando desvio.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-72fce99bb8b394a7",
+   "regra": "SIS-D7",
+   "fonte": "evidencias/cronologia.csv#PRJ01-CR04",
+   "trecho": "PRJ01-CR04;2025-03-06;deduplicacao-v2;Arquivamento dos registros desta versão;registrado;evidencias/medicoes.csv",
+   "polaridade": "positiva",
+   "natureza": "registro_primario",
+   "explicacao": "Registro de nova versão após a falha, mostrando mudança de rumo.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-1289a7a7eca30daa",
+   "regra": "SIS-D12",
+   "fonte": "checagens#CHK-VERSOES",
+   "trecho": "versoes_sem_ensaio\": []",
+   "polaridade": "positiva",
+   "natureza": "derivado",
+   "explicacao": "Checagem confirma que todas as versões alegadas possuem ensaio registrado.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-0420a95066c5762d",
+   "regra": "SIS-D14",
+   "fonte": "checagens#CHK-RECALC",
+   "trecho": "natureza\": \"desempenho\",",
+   "polaridade": "positiva",
+   "natureza": "derivado",
+   "explicacao": "Resultados são classificados como desempenho, não apenas entrega.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-1752c2acda5d4e6f",
+   "regra": "REP-D1",
+   "fonte": "evidencias/metodo.md#4",
+   "trecho": "- retencao_inicial_s: 30 - retencao_final_s: 120 Versões localizadas: deduplicacao-v1, deduplicacao-v2. Configuração estruturada: `configuracao.json`. Datas e estados: `cronologia.csv`.",
+   "polaridade": "positiva",
+   "natureza": "sintese",
+   "explicacao": "O fragmento registra parâmetros de retenção e as versões do mecanismo, evidenciando que o conhecimento está codificado em artefatos formais.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-361adbf9bce9f999",
+   "regra": "REP-D2",
+   "fonte": "checagens#CHK-RECALC",
+   "trecho": "situacao\": \"batendo\",",
+   "polaridade": "positiva",
+   "natureza": "derivado",
+   "explicacao": "A checagem demonstra que valores recalculados coincidem com os registrados, indicando que método, parâmetros e resultados estão detalhados o suficiente para reprodução.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-a46371e2050c24c4",
+   "regra": "REP-D3",
+   "fonte": "checagens#CHK-FALHAS",
+   "trecho": "ensaio_id\": \"PRJ01-S01\", \"metrica\": \"duplicatas retidas\", \"taxa_percentual\": \"66.666667\", \"versao\": \"deduplicacao-v1",
+   "polaridade": "positiva",
+   "natureza": "derivado",
+   "explicacao": "A checagem registra uma taxa inferior a 100 % para o ensaio, caracterizando uma falha experimental documentada.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-2d42a80bc046af0f",
+   "regra": "REP-D6",
+   "fonte": "checagens#CHK-VERSOES",
+   "trecho": "versoes_com_medicao\": [ \"deduplicacao-v1\", \"deduplicacao-v2\" ],",
+   "polaridade": "positiva",
+   "natureza": "derivado",
+   "explicacao": "A checagem mostra que todas as versões declaradas possuem ensaios associados, permitindo rastrear do plano ao resultado.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-2f158a0308221f11",
+   "regra": "REP-D7",
+   "fonte": "checagens#CHK-ESCOPO",
+   "trecho": "nao_executados\": []",
+   "polaridade": "positiva",
+   "natureza": "derivado",
+   "explicacao": "Não há hipóteses ou limites excluídos que não foram executados, indicando ausência de lacuna dentro da pretensão original.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-bf9080d3549c8fa7",
+   "regra": "REP-D9",
+   "fonte": "checagens#CHK-RECALC",
+   "trecho": "situacao\": \"batendo\",",
+   "polaridade": "positiva",
+   "natureza": "derivado",
+   "explicacao": "Os valores de resultados.csv batem com os de medicoes.csv dentro do mesmo ensaio, comprovando que os números são recalculáveis a partir do registro primário.",
+   "url": null,
+   "data_publicacao": null
+  }
+ ],
+ "evidencias_contrarias": [
+  {
+   "id": "ev-60230fab327aa3ee",
+   "regra": "NOV-D1",
+   "fonte": "evidencias/metodo.md#6",
+   "trecho": "Não há hipótese de mecanismo novo, apenas adequação da configuração ao contrato.",
+   "polaridade": "negativa",
+   "natureza": "sintese",
+   "explicacao": "O fragmento afirma que não há mecanismo novo, indicando ausência de declaração de elemento inovador.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-86ec6af4be3964e4",
+   "regra": "NOV-D1",
+   "fonte": "checagens#CHK-CONFIG",
+   "trecho": "algoritmo_nao_modificado\": true",
+   "polaridade": "negativa",
+   "natureza": "derivado",
+   "explicacao": "A checagem indica que o algoritmo não foi modificado, reforçando que não há elemento técnico novo declarado.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-d6340ca1196fc591",
+   "regra": "NOV-D3",
+   "fonte": "evidencias/metodo.md#6",
+   "trecho": "Não há hipótese de mecanismo novo, apenas adequação da configuração ao contrato.",
+   "polaridade": "negativa",
+   "natureza": "sintese",
+   "explicacao": "A novidade apresentada é apenas configuração, não um conhecimento técnico novo.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-4169617091b5401f",
+   "regra": "NOV-D3",
+   "fonte": "checagens#CHK-CONFIG",
+   "trecho": "algoritmo_nao_modificado\": true",
+   "polaridade": "negativa",
+   "natureza": "derivado",
+   "explicacao": "Confirma que não houve alteração de algoritmo, logo a novidade não é de conhecimento técnico.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-e5e2b17922cc6fe9",
+   "regra": "NOV-D4",
+   "fonte": "checagens#CHK-CONFIG",
+   "trecho": "tipo_referencia_anterior\": \"manual",
+   "polaridade": "negativa",
+   "natureza": "derivado",
+   "explicacao": "A solução provém de manual anterior, indicando cópia ou uso de tecnologia existente.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-af4dd6dbd898b23f",
+   "regra": "NOV-D4",
+   "fonte": "checagens#CHK-CONFIG",
+   "trecho": "indica_funcao_ja_fornecida\": true",
+   "polaridade": "negativa",
+   "natureza": "derivado",
+   "explicacao": "A checagem aponta que a função já era fornecida pela referência, não sendo desenvolvida.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-f9ef7a8861809f4e",
+   "regra": "NOV-D4",
+   "fonte": "evidencias/metodo.md#1",
+   "trecho": "O manual fictício BARR-2, seção 4, anterior à configuração, fornece chave composta por operação e versão, retenção de duplicatas e distinção entre reenvio e nova operação.",
+   "polaridade": "negativa",
+   "natureza": "sintese",
+   "explicacao": "O documento cita manual que já contém a funcionalidade, evidenciando ausência de desenvolvimento próprio.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-9710c4d447d1d295",
+   "regra": "NOV-D5",
+   "fonte": "evidencias/metodo.md#6",
+   "trecho": "Não há hipótese de mecanismo novo, apenas adequação da configuração ao contrato.",
+   "polaridade": "negativa",
+   "natureza": "sintese",
+   "explicacao": "O trabalho consiste apenas em adequar configuração, enquadrando-se nas exclusões de software.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-edc5131fda1bc7a7",
+   "regra": "NOV-D5",
+   "fonte": "checagens#CHK-CONFIG",
+   "trecho": "faixa_ja_admitida\": true",
+   "polaridade": "negativa",
+   "natureza": "derivado",
+   "explicacao": "A configuração está dentro da faixa já admitida pelo produto, caracterizando ajuste de parâmetros conhecido.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-454db6b74bc793b7",
+   "regra": "NOV-D10",
+   "fonte": "checagens#CHK-CONFIG",
+   "trecho": "indica_funcao_ja_fornecida\": true",
+   "polaridade": "negativa",
+   "natureza": "derivado",
+   "explicacao": "A checagem indica que a referência anterior já fornece a função, anulando novidade.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-4ea8836e42804c79",
+   "regra": "NOV-D10",
+   "fonte": "evidencias/metodo.md#1",
+   "trecho": "O manual fictício BARR-2, seção 4, anterior à configuração, fornece chave composta por operação e versão, retenção de duplicatas e distinção entre reenvio e nova operação.",
+   "polaridade": "negativa",
+   "natureza": "sintese",
+   "explicacao": "Manual anterior já descreve a funcionalidade aplicada.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-7d00fde9c2bcb7d1",
+   "regra": "NOV-D12",
+   "fonte": "dossie_projeto.pdf#cabecalho",
+   "trecho": "PRJ01 | Reprocessamento seguro de mensagens duplicadas",
+   "polaridade": "negativa",
+   "natureza": "sintese",
+   "explicacao": "O título não contém adjetivo que indique novidade, portanto não prova inovação.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-6b3cf699f1d8a1bf",
+   "regra": "CRI-D1",
+   "fonte": "dossie_projeto.pdf#pergunta_registrada",
+   "trecho": "Como aplicar idempotência conhecida ao reenvio de mensagens sem bloquear pagamentos legítimos?",
+   "polaridade": "negativa",
+   "natureza": "sintese",
+   "explicacao": "O fragmento contém apenas uma pergunta de aplicação, não uma hipótese explícita proposta antes dos testes, indicando ausência de hipótese pré‑testes.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-5d0ecb7a10836050",
+   "regra": "CRI-D4",
+   "fonte": "checagens#CHK-CONFIG",
+   "trecho": "verbos_de_configuracao\": [ \"configurar\" ]",
+   "polaridade": "negativa",
+   "natureza": "derivado",
+   "explicacao": "A checagem indica que as mudanças consistem apenas em verbos de configuração, não em alternativas experimentais; portanto não há registro de alternativas abandonadas por falha experimental.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-360c5dd2c6b9e475",
+   "regra": "CRI-D5",
+   "fonte": "checagens#CHK-CONFIG",
+   "trecho": "tipo_referencia_anterior\": \"manual",
+   "polaridade": "negativa",
+   "natureza": "derivado",
+   "explicacao": "O registro aponta que a alteração segue referência de manual e usa configuração padrão, caracterizando mudança rotineira.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-b5d64f1101596cb8",
+   "regra": "CRI-D10",
+   "fonte": "evidencias/metodo.md#2",
+   "trecho": "Nenhum algoritmo do barramento foi modificado.",
+   "polaridade": "negativa",
+   "natureza": "sintese",
+   "explicacao": "A combinação testada consiste apenas em ajuste de configuração de recurso conhecido, não em acoplamento original ou invenção.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-604ff737a7a339a8",
+   "regra": "INC-W1",
+   "fonte": "https://patents.google.com/patent/US8943144",
+   "trecho": "Consolidating duplicate messages, in one aspect, may receive a transmission, and compute the difference between the transmission and a previous transmission.",
+   "polaridade": "negativa",
+   "natureza": "web",
+   "explicacao": "A patente de 2009 descreve a consolidação de mensagens duplicadas, indicando que a solução de deduplicação já estava disponível antes da data de referência.",
+   "url": "https://patents.google.com/patent/US8943144",
+   "data_publicacao": "2009-12-10"
+  },
+  {
+   "id": "ev-2f8336e9eb2d8bb0",
+   "regra": "INC-W2",
+   "fonte": "https://patents.google.com/patent/CN118677762A/en",
+   "trecho": "Example techniques for log message deduplication based on adaptive time windows are described herein.",
+   "polaridade": "negativa",
+   "natureza": "web",
+   "explicacao": "A patente de 2021 apresenta técnicas de deduplicação configuráveis por janela de tempo, demonstrando que a solução está publicamente acessível como tecnologia patenteada.",
+   "url": "https://patents.google.com/patent/CN118677762A/en",
+   "data_publicacao": "2021-04-22"
+  },
+  {
+   "id": "ev-74a44c50d6f73886",
+   "regra": "INC-D1",
+   "fonte": "checagens#CHK-PERGUNTA",
+   "trecho": "aplica_solucao_conhecida\": true,",
+   "polaridade": "negativa",
+   "natureza": "derivado",
+   "explicacao": "A checagem indica que a solução já é conhecida, portanto a incerteza não é técnica.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-bc48b59fa3faed8d",
+   "regra": "INC-D1",
+   "fonte": "checagens#CHK-CONFIG",
+   "trecho": "algoritmo_nao_modificado\": true,",
+   "polaridade": "negativa",
+   "natureza": "derivado",
+   "explicacao": "O algoritmo não foi modificado, mostrando que o risco não é de natureza técnica, mas apenas de configuração.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-98ba0d480b7d1446",
+   "regra": "INC-D3",
+   "fonte": "atividades.csv#PRJ01-ATV02",
+   "trecho": "O manual fictício BARR-2, seção 4, anterior à configuração, fornece chave composta por operação e versão, retenção de duplicatas e distinção entre reenvio e nova operação.",
+   "polaridade": "negativa",
+   "natureza": "sintese",
+   "explicacao": "O documento indica que a solução já está descrita no manual, portanto um profissional competente poderia resolvê‑la com o conhecimento existente.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-7fa7f2cf389b14d6",
+   "regra": "INC-D3",
+   "fonte": "evidencias/metodo.md#6",
+   "trecho": "Não há hipótese de mecanismo novo, apenas adequação da configuração ao contrato.",
+   "polaridade": "negativa",
+   "natureza": "sintese",
+   "explicacao": "A equipe reconhece que não há novo mecanismo a ser desenvolvido, apenas ajuste de configuração.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-90ccb29d229fa5d6",
+   "regra": "INC-D5",
+   "fonte": "evidencias/metodo.md#6",
+   "trecho": "Não há hipótese de mecanismo novo, apenas adequação da configuração ao contrato.",
+   "polaridade": "negativa",
+   "natureza": "sintese",
+   "explicacao": "A documentação afirma que a solução foi um ajuste de configuração, não um enfrentamento técnico da barreira.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-a580b70e156255ee",
+   "regra": "INC-D7",
+   "fonte": "evidencias/metodo.md#6",
+   "trecho": "Não há hipótese de mecanismo novo, apenas adequação da configuração ao contrato.",
+   "polaridade": "negativa",
+   "natureza": "sintese",
+   "explicacao": "O protótipo apenas testa uma configuração já conhecida, não um conceito técnico arriscado.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-0a423a9c53f481af",
+   "regra": "INC-D9",
+   "fonte": "checagens#CHK-CONFIG",
+   "trecho": "algoritmo_nao_modificado\": true,",
+   "polaridade": "negativa",
+   "natureza": "derivado",
+   "explicacao": "A alteração foi apenas de configuração, caracterizando correção operacional e não incerteza técnica.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-b252302c8a252b95",
+   "regra": "INC-D12",
+   "fonte": "checagens#CHK-VERSOES",
+   "trecho": "versoes_alegadas\": [ \"deduplicacao-v1\", \"deduplicacao-v2\" ],",
+   "polaridade": "negativa",
+   "natureza": "derivado",
+   "explicacao": "A checagem indica apenas duas versões internas, sem medições contra comparadores externos, portanto a investigação não atende ao requisito.",
+   "url": null,
+   "data_publicacao": null
+  }
+ ],
+ "divergencias": [],
+ "elos_ausentes": [
+  "Falta o conteúdo do método §1 que descreva alternativas conhecidas e seus modos de falha. — solicitar: metodo.md §1 (estado da arte com modo de falha)",
+  "Ausência de documento que registre explicitamente a hipótese técnica antes do início dos ensaios (antes de 2025-01-06). — solicitar: Documento de hipótese (ex.: registro de plano de P&D) datado anterior a 2025-01-06.",
+  "Ausência de medições de comparadores externos ao projeto para validar a hipótese de melhoria. — solicitar: Medições de um método de referência ou benchmark externo comparado às versões deduplicacao‑v1 e v2.",
+  "Falta de documento que detalhe os controles de desenho experimental (estrato difícil, repetições, ordem contrabalançada, separação temporal do rótulo). — solicitar: Protocolo experimental contendo descrição dos controles de desenho."
+ ],
+ "lacunas": [
+  {
+   "regra": "NOV-W3",
+   "status": "sem_evidencia",
+   "motivo": "Nenhuma fonte recuperada descreve o elemento novo (configuração de deduplicação por operação e versão) antes da data de referência."
+  },
+  {
+   "regra": "NOV-W4",
+   "status": "sem_evidencia",
+   "motivo": "Nenhuma fonte do setor demonstra a mesma solução em uso por outros atores antes da data de referência."
+  },
+  {
+   "regra": "NOV-W5",
+   "status": "sem_evidencia",
+   "motivo": "Nenhuma fonte apresenta o mesmo resultado sem divulgar o método, de modo a preservar a novidade."
+  },
+  {
+   "regra": "NOV-W6",
+   "status": "sem_evidencia",
+   "motivo": "Não há fontes posteriores à data de referência que descrevam solução equivalente."
+  },
+  {
+   "regra": "NOV-W7",
+   "status": "sem_evidencia",
+   "motivo": "Nenhuma página achável e acessível antes da data de referência descreve o mecanismo específico de deduplicação por operação e versão."
+  },
+  {
+   "regra": "NOV-D2",
+   "status": "sem_evidencia",
+   "motivo": "Não há fragmento que descreva estado da arte e modo de falha das alternativas no §1."
+  },
+  {
+   "regra": "NOV-D6",
+   "status": "sem_evidencia",
+   "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em PRJ01-S01; trecho não encontrado literalmente em PRJ01-S02"
+  },
+  {
+   "regra": "NOV-D8",
+   "status": "na",
+   "motivo": "Não há patentes, registros ou artigos nos artefatos do pacote."
+  },
+  {
+   "regra": "CRI-W1",
+   "status": "sem_evidencia",
+   "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em src-6da22bca98"
+  },
+  {
+   "regra": "CRI-W2",
+   "status": "sem_evidencia",
+   "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em src-48b19f631b"
+  },
+  {
+   "regra": "CRI-W4",
+   "status": "sem_evidencia",
+   "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em src-f7dca0daa3"
+  },
+  {
+   "regra": "CRI-D3",
+   "status": "parcial",
+   "motivo": "atividades.csv só traz responsavel_por_funcao (função, sem titulação); não dá para verificar pesquisador."
+  },
+  {
+   "regra": "CRI-D6",
+   "status": "sem_evidencia",
+   "motivo": "citações descartadas pelo gate: regra só admite evidência positiva"
+  },
+  {
+   "regra": "CRI-D7",
+   "status": "parcial",
+   "motivo": "revisao_tecnica.md dá só a função \"revisão técnica\"; não há qualificação dos revisores no pacote."
+  },
+  {
+   "regra": "INC-W3",
+   "status": "sem_evidencia",
+   "motivo": "Nenhuma fonte encontrada relata o problema como aberto ou indica limitações das soluções existentes."
+  },
+  {
+   "regra": "INC-D6",
+   "status": "sem_evidencia",
+   "motivo": "Projeto não envolve integração de sistemas; regra não se aplica."
+  },
+  {
+   "regra": "INC-D10",
+   "status": "sem_evidencia",
+   "motivo": "Nenhuma meta de custo ou tempo aparece como critério técnico no material disponível."
+  },
+  {
+   "regra": "SIS-D3",
+   "status": "parcial",
+   "motivo": "Orçamento e dispêndios estão fora do escopo do guia; a equipe só aparece por função (responsavel_por_funcao), sem titulação."
+  },
+  {
+   "regra": "SIS-D4",
+   "status": "na",
+   "motivo": "O guia do desafio exclui explicitamente horas, despesas e requisitos fiscais."
+  },
+  {
+   "regra": "SIS-D10",
+   "status": "na",
+   "motivo": "Não é input do pacote; é satisfeita no output pelo dossiê versionado da ferramenta (autor, data, hash)."
+  },
+  {
+   "regra": "SIS-D13",
+   "status": "sem_evidencia",
+   "motivo": "ausência de evidência de controles de desenho experimental (estrato difícil, repetições, ordem contrabalançada, separação temporal do rótulo)."
+  },
+  {
+   "regra": "REP-D4",
+   "status": "parcial",
+   "motivo": "O pacote não tem código executável; o artefato reproduzível é especificação + configuracao.json + registros por versão."
+  },
+  {
+   "regra": "REP-D5",
+   "status": "na",
+   "motivo": "Não há patentes, registros ou publicações no pacote; a \"Continuidade\" (§7) não é transferência."
+  },
+  {
+   "regra": "REP-D8",
+   "status": "sem_evidencia",
+   "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em PRJ01-CHK-CONFIG"
+  }
+ ],
+ "anexo_busca": [
+  {
+   "criterion": "NOV",
+   "front": "literatura",
+   "base": "openalex",
+   "original_query": "message deduplication operation version idempotency",
+   "sanitized_query": "message deduplication operation version idempotency",
+   "removed_terms": [],
+   "rules": [
+    "NOV-W2",
+    "NOV-W3",
+    "NOV-W4",
+    "NOV-W8"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T11:08:38.507000",
+   "n_results": 5,
+   "selected": [
+    "src-4c36fe5a26",
+    "src-4327a25ca6",
+    "src-90f42c5a09"
+   ],
+   "discarded": [
+    "src-6da22bca98: fora do limite de 6 documentos por frente",
+    "src-3874792f2a: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "NOV",
+   "front": "literatura",
+   "base": "openalex",
+   "original_query": "retention window adjustment duplicate detection 30 120 seconds",
+   "sanitized_query": "retention window adjustment duplicate detection seconds",
+   "removed_terms": [
+    "30",
+    "120"
+   ],
+   "rules": [
+    "NOV-W2",
+    "NOV-W3",
+    "NOV-W4",
+    "NOV-W8"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T11:08:38.508000",
+   "n_results": 5,
+   "selected": [
+    "src-d59634628a",
+    "src-bd30698d8d",
+    "src-35e3b050e6"
+   ],
+   "discarded": [
+    "src-e7cac85575: fora do limite de 6 documentos por frente",
+    "src-a4fba6a08b: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "NOV",
+   "front": "patentes",
+   "base": "google_patents",
+   "original_query": "patent claim message deduplication operation version",
+   "sanitized_query": "patent claim message deduplication operation version",
+   "removed_terms": [],
+   "rules": [
+    "NOV-W2",
+    "NOV-W3",
+    "NOV-W4",
+    "NOV-W8"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T11:08:38.508000",
+   "n_results": 5,
+   "selected": [
+    "src-7582c30b7b",
+    "src-2d4369f5b8",
+    "src-f8438ee776"
+   ],
+   "discarded": [
+    "src-f5979184b1: fora do limite de 6 documentos por frente",
+    "src-76be0076ef: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "NOV",
+   "front": "patentes",
+   "base": "google_patents",
+   "original_query": "patent claim idempotent retransmission retention interval",
+   "sanitized_query": "patent claim idempotent retransmission retention interval",
+   "removed_terms": [],
+   "rules": [
+    "NOV-W2",
+    "NOV-W3",
+    "NOV-W4",
+    "NOV-W8"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T11:08:38.509000",
+   "n_results": 5,
+   "selected": [
+    "src-a8fb8d36ec",
+    "src-687e1c6b86",
+    "src-1a191159fb"
+   ],
+   "discarded": [
+    "src-a8b36bdc45: fora do limite de 6 documentos por frente",
+    "src-0c88a1f73f: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "NOV",
+   "front": "mercado",
+   "base": "ollama_web",
+   "original_query": "financial messaging platforms deduplication configuration",
+   "sanitized_query": "financial messaging platforms deduplication configuration",
+   "removed_terms": [],
+   "rules": [
+    "NOV-W2",
+    "NOV-W4",
+    "NOV-W5",
+    "NOV-W8"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T11:08:38.509000",
+   "n_results": 5,
+   "selected": [
+    "src-5034982729",
+    "src-118fd87a5e",
+    "src-c9482b044e"
+   ],
+   "discarded": [
+    "src-b5e990de8d: fora do limite de 6 documentos por frente",
+    "src-c3531450bd: duplicado de outra query"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "NOV",
+   "front": "mercado",
+   "base": "ollama_web",
+   "original_query": "banking fintech duplicate detection retention policy",
+   "sanitized_query": "banking fintech duplicate detection retention policy",
+   "removed_terms": [],
+   "rules": [
+    "NOV-W2",
+    "NOV-W4",
+    "NOV-W5",
+    "NOV-W8"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T11:08:38.509000",
+   "n_results": 5,
+   "selected": [
+    "src-d332c5852f",
+    "src-dae62d1dc6",
+    "src-c3531450bd"
+   ],
+   "discarded": [
+    "src-0966837a29: fora do limite de 6 documentos por frente",
+    "src-5c10e48cf5: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "NOV",
+   "front": "documentacao",
+   "base": "ollama_web_docs",
+   "original_query": "official API documentation message deduplication settings",
+   "sanitized_query": "official API documentation message deduplication settings",
+   "removed_terms": [],
+   "rules": [
+    "NOV-W2",
+    "NOV-W5",
+    "NOV-W7",
+    "NOV-W8"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T11:08:38.509000",
+   "n_results": 5,
+   "selected": [
+    "src-15fb35ddb1",
+    "src-bc75e87d8f",
+    "src-06b7875d6a"
+   ],
+   "discarded": [
+    "src-48b19f631b: fora do limite de 6 documentos por frente",
+    "src-648a980346: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "NOV",
+   "front": "documentacao",
+   "base": "ollama_web_docs",
+   "original_query": "framework RFC idempotent message retransmission guidelines",
+   "sanitized_query": "framework RFC idempotent message retransmission guidelines",
+   "removed_terms": [],
+   "rules": [
+    "NOV-W2",
+    "NOV-W5",
+    "NOV-W7",
+    "NOV-W8"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T11:08:38.509000",
+   "n_results": 5,
+   "selected": [
+    "src-8cc193cf56",
+    "src-33fd4fd60f",
+    "src-23974117b4"
+   ],
+   "discarded": [
+    "src-16228f1364: fora do limite de 6 documentos por frente",
+    "src-5ef69c1702: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "CRI",
+   "front": "literatura",
+   "base": "openalex",
+   "original_query": "message deduplication operation version retention window",
+   "sanitized_query": "message deduplication operation version retention window",
+   "removed_terms": [],
+   "rules": [
+    "CRI-W1",
+    "CRI-W3",
+    "CRI-W4"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T11:10:43.925000",
+   "n_results": 5,
+   "selected": [
+    "src-38bb39d8f3",
+    "src-6a02a35bf6"
+   ],
+   "discarded": [
+    "src-e4006a05b9: fora do limite de 6 documentos por frente",
+    "src-8f503b61d2: fora do limite de 6 documentos por frente",
+    "src-54fdd7168c: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "CRI",
+   "front": "literatura",
+   "base": "openalex",
+   "original_query": "idempotent messaging patterns across distributed systems",
+   "sanitized_query": "idempotent messaging patterns across distributed systems",
+   "removed_terms": [],
+   "rules": [
+    "CRI-W1",
+    "CRI-W4"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T11:10:43.925000",
+   "n_results": 5,
+   "selected": [
+    "src-6da22bca98",
+    "src-90f42c5a09"
+   ],
+   "discarded": [
+    "src-4327a25ca6: duplicado de outra query",
+    "src-3874792f2a: fora do limite de 6 documentos por frente",
+    "src-fe9155ad4e: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "CRI",
+   "front": "literatura",
+   "base": "openalex",
+   "original_query": "effects of extended retention periods on message idempotency",
+   "sanitized_query": "effects of extended retention periods on message idempotency",
+   "removed_terms": [],
+   "rules": [
+    "CRI-W1",
+    "CRI-W3"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T11:10:43.926000",
+   "n_results": 5,
+   "selected": [
+    "src-4327a25ca6",
+    "src-d052ac4383"
+   ],
+   "discarded": [
+    "src-ccf5166007: fora do limite de 6 documentos por frente",
+    "src-32f15c9fa8: fora do limite de 6 documentos por frente",
+    "src-3fd414e3fc: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "CRI",
+   "front": "patentes",
+   "base": "google_patents",
+   "original_query": "patent message deduplication using composite keys",
+   "sanitized_query": "patent message deduplication using composite keys",
+   "removed_terms": [],
+   "rules": [
+    "CRI-W1",
+    "CRI-W3"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T11:10:43.926000",
+   "n_results": 5,
+   "selected": [
+    "src-f7dca0daa3",
+    "src-ce39b52dea"
+   ],
+   "discarded": [
+    "src-7582c30b7b: duplicado de outra query",
+    "src-a3f5399b25: fora do limite de 6 documentos por frente",
+    "src-2d4369f5b8: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "CRI",
+   "front": "patentes",
+   "base": "google_patents",
+   "original_query": "system retaining duplicate messages for configurable time window",
+   "sanitized_query": "system retaining duplicate messages for configurable time window",
+   "removed_terms": [],
+   "rules": [
+    "CRI-W1",
+    "CRI-W5"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T11:10:43.926000",
+   "n_results": 5,
+   "selected": [
+    "src-98ced33337",
+    "src-7582c30b7b"
+   ],
+   "discarded": [
+    "src-67a3819fd0: fora do limite de 6 documentos por frente",
+    "src-1a191159fb: fora do limite de 6 documentos por frente",
+    "src-c60df421a6: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "CRI",
+   "front": "patentes",
+   "base": "google_patents",
+   "original_query": "idempotent retransmission mechanism patent",
+   "sanitized_query": "idempotent retransmission mechanism patent",
+   "removed_terms": [],
+   "rules": [
+    "CRI-W1",
+    "CRI-W4"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T11:10:43.927000",
+   "n_results": 5,
+   "selected": [
+    "src-11fbaa18db",
+    "src-a8fb8d36ec"
+   ],
+   "discarded": [
+    "src-91ef63cec2: fora do limite de 6 documentos por frente",
+    "src-5263cf2ba0: fora do limite de 6 documentos por frente",
+    "src-a8b36bdc45: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "CRI",
+   "front": "mercado",
+   "base": "ollama_web",
+   "original_query": "messaging platform configurable deduplication by operation version",
+   "sanitized_query": "messaging platform configurable deduplication by operation version",
+   "removed_terms": [],
+   "rules": [
+    "CRI-W2",
+    "CRI-W5"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T11:10:43.927000",
+   "n_results": 5,
+   "selected": [
+    "src-fe72128a5f",
+    "src-3445a55add"
+   ],
+   "discarded": [
+    "src-d449002b8a: fora do limite de 6 documentos por frente",
+    "src-622a25f8cc: fora do limite de 6 documentos por frente",
+    "src-ba57e0777e: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "CRI",
+   "front": "mercado",
+   "base": "ollama_web",
+   "original_query": "enterprise bus retention window settings comparison",
+   "sanitized_query": "enterprise bus retention window settings comparison",
+   "removed_terms": [],
+   "rules": [
+    "CRI-W2",
+    "CRI-W3"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T11:10:43.927000",
+   "n_results": 5,
+   "selected": [
+    "src-ce496639f8",
+    "src-0ff74c7537"
+   ],
+   "discarded": [
+    "src-216369d0e6: fora do limite de 6 documentos por frente",
+    "src-da7a718a20: fora do limite de 6 documentos por frente",
+    "src-b93eeb338e: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "CRI",
+   "front": "mercado",
+   "base": "ollama_web",
+   "original_query": "idempotency features in payment processing middleware",
+   "sanitized_query": "idempotency features in payment processing middleware",
+   "removed_terms": [],
+   "rules": [
+    "CRI-W2",
+    "CRI-W1"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T11:10:43.928000",
+   "n_results": 5,
+   "selected": [
+    "src-ed5db7acf3",
+    "src-d7a875325c"
+   ],
+   "discarded": [
+    "src-cb15282260: fora do limite de 6 documentos por frente",
+    "src-591df79bc3: fora do limite de 6 documentos por frente",
+    "src-b5b0f72ec7: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "CRI",
+   "front": "documentacao",
+   "base": "ollama_web_docs",
+   "original_query": "official documentation message deduplication composite key",
+   "sanitized_query": "official documentation message deduplication composite key",
+   "removed_terms": [],
+   "rules": [
+    "CRI-W2",
+    "CRI-W3"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T11:10:43.928000",
+   "n_results": 5,
+   "selected": [
+    "src-48b19f631b",
+    "src-de9cb8bcec"
+   ],
+   "discarded": [
+    "src-01901709aa: fora do limite de 6 documentos por frente",
+    "src-7a929a0c9a: fora do limite de 6 documentos por frente",
+    "src-34d33990c3: fora do limite de 6 documentos por frente",
+    "src-de9cb8bcec: publicado em 2025-06-24, não é estado da arte (só NOV-W6)"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "CRI",
+   "front": "documentacao",
+   "base": "ollama_web_docs",
+   "original_query": "RFC idempotent HTTP methods message retransmission",
+   "sanitized_query": "RFC idempotent HTTP methods message retransmission",
+   "removed_terms": [],
+   "rules": [
+    "CRI-W2",
+    "CRI-W4"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T11:10:43.928000",
+   "n_results": 5,
+   "selected": [
+    "src-bf87201351",
+    "src-465f768e26"
+   ],
+   "discarded": [
+    "src-002858f318: fora do limite de 6 documentos por frente",
+    "src-056ef30114: fora do limite de 6 documentos por frente",
+    "src-3aead354d2: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "CRI",
+   "front": "documentacao",
+   "base": "ollama_web_docs",
+   "original_query": "GitHub issue configuring deduplication retention seconds",
+   "sanitized_query": "GitHub issue configuring deduplication retention seconds",
+   "removed_terms": [],
+   "rules": [
+    "CRI-W5",
+    "CRI-W1"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T11:10:43.928000",
+   "n_results": 5,
+   "selected": [
+    "src-7dddbdbe12",
+    "src-74c415a9f9"
+   ],
+   "discarded": [
+    "src-af1fa865ea: fora do limite de 6 documentos por frente",
+    "src-e8f56f76dd: fora do limite de 6 documentos por frente",
+    "src-9d9aa5617b: fora do limite de 6 documentos por frente",
+    "src-7dddbdbe12: publicado em 2026-03-20, não é estado da arte (só NOV-W6)"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "INC",
+   "front": "literatura",
+   "base": "openalex",
+   "original_query": "message deduplication idempotency retention window academic",
+   "sanitized_query": "message deduplication idempotency retention window academic",
+   "removed_terms": [],
+   "rules": [
+    "barreira"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T11:10:48.019000",
+   "n_results": 2,
+   "selected": [
+    "src-514770d46d",
+    "src-be9699bb7c"
+   ],
+   "discarded": [],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "INC",
+   "front": "literatura",
+   "base": "openalex",
+   "original_query": "open research limitations duplicate message handling",
+   "sanitized_query": "open research limitations duplicate message handling",
+   "removed_terms": [],
+   "rules": [
+    "problema_em_aberto"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T11:10:48.019000",
+   "n_results": 5,
+   "selected": [
+    "src-9778b4a9e1",
+    "src-6660847df9"
+   ],
+   "discarded": [
+    "src-38bd26290d: fora do limite de 6 documentos por frente",
+    "src-004798732c: fora do limite de 6 documentos por frente",
+    "src-b13ae25152: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "INC",
+   "front": "literatura",
+   "base": "openalex",
+   "original_query": "technology readiness level message deduplication sector",
+   "sanitized_query": "technology readiness level message deduplication sector",
+   "removed_terms": [],
+   "rules": [
+    "maturidade"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T11:10:48.019000",
+   "n_results": 5,
+   "selected": [
+    "src-25476b8b6c",
+    "src-854c79d00d"
+   ],
+   "discarded": [
+    "src-7f429f1a5d: fora do limite de 6 documentos por frente",
+    "src-25ae809068: fora do limite de 6 documentos por frente",
+    "src-9fab94bf40: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "INC",
+   "front": "patentes",
+   "base": "google_patents",
+   "original_query": "patent claim message deduplication idempotent retransmission",
+   "sanitized_query": "patent claim message deduplication idempotent retransmission",
+   "removed_terms": [],
+   "rules": [
+    "barreira"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T11:10:48.020000",
+   "n_results": 5,
+   "selected": [
+    "src-2d4369f5b8",
+    "src-4d087dd224",
+    "src-0b490c2bc6"
+   ],
+   "discarded": [
+    "src-a43d0d7cc7: fora do limite de 6 documentos por frente",
+    "src-8ed0bf321a: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "INC",
+   "front": "patentes",
+   "base": "google_patents",
+   "original_query": "patent limitation duplicate message retention window",
+   "sanitized_query": "patent limitation duplicate message retention window",
+   "removed_terms": [],
+   "rules": [
+    "problema_em_aberto"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T11:10:48.020000",
+   "n_results": 5,
+   "selected": [
+    "src-bf4f319a4c",
+    "src-7582c30b7b",
+    "src-67a3819fd0"
+   ],
+   "discarded": [
+    "src-faa001ae62: fora do limite de 6 documentos por frente",
+    "src-2d4369f5b8: duplicado de outra query"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "INC",
+   "front": "patentes",
+   "base": "google_patents",
+   "original_query": "patent technology readiness level messaging deduplication",
+   "sanitized_query": "patent technology readiness level messaging deduplication",
+   "removed_terms": [],
+   "rules": [
+    "maturidade"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T11:10:48.020000",
+   "n_results": 5,
+   "selected": [],
+   "discarded": [
+    "src-2d4369f5b8: duplicado de outra query",
+    "src-4d087dd224: duplicado de outra query",
+    "src-bf4f319a4c: duplicado de outra query",
+    "src-4c7a072fb2: fora do limite de 6 documentos por frente",
+    "src-5a82c26185: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "INC",
+   "front": "mercado",
+   "base": "ollama_web",
+   "original_query": "financial services message deduplication idempotency implementation",
+   "sanitized_query": "financial services message deduplication idempotency implementation",
+   "removed_terms": [],
+   "rules": [
+    "setor"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T11:10:48.021000",
+   "n_results": 5,
+   "selected": [
+    "src-8b12fca119",
+    "src-ca7d13a5d8"
+   ],
+   "discarded": [
+    "src-5c9949dbbf: fora do limite de 6 documentos por frente",
+    "src-109a877081: fora do limite de 6 documentos por frente",
+    "src-0e216d58c8: fora do limite de 6 documentos por frente",
+    "src-8b12fca119: publicado em 2026-03-10, não é estado da arte (só NOV-W6)"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "INC",
+   "front": "mercado",
+   "base": "ollama_web",
+   "original_query": "messaging platform duplicate message handling retention settings",
+   "sanitized_query": "messaging platform duplicate message handling retention settings",
+   "removed_terms": [],
+   "rules": [
+    "setor"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T11:10:48.021000",
+   "n_results": 5,
+   "selected": [
+    "src-a8222a83e4",
+    "src-48b19f631b"
+   ],
+   "discarded": [
+    "src-7310ab9799: fora do limite de 6 documentos por frente",
+    "src-118fd87a5e: fora do limite de 6 documentos por frente",
+    "src-34d33990c3: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "INC",
+   "front": "mercado",
+   "base": "ollama_web",
+   "original_query": "product documentation idempotent message processing",
+   "sanitized_query": "product documentation idempotent message processing",
+   "removed_terms": [],
+   "rules": [
+    "setor"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T11:10:48.021000",
+   "n_results": 5,
+   "selected": [
+    "src-32a137ecb0",
+    "src-a22e28290d"
+   ],
+   "discarded": [
+    "src-4ec9c91f90: fora do limite de 6 documentos por frente",
+    "src-f98f003ede: fora do limite de 6 documentos por frente",
+    "src-c49ace14bd: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "INC",
+   "front": "documentacao",
+   "base": "ollama_web_docs",
+   "original_query": "RFC idempotent message processing duplicate detection",
+   "sanitized_query": "RFC idempotent message processing duplicate detection",
+   "removed_terms": [],
+   "rules": [
+    "barreira"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T11:10:48.022000",
+   "n_results": 5,
+   "selected": [
+    "src-d43fc4addd",
+    "src-32a137ecb0"
+   ],
+   "discarded": [
+    "src-b5e990de8d: fora do limite de 6 documentos por frente",
+    "src-a22e28290d: fora do limite de 6 documentos por frente",
+    "src-faf392cd21: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "INC",
+   "front": "documentacao",
+   "base": "ollama_web_docs",
+   "original_query": "OWASP guidelines message deduplication retention",
+   "sanitized_query": "OWASP guidelines message deduplication retention",
+   "removed_terms": [],
+   "rules": [
+    "problema_em_aberto"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T11:10:48.022000",
+   "n_results": 5,
+   "selected": [
+    "src-931753c227",
+    "src-4d4e00bfa9"
+   ],
+   "discarded": [
+    "src-5db88498ef: fora do limite de 6 documentos por frente",
+    "src-5c9949dbbf: fora do limite de 6 documentos por frente",
+    "src-b7bbf29232: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "INC",
+   "front": "documentacao",
+   "base": "ollama_web_docs",
+   "original_query": "GitHub library message deduplication maturity",
+   "sanitized_query": "GitHub library message deduplication maturity",
+   "removed_terms": [],
+   "rules": [
+    "maturidade"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T11:10:48.022000",
+   "n_results": 5,
+   "selected": [
+    "src-89a5742e3b",
+    "src-827bfad25f"
+   ],
+   "discarded": [
+    "src-bbd6a2e064: fora do limite de 6 documentos por frente",
+    "src-aeedb9316d: fora do limite de 6 documentos por frente",
+    "src-e4d8dd7ede: fora do limite de 6 documentos por frente",
+    "src-89a5742e3b: publicado em 2025-12-11, não é estado da arte (só NOV-W6)",
+    "src-827bfad25f: publicado em 2026-04-04, não é estado da arte (só NOV-W6)"
+   ],
+   "error": null,
+   "reused_from": null
+  }
+ ],
+ "rastreabilidade": {
+  "analysis_id": "6ac8cb2508861ec8bad60b3e",
+  "version": 1,
+  "schema_version": "1.1",
+  "catalog_version": "2026.10.09-6",
+  "models": {
+   "default": "gpt-oss:120b",
+   "extraction": "gemma4:31b",
+   "doc": "gpt-oss:120b",
+   "search": "gpt-oss:120b",
+   "judge": "gpt-oss:120b",
+   "report": "gpt-oss:120b",
+   "chat": "gpt-oss:120b"
+  },
+  "prompts": {},
+  "file_hashes": {
+   "atividades.csv": "239547c69188be5e083f86995950a3a76f6be809130e8ee4f2162b0ec2af2b2a",
+   "atividades.xlsx": "15655b23bccc4ea01f02a084c08d06181001d106b118217b5dee4fe36329e3e5",
+   "dossie_projeto.pdf": "3c7651340a291e8ede5e783e75898dc90cc611fac5af719defc1c793b1ecdc39",
+   "evidencias/configuracao.json": "46a089a8d8883723cf13190d9760b10900d76f346df3b3033fbbae30170585ad",
+   "evidencias/cronologia.csv": "fcf913b6d5fd57397f7c4e0c0bf43283a802f019d924552b1142f232387d97c6",
+   "evidencias/entradas.csv": "ee157ee18f16f84537de7061396f863aac44fc4a1aac3b128f4a26381961e483",
+   "evidencias/medicoes.csv": "81c65dc06ee2c45b0d9a7eca9e8535addd27e46d9cab066462ec41e8d172b378",
+   "evidencias/metodo.md": "2c776c7f2cee283cac15a411194e7f4553c16cafccfbac776099c45e99243f95",
+   "evidencias/observacoes.csv": "59a0151c9c98768ca4f5d4cf2bc7ef36346fe1ff64a918d2d5b84f6d911b4e49",
+   "evidencias/resultados.csv": "3503f65087c1d7d9ca5c781a6c1e60f18047d42046d237260531fe14805a93b4",
+   "evidencias/revisao_tecnica.md": "28a87a4ee342dd3925e5adb6816cdf247decce8f1120608531713b2d9062908a",
+   "inventario_evidencias.csv": "58c4cced3325a4625f4c45b3cee7169609245edb9360331fbf4101e6e8252a1b",
+   "registro_tecnico.pdf": "7a12a2ba5fe9aa1bce787b8fb6b379dd6b7d7c4cf7f3bf1659a7bfa6665f9723",
+   "transcricao_entrevista_tecnica.pdf": "de379e92afd5a4190c4d677b38d6ea13977388208da5eecc438451ca05ee8e45"
+  },
+  "temperature": 0.0,
+  "regras_aplicadas": 66
+ },
+ "decisoes_analista": []
+}

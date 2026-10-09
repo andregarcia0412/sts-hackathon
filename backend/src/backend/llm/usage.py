@@ -29,6 +29,7 @@ class LLMUsage(CamelModel):
     web_search_calls: int = 0
     web_fetch_calls: int = 0
     web_failures: int = 0
+    web_retries: int = 0  # transport retries of web_search/web_fetch
 
     def role(self, role: str) -> RoleUsage:
         return self.roles.setdefault(role, RoleUsage())
