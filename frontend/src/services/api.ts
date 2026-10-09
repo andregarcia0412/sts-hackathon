@@ -31,6 +31,19 @@ import {
   mockDecisions,
   mockProjects,
 } from "@/mocks/projects";
+import { dataSource, dataSourceLabel } from "@/services/dataSource";
+import {
+  staticContestations,
+  staticDecisions,
+  staticEvidenceReviews,
+  staticGetAnalyses,
+  staticGetProject,
+  staticListProjects,
+  staticRuleDecisions,
+  staticUsers,
+} from "@/services/staticProvider";
+
+export { dataSourceLabel };
 
 /*
  * Service layer. Screens only talk to these functions.
@@ -183,6 +196,16 @@ const storedProject = (projectId: string): Project => {
   return copy;
 };
 
+/** A project of the static export enters the mock db on first write (spec 14 E1):
+ *  mutations stay on the mock path; reads never mix the two sources. */
+export const adoptStaticProject = async (projectId: string): Promise<boolean> => {
+  if (db.projects.some((p) => p.id === projectId)) return true;
+  const exported = await staticGetProject(projectId);
+  if (!exported) return false;
+  db.projects.push(structuredClone(exported));
+  return true;
+};
+
 /** Contestations as stored, with defaults for records saved before "status" existed */
 const contestationsOf = (projectId: string): Contestation[] =>
   db.contestations
@@ -251,6 +274,10 @@ const toSummary = (project: Project, generated?: GeneratedProject): ProjectSumma
 
 export const listDemoUsers = async (): Promise<User[]> => {
   await delay(150);
+  if (dataSource() === "static") {
+    const exported = await staticUsers();
+    if (exported && exported.length > 0) return structuredClone(exported);
+  }
   return structuredClone(mockUsers);
 };
 
@@ -274,6 +301,7 @@ export const getUser = async (userId: string): Promise<User> => {
 
 /** One page of the analyst's projects, with filters (server-side in the real API) */
 export const listProjects = async (query: ProjectQuery): Promise<ProjectPage> => {
+  if (dataSource() === "static") return staticListProjects(query);
   await delay();
   const generated = generatedById();
   const summaries = allProjects().map((p) => toSummary(p, generated.get(p.id)));
@@ -281,6 +309,10 @@ export const listProjects = async (query: ProjectQuery): Promise<ProjectPage> =>
 };
 
 export const getProject = async (projectId: string): Promise<Project> => {
+  if (dataSource() === "static") {
+    const exported = await staticGetProject(projectId);
+    if (exported) return exported;
+  }
   await delay();
   return structuredClone(findProject(projectId));
 };
@@ -320,6 +352,12 @@ export const createProject = async (
  * Resolves to null while the project is still being processed.
  */
 export const getAnalyses = async (projectId: string): Promise<Analysis[] | null> => {
+  if (dataSource() === "static") {
+    const exported = await staticGetAnalyses(projectId);
+    if (exported !== null) return exported;
+    const exists = await staticGetProject(projectId);
+    if (exists) return null; // project in the export without a finished analysis
+  }
   await delay();
   findProject(projectId);
   const analyses = analysesOf(projectId);
@@ -331,6 +369,7 @@ export const getAnalyses = async (projectId: string): Promise<Analysis[] | null>
 
 /** Decision trail, oldest first. Every save adds a new entry (never edits). */
 export const listDecisions = async (projectId: string): Promise<Decision[]> => {
+  if (dataSource() === "static") return staticDecisions(projectId);
   await delay();
   return structuredClone(decisionsOf(projectId));
 };
@@ -339,6 +378,7 @@ export const saveDecision = async (
   input: NewDecisionInput,
 ): Promise<Decision> => {
   await delay();
+  if (dataSource() === "static") await adoptStaticProject(input.projectId);
   const project = storedProject(input.projectId);
   const decision: Decision = { ...input, decidedAt: new Date().toISOString() };
   db.decisions.push(decision);
@@ -349,6 +389,7 @@ export const saveDecision = async (
 
 /** Contestations of a project, oldest first. Append-only, like decisions. */
 export const listContestations = async (projectId: string): Promise<Contestation[]> => {
+  if (dataSource() === "static") return staticContestations(projectId);
   await delay();
   return structuredClone(
     contestationsOf(projectId).sort((a, b) => a.createdAt.localeCompare(b.createdAt)),
@@ -359,6 +400,7 @@ export const createContestation = async (
   input: NewContestationInput,
 ): Promise<Contestation> => {
   await delay();
+  if (dataSource() === "static") await adoptStaticProject(input.projectId);
   findProject(input.projectId);
   const contestation: Contestation = {
     ...input,
@@ -393,6 +435,7 @@ export const requestReanalysis = async (contestationId: string): Promise<Contest
 
 /** Analyst's rule ratings, oldest first. Append-only: the latest per rule is the current one. */
 export const listRuleDecisions = async (projectId: string): Promise<RuleDecision[]> => {
+  if (dataSource() === "static") return staticRuleDecisions(projectId);
   await delay();
   return structuredClone(db.ruleDecisions.filter((d) => d.projectId === projectId));
 };
@@ -408,6 +451,7 @@ export const createRuleDecision = async (input: NewRuleDecisionInput): Promise<R
 
 /** Evidences confirmed or discarded by the analyst, oldest first. Append-only. */
 export const listEvidenceReviews = async (projectId: string): Promise<EvidenceReview[]> => {
+  if (dataSource() === "static") return staticEvidenceReviews(projectId);
   await delay();
   return structuredClone(db.evidenceReviews.filter((r) => r.projectId === projectId));
 };

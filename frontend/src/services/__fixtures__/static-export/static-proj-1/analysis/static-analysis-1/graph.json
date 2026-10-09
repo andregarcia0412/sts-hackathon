@@ -1,0 +1,14 @@
+{
+  "analysisId": "static-analysis-1",
+  "nodes": [
+    { "nodeId": "projeto:PRJ91", "kind": "projeto", "label": "Sensor de Solo", "props": {} },
+    { "nodeId": "criterio:novidade", "kind": "criterio", "label": "Novidade", "props": {} },
+    { "nodeId": "regra:NOV-D1", "kind": "regra", "label": "Referência anterior distinta", "props": {} },
+    { "nodeId": "evidencia:ev-1", "kind": "evidencia", "label": "NOV-D1 · metodo.md#2", "props": {} }
+  ],
+  "edges": [
+    { "source": "projeto:PRJ91", "target": "criterio:novidade", "kind": "compoe", "props": {} },
+    { "source": "criterio:novidade", "target": "regra:NOV-D1", "kind": "compoe", "props": {} },
+    { "source": "regra:NOV-D1", "target": "evidencia:ev-1", "kind": "sustenta", "props": {} }
+  ]
+}

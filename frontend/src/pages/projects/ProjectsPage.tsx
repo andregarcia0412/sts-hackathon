@@ -1,11 +1,12 @@
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { dataSourceLabel } from "@/services/api";
+import { useCurrentUser } from "@/features/auth/authState";
+import { NewProjectDialog } from "@/features/projects/NewProjectDialog";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Pagination } from "@/components/ui/Pagination";
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui/states";
-import { useCurrentUser } from "@/features/auth/authState";
-import { NewProjectDialog } from "@/features/projects/NewProjectDialog";
 import { ProjectFilterBar } from "@/features/projects/ProjectFilterBar";
 import { ProjectOverview } from "@/features/projects/ProjectOverview";
 import { ProjectTable } from "@/features/projects/ProjectTable";
@@ -52,8 +53,8 @@ export const ProjectsPage = () => {
         title="Meus projetos"
         description={
           <p>
-            Projetos para análise preliminar de enquadramento na Lei do Bem · dados de
-            demonstração, fictícios.
+            Projetos para análise preliminar de enquadramento na Lei do Bem ·{" "}
+            {dataSourceLabel().toLowerCase()}.
           </p>
         }
         aside={newProjectButton}
