@@ -80,8 +80,13 @@
   --shadow-dock: 0 -4px 12px rgb(22 22 22 / 0.08);
   --shadow-float: 0 4px 24px rgb(136 211 177 / 0.25); /* "sombra": login card, assistant */
 
-  --animate-assistant-in: assistant-in 220ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
-  --animate-assistant-out: assistant-out 160ms ease-in both;
+  /* The assistant panel grows out of its round button and shrinks back into it */
+  --animate-assistant-in: assistant-in 380ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-assistant-out: assistant-out 280ms cubic-bezier(0.4, 0, 1, 1) both;
+  --animate-assistant-content-in: assistant-content-in 380ms ease-out both;
+  --animate-assistant-content-out: assistant-content-out 140ms ease-in both;
+  /* Click on the assistant button: one full turn of the star, then the panel opens */
+  --animate-star-spin: star-spin 600ms cubic-bezier(0.65, 0, 0.35, 1) both;
   --animate-dropdown-in: dropdown-in 140ms ease-out both;
 
   @keyframes dropdown-in {
@@ -91,16 +96,39 @@
     }
   }
 
+  /* From the button: a small circle in the corner (radius 240px × 0.15 ≈ the 72px button) */
   @keyframes assistant-in {
     from {
-      opacity: 0;
-      transform: translateY(16px) scale(0.92);
+      opacity: 0.5;
+      transform: scale(0.15);
+      border-radius: 240px;
     }
   }
   @keyframes assistant-out {
     to {
       opacity: 0;
-      transform: translateY(16px) scale(0.92);
+      transform: scale(0.15);
+      border-radius: 240px;
+    }
+  }
+  @keyframes star-spin {
+    50% {
+      transform: rotate(180deg) scale(1.15);
+    }
+    to {
+      transform: rotate(360deg) scale(1);
+    }
+  }
+  /* The content shows up once the panel is almost open, and leaves first */
+  @keyframes assistant-content-in {
+    0%,
+    45% {
+      opacity: 0;
+    }
+  }
+  @keyframes assistant-content-out {
+    to {
+      opacity: 0;
     }
   }
 }
@@ -209,7 +237,9 @@
 
 /* Assistant open/close: still fires animationend (the panel unmounts on it) */
 @media (prefers-reduced-motion: reduce) {
-  .assistant-motion {
+  .assistant-motion,
+  .assistant-motion > *,
+  .animate-star-spin {
     animation-duration: 1ms !important;
   }
 }

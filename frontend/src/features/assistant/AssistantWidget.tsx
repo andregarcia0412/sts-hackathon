@@ -28,6 +28,8 @@ const MAX_SUGGESTIONS = 3;
 export const AssistantWidget = () => {
   const { open, setOpen, pageContext } = useAssistant();
   const launcherRef = useRef<HTMLButtonElement>(null);
+  // A click first spins the star; the panel opens when the turn ends
+  const [spinning, setSpinning] = useState(false);
   // The panel stays mounted while its closing animation plays
   const [mounted, setMounted] = useState(open);
   if (open && !mounted) setMounted(true);
@@ -44,18 +46,30 @@ export const AssistantWidget = () => {
   return (
     <div className="print:hidden">
       {mounted && <AssistantPanel onClose={close} closing={!open} onClosed={() => setMounted(false)} />}
-      {/* Floating button; while the panel is open it takes its place (design) */}
+      {/*
+        Floating button. A click spins the star once, then the panel grows out of
+        the button; meanwhile the button fades on top of the panel and comes back
+        when the panel shrinks into it.
+      */}
       <button
         ref={launcherRef}
         type="button"
-        hidden={open}
+        inert={open}
         aria-expanded={open}
         aria-controls={PANEL_ID}
         aria-label="Abrir assistente da análise"
-        onClick={() => setOpen(true)}
-        className="fixed right-4 bottom-4 z-40 flex size-14 items-center justify-center rounded-full bg-action text-white shadow-card-accent transition-transform hover:scale-105 sm:size-18"
+        onClick={() => setSpinning(true)}
+        className={`fixed right-4 bottom-4 z-50 flex size-14 items-center justify-center rounded-full bg-action text-white shadow-card-accent transition-[scale,rotate,opacity] duration-300 ease-out motion-reduce:transition-none sm:size-18 ${
+          open ? "pointer-events-none scale-50 rotate-90 opacity-0" : "hover:scale-105"
+        }`}
       >
-        <AssistantStarIcon className="size-7 sm:size-8" />
+        <AssistantStarIcon
+          className={`size-7 sm:size-8 ${spinning ? "animate-star-spin" : ""}`}
+          onAnimationEnd={() => {
+            setSpinning(false);
+            setOpen(true);
+          }}
+        />
       </button>
     </div>
   );
@@ -183,7 +197,9 @@ const AssistantPanel = ({
         if (closing && e.target === e.currentTarget) onClosed();
       }}
       className={`assistant-motion fixed right-4 bottom-4 isolate z-40 flex h-[min(34rem,calc(100dvh-2rem))] w-[min(30.625rem,calc(100vw-2rem))] origin-bottom-right flex-col overflow-hidden rounded-2xl border border-divider bg-surface p-5 shadow-[0_4px_24px_rgb(223_44_89/0.3)] ${
-        closing ? "animate-assistant-out" : "animate-assistant-in"
+        closing
+          ? "animate-assistant-out *:animate-assistant-content-out"
+          : "animate-assistant-in *:animate-assistant-content-in"
       }`}
     >
       {/* Wine and orange glow at the bottom, as in the design */}
