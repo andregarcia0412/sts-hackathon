@@ -1,0 +1,7 @@
+﻿registro_id;ensaio_id;versao;cenario;tipo;metrica;valor;numerador;denominador;peso;unidade
+PRJ12-S01-M001;PRJ12-S01;janela30-v1;C001;contador;roteiros aprovados;;6;6;;casos
+PRJ12-S01-M002;PRJ12-S01;janela30-v1;C002;contador;roteiros aprovados;;5;6;;casos
+PRJ12-S01-M003;PRJ12-S01;janela30-v1;C003;contador;roteiros aprovados;;5;6;;casos
+PRJ12-S02-M001;PRJ12-S02;janela120-v2;C001;contador;roteiros aprovados;;6;6;;casos
+PRJ12-S02-M002;PRJ12-S02;janela120-v2;C002;contador;roteiros aprovados;;6;6;;casos
+PRJ12-S02-M003;PRJ12-S02;janela120-v2;C003;contador;roteiros aprovados;;6;6;;casos

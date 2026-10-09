@@ -1,0 +1,6 @@
+﻿ensaio_id;versao;metrica;operacao;valor;base_de_calculo;descricao_base;taxa_percentual;unidade;fonte;natureza
+PRJ07-S01;completa-v1;sessões concluídas;contagem;183;300;Sessões consideradas no teste de autenticação.;61.0;casos;evidencias/medicoes.csv#PRJ07-S01;desempenho
+PRJ07-S02;leve-v2;sessões concluídas;contagem;255;300;Sessões consideradas no teste de autenticação.;85.0;casos;evidencias/medicoes.csv#PRJ07-S02;desempenho
+PRJ07-S03;etapas-v3;sessões concluídas;contagem;276;300;Sessões consideradas no teste de autenticação.;92.0;casos;evidencias/medicoes.csv#PRJ07-S03;desempenho
+PRJ07-S04;leve-v2;replays aceitos;contagem;3;20;Tentativas de reutilizar uma captura ou resposta anterior (replay).;15.0;casos;evidencias/medicoes.csv#PRJ07-S04;desempenho
+PRJ07-S05;etapas-v3;replays aceitos;contagem;0;20;Tentativas de reutilizar uma captura ou resposta anterior (replay).;0.0;casos;evidencias/medicoes.csv#PRJ07-S05;desempenho

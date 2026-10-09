@@ -1,0 +1,21 @@
+﻿registro_id;ensaio_id;versao;cenario;tipo;metrica;valor;numerador;denominador;peso;unidade
+PRJ03-S01-M001;PRJ03-S01;fixo-v1;fila_5000-L1;contador;cenários sem terceira queda;;1;1;;casos
+PRJ03-S01-M002;PRJ03-S01;fixo-v1;fila_5000-L2;contador;cenários sem terceira queda;;1;1;;casos
+PRJ03-S01-M003;PRJ03-S01;fixo-v1;fila_20000-L1;contador;cenários sem terceira queda;;1;1;;casos
+PRJ03-S01-M004;PRJ03-S01;fixo-v1;fila_20000-L2;contador;cenários sem terceira queda;;1;1;;casos
+PRJ03-S01-M005;PRJ03-S01;fixo-v1;fila_50000-L1;contador;cenários sem terceira queda;;1;1;;casos
+PRJ03-S01-M006;PRJ03-S01;fixo-v1;fila_50000-L2;contador;cenários sem terceira queda;;1;1;;casos
+PRJ03-S02-M001;PRJ03-S02;reativo-v2;fila_5000-L1;contador;cenários sem terceira queda;;1;1;;casos
+PRJ03-S02-M002;PRJ03-S02;reativo-v2;fila_5000-L2;contador;cenários sem terceira queda;;1;1;;casos
+PRJ03-S02-M003;PRJ03-S02;reativo-v2;fila_20000-L1;contador;cenários sem terceira queda;;1;1;;casos
+PRJ03-S02-M004;PRJ03-S02;reativo-v2;fila_20000-L2;contador;cenários sem terceira queda;;1;1;;casos
+PRJ03-S02-M005;PRJ03-S02;reativo-v2;fila_50000-L1;contador;cenários sem terceira queda;;0;1;;casos
+PRJ03-S02-M006;PRJ03-S02;reativo-v2;fila_50000-L2;contador;cenários sem terceira queda;;0;1;;casos
+PRJ03-S03-M001;PRJ03-S03;duplo-v3;fila_5000-L1;contador;cenários sem terceira queda;;1;1;;casos
+PRJ03-S03-M002;PRJ03-S03;duplo-v3;fila_5000-L2;contador;cenários sem terceira queda;;1;1;;casos
+PRJ03-S03-M003;PRJ03-S03;duplo-v3;fila_20000-L1;contador;cenários sem terceira queda;;1;1;;casos
+PRJ03-S03-M004;PRJ03-S03;duplo-v3;fila_20000-L2;contador;cenários sem terceira queda;;1;1;;casos
+PRJ03-S03-M005;PRJ03-S03;duplo-v3;fila_50000-L1;contador;cenários sem terceira queda;;1;1;;casos
+PRJ03-S03-M006;PRJ03-S03;duplo-v3;fila_50000-L2;contador;cenários sem terceira queda;;1;1;;casos
+PRJ03-S04-M001;PRJ03-S04;fixo-v1;C001;medicao;tempo de drenagem 50 mil/L2;1000;;;;s
+PRJ03-S05-M001;PRJ03-S05;duplo-v3;C001;medicao;tempo de drenagem 50 mil/L2;660;;;;s

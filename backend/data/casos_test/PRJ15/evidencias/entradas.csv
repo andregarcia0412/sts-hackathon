@@ -1,0 +1,3 @@
+﻿entrada_id;conteudo_json
+PRJ15-IN001;"{""entrada"": ""alerta A17; decisão d1 usa renda=100; enriquecimento posterior=120"", ""referencia"": ""explicação de d1 deve citar 100""}"
+PRJ15-IN002;"{""entrada"": ""alerta A63 reavaliado em d2"", ""referencia"": ""d1 e d2 devem ter trilhas distintas""}"

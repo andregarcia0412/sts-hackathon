@@ -1,0 +1,3 @@
+﻿entrada_id;conteudo_json
+PRJ05-IN001;"{""entrada"": ""sessão A/época 7 suspensa; abre usuário B/época 8"", ""referencia"": ""B não lê blocos de A""}"
+PRJ05-IN002;"{""entrada"": ""marcador ainda em buffer; alimentação interrompida"", ""referencia"": ""revogação deveria persistir""}"

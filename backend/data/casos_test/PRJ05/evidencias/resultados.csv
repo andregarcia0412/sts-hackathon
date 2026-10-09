@@ -1,0 +1,6 @@
+﻿ensaio_id;versao;metrica;operacao;valor;base_de_calculo;descricao_base;taxa_percentual;unidade;fonte;natureza
+PRJ05-S01;banco-v1;formulários recuperados;contagem;24;24;Formulários considerados no teste de recuperação.;100.0;casos;evidencias/medicoes.csv#PRJ05-S01;desempenho
+PRJ05-S02;banco-v1;trocas com leitura indevida;contagem;2;8;Trocas de usuário verificadas quanto à leitura indevida.;25.0;casos;evidencias/medicoes.csv#PRJ05-S02;desempenho
+PRJ05-S03;epoca-v2;formulários recuperados;contagem;24;24;Formulários considerados no teste de recuperação.;100.0;casos;evidencias/medicoes.csv#PRJ05-S03;desempenho
+PRJ05-S04;epoca-v2;trocas com leitura indevida;contagem;0;8;Trocas de usuário verificadas quanto à leitura indevida.;0.0;casos;evidencias/medicoes.csv#PRJ05-S04;desempenho
+PRJ05-S05;efemera-v3;formulários recuperados após suspensão;contagem;2;8;Formulários do recorte de recuperação após suspensão.;25.0;casos;evidencias/medicoes.csv#PRJ05-S05;desempenho

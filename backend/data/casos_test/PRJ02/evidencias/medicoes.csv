@@ -1,0 +1,25 @@
+﻿registro_id;ensaio_id;versao;cenario;tipo;metrica;valor;numerador;denominador;peso;unidade
+PRJ02-S01-M001;PRJ02-S01;texto-v1;C001;contador;pares corretos;;284;400;;casos
+PRJ02-S01-M002;PRJ02-S01;texto-v1;C002;contador;pares corretos;;284;400;;casos
+PRJ02-S01-M003;PRJ02-S01;texto-v1;C003;contador;pares corretos;;284;400;;casos
+PRJ02-S02-M001;PRJ02-S02;faixa-v2;C001;contador;pares corretos;;352;400;;casos
+PRJ02-S02-M002;PRJ02-S02;faixa-v2;C002;contador;pares corretos;;352;400;;casos
+PRJ02-S02-M003;PRJ02-S02;faixa-v2;C003;contador;pares corretos;;352;400;;casos
+PRJ02-S03-M001;PRJ02-S03;bipartido-v3;C001;contador;pares corretos;;368;400;;casos
+PRJ02-S03-M002;PRJ02-S03;bipartido-v3;C002;contador;pares corretos;;368;400;;casos
+PRJ02-S03-M003;PRJ02-S03;bipartido-v3;C003;contador;pares corretos;;368;400;;casos
+PRJ02-S04-M001;PRJ02-S04;bipartido-v3;C001;contador;vínculos falsos;;32;400;;casos
+PRJ02-S04-M002;PRJ02-S04;bipartido-v3;C002;contador;vínculos falsos;;32;400;;casos
+PRJ02-S04-M003;PRJ02-S04;bipartido-v3;C003;contador;vínculos falsos;;32;400;;casos
+PRJ02-S05-M001;PRJ02-S05;restrito-v4;C001;contador;pares corretos;;384;400;;casos
+PRJ02-S05-M002;PRJ02-S05;restrito-v4;C002;contador;pares corretos;;384;400;;casos
+PRJ02-S05-M003;PRJ02-S05;restrito-v4;C003;contador;pares corretos;;384;400;;casos
+PRJ02-S06-M001;PRJ02-S06;restrito-v4;C001;contador;vínculos falsos;;0;400;;casos
+PRJ02-S06-M002;PRJ02-S06;restrito-v4;C002;contador;vínculos falsos;;0;400;;casos
+PRJ02-S06-M003;PRJ02-S06;restrito-v4;C003;contador;vínculos falsos;;0;400;;casos
+PRJ02-S07-M001;PRJ02-S07;restrito-v4;C001;contador;pares para revisão;;16;400;;casos
+PRJ02-S07-M002;PRJ02-S07;restrito-v4;C002;contador;pares para revisão;;16;400;;casos
+PRJ02-S07-M003;PRJ02-S07;restrito-v4;C003;contador;pares para revisão;;16;400;;casos
+PRJ02-S08-M001;PRJ02-S08;restrito-v4;C001;contador;pares ambíguos corretos;;44;60;;casos
+PRJ02-S08-M002;PRJ02-S08;restrito-v4;C002;contador;pares ambíguos corretos;;44;60;;casos
+PRJ02-S08-M003;PRJ02-S08;restrito-v4;C003;contador;pares ambíguos corretos;;44;60;;casos

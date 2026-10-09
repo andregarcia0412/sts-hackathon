@@ -1,0 +1,2 @@
+﻿ensaio_id;versao;metrica;operacao;valor;base_de_calculo;descricao_base;taxa_percentual;unidade;fonte;natureza
+PRJ10-S01;eventos-v1;eventos com sessão identificada (contagem de entrega, não desempenho);contagem;4;8;Eventos entregues, entre os quais se verifica a identificação de sessão.;;casos;evidencias/medicoes.csv#PRJ10-S01;entrega

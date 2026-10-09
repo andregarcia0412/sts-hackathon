@@ -1,0 +1,3 @@
+﻿observacao_id;entrada;referencia;saida_ou_situacao;escopo
+PRJ09-OBS01;"api_version=v1; total_centavos=12345";v2 recebe total_decimal=123,45;transformação configurada conforme mapa;"recorte ilustrativo identificado; não representa a totalidade das medições"
+PRJ09-OBS02;"v2; perfil=canalB sem escopo";acesso previsto na matriz;"rotas-v1 negou; rotas-v2 incluiu escopo contratado";"recorte ilustrativo identificado; não representa a totalidade das medições"

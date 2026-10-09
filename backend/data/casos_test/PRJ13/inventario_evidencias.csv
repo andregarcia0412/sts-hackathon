@@ -1,0 +1,15 @@
+﻿id_evidencia;projeto_id;tipo;arquivo;conteudo_esperado;status;observacao
+PRJ13-EV01;PRJ13;Dossiê;dossie_projeto.pdf;contexto, pergunta e recorte;Localizada;síntese
+PRJ13-EV02;PRJ13;Registro técnico;registro_tecnico.pdf;método, resultados e recortes;Localizada;síntese derivada
+PRJ13-EV03;PRJ13;Atividades;atividades.xlsx;trabalho, saídas e referências diretas;Localizada;registro de atividades
+PRJ13-EV04;PRJ13;Inventário;inventario_evidencias.csv;arquivos e função;Localizada;índice
+PRJ13-EV05;PRJ13;Configuração;evidencias/configuracao.json;parâmetros, versões, dicionário e ensaios;Localizada;especificação
+PRJ13-EV06;PRJ13;Método;evidencias/metodo.md;referência anterior, mecanismo e protocolo;Localizada;especificação
+PRJ13-EV07;PRJ13;Cronologia;evidencias/cronologia.csv;datas, versões e estado;Localizada;registro de versões
+PRJ13-EV08;PRJ13;Medições;evidencias/medicoes.csv;contadores por cenário, valores ou histograma;Localizada;registro primário sintético
+PRJ13-EV09;PRJ13;Resultados;evidencias/resultados.csv;consolidação das medições com operação, valor e base de referência;Localizada;calculado ou transcrito de EV08, conforme operação
+PRJ13-EV10;PRJ13;Entrevista;transcricao_entrevista_tecnica.pdf;depoimento de memória da equipe;Localizada;depoimento
+PRJ13-EV11;PRJ13;Observações;evidencias/observacoes.csv;entradas, referência e saída de recortes identificados;Localizada;recortes sintéticos
+PRJ13-EV12;PRJ13;Entradas;evidencias/entradas.csv;entradas ilustrativas ou dados parciais recuperados;Localizada;recortes sintéticos
+PRJ13-EV13;PRJ13;Revisão técnica;evidencias/revisao_tecnica.md;alcance, lacunas e alegações recuperadas;Localizada;revisão
+PRJ13-EV14;PRJ13;Atividades CSV;atividades.csv;mesmos registros da planilha, formato aberto;Localizada;derivado de EV03

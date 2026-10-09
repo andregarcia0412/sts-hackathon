@@ -1,0 +1,5 @@
+﻿registro_id;ensaio_id;versao;cenario;tipo;metrica;valor;numerador;denominador;peso;unidade
+PRJ14-S01-M001;PRJ14-S01;individual-v1;C001;contador;campanhas detectadas;;6;14;;casos
+PRJ14-S02-M001;PRJ14-S02;temporal-v2;C001;contador;campanhas detectadas;;9;14;;casos
+PRJ14-S03-M001;PRJ14-S03;causal-v3;C001;contador;campanhas detectadas;;13;14;;casos
+PRJ14-S04-M001;PRJ14-S04;causal-v3;C001;contador;alertas adicionais verdadeiros;;7;22;;casos

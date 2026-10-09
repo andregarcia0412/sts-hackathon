@@ -1,0 +1,3 @@
+﻿registro_id;ensaio_id;versao;cenario;tipo;metrica;valor;numerador;denominador;peso;unidade
+PRJ19-S01-M001;PRJ19-S01;ocr-conf85-v1;C001;contador;imagens legíveis com campos extraídos;;20;20;;casos
+PRJ19-S02-M001;PRJ19-S02;ocr-conf85-v1;C001;contador;imagens duvidosas encaminhadas;;10;10;;casos

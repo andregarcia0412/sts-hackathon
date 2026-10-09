@@ -1,0 +1,3 @@
+﻿entrada_id;conteudo_json
+PRJ16-IN001;"{""entrada"": ""E3 trocar dispositivo→E5 confirmar; E3/E5 com mesmo tempo lógico"", ""referencia"": ""E3 deve preceder E5""}"
+PRJ16-IN002;"{""entrada"": ""cenário S19; resposta atrasada após revogação"", ""referencia"": ""bloqueio deveria persistir""}"

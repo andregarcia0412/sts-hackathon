@@ -1,0 +1,3 @@
+﻿entrada_id;conteudo_json
+PRJ09-IN001;"{""entrada"": ""api_version=v1; total_centavos=12345"", ""referencia"": ""v2 recebe total_decimal=123,45""}"
+PRJ09-IN002;"{""entrada"": ""v2; perfil=canalB sem escopo"", ""referencia"": ""acesso previsto na matriz""}"

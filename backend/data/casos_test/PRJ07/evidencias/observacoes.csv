@@ -1,0 +1,3 @@
+﻿observacao_id;entrada;referencia;saida_ou_situacao;escopo
+PRJ07-OBS01;"nonce N3 já consumido; mesma assinatura retransmitida";recusar reutilização;etapas-v3 rejeitou pelo contador persistido;"recorte ilustrativo identificado; não representa a totalidade das medições"
+PRJ07-OBS02;"rede cai após captura; sessão=E8; retomada com época E9";não reaproveitar transcript entre sessões;etapas-v3 solicitou novo desafio;"recorte ilustrativo identificado; não representa a totalidade das medições"

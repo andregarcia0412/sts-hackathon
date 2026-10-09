@@ -1,0 +1,3 @@
+﻿observacao_id;entrada;referencia;saida_ou_situacao;escopo
+PRJ19-OBS01;"imagem IMG03; confiança=0,93; campos completos";extrair;produto extraiu campos;"recorte ilustrativo identificado; não representa a totalidade das medições"
+PRJ19-OBS02;"imagem IMG27; corte; confiança=0,61";encaminhar à revisão;produto aplicou regra do limiar;"recorte ilustrativo identificado; não representa a totalidade das medições"

@@ -1,0 +1,3 @@
+﻿entrada_id;conteudo_json
+PRJ06-IN001;"{""entrada"": ""base valor=100/anexoA; agente altera valor=120; cliente troca anexoB para valor 100"", ""referencia"": ""preservar dependência valor-documento""}"
+PRJ06-IN002;"{""entrada"": ""agente altera telefone; cliente adiciona item sem dependência"", ""referencia"": ""mesclar ambos""}"

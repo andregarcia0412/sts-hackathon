@@ -1,0 +1,2 @@
+﻿ensaio_id;versao;metrica;operacao;valor;base_de_calculo;descricao_base;taxa_percentual;unidade;fonte;natureza
+PRJ08-S01;sonda-v1;medições recuperadas (contagem de entrega, não desempenho);contagem;6;6;"Medições recuperadas e disponíveis no pacote; não é uma população de diagnósticos validados.";;casos;evidencias/medicoes.csv#PRJ08-S01;entrega

@@ -1,0 +1,3 @@
+﻿ensaio_id;versao;metrica;operacao;valor;base_de_calculo;descricao_base;taxa_percentual;unidade;fonte;natureza
+PRJ11-S01;carga-v1;registros conformes;contagem;97;100;Registros considerados na verificação do formato aprovado.;97.0;casos;evidencias/medicoes.csv#PRJ11-S01;desempenho
+PRJ11-S02;carga-v2;registros conformes;contagem;100;100;Registros considerados na verificação do formato aprovado.;100.0;casos;evidencias/medicoes.csv#PRJ11-S02;desempenho

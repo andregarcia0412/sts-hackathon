@@ -1,0 +1,3 @@
+﻿observacao_id;entrada;referencia;saida_ou_situacao;escopo
+PRJ13-OBS01;"evento T900; valor alto; alerta pendente; resposta humana ainda indisponível";não contaminar centro com rótulo desconhecido;"continuo-v3 incorporou; condicionado-v4 colocou em quarentena";"recorte ilustrativo identificado; não representa a totalidade das medições"
+PRJ13-OBS02;três janelas com aumento legítimo confirmado e sem incremento de fraude;permitir deslocamento sazonal;condicionado-v4 abriu faixa mantendo histórico anterior;"recorte ilustrativo identificado; não representa a totalidade das medições"

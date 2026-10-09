@@ -1,0 +1,3 @@
+﻿observacao_id;entrada;referencia;saida_ou_situacao;escopo
+PRJ08-OBS01;"2025-03-10T10:00:00; origem=P1; TCP=timeout; HTTP=timeout";causa injetada não registrada;sem saída de classificador;"recorte ilustrativo identificado; não representa a totalidade das medições"
+PRJ08-OBS02;"2025-03-10T10:00:10; origem=P2; TCP=ok; HTTP=503";causa injetada não registrada;sem saída de classificador;"recorte ilustrativo identificado; não representa a totalidade das medições"

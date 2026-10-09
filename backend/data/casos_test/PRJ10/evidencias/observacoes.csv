@@ -1,0 +1,3 @@
+﻿observacao_id;entrada;referencia;saida_ou_situacao;escopo
+PRJ10-OBS01;"sessão S01: confirmar app 10:00:01; revogar portal 10:00:01";precedência não definida;estado final ausente;"recorte ilustrativo identificado; não representa a totalidade das medições"
+PRJ10-OBS02;"evento iniciar; sessão vazia";não é possível unir a jornada;registro recuperado sem decisão;"recorte ilustrativo identificado; não representa a totalidade das medições"

@@ -1,0 +1,6 @@
+﻿ensaio_id;versao;metrica;operacao;valor;base_de_calculo;descricao_base;taxa_percentual;unidade;fonte;natureza
+PRJ03-S01;fixo-v1;cenários sem terceira queda;contagem;6;6;Cenários da combinação de três tamanhos de fila e dois perfis de latência.;100.0;casos;evidencias/medicoes.csv#PRJ03-S01;desempenho
+PRJ03-S02;reativo-v2;cenários sem terceira queda;contagem;4;6;Cenários da combinação de três tamanhos de fila e dois perfis de latência.;66.666667;casos;evidencias/medicoes.csv#PRJ03-S02;desempenho
+PRJ03-S03;duplo-v3;cenários sem terceira queda;contagem;6;6;Cenários da combinação de três tamanhos de fila e dois perfis de latência.;100.0;casos;evidencias/medicoes.csv#PRJ03-S03;desempenho
+PRJ03-S04;fixo-v1;tempo de drenagem 50 mil/L2;valor_observado;1000;1;"Uma medição do tempo para escoar a fila de 50 mil eventos no perfil L2; não são 50 mil medições de tempo.";;s;evidencias/medicoes.csv#PRJ03-S04;desempenho
+PRJ03-S05;duplo-v3;tempo de drenagem 50 mil/L2;valor_observado;660;1;"Uma medição do tempo para escoar a fila de 50 mil eventos no perfil L2; não são 50 mil medições de tempo.";;s;evidencias/medicoes.csv#PRJ03-S05;desempenho

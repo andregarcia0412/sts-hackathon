@@ -1,0 +1,5 @@
+﻿registro_id;ensaio_id;versao;cenario;tipo;metrica;valor;numerador;denominador;peso;unidade
+PRJ11-S01-M001;PRJ11-S01;carga-v1;C001;contador;registros conformes;;49;50;;casos
+PRJ11-S01-M002;PRJ11-S01;carga-v1;C002;contador;registros conformes;;48;50;;casos
+PRJ11-S02-M001;PRJ11-S02;carga-v2;C001;contador;registros conformes;;50;50;;casos
+PRJ11-S02-M002;PRJ11-S02;carga-v2;C002;contador;registros conformes;;50;50;;casos

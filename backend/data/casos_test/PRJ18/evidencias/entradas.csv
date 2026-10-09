@@ -1,0 +1,3 @@
+﻿entrada_id;conteudo_json
+PRJ18-IN001;"{""entrada"": ""R1 muda pendente→aceita; R2 apenas relê fato"", ""referencia"": ""registrar mudança e vínculo causal""}"
+PRJ18-IN002;"{""entrada"": ""callback R3 chega depois da coalescência de R1"", ""referencia"": ""preservar predecessor original""}"

@@ -1,0 +1,3 @@
+﻿observacao_id;entrada;referencia;saida_ou_situacao;escopo
+PRJ04-OBS01;"correlation_id=SYN004; perfil=consulta";exibir valor mascarado;"matriz-v1 mostrou detalhe; matriz-v2 aplicou máscara";"recorte ilustrativo identificado; não representa a totalidade das medições"
+PRJ04-OBS02;"correlation_id=SYN005; perfil=conciliação";mostrar eventos dos três sistemas;matriz-v2 uniu três registros pelo identificador existente;"recorte ilustrativo identificado; não representa a totalidade das medições"

@@ -1,0 +1,9 @@
+﻿ensaio_id;versao;metrica;operacao;valor;base_de_calculo;descricao_base;taxa_percentual;unidade;fonte;natureza
+PRJ02-S01;texto-v1;pares corretos;contagem;852;1200;Pares da referência de comparação, nos três deslocamentos de relógio.;71.0;casos;evidencias/medicoes.csv#PRJ02-S01;desempenho
+PRJ02-S02;faixa-v2;pares corretos;contagem;1056;1200;Pares da referência de comparação, nos três deslocamentos de relógio.;88.0;casos;evidencias/medicoes.csv#PRJ02-S02;desempenho
+PRJ02-S03;bipartido-v3;pares corretos;contagem;1104;1200;Pares da referência de comparação, nos três deslocamentos de relógio.;92.0;casos;evidencias/medicoes.csv#PRJ02-S03;desempenho
+PRJ02-S04;bipartido-v3;vínculos falsos;contagem;96;1200;Pares da referência de comparação, nos três deslocamentos de relógio.;8.0;casos;evidencias/medicoes.csv#PRJ02-S04;desempenho
+PRJ02-S05;restrito-v4;pares corretos;contagem;1152;1200;Pares da referência de comparação, nos três deslocamentos de relógio.;96.0;casos;evidencias/medicoes.csv#PRJ02-S05;desempenho
+PRJ02-S06;restrito-v4;vínculos falsos;contagem;0;1200;Pares da referência de comparação, nos três deslocamentos de relógio.;0.0;casos;evidencias/medicoes.csv#PRJ02-S06;desempenho
+PRJ02-S07;restrito-v4;pares para revisão;contagem;48;1200;Pares da referência de comparação, nos três deslocamentos de relógio.;4.0;casos;evidencias/medicoes.csv#PRJ02-S07;desempenho
+PRJ02-S08;restrito-v4;pares ambíguos corretos;contagem;132;180;Pares do estrato ambíguo, 60 por deslocamento de relógio.;73.333333;casos;evidencias/medicoes.csv#PRJ02-S08;desempenho

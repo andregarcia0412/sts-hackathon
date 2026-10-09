@@ -1,0 +1,3 @@
+﻿observacao_id;entrada;referencia;saida_ou_situacao;escopo
+PRJ20-OBS01;"P001; política antiga limite=50; nova limite=60; valor=55";decisões distintas sem efeito do motor sombra;"principal negou; sombra aprovou; emissão desabilitada";"recorte ilustrativo identificado; não representa a totalidade das medições"
+PRJ20-OBS02;"P002; ambas aprovam";somente principal pode emitir;sombra apenas registrou saída;"recorte ilustrativo identificado; não representa a totalidade das medições"

@@ -1,0 +1,2 @@
+﻿registro_id;ensaio_id;versao;cenario;tipo;metrica;valor;numerador;denominador;peso;unidade
+PRJ17-S01-M001;PRJ17-S01;entrada-v1;C001;contador;propostas recuperadas (contagem de entrega, não desempenho);;6;6;;casos

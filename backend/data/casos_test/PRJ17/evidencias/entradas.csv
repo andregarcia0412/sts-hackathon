@@ -1,0 +1,7 @@
+﻿entrada_id;conteudo_json
+PRJ17-IN001;"{""id"": ""PRJ17-IN001"", ""renda_sintetica"": 100, ""comprometimento"": 0.35, ""politica_antiga"": null, ""politica_nova"": null, ""decisao_antiga"": null, ""decisao_nova"": null}"
+PRJ17-IN002;"{""id"": ""PRJ17-IN002"", ""renda_sintetica"": 120, ""comprometimento"": 0.5, ""politica_antiga"": null, ""politica_nova"": null, ""decisao_antiga"": null, ""decisao_nova"": null}"
+PRJ17-IN003;"{""id"": ""PRJ17-IN003"", ""renda_sintetica"": 140, ""comprometimento"": 0.65, ""politica_antiga"": null, ""politica_nova"": null, ""decisao_antiga"": null, ""decisao_nova"": null}"
+PRJ17-IN004;"{""id"": ""PRJ17-IN004"", ""renda_sintetica"": 160, ""comprometimento"": 0.8, ""politica_antiga"": null, ""politica_nova"": null, ""decisao_antiga"": null, ""decisao_nova"": null}"
+PRJ17-IN005;"{""id"": ""PRJ17-IN005"", ""renda_sintetica"": 180, ""comprometimento"": 0.95, ""politica_antiga"": null, ""politica_nova"": null, ""decisao_antiga"": null, ""decisao_nova"": null}"
+PRJ17-IN006;"{""id"": ""PRJ17-IN006"", ""renda_sintetica"": 200, ""comprometimento"": 1.1, ""politica_antiga"": null, ""politica_nova"": null, ""decisao_antiga"": null, ""decisao_nova"": null}"

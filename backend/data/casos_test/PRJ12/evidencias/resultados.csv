@@ -1,0 +1,3 @@
+﻿ensaio_id;versao;metrica;operacao;valor;base_de_calculo;descricao_base;taxa_percentual;unidade;fonte;natureza
+PRJ12-S01;janela30-v1;roteiros aprovados;contagem;16;18;Roteiros de aceite da integração e renovação das chaves.;88.888889;casos;evidencias/medicoes.csv#PRJ12-S01;desempenho
+PRJ12-S02;janela120-v2;roteiros aprovados;contagem;18;18;Roteiros de aceite da integração e renovação das chaves.;100.0;casos;evidencias/medicoes.csv#PRJ12-S02;desempenho

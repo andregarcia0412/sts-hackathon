@@ -1,0 +1,6 @@
+﻿registro_id;ensaio_id;versao;cenario;tipo;metrica;valor;numerador;denominador;peso;unidade
+PRJ05-S01-M001;PRJ05-S01;banco-v1;C001;contador;formulários recuperados;;24;24;;casos
+PRJ05-S02-M001;PRJ05-S02;banco-v1;C001;contador;trocas com leitura indevida;;2;8;;casos
+PRJ05-S03-M001;PRJ05-S03;epoca-v2;C001;contador;formulários recuperados;;24;24;;casos
+PRJ05-S04-M001;PRJ05-S04;epoca-v2;C001;contador;trocas com leitura indevida;;0;8;;casos
+PRJ05-S05-M001;PRJ05-S05;efemera-v3;C001;contador;formulários recuperados após suspensão;;2;8;;casos

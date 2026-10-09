@@ -1,0 +1,3 @@
+﻿observacao_id;entrada;referencia;saida_ou_situacao;escopo
+PRJ01-OBS01;"operação=OP010; versão=1; chegada=0 s e 45 s";uma única efetivação;"deduplicacao-v1 liberou a segunda após expirar 30 s; deduplicacao-v2 reteve com 120 s";"recorte ilustrativo identificado; não representa a totalidade das medições"
+PRJ01-OBS02;"OP011/v1 e OP012/v1; mesmo valor";duas efetivações legítimas;deduplicacao-v2 liberou ambas porque as chaves eram diferentes;"recorte ilustrativo identificado; não representa a totalidade das medições"

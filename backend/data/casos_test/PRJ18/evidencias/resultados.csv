@@ -1,0 +1,8 @@
+﻿ensaio_id;versao;metrica;operacao;valor;base_de_calculo;descricao_base;taxa_percentual;unidade;fonte;natureza
+PRJ18-S01;integral-v1;decisões com trilha completa;contagem;50000;50000;Decisões avaliadas quanto à completude do registro de explicação.;100.0;casos;evidencias/medicoes.csv#PRJ18-S01;desempenho
+PRJ18-S02;amostra-v2;decisões com trilha completa;contagem;41000;50000;Decisões avaliadas quanto à completude do registro de explicação.;82.0;casos;evidencias/medicoes.csv#PRJ18-S02;desempenho
+PRJ18-S03;seletivo-v3;decisões com trilha completa;contagem;48000;50000;Decisões avaliadas quanto à completude do registro de explicação.;96.0;casos;evidencias/medicoes.csv#PRJ18-S03;desempenho
+PRJ18-S04;semtrilha-v4;latência média;media;100;4;"Quatro registros de latência, um por cenário; não é o total de decisões.";;ms;evidencias/medicoes.csv#PRJ18-S04;desempenho
+PRJ18-S05;integral-v1;latência média;media;124;4;"Quatro registros de latência, um por cenário; não é o total de decisões.";;ms;evidencias/medicoes.csv#PRJ18-S05;desempenho
+PRJ18-S06;amostra-v2;latência média;media;103;4;"Quatro registros de latência, um por cenário; não é o total de decisões.";;ms;evidencias/medicoes.csv#PRJ18-S06;desempenho
+PRJ18-S07;seletivo-v3;latência média;media;107;4;"Quatro registros de latência, um por cenário; não é o total de decisões.";;ms;evidencias/medicoes.csv#PRJ18-S07;desempenho

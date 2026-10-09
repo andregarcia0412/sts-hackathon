@@ -1,0 +1,3 @@
+﻿observacao_id;entrada;referencia;saida_ou_situacao;escopo
+PRJ02-OBS01;"cadeia A: seq10→seq11; extrato com relógio +90 s; dois valores iguais";preservar seq10→seq11;"bipartido inverteu candidatos; restrito preservou a ordem";"recorte ilustrativo identificado; não representa a totalidade das medições"
+PRJ02-OBS02;"componente C48; custos 1,20 e 1,28";referência contém par único, mas dados não o distinguem;restrito devolveu revisão pois margem=0,08<0,15;"recorte ilustrativo identificado; não representa a totalidade das medições"

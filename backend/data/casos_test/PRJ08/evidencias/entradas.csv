@@ -1,0 +1,7 @@
+﻿entrada_id;conteudo_json
+PRJ08-IN001;"{""id"": ""PRJ08-IN001"", ""timestamp"": ""2025-03-10T10:00:00"", ""origem"": ""P1"", ""tcp"": ""timeout"", ""http"": ""timeout"", ""causa_referencia"": null, ""classe_produzida"": null}"
+PRJ08-IN002;"{""id"": ""PRJ08-IN002"", ""timestamp"": ""2025-03-10T10:00:10"", ""origem"": ""P2"", ""tcp"": ""ok"", ""http"": ""503"", ""causa_referencia"": null, ""classe_produzida"": null}"
+PRJ08-IN003;"{""id"": ""PRJ08-IN003"", ""timestamp"": ""2025-03-10T10:00:20"", ""origem"": ""P3"", ""tcp"": ""ok"", ""http"": ""200"", ""causa_referencia"": null, ""classe_produzida"": null}"
+PRJ08-IN004;"{""id"": ""PRJ08-IN004"", ""timestamp"": ""2025-03-10T10:00:30"", ""origem"": ""P1"", ""tcp"": ""timeout"", ""http"": ""timeout"", ""causa_referencia"": null, ""classe_produzida"": null}"
+PRJ08-IN005;"{""id"": ""PRJ08-IN005"", ""timestamp"": ""2025-03-10T10:00:40"", ""origem"": ""P2"", ""tcp"": ""ok"", ""http"": ""503"", ""causa_referencia"": null, ""classe_produzida"": null}"
+PRJ08-IN006;"{""id"": ""PRJ08-IN006"", ""timestamp"": ""2025-03-10T10:00:50"", ""origem"": ""P3"", ""tcp"": ""ok"", ""http"": ""200"", ""causa_referencia"": null, ""classe_produzida"": null}"

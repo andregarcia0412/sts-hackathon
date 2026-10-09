@@ -1,0 +1,8 @@
+﻿ensaio_id;versao;metrica;operacao;valor;base_de_calculo;descricao_base;taxa_percentual;unidade;fonte;natureza
+PRJ13-S01;fixo-v1;falsos alertas entre legítimas;contagem;2808;36000;Transações legítimas do conjunto de teste, usadas como base dos falsos alertas.;7.8;casos;evidencias/medicoes.csv#PRJ13-S01;desempenho
+PRJ13-S02;mensal-v2;falsos alertas entre legítimas;contagem;1980;36000;Transações legítimas do conjunto de teste, usadas como base dos falsos alertas.;5.5;casos;evidencias/medicoes.csv#PRJ13-S02;desempenho
+PRJ13-S03;continuo-v3;falsos alertas entre legítimas;contagem;1440;36000;Transações legítimas do conjunto de teste, usadas como base dos falsos alertas.;4.0;casos;evidencias/medicoes.csv#PRJ13-S03;desempenho
+PRJ13-S04;condicionado-v4;falsos alertas entre legítimas;contagem;1116;36000;Transações legítimas do conjunto de teste, usadas como base dos falsos alertas.;3.1;casos;evidencias/medicoes.csv#PRJ13-S04;desempenho
+PRJ13-S05;condicionado-v4;fraudes detectadas;contagem;3680;4000;Transações fraudulentas do conjunto de teste.;92.0;casos;evidencias/medicoes.csv#PRJ13-S05;desempenho
+PRJ13-S06;continuo-v3;fraudes incorporadas ao perfil;contagem;520;4000;Transações fraudulentas do conjunto de teste.;13.0;casos;evidencias/medicoes.csv#PRJ13-S06;desempenho
+PRJ13-S07;condicionado-v4;fraudes incorporadas ao perfil;contagem;0;4000;Transações fraudulentas do conjunto de teste.;0.0;casos;evidencias/medicoes.csv#PRJ13-S07;desempenho

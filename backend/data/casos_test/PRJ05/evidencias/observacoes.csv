@@ -1,0 +1,3 @@
+﻿observacao_id;entrada;referencia;saida_ou_situacao;escopo
+PRJ05-OBS01;"sessão A/época 7 suspensa; abre usuário B/época 8";B não lê blocos de A;"banco-v1 manteve duas leituras; epoca-v2 recusou época 7";"recorte ilustrativo identificado; não representa a totalidade das medições"
+PRJ05-OBS02;"marcador ainda em buffer; alimentação interrompida";revogação deveria persistir;ensaio de energia não consta na entrega;"recorte ilustrativo identificado; não representa a totalidade das medições"

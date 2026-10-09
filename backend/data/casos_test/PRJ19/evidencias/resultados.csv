@@ -1,0 +1,3 @@
+﻿ensaio_id;versao;metrica;operacao;valor;base_de_calculo;descricao_base;taxa_percentual;unidade;fonte;natureza
+PRJ19-S01;ocr-conf85-v1;imagens legíveis com campos extraídos;contagem;20;20;Imagens legíveis separadas para a verificação da extração.;100.0;casos;evidencias/medicoes.csv#PRJ19-S01;desempenho
+PRJ19-S02;ocr-conf85-v1;imagens duvidosas encaminhadas;contagem;10;10;Imagens duvidosas separadas para verificar encaminhamento à revisão.;100.0;casos;evidencias/medicoes.csv#PRJ19-S02;desempenho

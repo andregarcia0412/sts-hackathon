@@ -1,0 +1,5 @@
+﻿registro_id;ensaio_id;versao;cenario;tipo;metrica;valor;numerador;denominador;peso;unidade
+PRJ09-S01-M001;PRJ09-S01;rotas-v1;C001;contador;contratos aprovados;;19;20;;casos
+PRJ09-S01-M002;PRJ09-S01;rotas-v1;C002;contador;contratos aprovados;;19;20;;casos
+PRJ09-S02-M001;PRJ09-S02;rotas-v2;C001;contador;contratos aprovados;;20;20;;casos
+PRJ09-S02-M002;PRJ09-S02;rotas-v2;C002;contador;contratos aprovados;;20;20;;casos

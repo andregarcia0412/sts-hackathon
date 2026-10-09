@@ -1,0 +1,3 @@
+﻿entrada_id;conteudo_json
+PRJ14-IN001;"{""entrada"": ""A→B t=0; B→C t=14 min; C→D t=21 min; vínculo causal confirmado"", ""referencia"": ""conservar cadeia relevante""}"
+PRJ14-IN002;"{""entrada"": ""evento isolado sem predecessor; t=46 min"", ""referencia"": ""não manter aresta indefinidamente""}"

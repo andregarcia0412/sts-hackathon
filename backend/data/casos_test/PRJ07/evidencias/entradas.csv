@@ -1,0 +1,3 @@
+﻿entrada_id;conteudo_json
+PRJ07-IN001;"{""entrada"": ""nonce N3 já consumido; mesma assinatura retransmitida"", ""referencia"": ""recusar reutilização""}"
+PRJ07-IN002;"{""entrada"": ""rede cai após captura; sessão=E8; retomada com época E9"", ""referencia"": ""não reaproveitar transcript entre sessões""}"

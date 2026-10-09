@@ -1,0 +1,3 @@
+﻿observacao_id;entrada;referencia;saida_ou_situacao;escopo
+PRJ06-OBS01;"base valor=100/anexoA; agente altera valor=120; cliente troca anexoB para valor 100";preservar dependência valor-documento;"última gravação descartou intenção; dependencia-v3 abriu conflito";"recorte ilustrativo identificado; não representa a totalidade das medições"
+PRJ06-OBS02;"agente altera telefone; cliente adiciona item sem dependência";mesclar ambos;dependencia-v3 aplicou duas operações;"recorte ilustrativo identificado; não representa a totalidade das medições"

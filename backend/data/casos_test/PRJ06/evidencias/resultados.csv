@@ -1,0 +1,5 @@
+﻿ensaio_id;versao;metrica;operacao;valor;base_de_calculo;descricao_base;taxa_percentual;unidade;fonte;natureza
+PRJ06-S01;ultima-v1;conflitos com perda silenciosa;contagem;11;90;Conflitos do conjunto de comparação entre as versões.;12.222222;casos;evidencias/medicoes.csv#PRJ06-S01;desempenho
+PRJ06-S02;tresvias-v2;conflitos com perda silenciosa;contagem;5;90;Conflitos do conjunto de comparação entre as versões.;5.555556;casos;evidencias/medicoes.csv#PRJ06-S02;desempenho
+PRJ06-S03;dependencia-v3;conflitos resolvidos automaticamente;contagem;74;90;Conflitos do conjunto de comparação entre as versões.;82.222222;casos;evidencias/medicoes.csv#PRJ06-S03;desempenho
+PRJ06-S04;dependencia-v3;conflitos preservados para decisão humana;contagem;16;90;Conflitos do conjunto de comparação entre as versões.;17.777778;casos;evidencias/medicoes.csv#PRJ06-S04;desempenho

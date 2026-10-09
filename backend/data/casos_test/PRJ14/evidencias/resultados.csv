@@ -1,0 +1,5 @@
+﻿ensaio_id;versao;metrica;operacao;valor;base_de_calculo;descricao_base;taxa_percentual;unidade;fonte;natureza
+PRJ14-S01;individual-v1;campanhas detectadas;contagem;6;14;Campanhas de golpe conhecidas na referência de avaliação.;42.857143;casos;evidencias/medicoes.csv#PRJ14-S01;desempenho
+PRJ14-S02;temporal-v2;campanhas detectadas;contagem;9;14;Campanhas de golpe conhecidas na referência de avaliação.;64.285714;casos;evidencias/medicoes.csv#PRJ14-S02;desempenho
+PRJ14-S03;causal-v3;campanhas detectadas;contagem;13;14;Campanhas de golpe conhecidas na referência de avaliação.;92.857143;casos;evidencias/medicoes.csv#PRJ14-S03;desempenho
+PRJ14-S04;causal-v3;alertas adicionais verdadeiros;contagem;7;22;"Alertas adicionais da solução em relação à pontuação individual; não é o total de eventos.";31.818182;casos;evidencias/medicoes.csv#PRJ14-S04;desempenho

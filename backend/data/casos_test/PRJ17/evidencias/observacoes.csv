@@ -1,0 +1,3 @@
+﻿observacao_id;entrada;referencia;saida_ou_situacao;escopo
+PRJ17-OBS01;"proposta P01; renda=100; comprometimento=0,35";regra antiga/nova não identificada;decisões ausentes;"recorte ilustrativo identificado; não representa a totalidade das medições"
+PRJ17-OBS02;"proposta P02; renda=120; comprometimento=0,50";limiares não preservados;decisões ausentes;"recorte ilustrativo identificado; não representa a totalidade das medições"

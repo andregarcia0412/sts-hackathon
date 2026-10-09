@@ -1,0 +1,5 @@
+﻿ensaio_id;versao;metrica;operacao;valor;base_de_calculo;descricao_base;taxa_percentual;unidade;fonte;natureza
+PRJ01-S01;deduplicacao-v1;duplicatas retidas;contagem;8;12;Retransmissões da mesma chave usadas para verificar retenção de duplicatas.;66.666667;casos;evidencias/medicoes.csv#PRJ01-S01;desempenho
+PRJ01-S02;deduplicacao-v2;duplicatas retidas;contagem;12;12;Retransmissões da mesma chave usadas para verificar retenção de duplicatas.;100.0;casos;evidencias/medicoes.csv#PRJ01-S02;desempenho
+PRJ01-S03;deduplicacao-v2;operações legítimas liberadas;contagem;8;8;Operações legítimas novas após interrupção, que devem ser liberadas.;100.0;casos;evidencias/medicoes.csv#PRJ01-S03;desempenho
+PRJ01-S04;deduplicacao-v2;envios únicos aceitos;contagem;40;40;Envios únicos usados no aceite.;100.0;casos;evidencias/medicoes.csv#PRJ01-S04;desempenho

@@ -1,0 +1,13 @@
+﻿registro_id;ensaio_id;versao;cenario;tipo;metrica;valor;numerador;denominador;peso;unidade
+PRJ06-S01-M001;PRJ06-S01;ultima-v1;campos;contador;conflitos com perda silenciosa;;5;30;;casos
+PRJ06-S01-M002;PRJ06-S01;ultima-v1;anexos;contador;conflitos com perda silenciosa;;3;30;;casos
+PRJ06-S01-M003;PRJ06-S01;ultima-v1;listas;contador;conflitos com perda silenciosa;;3;30;;casos
+PRJ06-S02-M001;PRJ06-S02;tresvias-v2;campos;contador;conflitos com perda silenciosa;;3;30;;casos
+PRJ06-S02-M002;PRJ06-S02;tresvias-v2;anexos;contador;conflitos com perda silenciosa;;1;30;;casos
+PRJ06-S02-M003;PRJ06-S02;tresvias-v2;listas;contador;conflitos com perda silenciosa;;1;30;;casos
+PRJ06-S03-M001;PRJ06-S03;dependencia-v3;campos;contador;conflitos resolvidos automaticamente;;26;30;;casos
+PRJ06-S03-M002;PRJ06-S03;dependencia-v3;anexos;contador;conflitos resolvidos automaticamente;;24;30;;casos
+PRJ06-S03-M003;PRJ06-S03;dependencia-v3;listas;contador;conflitos resolvidos automaticamente;;24;30;;casos
+PRJ06-S04-M001;PRJ06-S04;dependencia-v3;campos;contador;conflitos preservados para decisão humana;;4;30;;casos
+PRJ06-S04-M002;PRJ06-S04;dependencia-v3;anexos;contador;conflitos preservados para decisão humana;;6;30;;casos
+PRJ06-S04-M003;PRJ06-S04;dependencia-v3;listas;contador;conflitos preservados para decisão humana;;6;30;;casos

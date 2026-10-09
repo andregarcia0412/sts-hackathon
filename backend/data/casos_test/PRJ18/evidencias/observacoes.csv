@@ -1,0 +1,3 @@
+﻿observacao_id;entrada;referencia;saida_ou_situacao;escopo
+PRJ18-OBS01;"R1 muda pendente→aceita; R2 apenas relê fato";registrar mudança e vínculo causal;seletivo emite R1 e reutiliza snapshot em R2;"recorte ilustrativo identificado; não representa a totalidade das medições"
+PRJ18-OBS02;callback R3 chega depois da coalescência de R1;preservar predecessor original;"seletivo-v3 perde predecessor; caso permanece sem explicação completa";"recorte ilustrativo identificado; não representa a totalidade das medições"

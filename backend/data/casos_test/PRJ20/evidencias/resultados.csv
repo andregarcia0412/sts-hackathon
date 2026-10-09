@@ -1,0 +1,3 @@
+﻿ensaio_id;versao;metrica;operacao;valor;base_de_calculo;descricao_base;taxa_percentual;unidade;fonte;natureza
+PRJ20-S01;sombra-v1;propostas com decisão divergente;contagem;430;18000;Propostas submetidas à comparação entre os dois motores.;2.388889;casos;evidencias/medicoes.csv#PRJ20-S01;desempenho
+PRJ20-S02;sombra-v1;contratos emitidos pelo motor sombra;contagem;0;18000;Propostas submetidas à comparação entre os dois motores.;0.0;casos;evidencias/medicoes.csv#PRJ20-S02;desempenho

@@ -1,0 +1,3 @@
+﻿entrada_id;conteudo_json
+PRJ19-IN001;"{""entrada"": ""imagem IMG03; confiança=0,93; campos completos"", ""referencia"": ""extrair""}"
+PRJ19-IN002;"{""entrada"": ""imagem IMG27; corte; confiança=0,61"", ""referencia"": ""encaminhar à revisão""}"

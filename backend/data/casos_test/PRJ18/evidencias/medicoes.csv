@@ -1,0 +1,29 @@
+﻿registro_id;ensaio_id;versao;cenario;tipo;metrica;valor;numerador;denominador;peso;unidade
+PRJ18-S01-M001;PRJ18-S01;integral-v1;C001;contador;decisões com trilha completa;;12500;12500;;casos
+PRJ18-S01-M002;PRJ18-S01;integral-v1;C002;contador;decisões com trilha completa;;12500;12500;;casos
+PRJ18-S01-M003;PRJ18-S01;integral-v1;C003;contador;decisões com trilha completa;;12500;12500;;casos
+PRJ18-S01-M004;PRJ18-S01;integral-v1;C004;contador;decisões com trilha completa;;12500;12500;;casos
+PRJ18-S02-M001;PRJ18-S02;amostra-v2;C001;contador;decisões com trilha completa;;10250;12500;;casos
+PRJ18-S02-M002;PRJ18-S02;amostra-v2;C002;contador;decisões com trilha completa;;10250;12500;;casos
+PRJ18-S02-M003;PRJ18-S02;amostra-v2;C003;contador;decisões com trilha completa;;10250;12500;;casos
+PRJ18-S02-M004;PRJ18-S02;amostra-v2;C004;contador;decisões com trilha completa;;10250;12500;;casos
+PRJ18-S03-M001;PRJ18-S03;seletivo-v3;C001;contador;decisões com trilha completa;;12000;12500;;casos
+PRJ18-S03-M002;PRJ18-S03;seletivo-v3;C002;contador;decisões com trilha completa;;12000;12500;;casos
+PRJ18-S03-M003;PRJ18-S03;seletivo-v3;C003;contador;decisões com trilha completa;;12000;12500;;casos
+PRJ18-S03-M004;PRJ18-S03;seletivo-v3;C004;contador;decisões com trilha completa;;12000;12500;;casos
+PRJ18-S04-M001;PRJ18-S04;semtrilha-v4;C001;medicao;latência média;100;;;;ms
+PRJ18-S04-M002;PRJ18-S04;semtrilha-v4;C002;medicao;latência média;100;;;;ms
+PRJ18-S04-M003;PRJ18-S04;semtrilha-v4;C003;medicao;latência média;100;;;;ms
+PRJ18-S04-M004;PRJ18-S04;semtrilha-v4;C004;medicao;latência média;100;;;;ms
+PRJ18-S05-M001;PRJ18-S05;integral-v1;C001;medicao;latência média;124;;;;ms
+PRJ18-S05-M002;PRJ18-S05;integral-v1;C002;medicao;latência média;124;;;;ms
+PRJ18-S05-M003;PRJ18-S05;integral-v1;C003;medicao;latência média;124;;;;ms
+PRJ18-S05-M004;PRJ18-S05;integral-v1;C004;medicao;latência média;124;;;;ms
+PRJ18-S06-M001;PRJ18-S06;amostra-v2;C001;medicao;latência média;103;;;;ms
+PRJ18-S06-M002;PRJ18-S06;amostra-v2;C002;medicao;latência média;103;;;;ms
+PRJ18-S06-M003;PRJ18-S06;amostra-v2;C003;medicao;latência média;103;;;;ms
+PRJ18-S06-M004;PRJ18-S06;amostra-v2;C004;medicao;latência média;103;;;;ms
+PRJ18-S07-M001;PRJ18-S07;seletivo-v3;C001;medicao;latência média;107;;;;ms
+PRJ18-S07-M002;PRJ18-S07;seletivo-v3;C002;medicao;latência média;107;;;;ms
+PRJ18-S07-M003;PRJ18-S07;seletivo-v3;C003;medicao;latência média;107;;;;ms
+PRJ18-S07-M004;PRJ18-S07;seletivo-v3;C004;medicao;latência média;107;;;;ms

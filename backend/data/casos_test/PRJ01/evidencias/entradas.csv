@@ -1,0 +1,3 @@
+﻿entrada_id;conteudo_json
+PRJ01-IN001;"{""entrada"": ""operação=OP010; versão=1; chegada=0 s e 45 s"", ""referencia"": ""uma única efetivação""}"
+PRJ01-IN002;"{""entrada"": ""OP011/v1 e OP012/v1; mesmo valor"", ""referencia"": ""duas efetivações legítimas""}"

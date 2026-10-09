@@ -1,0 +1,5 @@
+﻿ensaio_id;versao;metrica;operacao;valor;base_de_calculo;descricao_base;taxa_percentual;unidade;fonte;natureza
+PRJ15-S01;rastro-v1;alertas fiéis ao replay;contagem;78;80;Alertas verificados pela repetição do cálculo original.;97.5;casos;evidencias/medicoes.csv#PRJ15-S01;desempenho
+PRJ15-S02;rastro-v2;alertas fiéis ao replay;contagem;80;80;Alertas verificados pela repetição do cálculo original.;100.0;casos;evidencias/medicoes.csv#PRJ15-S02;desempenho
+PRJ15-S03;texto-v3;tempo de revisão;mediana;6.4;80;"Tempos de revisão registrados para 80 alertas; a base é a quantidade de tempos.";;min;evidencias/medicoes.csv#PRJ15-S03;desempenho
+PRJ15-S04;rastro-v2;tempo de revisão;mediana;4.1;80;"Tempos de revisão registrados para 80 alertas; a base é a quantidade de tempos.";;min;evidencias/medicoes.csv#PRJ15-S04;desempenho

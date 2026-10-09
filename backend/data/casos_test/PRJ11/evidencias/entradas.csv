@@ -1,0 +1,3 @@
+﻿entrada_id;conteudo_json
+PRJ11-IN001;"{""entrada"": ""origem A; tipo CC; saldo ausente"", ""referencia"": ""corrente; saldo nulo""}"
+PRJ11-IN002;"{""entrada"": ""origem B; tipo XX"", ""referencia"": ""rejeitar cadastro desconhecido""}"

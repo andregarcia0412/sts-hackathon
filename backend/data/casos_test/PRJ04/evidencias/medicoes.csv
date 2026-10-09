@@ -1,0 +1,3 @@
+﻿registro_id;ensaio_id;versao;cenario;tipo;metrica;valor;numerador;denominador;peso;unidade
+PRJ04-S01-M001;PRJ04-S01;matriz-v1;C001;contador;roteiros conformes;;11;12;;casos
+PRJ04-S02-M001;PRJ04-S02;matriz-v2;C001;contador;roteiros conformes;;12;12;;casos

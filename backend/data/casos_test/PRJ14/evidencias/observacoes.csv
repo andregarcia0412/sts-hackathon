@@ -1,0 +1,3 @@
+﻿observacao_id;entrada;referencia;saida_ou_situacao;escopo
+PRJ14-OBS01;"A→B t=0; B→C t=14 min; C→D t=21 min; vínculo causal confirmado";conservar cadeia relevante;"temporal expira A→B; causal mantém até encerrar descendentes";"recorte ilustrativo identificado; não representa a totalidade das medições"
+PRJ14-OBS02;"evento isolado sem predecessor; t=46 min";não manter aresta indefinidamente;causal aplica teto absoluto;"recorte ilustrativo identificado; não representa a totalidade das medições"

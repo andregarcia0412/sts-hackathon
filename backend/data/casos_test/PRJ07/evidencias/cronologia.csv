@@ -1,0 +1,7 @@
+﻿evento_id;data;versao;evento;estado;fonte
+PRJ07-CR01;2025-01-06;documento-inicial;Registro do problema e das referências anteriores;registrado;evidencias/metodo.md#1
+PRJ07-CR02;2025-01-26;protocolo-r1;Preparação do recorte e critérios descritos no método;registrado;evidencias/metodo.md#3
+PRJ07-CR03;2025-02-03;completa-v1;Arquivamento dos registros desta versão;registrado;evidencias/medicoes.csv
+PRJ07-CR04;2025-02-25;leve-v2;Arquivamento dos registros desta versão;registrado;evidencias/medicoes.csv
+PRJ07-CR05;2025-03-19;etapas-v3;Arquivamento dos registros desta versão;registrado;evidencias/medicoes.csv
+PRJ07-CR06;2025-04-28;revisao-final;Consolidação do limite de conclusão e pendências;registrado;evidencias/revisao_tecnica.md

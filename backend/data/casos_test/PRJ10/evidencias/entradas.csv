@@ -1,0 +1,9 @@
+﻿entrada_id;conteudo_json
+PRJ10-IN001;"{""id"": ""PRJ10-IN001"", ""evento"": ""iniciar"", ""sessao"": ""S01"", ""estado_produzido"": null, ""versao_maquina"": null}"
+PRJ10-IN002;"{""id"": ""PRJ10-IN002"", ""evento"": ""confirmar"", ""sessao"": ""S01"", ""estado_produzido"": null, ""versao_maquina"": null}"
+PRJ10-IN003;"{""id"": ""PRJ10-IN003"", ""evento"": ""revogar"", ""sessao"": ""S02"", ""estado_produzido"": null, ""versao_maquina"": null}"
+PRJ10-IN004;"{""id"": ""PRJ10-IN004"", ""evento"": ""expirar"", ""sessao"": ""S02"", ""estado_produzido"": null, ""versao_maquina"": null}"
+PRJ10-IN005;"{""id"": ""PRJ10-IN005"", ""evento"": ""iniciar"", ""sessao"": null, ""estado_produzido"": null, ""versao_maquina"": null}"
+PRJ10-IN006;"{""id"": ""PRJ10-IN006"", ""evento"": ""confirmar"", ""sessao"": null, ""estado_produzido"": null, ""versao_maquina"": null}"
+PRJ10-IN007;"{""id"": ""PRJ10-IN007"", ""evento"": ""revogar"", ""sessao"": null, ""estado_produzido"": null, ""versao_maquina"": null}"
+PRJ10-IN008;"{""id"": ""PRJ10-IN008"", ""evento"": ""expirar"", ""sessao"": null, ""estado_produzido"": null, ""versao_maquina"": null}"

@@ -1,0 +1,29 @@
+﻿registro_id;ensaio_id;versao;cenario;tipo;metrica;valor;numerador;denominador;peso;unidade
+PRJ13-S01-M001;PRJ13-S01;fixo-v1;sazonal_1;contador;falsos alertas entre legítimas;;702;9000;;casos
+PRJ13-S01-M002;PRJ13-S01;fixo-v1;sazonal_2;contador;falsos alertas entre legítimas;;702;9000;;casos
+PRJ13-S01-M003;PRJ13-S01;fixo-v1;sazonal_3;contador;falsos alertas entre legítimas;;702;9000;;casos
+PRJ13-S01-M004;PRJ13-S01;fixo-v1;sazonal_4;contador;falsos alertas entre legítimas;;702;9000;;casos
+PRJ13-S02-M001;PRJ13-S02;mensal-v2;sazonal_1;contador;falsos alertas entre legítimas;;495;9000;;casos
+PRJ13-S02-M002;PRJ13-S02;mensal-v2;sazonal_2;contador;falsos alertas entre legítimas;;495;9000;;casos
+PRJ13-S02-M003;PRJ13-S02;mensal-v2;sazonal_3;contador;falsos alertas entre legítimas;;495;9000;;casos
+PRJ13-S02-M004;PRJ13-S02;mensal-v2;sazonal_4;contador;falsos alertas entre legítimas;;495;9000;;casos
+PRJ13-S03-M001;PRJ13-S03;continuo-v3;sazonal_1;contador;falsos alertas entre legítimas;;360;9000;;casos
+PRJ13-S03-M002;PRJ13-S03;continuo-v3;sazonal_2;contador;falsos alertas entre legítimas;;360;9000;;casos
+PRJ13-S03-M003;PRJ13-S03;continuo-v3;sazonal_3;contador;falsos alertas entre legítimas;;360;9000;;casos
+PRJ13-S03-M004;PRJ13-S03;continuo-v3;sazonal_4;contador;falsos alertas entre legítimas;;360;9000;;casos
+PRJ13-S04-M001;PRJ13-S04;condicionado-v4;sazonal_1;contador;falsos alertas entre legítimas;;279;9000;;casos
+PRJ13-S04-M002;PRJ13-S04;condicionado-v4;sazonal_2;contador;falsos alertas entre legítimas;;279;9000;;casos
+PRJ13-S04-M003;PRJ13-S04;condicionado-v4;sazonal_3;contador;falsos alertas entre legítimas;;279;9000;;casos
+PRJ13-S04-M004;PRJ13-S04;condicionado-v4;sazonal_4;contador;falsos alertas entre legítimas;;279;9000;;casos
+PRJ13-S05-M001;PRJ13-S05;condicionado-v4;sazonal_1;contador;fraudes detectadas;;920;1000;;casos
+PRJ13-S05-M002;PRJ13-S05;condicionado-v4;sazonal_2;contador;fraudes detectadas;;920;1000;;casos
+PRJ13-S05-M003;PRJ13-S05;condicionado-v4;sazonal_3;contador;fraudes detectadas;;920;1000;;casos
+PRJ13-S05-M004;PRJ13-S05;condicionado-v4;sazonal_4;contador;fraudes detectadas;;920;1000;;casos
+PRJ13-S06-M001;PRJ13-S06;continuo-v3;sazonal_1;contador;fraudes incorporadas ao perfil;;130;1000;;casos
+PRJ13-S06-M002;PRJ13-S06;continuo-v3;sazonal_2;contador;fraudes incorporadas ao perfil;;130;1000;;casos
+PRJ13-S06-M003;PRJ13-S06;continuo-v3;sazonal_3;contador;fraudes incorporadas ao perfil;;130;1000;;casos
+PRJ13-S06-M004;PRJ13-S06;continuo-v3;sazonal_4;contador;fraudes incorporadas ao perfil;;130;1000;;casos
+PRJ13-S07-M001;PRJ13-S07;condicionado-v4;sazonal_1;contador;fraudes incorporadas ao perfil;;0;1000;;casos
+PRJ13-S07-M002;PRJ13-S07;condicionado-v4;sazonal_2;contador;fraudes incorporadas ao perfil;;0;1000;;casos
+PRJ13-S07-M003;PRJ13-S07;condicionado-v4;sazonal_3;contador;fraudes incorporadas ao perfil;;0;1000;;casos
+PRJ13-S07-M004;PRJ13-S07;condicionado-v4;sazonal_4;contador;fraudes incorporadas ao perfil;;0;1000;;casos

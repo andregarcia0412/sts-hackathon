@@ -1,0 +1,3 @@
+﻿entrada_id;conteudo_json
+PRJ04-IN001;"{""entrada"": ""correlation_id=SYN004; perfil=consulta"", ""referencia"": ""exibir valor mascarado""}"
+PRJ04-IN002;"{""entrada"": ""correlation_id=SYN005; perfil=conciliação"", ""referencia"": ""mostrar eventos dos três sistemas""}"

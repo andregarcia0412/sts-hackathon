@@ -1,0 +1,3 @@
+﻿observacao_id;entrada;referencia;saida_ou_situacao;escopo
+PRJ12-OBS01;"conector C2 retorna após 70 s; token simbólico V1";aceitar na coexistência de 120 s;"janela30-v1 negou; janela120-v2 aceitou";"recorte ilustrativo identificado; não representa a totalidade das medições"
+PRJ12-OBS02;"tempo=130 s; versão anterior";recusar após janela;cofre recusou conforme manual;"recorte ilustrativo identificado; não representa a totalidade das medições"

@@ -1,0 +1,13 @@
+﻿registro_id;ensaio_id;versao;cenario;tipo;metrica;valor;numerador;denominador;peso;unidade
+PRJ20-S01-M001;PRJ20-S01;sombra-v1;C001;contador;propostas com decisão divergente;;75;3000;;casos
+PRJ20-S01-M002;PRJ20-S01;sombra-v1;C002;contador;propostas com decisão divergente;;71;3000;;casos
+PRJ20-S01-M003;PRJ20-S01;sombra-v1;C003;contador;propostas com decisão divergente;;71;3000;;casos
+PRJ20-S01-M004;PRJ20-S01;sombra-v1;C004;contador;propostas com decisão divergente;;71;3000;;casos
+PRJ20-S01-M005;PRJ20-S01;sombra-v1;C005;contador;propostas com decisão divergente;;71;3000;;casos
+PRJ20-S01-M006;PRJ20-S01;sombra-v1;C006;contador;propostas com decisão divergente;;71;3000;;casos
+PRJ20-S02-M001;PRJ20-S02;sombra-v1;C001;contador;contratos emitidos pelo motor sombra;;0;3000;;casos
+PRJ20-S02-M002;PRJ20-S02;sombra-v1;C002;contador;contratos emitidos pelo motor sombra;;0;3000;;casos
+PRJ20-S02-M003;PRJ20-S02;sombra-v1;C003;contador;contratos emitidos pelo motor sombra;;0;3000;;casos
+PRJ20-S02-M004;PRJ20-S02;sombra-v1;C004;contador;contratos emitidos pelo motor sombra;;0;3000;;casos
+PRJ20-S02-M005;PRJ20-S02;sombra-v1;C005;contador;contratos emitidos pelo motor sombra;;0;3000;;casos
+PRJ20-S02-M006;PRJ20-S02;sombra-v1;C006;contador;contratos emitidos pelo motor sombra;;0;3000;;casos

@@ -1,0 +1,5 @@
+﻿registro_id;ensaio_id;versao;cenario;tipo;metrica;valor;numerador;denominador;peso;unidade
+PRJ01-S01-M001;PRJ01-S01;deduplicacao-v1;C001;contador;duplicatas retidas;;8;12;;casos
+PRJ01-S02-M001;PRJ01-S02;deduplicacao-v2;C001;contador;duplicatas retidas;;12;12;;casos
+PRJ01-S03-M001;PRJ01-S03;deduplicacao-v2;C001;contador;operações legítimas liberadas;;8;8;;casos
+PRJ01-S04-M001;PRJ01-S04;deduplicacao-v2;C001;contador;envios únicos aceitos;;40;40;;casos

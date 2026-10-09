@@ -1,0 +1,3 @@
+﻿entrada_id;conteudo_json
+PRJ20-IN001;"{""entrada"": ""P001; política antiga limite=50; nova limite=60; valor=55"", ""referencia"": ""decisões distintas sem efeito do motor sombra""}"
+PRJ20-IN002;"{""entrada"": ""P002; ambas aprovam"", ""referencia"": ""somente principal pode emitir""}"

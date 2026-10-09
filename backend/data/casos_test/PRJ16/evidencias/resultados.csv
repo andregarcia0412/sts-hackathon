@@ -1,0 +1,5 @@
+﻿ensaio_id;versao;metrica;operacao;valor;base_de_calculo;descricao_base;taxa_percentual;unidade;fonte;natureza
+PRJ16-S01;manual-v1;execuções com ordem e estado preservados;contagem;128;160;Execuções do conjunto de ensaios.;80.0;casos;evidencias/medicoes.csv#PRJ16-S01;desempenho
+PRJ16-S02;replay-v2;execuções com ordem e estado preservados;contagem;143;160;Execuções do conjunto de ensaios.;89.375;casos;evidencias/medicoes.csv#PRJ16-S02;desempenho
+PRJ16-S03;causal-v3;execuções com ordem e estado preservados;contagem;160;160;Execuções do conjunto de ensaios.;100.0;casos;evidencias/medicoes.csv#PRJ16-S03;desempenho
+PRJ16-S04;causal-v3;cenários com falha de bloqueio reproduzida;contagem;2;32;Cenários considerados para reproduzir a falha de bloqueio.;6.25;casos;evidencias/medicoes.csv#PRJ16-S04;desempenho

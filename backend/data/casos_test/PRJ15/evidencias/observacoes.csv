@@ -1,0 +1,3 @@
+﻿observacao_id;entrada;referencia;saida_ou_situacao;escopo
+PRJ15-OBS01;"alerta A17; decisão d1 usa renda=100; enriquecimento posterior=120";explicação de d1 deve citar 100;"rastro-v1 citou 120; rastro-v2 recuperou snapshot d1";"recorte ilustrativo identificado; não representa a totalidade das medições"
+PRJ15-OBS02;alerta A63 reavaliado em d2;d1 e d2 devem ter trilhas distintas;rastro-v2 criou parent_id sem sobrescrever a decisão original;"recorte ilustrativo identificado; não representa a totalidade das medições"

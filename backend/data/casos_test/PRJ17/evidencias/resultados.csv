@@ -1,0 +1,2 @@
+﻿ensaio_id;versao;metrica;operacao;valor;base_de_calculo;descricao_base;taxa_percentual;unidade;fonte;natureza
+PRJ17-S01;entrada-v1;propostas recuperadas (contagem de entrega, não desempenho);contagem;6;6;"Propostas de entrada recuperadas; não é quantidade de decisões produzidas.";;casos;evidencias/medicoes.csv#PRJ17-S01;entrega
