@@ -180,3 +180,18 @@ def test_a_divergence_the_sub_agent_already_wrote_is_not_repeated():
                                                              facts={"divergencias": [candidate]})})
     results = {"SIS": CriterionResult(criterion="SIS", divergences=[written])}
     assert add_check_divergences(results, project(), checks) == 0
+
+
+def test_a_short_quote_of_the_sub_agent_never_hides_a_deterministic_divergence():
+    from backend.checks.divergences import add_check_divergences
+    from backend.checks.models import CheckResult, ChecksReport
+    from backend.criteria.schemas import CriterionResult, Divergence
+
+    written = Divergence(criterion="SIS", testimony_fragment_id="E#outra", testimony_quote="pontos",
+                         record_fragment_id="R#x", record_alias="a", record_quote="b", statement="s")
+    candidate = {"depoimento_fragmento": "E#conclusao", "depoimento_trecho": "Reduziu a amplitude para 2,1 pontos.",
+                 "registro_fragmento": "PRJ-S02", "registro_alias": "a", "registro_trecho": "b", "frase": "f"}
+    checks = ChecksReport(results={"CHK-DIVERG": CheckResult(id="CHK-DIVERG", status="alerta",
+                                                             facts={"divergencias": [candidate]})})
+    results = {"SIS": CriterionResult(criterion="SIS", divergences=[written])}
+    assert add_check_divergences(results, project(), checks) == 1
