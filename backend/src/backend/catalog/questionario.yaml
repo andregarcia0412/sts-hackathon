@@ -41,10 +41,15 @@ perguntas:
       explicacao: "\"Nenhum algoritmo foi modificado\" ou \"faixa já admitida\" são o sinal clássico de sim."
     - id: C2
       texto: >-
-        Há elemento técnico próprio (combinação original ou regra de decisão nova, não renomeação de técnica
-        conhecida), descrito como mecanismo e hipótese no método?
-      regras: [CRI-D1, CRI-D10]
-      explicacao: "A hipótese escrita no método (§2, mecanismo e hipótese) basta; a data só conta contra quando o registro mostra que a hipótese foi escrita depois dos ensaios. Responda nao só se o elemento é renomeação de técnica conhecida ou vem do texto da referência anterior (§1). Método novo para tarefa comum conta."
+        Há elemento técnico próprio (combinação original ou regra de decisão nova), e não a renomeação de uma técnica
+        conhecida ou o que a referência anterior já trazia?
+      regras: [CRI-D10, CRI-D6]
+      explicacao: "Responda sobre o MECANISMO, não sobre datas ou registros: nao só se o elemento é renomeação de técnica conhecida ou vem do texto da referência anterior (§1). Método novo para tarefa comum conta. A data da hipótese é a pergunta C4."
+    - id: C4
+      texto: >-
+        A hipótese do mecanismo foi registrada antes dos ensaios?
+      regras: [CRI-D1]
+      explicacao: "A hipótese escrita no método (§2, mecanismo e hipótese) conta como registrada antes quando o documento inicial é anterior aos ensaios na cronologia. nao só se o registro mostra a hipótese escrita depois dos ensaios."
     - id: C3
       texto: >-
         Os parâmetros-chave do mecanismo estão preenchidos (não nulos) na configuração, com regra de decisão
@@ -136,8 +141,9 @@ decisao:
   CRI:
     - {quando: {C1: sim}, estado: "NÃO DEMONSTRADA"}
     - {quando: {C3: nao}, estado: "INDETERMINADA"}
-    - {quando: {C2: sim}, estado: "DEMONSTRADA NO RECORTE"}
-    - {quando: {C2: nao}, estado: "NÃO DEMONSTRADA"}
+    - {quando: {C2: nao}, estado: "NÃO DEMONSTRADA"}  # only renaming / what the reference already had is routine
+    - {quando: {C2: sim, C4: sim}, estado: "DEMONSTRADA NO RECORTE"}
+    # an own element whose hypothesis has no record before the trials is unverified, never routine
     - {senao: true, estado: "INDETERMINADA"}
   INC:
     - {quando: {I1: sim}, estado: "NÃO CARACTERIZADA"}

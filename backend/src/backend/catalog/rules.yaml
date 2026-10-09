@@ -14,7 +14,7 @@
 #   checagens: deterministic checks (checks/, CHK-*) that feed the rule: their result is routed to it as a citable
 #     fragment of nature `derivado` (file type `checagem`)
 #   prompt: rule-specific instruction (positiva quando / negativa quando) used by the sub-agent prompt
-versao: "2026.10.09-6"
+versao: "2026.10.09-7"
 
 tipos_de_arquivo:
   - dossie
