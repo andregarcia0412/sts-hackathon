@@ -9,6 +9,7 @@ from collections.abc import Iterable
 from backend.benchmark.models import (
     AccuracyMetrics,
     BenchmarkMetrics,
+    CoherenceMetrics,
     ClassScores,
     DeterminismMetrics,
     Distribution,
@@ -240,6 +241,29 @@ def determinism(runs: list[RunSnapshot]) -> DeterminismMetrics | None:
     return metrics
 
 
+def coherence(runs: list[RunSnapshot], expected: dict[str, ExpectedCase], catalog: Catalog) -> CoherenceMetrics:
+    metrics = CoherenceMetrics()
+    for run in runs:
+        case = expected.get(run.code)
+        for criterion, record in run.coherence.items():
+            metrics.contradictions[criterion] = metrics.contradictions.get(criterion, 0) + 1
+            metrics.by_source[record.original_source] = metrics.by_source.get(record.original_source, 0) + 1
+            metrics.rejudged += record.rejudged
+            metrics.resolved += record.status == "resolvida"
+            metrics.incoherent += record.status == "incoerente"
+            final = run.states.get(criterion)
+            if final is None or final == record.original_state:
+                continue
+            if column_of(criterion, final, catalog) == column_of(criterion, record.original_state, catalog):
+                continue
+            metrics.changed_column += 1
+            if case is not None and case.source == "oficial" and case.states.get(criterion):
+                hit = case.states[criterion] == final
+                metrics.changed_column_hits += hit
+                metrics.changed_column_misses += not hit
+    return metrics
+
+
 def class_distribution(runs: list[RunSnapshot], expected: dict[str, ExpectedCase]) -> dict[str, dict[str, int]]:
     result: dict[str, dict[str, int]] = defaultdict(lambda: defaultdict(int))
     for run in runs:
@@ -258,6 +282,7 @@ def compute(runs: list[RunSnapshot], expected: dict[str, ExpectedCase], catalog:
         evidence=evidence(runs),
         usage=usage(runs),
         determinism=determinism(runs),
+        coherence=coherence(runs, expected, catalog),
         class_distribution=class_distribution(runs, expected),
         by_set={s: timing([r for r in runs if r.set == s]) for s in sorted({r.set for r in runs})},
     )

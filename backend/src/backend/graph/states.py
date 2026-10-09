@@ -9,6 +9,17 @@ from backend.catalog.models import Catalog
 from backend.criteria.common import DATA_NOT_INSTRUCTIONS, argument_block
 from backend.criteria.schemas import CriterionResult
 from backend.errors import safe_error_message
+from backend.graph.coherence import (
+    CONFLICT_NOTE,
+    CORE,
+    Coherence,
+    Contradiction,
+    check_coherence,
+    contradiction_block,
+    forced_state,
+    strength_of,
+)
+from backend.graph.options import JudgeOptions
 from backend.llm import LLM
 from backend.llm.prompts import register_prompt
 
@@ -55,6 +66,8 @@ class CriterionState(BaseModel):
     caveat: Caveat | None = None
     missing_link: MissingLinkInfo | None = None
     error: str | None = None
+    gate_conflicts: list[str] = Field(default_factory=list)  # configuration gates not applied: strong positive score
+    coherence: Coherence | None = None
 
     @classmethod
     def of(cls, criterion: str, state: str, **extra) -> "CriterionState":
@@ -89,6 +102,8 @@ evidencia_necessaria. Limite excluído desde o início não gera ressalva ("DOCU
 Em estado da coluna insuficiente, preencha elo_ausente e evidencias_a_solicitar.
 Justifique citando IDs de evidência; nunca invente fatos ou números. Divergências da entrevista mudam a
 justificativa, não o estado. Nunca compare com outros projetos.
+Um bloco <contradicao>, quando houver, é montado pelo sistema a partir do score das evidências (não é texto do
+projeto): reavalie o estado escolhendo entre as opções que ele indica.
 """
     + DATA_NOT_INSTRUCTIONS,
 )
@@ -122,15 +137,25 @@ def _net_negative(result: CriterionResult, rule_id: str) -> bool:
     return len(sources_neg) > len(sources_pos)
 
 
-def apply_gates(state: CriterionState, result: CriterionResult, catalog: Catalog, numeric_in_analysis: bool) -> CriterionState:
+def apply_gates(state: CriterionState, result: CriterionResult, catalog: Catalog, numeric_in_analysis: bool,
+                exempt_score: int | None = None) -> CriterionState:
+    """Forces the state in code. `exempt_score` (coherence gate): a strong positive score keeps the configuration
+    gates from forcing the negative column; the conflict is recorded and the criterion is judged again."""
     vocabulary = catalog.criteria[state.criterion].estados
     if state.criterion == "NOV" and result.closest_doc and result.closest_doc.cobertura == "total":
         state.gates.append(f"gate NOV-W3: documento anterior com cobertura total ({result.closest_doc.url})")
         state.state = vocabulary.negativo
     for rule_id in CONFIG_GATES.get(state.criterion, ()):
-        if _net_negative(result, rule_id):
-            state.gates.append(f"gate {rule_id}: evidência negativa predominante (referência/configuração já fornecia a função)")
-            state.state = vocabulary.negativo
+        if not _net_negative(result, rule_id):
+            continue
+        if exempt_score is not None:
+            if rule_id not in state.gate_conflicts:
+                state.gate_conflicts.append(rule_id)
+                state.gates.append(f"gate {rule_id} em conflito com score {exempt_score}: não aplicado, critério "
+                                   "julgado de novo com a regra destacada")
+            continue
+        state.gates.append(f"gate {rule_id}: evidência negativa predominante (referência/configuração já fornecia a função)")
+        state.state = vocabulary.negativo
     if column_of(state.criterion, state.state, catalog) == "pd":
         if state.criterion in NUMERIC_IN_CRITERION:
             has_numeric = any(
@@ -145,8 +170,9 @@ def apply_gates(state: CriterionState, result: CriterionResult, catalog: Catalog
     return state
 
 
-async def judge_state(llm: LLM, catalog: Catalog, result: CriterionResult, numeric_record_in_analysis: bool,
-                      analyst_argument: str | None = None) -> CriterionState:
+async def _judge_once(llm: LLM, catalog: Catalog, result: CriterionResult, numeric_record_in_analysis: bool,
+                      analyst_argument: str | None, contradiction: Contradiction | None,
+                      exempt_score: int | None) -> CriterionState:
     info = catalog.criteria[result.criterion]
     vocabulary = info.estados.all_states()
     user = (
@@ -154,6 +180,8 @@ async def judge_state(llm: LLM, catalog: Catalog, result: CriterionResult, numer
         f"(P&D: {', '.join(info.estados.positivo)}; rotina: {info.estados.negativo}; insuficiente: {info.estados.indeterminado})\n\n"
         f"<fragmentos>\n{_describe(result)}\n</fragmentos>"
     ) + argument_block(analyst_argument)
+    if contradiction is not None:
+        user += "\n\n" + contradiction_block(contradiction, result)
     try:
         out = await llm.structured(
             [{"role": "system", "content": STATE_SYSTEM}, {"role": "user", "content": user}], StateJudgeOut, role="judge"
@@ -177,7 +205,50 @@ async def judge_state(llm: LLM, catalog: Catalog, result: CriterionResult, numer
         missing_link=MissingLinkInfo(elo_ausente=out.elo_ausente, evidencias_a_solicitar=out.evidencias_a_solicitar)
         if (out.elo_ausente or out.evidencias_a_solicitar) else None,
     )
-    return apply_gates(state, result, catalog, numeric_record_in_analysis)
+    return apply_gates(state, result, catalog, numeric_record_in_analysis, exempt_score)
+
+
+def _contradiction(state: CriterionState, score: int | None, n_rules: int, catalog: Catalog, options: JudgeOptions,
+                   include_gate_conflicts: bool = True) -> Contradiction | None:
+    llm_column = column_of(state.criterion, state.llm_state, catalog) if state.llm_state else None
+    return check_coherence(state.criterion, state.state, state.column, llm_column, state.gate_conflicts, score,
+                           n_rules, catalog, options, include_gate_conflicts)
+
+
+async def judge_state(llm: LLM, catalog: Catalog, result: CriterionResult, numeric_record_in_analysis: bool,
+                      analyst_argument: str | None = None, *, score: int | None = None, n_rules: int = 0,
+                      options: JudgeOptions | None = None) -> CriterionState:
+    """The LLM suggests the state, gates force it in code, and the coherence gate (options) checks it against the
+    criterion score: at most one new judgement per criterion, and the code never picks the state from the score."""
+    options = options or JudgeOptions()
+    active = options.coherence_mode != "off"
+    strength = strength_of(score, n_rules, options) if active else None
+    exempt = score if strength == "forte_positivo" and result.criterion in CORE else None
+    first = await _judge_once(llm, catalog, result, numeric_record_in_analysis, analyst_argument, None, exempt)
+    if not active or first.state is None:
+        return first
+    contradiction = _contradiction(first, score, n_rules, catalog, options)
+    if contradiction is None:
+        return first
+    record = Coherence(score=contradiction.score, rules_with_evidence=contradiction.rules_with_evidence,
+                       strength=contradiction.strength, original_state=first.state,
+                       original_source=contradiction.source, choices=contradiction.choices, status="incoerente")
+    if options.coherence_mode == "force" and (forced := forced_state(contradiction, catalog)):
+        first.gates.append(f"coerência (diagnóstico force): estado ajustado de {first.state} para {forced}")
+        first.state, first.column = forced, column_of(first.criterion, forced, catalog)
+        record.status = "resolvida"
+    elif options.coherence_mode == "reask":
+        second = await _judge_once(llm, catalog, result, numeric_record_in_analysis, analyst_argument, contradiction,
+                                   exempt)
+        record.rejudged = True
+        if second.state is not None:
+            if _contradiction(second, score, n_rules, catalog, options, include_gate_conflicts=False) is None:
+                record.status = "resolvida"
+            first = second
+    if record.status == "incoerente":
+        first.gates.append(CONFLICT_NOTE)
+    first.coherence = record
+    return first
 
 
 def numeric_record_in(results: dict[str, CriterionResult]) -> bool:

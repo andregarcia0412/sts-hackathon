@@ -8,20 +8,14 @@ import asyncio
 from pydantic import BaseModel
 
 from backend.catalog.models import CRITERIA_ORDER, Catalog
-from backend.config import Settings
 from backend.criteria.schemas import CriterionResult
 from backend.graph.classify import ClassSuggestion, classify
+from backend.graph.options import JudgeOptions
 from backend.graph.scoring import RuleScore, score_criterion, score_rule
 from backend.graph.states import CriterionState, judge_state, numeric_record_in
 from backend.llm import LLM
 
-
-class JudgeOptions(BaseModel):
-    """How the judge runs; recorded in the analysis versions and in the benchmark config."""
-
-    @classmethod
-    def from_settings(cls, settings: Settings) -> "JudgeOptions":
-        return cls()
+__all__ = ["JudgeOptions", "JudgeOutcome", "judge_and_classify", "rules_with_evidence", "score_results"]
 
 
 class JudgeOutcome(BaseModel):
@@ -36,10 +30,20 @@ def score_results(results: dict[str, CriterionResult], catalog: Catalog) -> tupl
     return scores, {c: score_criterion(s) for c, s in scores.items()}
 
 
+def rules_with_evidence(scores: list[RuleScore]) -> int:
+    """Rules that entered the criterion score (in the mean, with evidence)."""
+    return sum(1 for s in scores if s.in_mean and s.score is not None)
+
+
 async def judge_and_classify(llm: LLM, catalog: Catalog, results: dict[str, CriterionResult],
                              options: JudgeOptions | None = None) -> JudgeOutcome:
+    options = options or JudgeOptions()
     scores, criterion_scores = score_results(results, catalog)
     numeric = numeric_record_in(results)
-    judged = await asyncio.gather(*(judge_state(llm, catalog, results[c], numeric) for c in CRITERIA_ORDER))
+    judged = await asyncio.gather(*(
+        judge_state(llm, catalog, results[c], numeric, score=criterion_scores.get(c),
+                    n_rules=rules_with_evidence(scores.get(c, [])), options=options)
+        for c in CRITERIA_ORDER
+    ))
     states = dict(zip(CRITERIA_ORDER, judged, strict=True))
     return JudgeOutcome(scores=scores, criterion_scores=criterion_scores, states=states, suggestion=classify(states))

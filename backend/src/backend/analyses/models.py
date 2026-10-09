@@ -34,6 +34,7 @@ class AnalysisVersions(BaseModel):
     prompts: dict[str, str] = Field(default_factory=dict)
     file_hashes: dict[str, str] = Field(default_factory=dict)
     temperature: float = 0
+    judge: dict[str, Any] = Field(default_factory=dict)  # JudgeOptions: coherence mode and thresholds
 
 
 class Analysis(Document):

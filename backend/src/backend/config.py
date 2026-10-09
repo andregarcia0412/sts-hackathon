@@ -47,6 +47,11 @@ class Settings(BaseSettings):
     web_fetch_per_front: int = 6
 
     analysis_concurrency: int = 2
+
+    coherence_mode: Literal["off", "flag", "reask"] = "reask"
+    coherence_high: int = 75
+    coherence_low: int = 25
+    coherence_min_rules: int = 4
     prompt_max_table_rows: int = 300
     package_dir: Path | None = None
     norms_dir: Path = BACKEND_ROOT / "data" / "normas"

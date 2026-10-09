@@ -89,6 +89,15 @@ def build_graph(
         for evidence_id_ in state.decisive_evidence_ids if state else []:
             if f"evidence:{evidence_id_}" in g.nodes:
                 g.edge(f"evidence:{evidence_id_}", "decisiva", criterion_node)
+        if state and state.coherence:
+            coherence = state.coherence
+            node = g.node(f"coherence:{criterion}", "coherence",
+                          f"Coerência score × estado: {coherence.status}", criterion=criterion,
+                          final_state=state.state, **coherence.model_dump())
+            g.edge(node, "afeta", criterion_node)
+            for evidence_id_ in state.decisive_evidence_ids:
+                if f"evidence:{evidence_id_}" in g.nodes:
+                    g.edge(node, "cita", f"evidence:{evidence_id_}")
         for divergence in result.divergences:
             node = g.node(f"divergence:{_short(divergence.testimony_fragment_id + divergence.record_fragment_id)}",
                           "divergence", "Divergência entrevista × registro", statement=divergence.statement,
