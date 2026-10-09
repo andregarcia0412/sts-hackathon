@@ -227,3 +227,12 @@ async def test_comparators_measured_on_the_same_metric_answer_n3():
     assert (n3.resposta, n3.origem) == ("sim", "gate") and "CHK-RECALC" in n3.explicacao
     assert state.state == "DEMONSTRADA NO RECORTE"
     assert "\nN3 [" not in user_text(llm.calls_for(QuestionnaireOut)[0])
+
+
+async def test_an_insufficient_state_decided_by_a_no_still_names_the_missing_link():
+    result = CriterionResult(criterion="REP", rules=[run("REP-D9", evidence("REP-D9", source="PRJ90-S02",
+                                                                            nature="derivado"))])
+    state = await judge_by_questionnaire(FakeLLM({QuestionnaireOut: fake_answers({"R1": "nao"})}), get_catalog(),
+                                         result, True, options=QUESTIONNAIRE)
+    assert state.state == "INSUFICIENTE PARA O NÚCLEO ALEGADO"
+    assert "R1" in state.missing_link.elo_ausente and state.missing_link.evidencias_a_solicitar
