@@ -70,3 +70,22 @@ async def test_rate_limit_gives_up_after_the_retries():
     async with httpx.AsyncClient() as http:
         with pytest.raises(httpx.HTTPStatusError):
             await OpenAlexProvider(http, retries=1).search("q", before=date(2025, 1, 6), limit=5)
+
+
+@respx.mock
+async def test_an_exhausted_daily_budget_fails_at_once(monkeypatch):
+    import asyncio
+
+    import pytest
+
+    waits = []
+
+    async def no_sleep(seconds):
+        waits.append(seconds)
+
+    monkeypatch.setattr(asyncio, "sleep", no_sleep)
+    route = respx.get(OPENALEX_URL).mock(return_value=httpx.Response(429, headers={"Retry-After": "67966"}))
+    async with httpx.AsyncClient() as http:
+        with pytest.raises(httpx.HTTPStatusError):
+            await OpenAlexProvider(http, retries=2).search("q", before=date(2025, 1, 6), limit=5)
+    assert route.call_count == 1 and waits == []
