@@ -42,8 +42,16 @@ import {
   staticRuleDecisions,
   staticUsers,
 } from "@/services/staticProvider";
+import {
+  ApiError,
+  apiJson,
+  apiPost,
+  apiPostForm,
+  saveTokens,
+} from "@/services/http";
 
 export { dataSourceLabel };
+export { ApiError };
 
 /*
  * Service layer. Screens only talk to these functions.
@@ -278,10 +286,29 @@ export const listDemoUsers = async (): Promise<User[]> => {
     const exported = await staticUsers();
     if (exported && exported.length > 0) return structuredClone(exported);
   }
+  if (dataSource() === "api") {
+    try {
+      return await apiJson<User[]>("/users"); // the seeded analysts (any password in the demo)
+    } catch {
+      /* fall back to the mocks below */
+    }
+  }
   return structuredClone(mockUsers);
 };
 
 export const login = async (email: string, password: string): Promise<User> => {
+  if (dataSource() === "api") {
+    try {
+      const tokens = await apiPost<{ access_token: string; refresh_token: string }>("/auth/login", {
+        email,
+        password,
+      });
+      saveTokens({ accessToken: tokens.access_token, refreshToken: tokens.refresh_token });
+      return { id: "", name: email.split("@")[0], email }; // id resolved by /users/me on session restore
+    } catch {
+      throw new AuthError();
+    }
+  }
   await delay();
   if (dataSource() === "static") {
     const exported = await staticUsers();
@@ -314,6 +341,16 @@ export const getUser = async (userId: string): Promise<User> => {
 /** One page of the analyst's projects, with filters (server-side in the real API) */
 export const listProjects = async (query: ProjectQuery): Promise<ProjectPage> => {
   if (dataSource() === "static") return staticListProjects(query);
+  if (dataSource() === "api") {
+    try {
+      const params = new URLSearchParams({ sort: query.sort, page: String(query.page), pageSize: String(query.pageSize) });
+      if (query.ownerId) params.set("ownerId", query.ownerId);
+      if (query.search) params.set("search", query.search);
+      return await apiJson<ProjectPage>(`/projects?${params}`);
+    } catch {
+      /* the back-end being down must never break the demo */
+    }
+  }
   await delay();
   const generated = generatedById();
   const summaries = allProjects().map((p) => toSummary(p, generated.get(p.id)));
@@ -325,6 +362,14 @@ export const getProject = async (projectId: string): Promise<Project> => {
     const exported = await staticGetProject(projectId);
     if (exported) return exported;
   }
+  if (dataSource() === "api") {
+    try {
+      return await apiJson<Project>(`/projects/${projectId}`);
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 404) throw new NotFoundError("Projeto");
+      /* fall back to the mock */
+    }
+  }
   await delay();
   return structuredClone(findProject(projectId));
 };
@@ -333,6 +378,18 @@ export const createProject = async (
   input: NewProjectInput,
   ownerId: string,
 ): Promise<Project> => {
+  if (dataSource() === "api") {
+    try {
+      const form = new FormData();
+      form.set("name", input.name.trim());
+      if (input.company) form.set("company", input.company.trim());
+      if (input.freeText) form.set("freeText", input.freeText.trim());
+      for (const file of input.files) form.append("files", file, file.name);
+      return await apiPostForm<Project>("/projects", form); // 201 + the created project; the analysis starts in the background
+    } catch {
+      /* fall back to the mock */
+    }
+  }
   await delay();
   const now = new Date().toISOString();
   const project: Project = {
@@ -370,6 +427,13 @@ export const getAnalyses = async (projectId: string): Promise<Analysis[] | null>
     const exists = await staticGetProject(projectId);
     if (exists) return null; // project in the export without a finished analysis
   }
+  if (dataSource() === "api") {
+    try {
+      return await apiJson<Analysis[] | null>(`/projects/${projectId}/analyses`);
+    } catch {
+      /* fall back to the mock */
+    }
+  }
   await delay();
   findProject(projectId);
   const analyses = analysesOf(projectId);
@@ -382,13 +446,48 @@ export const getAnalyses = async (projectId: string): Promise<Analysis[] | null>
 /** Decision trail, oldest first. Every save adds a new entry (never edits). */
 export const listDecisions = async (projectId: string): Promise<Decision[]> => {
   if (dataSource() === "static") return staticDecisions(projectId);
+  if (dataSource() === "api") {
+    try {
+      return await apiJson<Decision[]>(`/projects/${projectId}/decisions`);
+    } catch {
+      /* fall back to the mock */
+    }
+  }
   await delay();
   return structuredClone(decisionsOf(projectId));
+};
+
+// ---------------------------------------------------------------------------
+// Writes (E3): real API first, mock as the never-failing fallback
+// ---------------------------------------------------------------------------
+
+/** The front has 3 outcomes; the back-end's decision trail has 4 (the class vocabulary). */
+const OUTCOME_TO_API: Record<string, string> = {
+  eligible: "eligible",
+  needs_review: "insufficient_evidence",
+  not_eligible: "not_eligible",
+};
+const OUTCOME_FROM_API: Record<string, string> = {
+  eligible: "eligible",
+  eligible_with_caveats: "eligible",
+  insufficient_evidence: "needs_review",
+  not_eligible: "not_eligible",
 };
 
 export const saveDecision = async (
   input: NewDecisionInput,
 ): Promise<Decision> => {
+  if (dataSource() === "api") {
+    try {
+      const saved = await apiPost<Decision & { outcome: string }>(
+        `/projects/${input.projectId}/decisions`,
+        { ...input, outcome: OUTCOME_TO_API[input.outcome] ?? input.outcome },
+      );
+      return { ...saved, outcome: (OUTCOME_FROM_API[saved.outcome] ?? saved.outcome) as Decision["outcome"] };
+    } catch {
+      /* fall back to the mock */
+    }
+  }
   await delay();
   if (dataSource() === "static") await adoptStaticProject(input.projectId);
   const project = storedProject(input.projectId);
@@ -411,6 +510,13 @@ export const listContestations = async (projectId: string): Promise<Contestation
 export const createContestation = async (
   input: NewContestationInput,
 ): Promise<Contestation> => {
+  if (dataSource() === "api") {
+    try {
+      return await apiPost<Contestation>(`/projects/${input.projectId}/contestations`, input);
+    } catch {
+      /* fall back to the mock */
+    }
+  }
   await delay();
   if (dataSource() === "static") await adoptStaticProject(input.projectId);
   findProject(input.projectId);
@@ -431,6 +537,13 @@ export const createContestation = async (
  * changes show up in the analysis from then on.
  */
 export const requestReanalysis = async (contestationId: string): Promise<Contestation> => {
+  if (dataSource() === "api") {
+    try {
+      return await apiPost<Contestation>(`/contestations/${contestationId}/reanalysis`, {});
+    } catch {
+      /* fall back to the mock */
+    }
+  }
   await delay(REANALYSIS_LATENCY_MS);
   const stored = db.contestations.find((c) => c.id === contestationId);
   if (!stored) throw new NotFoundError("Contestação");
@@ -453,6 +566,13 @@ export const listRuleDecisions = async (projectId: string): Promise<RuleDecision
 };
 
 export const createRuleDecision = async (input: NewRuleDecisionInput): Promise<RuleDecision> => {
+  if (dataSource() === "api") {
+    try {
+      return await apiPost<RuleDecision>(`/projects/${input.projectId}/rule-decisions`, input);
+    } catch {
+      /* fall back to the mock */
+    }
+  }
   await delay();
   findProject(input.projectId);
   const decision: RuleDecision = { ...input, id: newId("rd"), createdAt: new Date().toISOString() };
@@ -471,6 +591,13 @@ export const listEvidenceReviews = async (projectId: string): Promise<EvidenceRe
 export const createEvidenceReview = async (
   input: NewEvidenceReviewInput,
 ): Promise<EvidenceReview> => {
+  if (dataSource() === "api") {
+    try {
+      return await apiPost<EvidenceReview>(`/projects/${input.projectId}/evidence-reviews`, input);
+    } catch {
+      /* fall back to the mock */
+    }
+  }
   await delay();
   findProject(input.projectId);
   const review: EvidenceReview = { ...input, id: newId("er"), createdAt: new Date().toISOString() };
@@ -492,6 +619,21 @@ export const askAssistant = async (
   question: string,
   context: AssistantContext,
 ): Promise<AssistantAnswer> => {
+  if (dataSource() === "api") {
+    try {
+      return await apiPost<AssistantAnswer>("/assistant/ask", {
+        question,
+        context: {
+          screen: context.screen,
+          analysis: { id: context.analysis?.id },
+          selectedNodeId: context.selectedNodeId,
+          debateNodeId: context.debateNodeId ?? null,
+        },
+      });
+    } catch {
+      /* fall back to the mock */
+    }
+  }
   await delay(ASSISTANT_LATENCY_MS);
   return context.debateNodeId
     ? debateReply(question, context)
@@ -503,6 +645,20 @@ export const openDebate = async (
   nodeId: string,
   context: AssistantContext,
 ): Promise<AssistantAnswer> => {
+  if (dataSource() === "api") {
+    try {
+      return await apiPost<AssistantAnswer>("/assistant/debate", {
+        nodeId,
+        context: {
+          screen: context.screen,
+          analysis: { id: context.analysis?.id },
+          selectedNodeId: context.selectedNodeId,
+        },
+      });
+    } catch {
+      /* fall back to the mock */
+    }
+  }
   await delay(ASSISTANT_LATENCY_MS);
   return debateOpening({ ...context, debateNodeId: nodeId }, nodeId);
 };
