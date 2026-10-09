@@ -13,7 +13,7 @@ uv sync
 uv run backend                      # http://127.0.0.1:8000/docs
 ```
 
-Or everything in Docker (API + Mongo), from the repo root:
+Or everything in Docker (API + Mongo + nginx), from the repo root:
 
 ```bash
 cp backend/.env.example backend/.env   # same settings; MONGODB_URI is replaced to reach the mongo container
