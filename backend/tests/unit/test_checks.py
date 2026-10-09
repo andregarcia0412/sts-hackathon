@@ -173,7 +173,7 @@ def test_a_divergence_the_sub_agent_already_wrote_is_not_repeated():
     from backend.criteria.schemas import CriterionResult, Divergence
 
     written = Divergence(criterion="SIS", testimony_fragment_id="E#conclusao", testimony_quote="Reduziu para 2,1 pontos",
-                         record_fragment_id="R#x", record_alias="resultados.csv#x", record_quote="3.7", statement="s")
+                         record_fragment_id="PRJ-S02", record_alias="resultados.csv#x", record_quote="3.7", statement="s")
     candidate = {"depoimento_fragmento": "E#conclusao", "depoimento_trecho": "Reduziu para 2,1 pontos.",
                  "registro_fragmento": "PRJ-S02", "registro_alias": "a", "registro_trecho": "b", "frase": "f"}
     checks = ChecksReport(results={"CHK-DIVERG": CheckResult(id="CHK-DIVERG", status="alerta",
@@ -206,7 +206,8 @@ def test_dedupe_keeps_one_record_per_interview_sentence_across_criteria():
                           record_fragment_id=record, record_alias="r", record_quote="x", statement=f"{quote}/{record}")
 
     results = {"SIS": CriterionResult(criterion="SIS", divergences=[div("SIS", "Reduziu para 2,1 pontos", "R1")]),
-               "REP": CriterionResult(criterion="REP", divergences=[div("REP", "Reduziu para 2,1 pontos.", "R2"),
+               "REP": CriterionResult(criterion="REP", divergences=[div("REP", "Reduziu para 2,1 pontos.", "R1"),
+                                                                     div("REP", "Reduziu para 2,1 pontos", "R2"),
                                                                      div("REP", "Outra frase", "R3")])}
-    assert dedupe_divergences(results) == 1
-    assert [d.record_fragment_id for r in results.values() for d in r.divergences] == ["R1", "R3"]
+    assert dedupe_divergences(results) == 1  # same sentence against another record is kept: it is information
+    assert [d.record_fragment_id for r in results.values() for d in r.divergences] == ["R1", "R2", "R3"]

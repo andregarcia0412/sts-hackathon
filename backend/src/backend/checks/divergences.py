@@ -23,12 +23,14 @@ def check_divergences(checks: ChecksReport) -> list[Divergence]:
 def add_check_divergences(results: dict[str, CriterionResult], canonical: CanonicalProject,
                           checks: ChecksReport) -> int:
     known = {(d.testimony_fragment_id, d.record_fragment_id) for r in results.values() for d in r.divergences}
-    known_quotes = {_normal(d.testimony_quote) for r in results.values() for d in r.divergences}
+    known_quotes = {(_normal(d.testimony_quote), d.record_fragment_id) for r in results.values() for d in r.divergences}
     added = 0
     for divergence in check_divergences(checks):
         if (divergence.testimony_fragment_id, divergence.record_fragment_id) in known:
             continue
-        if any(_same_sentence(_normal(divergence.testimony_quote), other) for other in known_quotes if other):
+        quote = _normal(divergence.testimony_quote)
+        if any(_same_sentence(quote, other) and record == divergence.record_fragment_id
+               for other, record in known_quotes if other):
             continue
         results.setdefault(CRITERION, CriterionResult(criterion=CRITERION)).divergences.append(divergence)
         added += 1
@@ -36,18 +38,19 @@ def add_check_divergences(results: dict[str, CriterionResult], canonical: Canoni
 
 
 def dedupe_divergences(results: dict[str, CriterionResult]) -> int:
-    """Keeps one record per interview sentence across the criteria (the first: usually the sub-agent's).
-    Returns how many repeated records were dropped from the copy (the source analysis is never written)."""
-    seen: list[str] = []
+    """Keeps one record per interview sentence AND record fragment across the criteria (the same sentence against
+    two different records is two pieces of information). Returns how many repeated records were dropped from the
+    copy (the source analysis is never written)."""
+    seen: list[tuple[str, str]] = []
     dropped = 0
     for result in results.values():
         kept = []
         for divergence in result.divergences:
             quote = _normal(divergence.testimony_quote)
-            if any(_same_sentence(quote, other) for other in seen):
+            if any(_same_sentence(quote, other) and record == divergence.record_fragment_id for other, record in seen):
                 dropped += 1
                 continue
-            seen.append(quote)
+            seen.append((quote, divergence.record_fragment_id))
             kept.append(divergence)
         result.divergences = kept
     return dropped
