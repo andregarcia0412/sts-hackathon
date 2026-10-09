@@ -4,6 +4,7 @@ from typing import Any, Literal
 from beanie import Document
 from pydantic import BaseModel, Field
 
+from backend.checks.models import ChecksReport
 from backend.criteria.schemas import CriterionResult
 from backend.extraction.schema import CanonicalProject
 from backend.graph.classify import ClassSuggestion
@@ -36,6 +37,7 @@ class AnalysisVersions(BaseModel):
     file_hashes: dict[str, str] = Field(default_factory=dict)
     temperature: float = 0
     judge: dict[str, Any] = Field(default_factory=dict)  # JudgeOptions: coherence mode and thresholds
+    checks_version: str | None = None
 
 
 class Analysis(Document):
@@ -58,6 +60,7 @@ class Analysis(Document):
     states: dict[str, CriterionState] = Field(default_factory=dict)
     suggestion: ClassSuggestion | None = None
     consistency: ConsistencyReport | None = None  # spec 02 part A, when CONSISTENCY_NEUTRALIZE is on
+    checks: ChecksReport | None = None  # deterministic CHK-* checks (zero tokens)
     report: dict[str, Any] | None = None
     usage: LLMUsage | None = None  # LLM calls, tokens and time per role
     worker: str | None = None  # "host:pid:boot_id" of the process that runs it (analyses/worker.py)

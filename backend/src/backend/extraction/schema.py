@@ -21,6 +21,7 @@ FileType = Literal[
     "entradas",
     "observacoes",
     "revisao",
+    "checagem",  # deterministic check computed by code (CHK-*), citable like any fragment
     "desconhecido",
 ]
 Nature = Literal["registro_primario", "derivado", "sintese", "depoimento"]
@@ -34,6 +35,7 @@ NATURE_BY_TYPE: dict[str, Nature] = {
     "entradas": "registro_primario",
     "observacoes": "registro_primario",
     "resultados": "derivado",
+    "checagem": "derivado",
     "dossie": "sintese",
     "registro_tecnico": "sintese",
     "metodo": "sintese",

@@ -9,6 +9,7 @@ import re
 from pydantic import BaseModel, Field
 
 from backend.catalog.models import Catalog
+from backend.checks.models import ChecksReport
 from backend.criteria.schemas import Adjustment, CriterionResult
 
 NEUTRALIZED = ("CRI", "INC")
@@ -30,12 +31,40 @@ class Neutralized(BaseModel):
 class ConsistencyReport(BaseModel):
     reference_sources: dict[str, str] = Field(default_factory=dict)  # source id → NOV rule that marked it
     neutralized: list[Neutralized] = Field(default_factory=list)
+    inverted: list[Neutralized] = Field(default_factory=list)  # INC-D2 × CHK-PERGUNTA: counted as negative
     warnings: list[str] = Field(default_factory=list)
 
 
-def apply_consistency(results: dict[str, CriterionResult], catalog: Catalog,
-                      use_text_markers: bool = False) -> ConsistencyReport:
+def _inc_d2_against_known_solution(results: dict[str, CriterionResult], checks: ChecksReport | None,
+                                   report: ConsistencyReport) -> None:
+    """A registered question that already names the known solution is routine: INC-D2 support quoting it counts
+    as negative (kept, with the original polarity and an adjustment)."""
+    question = checks.get("CHK-PERGUNTA") if checks else None
+    if question is None or not question.facts.get("aplica_solucao_conhecida"):
+        return
+    flagged = [q for q in question.facts.get("perguntas", []) if q.get("aplica_solucao_conhecida")]
+    texts = [" ".join(q["pergunta"].lower().split()) for q in flagged]
+    fragments = {q["fragmento"] for q in flagged}
+    run = results["INC"].rule("INC-D2") if "INC" in results else None
+    for item in run.evidences if run else []:
+        quote = " ".join(item.quote.lower().split())
+        if item.polarity != "positiva" or item.adjustment is not None:
+            continue
+        if item.source_id in fragments or any(t in quote or (len(quote) > 20 and quote in t) for t in texts):
+            item.adjustment = Adjustment(kind="pergunta", by_rule="CHK-PERGUNTA",
+                                         reason="a pergunta registrada já nomeia a solução conhecida: é rotina")
+            report.inverted.append(Neutralized(evidence_id=item.id, rule_id="INC-D2", source_id=item.source_id,
+                                               by_rule="CHK-PERGUNTA"))
+
+
+def apply_consistency(results: dict[str, CriterionResult], catalog: Catalog, use_text_markers: bool = False,
+                      checks: ChecksReport | None = None, neutralize: bool = True,
+                      inc_d2: bool = False) -> ConsistencyReport:
     report = ConsistencyReport()
+    if inc_d2:
+        _inc_d2_against_known_solution(results, checks, report)
+    if not neutralize:
+        return report
     reference_rules = {r.id for r in catalog.reference_rules()}
     novelty = results.get("NOV")
     for run in novelty.rules if novelty else []:

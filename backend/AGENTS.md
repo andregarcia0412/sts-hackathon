@@ -129,8 +129,13 @@ graph. No module calls another directly:
    **Code slices** the verbatim text from that mapping, so no sentence or number passes through
    generation; an invented heading is dropped. A fragment with a stable ID is the unit of citation
    (file, page/line, verbatim text, nature). Unrecognized file → "pendente de validação".
-2. **Deterministic checks** (`CHK-*`: recompute `medicoes` × `resultados`, timeline, versions) run
-   **via LLM instructions** inside the document sub-agents in the MVP; Python checks are post-MVP.
+2. **Deterministic checks** (`checks/`, stage `checagens`, zero tokens): CHK-RECALC (recompute `resultados` from
+   `medicoes`, only within the same trial, empty ≠ zero), CHK-TEMPO, CHK-VERSOES, CHK-FALHAS (with the direction of the
+   metric), CHK-CONFIG, CHK-ESCOPO, CHK-DIVERG (interview × record: different number, another version, another base,
+   absence/totality of failures, kept × changed parameter) and CHK-PERGUNTA (question that names the known solution).
+   Files by `file_type` (content), never by name. Each check becomes a **citable fragment** (`checagens#CHK-X`,
+   nature `derivado`) routed to the rules that list it in `checagens:`; CHK-DIVERG candidates are added to the
+   recorded divergences. `Analysis.checks`, node `kind="check"` in the graph.
 3. **Web research** (`-W` rules; OpenAlex, Google Patents, market, technical documentation) and
    **LLM rules over documents** (`-D` rules), in parallel.
 4. **Evidence graph** → the system's memory; per-criterion states and suggested class.
@@ -157,7 +162,7 @@ The **frontend is the source of truth for the API contract**: `frontend/src/doma
 
 ```
 backend/
-  pyproject.toml            # uv, Python >= 3.13; scripts: backend, backend-import, backend-ingest-norms, backend-calibrate, backend-benchmark
+  pyproject.toml            # uv, Python >= 3.13; scripts: backend, backend-import, backend-ingest-norms, backend-calibrate, backend-benchmark, backend-checks
   .env.example              # every setting, documented (Ollama models per role live here)
   data/normas/              # normative PDFs for the chatbot (BM25 index, no embeddings)
   src/backend/
@@ -170,6 +175,7 @@ backend/
     projects/               # Project + files (superseded, never deleted), upload (multipart/.zip), list (ProjectQuery), CLI import
     extraction/             # 1. raw text → extraction agent (mapping) → slicer (verbatim fragments) → canonical JSON + context
     search/                 # OpenAlex, Ollama web (patents/market/docs), Mongo cache, T6 sanitizer
+    checks/                 # deterministic CHK-* checks (zero tokens), citable fragments, backend-checks CLI
     criteria/               # 2. generic criterion agent: sub Doc + sub Web, citation gate, routing; NOV before CRI/INC
     graph/                  # 3. scoring, state judge + gates, class (patterns + tree), nodes/edges, $graphLookup trace
     analyses/               # 4. orchestrator (stages, versions, background jobs), batches, status/graph/canonical routes
@@ -208,6 +214,7 @@ uv run backend-calibrate historicos_classificados.csv nosso.csv   # confusion ma
 uv run backend-benchmark --projects PRJ01,PRJ21   # benchmark (all 40 without --projects; --repeats 2 = determinism)
 uv run backend-benchmark --rejudge <benchmark_id> [--coherence off|flag|reask|force] [--judge-mode estado|questionario]
 uv run backend-benchmark --close <benchmark_id>   # close a benchmark whose CLI died
+uv run backend-checks <benchmark_id> [--projects PRJ21]   # deterministic checks over saved canonicals (zero tokens)
 uv run pytest                  # unit + API tests, needs Mongo; no network
 uv run pytest -m live          # opt-in: PRJ21 end to end with the real Ollama (reads backend/.env)
 uv add <package>               # always manage dependencies with uv, never pip

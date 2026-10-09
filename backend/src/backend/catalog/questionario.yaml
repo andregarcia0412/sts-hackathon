@@ -41,10 +41,10 @@ perguntas:
       explicacao: "\"Nenhum algoritmo foi modificado\" ou \"faixa já admitida\" são o sinal clássico de sim."
     - id: C2
       texto: >-
-        Há elemento técnico próprio (combinação original, não renomeação de técnica conhecida) com a hipótese
-        registrada antes dos testes?
+        Há elemento técnico próprio (combinação original ou regra de decisão nova, não renomeação de técnica
+        conhecida), descrito como mecanismo e hipótese no método?
       regras: [CRI-D1, CRI-D10]
-      explicacao: "A hipótese escrita no método (§2, mecanismo e hipótese) conta como registrada antes quando o documento inicial é anterior aos ensaios na cronologia; não exija um registro separado. Responda nao só se o elemento é renomeação de técnica conhecida, se vem do texto da referência anterior (§1) ou se a hipótese só aparece depois dos ensaios. Método novo para tarefa comum conta."
+      explicacao: "A hipótese escrita no método (§2, mecanismo e hipótese) basta; a data só conta contra quando o registro mostra que a hipótese foi escrita depois dos ensaios. Responda nao só se o elemento é renomeação de técnica conhecida ou vem do texto da referência anterior (§1). Método novo para tarefa comum conta."
     - id: C3
       texto: >-
         Os parâmetros-chave do mecanismo estão preenchidos (não nulos) na configuração, com regra de decisão

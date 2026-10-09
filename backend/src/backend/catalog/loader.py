@@ -4,9 +4,17 @@ from pathlib import Path
 import yaml
 from pydantic import ValidationError
 
-from backend.catalog.models import Catalog, CatalogRule, CriterionInfo, Questionnaire, RuleDocument
+from backend.catalog.models import (
+    Catalog,
+    CatalogRule,
+    CriterionInfo,
+    Questionnaire,
+    RuleDocument,
+)
 
 CATALOG_PATH = Path(__file__).with_name("rules.yaml")
+KNOWN_CHECKS = {"CHK-RECALC", "CHK-TEMPO", "CHK-VERSOES", "CHK-FALHAS", "CHK-CONFIG", "CHK-ESCOPO", "CHK-DIVERG",
+                "CHK-PERGUNTA"}
 QUESTIONNAIRE_PATH = Path(__file__).with_name("questionario.yaml")
 
 
@@ -81,6 +89,8 @@ def _validate(catalog: Catalog) -> None:
             raise CatalogError(f"{rule.id}: status {rule.status} needs motivo_status")
         if rule.needs_llm and not rule.prompt:
             raise CatalogError(f"{rule.id}: applicable LLM rule without prompt")
+        if unknown := [c for c in rule.checagens if c not in KNOWN_CHECKS]:
+            raise CatalogError(f"{rule.id}: unknown check(s) {unknown}")
         if rule.forca_coluna and rule.papel != "gate":
             raise CatalogError(f"{rule.id}: forca_coluna needs papel: gate")
         for target in rule.requer_gate:
