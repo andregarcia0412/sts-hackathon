@@ -167,7 +167,7 @@ The **frontend is the source of truth for the API contract**: `frontend/src/doma
 
 ```
 backend/
-  pyproject.toml            # uv, Python >= 3.13; scripts: backend, backend-import, backend-ingest-norms, backend-calibrate, backend-benchmark, backend-checks
+  pyproject.toml            # uv, Python >= 3.13; scripts: backend, backend-import, backend-ingest-norms, backend-calibrate, backend-benchmark, backend-checks, backend-entrega
   .env.example              # every setting, documented (Ollama models per role live here)
   data/normas/              # normative PDFs for the chatbot (BM25 index, no embeddings)
   src/backend/
@@ -188,6 +188,7 @@ backend/
     review/                 # decisions, contestations (+ reanalysis), rule decisions, evidence reviews — append-only
     frontend_api/           # projection to the hifi Analysis tree (crit-x.rule-y.ev-z), ProjectQuery
     assistant/              # 6. chatbot: graph + catalog + norms (BM25), citation and numbers gates, debate
+    delivery/               # delivery of the 20 cases: run (resumable) + export (pareceres, CSV/JSON, API mock for the front)
     benchmark/              # pipeline benchmark: runs the package sets, accuracy vs references, time, cost, gates, determinism
     users/, auth/           # User (email, name, argon2), JWT access/refresh, CurrentUser dependency
   tests/                    # unit/ (fakes, no network), api/ (TestClient), live/ (opt-in, real Ollama)
@@ -202,7 +203,7 @@ Main endpoints: `POST /projects` (multipart files or .zip; starts the analysis) 
 · `GET /analyses/{id}/graph/trace/{node}` · `GET /analyses/{id}/report.{json,csv,pdf}` · `POST /batches`
 (`packageDir` inside `PACKAGE_DIR`) · `POST /batches/upload` (.zip) · `GET /batches/{id}[/report.csv]` ·
 `GET|POST /projects/{id}/decisions|contestations|rule-decisions|evidence-reviews` ·
-`POST /benchmarks` · `POST /benchmarks/{id}/rejudge` · `GET /benchmarks[/{id}[/projects|/report.csv]]` · `GET /benchmarks/compare?base=&target=` ·
+`POST /benchmarks` · `POST /benchmarks/{id}/rejudge|close|delivery` · `GET /benchmarks/{id}/report.html` · `GET /benchmarks[/{id}[/projects|/report.csv]]` · `GET /benchmarks/compare?base=&target=` ·
 `POST /contestations/{id}/reanalysis` · `POST /assistant/ask|debate` · `GET /regras[/{id}]`.
 
 ## Commands
@@ -220,6 +221,8 @@ uv run backend-benchmark --projects PRJ01,PRJ21   # benchmark (all 40 without --
 uv run backend-benchmark --rejudge <benchmark_id> [--coherence off|flag|reask|force] [--judge-mode estado|questionario]
 uv run backend-benchmark --close <benchmark_id>   # close a benchmark whose CLI died
 uv run backend-benchmark report <benchmark_id> --out metricas.html   # pitch report (static HTML + metricas.json)
+uv run backend-entrega run [--resume <id>] [--yes]   # analyse the 20 cases (resumable, estimate first)
+uv run backend-entrega export <benchmark_id> [--out <outside the repo>] [--zip] [--require-decisions]
 uv run backend-checks <benchmark_id> [--projects PRJ21]   # deterministic checks over saved canonicals (zero tokens)
 uv run backend-checks <benchmark_id> --parsers   # deterministic mapping × saved canonical fragment ids (zero tokens)
 uv run pytest                  # unit + API tests, needs Mongo; no network

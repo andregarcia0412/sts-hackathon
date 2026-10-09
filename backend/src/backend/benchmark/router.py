@@ -141,6 +141,24 @@ async def benchmark_report_html(benchmark_id: str, user: CurrentUser, request: R
     return Response(report_html(benchmark), media_type="text/html; charset=utf-8")
 
 
+@router.post("/{benchmark_id}/delivery")
+async def benchmark_delivery(benchmark_id: str, user: CurrentUser, request: Request) -> Response:
+    """The delivery folder of spec 08 as an authenticated .zip download (the path on disk is never exposed)."""
+    import shutil
+    import tempfile
+    from pathlib import Path
+
+    from backend.delivery.export import export_delivery
+
+    benchmark = await _owned(benchmark_id, user, request)
+    with tempfile.TemporaryDirectory() as tmp:
+        out = Path(tmp) / "entrega"
+        await export_delivery(benchmark, request.app.state.analysis_service.catalog, out, expected=None)
+        archive = Path(shutil.make_archive(str(out), "zip", root_dir=out)).read_bytes()
+    return Response(archive, media_type="application/zip",
+                    headers={"Content-Disposition": f'attachment; filename="entrega_{benchmark.id}.zip"'})
+
+
 @router.get("/{benchmark_id}/projects")
 async def benchmark_projects(benchmark_id: str, user: CurrentUser, request: Request) -> list[BenchmarkProjectRow]:
     """One line per analysed project: expected × suggested, time, tokens, evidence, divergences."""

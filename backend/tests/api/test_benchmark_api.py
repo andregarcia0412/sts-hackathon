@@ -150,3 +150,14 @@ def test_report_html_endpoint(client, auth_headers, fake_pipeline, package_root)
     page = client.get(f"/benchmarks/{benchmark_id}/report.html", headers=auth_headers)
     assert page.status_code == 200 and page.headers["content-type"].startswith("text/html")
     assert "Matriz de confusão" in page.text and "O que o sistema barrou" in page.text
+
+
+def test_delivery_zip_endpoint(client, auth_headers, fake_pipeline, package_root):
+    import io
+    import zipfile
+
+    benchmark_id = client.post("/benchmarks", json={"sets": ["analise"]}, headers=auth_headers).json()["id"]
+    response = client.post(f"/benchmarks/{benchmark_id}/delivery", headers=auth_headers)
+    assert response.status_code == 200 and response.headers["content-type"] == "application/zip"
+    names = zipfile.ZipFile(io.BytesIO(response.content)).namelist()
+    assert "manifest.json" in names and "PRJ91/parecer.pdf" in names and "frontend/api_mock.json" in names
