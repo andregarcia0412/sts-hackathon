@@ -1,3 +1,4 @@
+import type { Tone } from "@/domain/qualitative";
 import type {
   ContestationReason,
   DecisionOutcome,
@@ -8,9 +9,16 @@ import type {
 
 export const PROJECT_STATUS_LABELS: Record<ProjectStatus, string> = {
   processing: "Processando",
-  ready: "Pronto para análise",
+  ready: "Em análise",
   decided: "Decidido",
   error: "Erro",
+};
+
+export const PROJECT_STATUS_TONES: Record<ProjectStatus, Tone> = {
+  processing: "neutral",
+  ready: "neutral",
+  decided: "positive",
+  error: "negative",
 };
 
 export const POLARITY_LABELS: Record<EvidencePolarity, string> = {
@@ -25,10 +33,27 @@ export const SUGGESTED_CATEGORY_LABELS: Record<SuggestedCategory, string> = {
 };
 
 export const DECISION_OUTCOME_LABELS: Record<DecisionOutcome, string> = {
-  eligible: "Enquadrável",
-  not_eligible: "Não enquadrável",
-  needs_review: "Precisa de revisão",
+  eligible: "Elegível",
+  with_reservations: "Com ressalvas",
+  not_eligible: "Não elegível",
+  insufficient_evidence: "Evidência insuficiente",
 };
+
+/** The analyst's decision (never an automatic verdict) */
+export const DECISION_OUTCOME_TONES: Record<DecisionOutcome, Tone> = {
+  eligible: "positive",
+  not_eligible: "negative",
+  with_reservations: "attention",
+  insufficient_evidence: "neutral",
+};
+
+/** Order the outcomes are offered in (form, list filter) */
+export const DECISION_OUTCOMES: DecisionOutcome[] = [
+  "eligible",
+  "with_reservations",
+  "not_eligible",
+  "insufficient_evidence",
+];
 
 export const CONTESTATION_REASON_LABELS: Record<ContestationReason, string> = {
   polarity: "Polaridade errada (a favor × contra)",

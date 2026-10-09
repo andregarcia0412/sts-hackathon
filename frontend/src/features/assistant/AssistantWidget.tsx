@@ -1,12 +1,4 @@
-import {
-  Bot,
-  Flag,
-  RefreshCcw,
-  MessageCircleQuestion,
-  RotateCcw,
-  SendHorizontal,
-  X,
-} from "lucide-react";
+import { Flag, RefreshCcw, RotateCcw, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent, KeyboardEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -14,49 +6,56 @@ import type { AssistantAction, AssistantAnswer, ChatMessage } from "@/domain/ass
 import { CONTESTATION_REASON_LABELS } from "@/domain/labels";
 import type { Contestation, ContestationReason } from "@/domain/types";
 import { useRequestReanalysis } from "@/services/queries";
+import { AssistantStarIcon, SendIcon } from "@/components/icons/AssistantIcons";
 import { FRAMEWORKS } from "@/domain/frameworks";
 import { getNodeTitle, indexAnalysis } from "@/domain/tree";
 import { ContestationForm } from "@/features/assistant/ContestationForm";
 import { useAssistant } from "@/features/assistant/assistantState";
 import { starterSuggestions } from "@/mocks/assistantEngine";
-import { paths, reportAnchorId } from "@/routes/paths";
+import { paths } from "@/routes/paths";
 
 const PANEL_ID = "analysis-assistant";
 
+/** Quick questions shown above the input, as in the design */
+const MAX_SUGGESTIONS = 3;
+
 /**
- * Floating assistant (bottom-right) for the analysis and decision screens.
- * Answers explain scores and evidences, never give a verdict, and link back
- * to the nodes they are based on. In debate mode the analyst contests a node.
+ * Floating assistant ("IA Assistente", bottom-right) for the analysis and
+ * decision screens. Answers explain scores and evidences, never give a verdict,
+ * and link back to the nodes they are based on. In debate mode the analyst
+ * contests a node.
  */
 export const AssistantWidget = () => {
   const { open, setOpen, pageContext } = useAssistant();
   const launcherRef = useRef<HTMLButtonElement>(null);
+  // The panel stays mounted while its closing animation plays
+  const [mounted, setMounted] = useState(open);
+  if (open && !mounted) setMounted(true);
 
   // Only screens that registered a context (analysis/decision with data) get the bot
   if (!pageContext) return null;
 
   const close = () => {
     setOpen(false);
-    launcherRef.current?.focus();
+    // The launcher comes back once the panel starts closing: focus it then
+    requestAnimationFrame(() => launcherRef.current?.focus());
   };
 
   return (
     <div className="print:hidden">
-      {open && <AssistantPanel onClose={close} />}
+      {mounted && <AssistantPanel onClose={close} closing={!open} onClosed={() => setMounted(false)} />}
+      {/* Floating button; while the panel is open it takes its place (design) */}
       <button
         ref={launcherRef}
         type="button"
+        hidden={open}
         aria-expanded={open}
         aria-controls={PANEL_ID}
-        aria-label={open ? "Fechar assistente" : "Abrir assistente da análise"}
-        onClick={() => (open ? close() : setOpen(true))}
-        className="fixed right-4 bottom-4 z-40 flex size-14 items-center justify-center rounded-full bg-accent text-accent-fg shadow-lg transition-transform hover:scale-105"
+        aria-label="Abrir assistente da análise"
+        onClick={() => setOpen(true)}
+        className="fixed right-4 bottom-4 z-40 flex size-14 items-center justify-center rounded-full bg-action text-white shadow-card-accent transition-transform hover:scale-105 sm:size-18"
       >
-        {open ? (
-          <X className="size-6" aria-hidden />
-        ) : (
-          <MessageCircleQuestion className="size-6" aria-hidden />
-        )}
+        <AssistantStarIcon className="size-7 sm:size-8" />
       </button>
     </div>
   );
@@ -78,7 +77,7 @@ const reanalysisAnswer = (contestation: Contestation): AssistantAnswer => {
       },
       { type: "text", text: resolution.explanation },
       ...(resolution.changes.length
-        ? [{ type: "text" as const, text: "A árvore, o grafo e o documento de decisão já mostram os valores revisados." }]
+        ? [{ type: "text" as const, text: "A árvore de evidências e o documento de decisão já mostram os valores revisados." }]
         : []),
     ],
     sources: [
@@ -91,18 +90,32 @@ const reanalysisAnswer = (contestation: Contestation): AssistantAnswer => {
   };
 };
 
-const AssistantPanel = ({ onClose }: { onClose: () => void }) => {
+const roundButton =
+  "flex shrink-0 items-center justify-center rounded-full border border-fg-faint bg-surface text-fg transition-colors hover:bg-surface-muted disabled:opacity-40 disabled:hover:bg-surface";
+
+const AssistantPanel = ({
+  onClose,
+  closing,
+  onClosed,
+}: {
+  onClose: () => void;
+  /** Playing the closing animation; unmounts on `onClosed` */
+  closing: boolean;
+  onClosed: () => void;
+}) => {
   const { messages, pending, send, clear, pageContext, debateNodeId, endDebate, respondWith } =
     useAssistant();
   const reanalysis = useRequestReanalysis();
   const [draft, setDraft] = useState("");
   const [recording, setRecording] = useState<Recording | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const endRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => inputRef.current?.focus(), [debateNodeId]);
+  // Follow the conversation inside the panel only (scrollIntoView would also move the page)
   useEffect(() => {
-    endRef.current?.scrollIntoView({ block: "end" });
+    const list = listRef.current;
+    if (list) list.scrollTop = list.scrollHeight;
   }, [messages, pending, recording]);
 
   if (!pageContext) return null;
@@ -152,55 +165,66 @@ const AssistantPanel = ({ onClose }: { onClose: () => void }) => {
 
   const last = messages.at(-1);
   const lastAnswer = last?.role === "assistant" ? last.answer : undefined;
+  const suggestions =
+    messages.length === 0
+      ? starterSuggestions(pageContext)
+      : !pending && !recording && lastAnswer
+        ? lastAnswer.suggestions
+        : [];
 
   return (
     <section
       id={PANEL_ID}
       role="dialog"
       aria-label="Assistente da análise"
+      inert={closing}
       onKeyDown={(e) => e.key === "Escape" && onClose()}
-      className="fixed right-4 bottom-20 z-40 flex h-[min(36rem,calc(100dvh-7rem))] w-[min(25rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-2xl"
+      onAnimationEnd={(e) => {
+        if (closing && e.target === e.currentTarget) onClosed();
+      }}
+      className={`assistant-motion fixed right-4 bottom-4 isolate z-40 flex h-[min(34rem,calc(100dvh-2rem))] w-[min(30.625rem,calc(100vw-2rem))] origin-bottom-right flex-col overflow-hidden rounded-2xl border border-divider bg-surface p-5 shadow-[0_4px_24px_rgb(223_44_89/0.3)] ${
+        closing ? "animate-assistant-out" : "animate-assistant-in"
+      }`}
     >
-      <header className="flex items-start gap-2 border-b border-border px-4 py-3">
-        <Bot className="mt-0.5 size-5 shrink-0 text-accent" aria-hidden />
-        <div className="min-w-0 flex-1">
-          <h2 className="text-sm font-semibold">Assistente da análise</h2>
-          <p className="text-xs text-fg-muted">
-            Explica notas e evidências · versão de demonstração
-          </p>
+      {/* Wine and orange glow at the bottom, as in the design */}
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-72 opacity-50">
+        <div className="absolute -bottom-10 left-[18%] size-52 rounded-full bg-action blur-[70px]" />
+        <div className="absolute right-[18%] -bottom-10 size-52 rounded-full bg-brand-orange blur-[70px]" />
+      </div>
+
+      <header className="flex items-center justify-between gap-3">
+        <h2 className="text-2xl font-semibold text-action">IA Assistente</h2>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            className={`${roundButton} size-12`}
+            onClick={() => {
+              clear();
+              setRecording(null);
+              // The button disables itself: keep focus (and Escape) inside the panel
+              inputRef.current?.focus();
+            }}
+            disabled={messages.length === 0}
+            aria-label="Limpar conversa"
+            title="Limpar conversa"
+          >
+            <RotateCcw className="size-5" aria-hidden />
+          </button>
+          <button type="button" className={`${roundButton} size-12`} onClick={onClose} aria-label="Fechar assistente">
+            <X className="size-6" aria-hidden />
+          </button>
         </div>
-        <button
-          type="button"
-          className="btn-ghost p-1.5"
-          onClick={() => {
-            clear();
-            setRecording(null);
-          }}
-          disabled={messages.length === 0}
-          aria-label="Limpar conversa"
-          title="Limpar conversa"
-        >
-          <RotateCcw className="size-4" aria-hidden />
-        </button>
-        <button
-          type="button"
-          className="btn-ghost p-1.5"
-          onClick={onClose}
-          aria-label="Fechar assistente"
-        >
-          <X className="size-4" aria-hidden />
-        </button>
       </header>
 
       {debateNode ? (
-        <div className="flex items-center gap-2 border-b border-score-moderate bg-score-moderate-soft px-4 py-1.5 text-xs">
-          <Flag className="size-3.5 shrink-0 text-score-moderate" aria-hidden />
-          <span className="min-w-0 flex-1 truncate">
+        <div className="mt-3 flex items-center gap-2 rounded-xl bg-state-attention-soft px-3 py-2 text-xs leading-4 text-state-attention-strong">
+          <Flag className="size-3.5 shrink-0" aria-hidden />
+          <span className="min-w-0 flex-1 break-words">
             Contestando <strong>{debateNode.number} {getNodeTitle(debateNode)}</strong>
           </span>
           <button
             type="button"
-            className="shrink-0 font-medium text-accent hover:underline"
+            className="btn-link shrink-0"
             onClick={() => {
               setRecording(null);
               endDebate();
@@ -210,7 +234,7 @@ const AssistantPanel = ({ onClose }: { onClose: () => void }) => {
           </button>
         </div>
       ) : (
-        <p className="truncate border-b border-border bg-surface-muted px-4 py-1.5 text-xs text-fg-muted">
+        <p className="mt-1 text-xs leading-4 break-words text-fg-muted">
           Sobre:{" "}
           <span className="font-medium text-fg">
             {selected
@@ -222,15 +246,15 @@ const AssistantPanel = ({ onClose }: { onClose: () => void }) => {
         </p>
       )}
 
-      <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4" aria-live="polite">
+      <div ref={listRef} className="-mx-1 flex flex-1 flex-col gap-4 overflow-y-auto px-1 py-4" aria-live="polite">
         {messages.length === 0 && (
-          <div className="space-y-3 text-sm">
-            <p>
-              Pergunte sobre as notas, as evidências e de onde vem cada
-              informação. Eu explico; a decisão é sua. Discorda de algo? Use
-              “Questionar” no detalhe do item.
+          <div className="my-auto flex flex-col items-center gap-2 text-center">
+            <AssistantStarIcon gradient className="size-11" />
+            <p className="text-2xl text-action">Envie uma mensagem para iniciar</p>
+            <p className="max-w-xs text-xs leading-4 text-fg-muted">
+              Pergunte sobre as notas, as evidências e de onde vem cada informação. Eu explico; a
+              decisão é sua. Discorda de algo? Use “Questionar” no detalhe do item.
             </p>
-            <Suggestions items={starterSuggestions(pageContext)} onPick={submit} />
           </div>
         )}
         {messages.map((message) => (
@@ -248,17 +272,12 @@ const AssistantPanel = ({ onClose }: { onClose: () => void }) => {
           />
         ))}
         {pending && (
-          <p role="status" className="flex items-center gap-1.5 text-sm text-fg-muted">
-            <span className="flex gap-0.5" aria-hidden>
-              <span className="size-1.5 animate-bounce rounded-full bg-fg-muted" />
-              <span className="size-1.5 animate-bounce rounded-full bg-fg-muted [animation-delay:150ms]" />
-              <span className="size-1.5 animate-bounce rounded-full bg-fg-muted [animation-delay:300ms]" />
-            </span>
-            Analisando…
+          <p role="status" className="flex w-fit gap-1 rounded-3xl rounded-bl-none bg-surface-sunken px-6 py-4">
+            <span className="sr-only">Analisando…</span>
+            <span className="size-1.5 animate-bounce rounded-full bg-fg-secondary" aria-hidden />
+            <span className="size-1.5 animate-bounce rounded-full bg-fg-secondary [animation-delay:150ms]" aria-hidden />
+            <span className="size-1.5 animate-bounce rounded-full bg-fg-secondary [animation-delay:300ms]" aria-hidden />
           </p>
-        )}
-        {!pending && !recording && lastAnswer && lastAnswer.suggestions.length > 0 && (
-          <Suggestions items={lastAnswer.suggestions} onPick={submit} />
         )}
         {recording && recordingNode && (
           <ContestationForm
@@ -288,11 +307,11 @@ const AssistantPanel = ({ onClose }: { onClose: () => void }) => {
             }}
           />
         )}
-        <div ref={endRef} />
       </div>
 
-      <form onSubmit={handleSubmit} className="border-t border-border p-3">
-        <div className="flex items-end gap-2">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+        {suggestions.length > 0 && <Suggestions items={suggestions.slice(0, MAX_SUGGESTIONS)} onPick={submit} />}
+        <div className="flex items-end gap-2 rounded-3xl border border-border-strong bg-surface py-1 pr-1.5 pl-4 focus-within:outline-2 focus-within:outline-action">
           <label htmlFor="assistant-input" className="sr-only">
             {debateNode ? "Seu argumento" : "Pergunta para o assistente"}
           </label>
@@ -303,23 +322,19 @@ const AssistantPanel = ({ onClose }: { onClose: () => void }) => {
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder={
-              debateNode
-                ? "Explique por que discorda…"
-                : "Ex.: Como a nota deste critério foi calculada?"
-            }
-            className="input max-h-28 min-h-10 flex-1 resize-none"
+            placeholder={debateNode ? "Explique por que discorda…" : "Digite sua mensagem..."}
+            className="max-h-28 min-h-10 flex-1 resize-none bg-transparent py-2.5 text-sm leading-5 field-sizing-content placeholder:text-fg-muted focus-visible:outline-none"
           />
           <button
             type="submit"
-            className="btn-primary size-10 shrink-0 p-0"
+            className="mb-0.5 flex size-9 shrink-0 items-center justify-center rounded-full text-action transition-colors hover:bg-accent-soft disabled:text-fg-faint disabled:hover:bg-transparent"
             disabled={pending || !draft.trim()}
             aria-label="Enviar"
           >
-            <SendHorizontal className="size-4" aria-hidden />
+            <SendIcon className="size-6" />
           </button>
         </div>
-        <p className="mt-1.5 text-[11px] text-fg-muted">
+        <p className="text-[11px] leading-4 text-fg-muted">
           Respostas automáticas de apoio. Não substituem a análise nem a decisão do analista.
         </p>
       </form>
@@ -328,13 +343,13 @@ const AssistantPanel = ({ onClose }: { onClose: () => void }) => {
 };
 
 const Suggestions = ({ items, onPick }: { items: string[]; onPick: (q: string) => void }) => (
-  <ul className="flex flex-wrap gap-1.5" aria-label="Sugestões">
+  <ul className="flex flex-wrap gap-2" aria-label="Sugestões">
     {items.map((item) => (
-      <li key={item}>
+      <li key={item} className="flex grow basis-32">
         <button
           type="button"
           onClick={() => onPick(item)}
-          className="rounded-full border border-accent/40 bg-accent-soft px-2.5 py-1 text-left text-xs text-accent hover:border-accent"
+          className="w-full rounded-[20px] bg-accent px-3 py-2 text-left text-xs leading-4 text-white transition-[filter] hover:brightness-110"
         >
           {item}
         </button>
@@ -354,14 +369,14 @@ const Message = ({
 }) => {
   if (message.role === "user") {
     return (
-      <p className="ml-8 rounded-lg rounded-br-sm bg-accent px-3 py-2 text-sm whitespace-pre-line text-accent-fg">
+      <p className="ml-auto w-fit max-w-[85%] rounded-3xl rounded-br-none bg-brand-blush px-5 py-3 text-sm leading-5 break-words whitespace-pre-line text-fg">
         {message.text}
       </p>
     );
   }
   if (message.role === "error") {
     return (
-      <p role="alert" className="mr-8 rounded-lg bg-score-weak-soft px-3 py-2 text-sm text-danger">
+      <p role="alert" className="mr-8 w-fit rounded-3xl rounded-bl-none bg-state-negative-soft px-5 py-3 text-sm leading-5 text-danger">
         {message.text}
       </p>
     );
@@ -370,7 +385,7 @@ const Message = ({
     return (
       <p className="flex items-center gap-2 text-xs text-fg-muted">
         <span className="h-px flex-1 bg-border" />
-        <Flag className="size-3.5 text-score-moderate" aria-hidden />
+        <Flag className="size-3.5 text-state-attention" aria-hidden />
         {message.text}
         <span className="h-px flex-1 bg-border" />
       </p>
@@ -393,7 +408,7 @@ const AnswerView = ({
   const openNode = useOpenNode();
 
   return (
-    <div className="mr-4 space-y-2 rounded-lg rounded-bl-sm bg-surface-muted px-3 py-2 text-sm leading-relaxed">
+    <div className="mr-6 space-y-2 rounded-3xl rounded-bl-none bg-surface-sunken px-5 py-3 text-sm leading-5">
       {answer.blocks.map((block, i) => {
         if (block.type === "text") return <p key={i}>{block.text}</p>;
         if (block.type === "list") {
@@ -406,22 +421,22 @@ const AnswerView = ({
           );
         }
         return (
-          <figure key={i} className="rounded-md border border-border bg-surface p-2">
-            <blockquote className="italic">“{block.text}”</blockquote>
+          <figure key={i} className="rounded-lg border-l-2 border-action bg-surface px-3 py-2">
+            <blockquote>“{block.text}”</blockquote>
             <figcaption className="mt-1 text-xs text-fg-muted">{block.caption}</figcaption>
           </figure>
         );
       })}
       {answer.sources.length > 0 && (
-        <div className="border-t border-border pt-2">
-          <p className="mb-1 text-xs font-medium text-fg-muted">Fontes</p>
+        <div className="border-t border-border-strong pt-2">
+          <p className="caps-label mb-1.5 text-fg-muted">Fontes</p>
           <ul className="flex flex-wrap gap-1">
             {answer.sources.map((s) => (
               <li key={s.nodeId}>
                 <button
                   type="button"
                   onClick={() => openNode(s.nodeId)}
-                  className="max-w-full truncate rounded border border-border bg-surface px-1.5 py-0.5 text-xs hover:border-accent hover:text-accent"
+                  className="max-w-full rounded-2xl border border-border-strong bg-surface px-2.5 py-1 text-left text-xs break-words leading-4 font-medium transition-colors hover:border-action hover:text-accent"
                   title={`Ir para ${s.label}`}
                 >
                   {s.label}
@@ -435,12 +450,12 @@ const AnswerView = ({
         <button
           key={action.type + action.nodeId}
           type="button"
-          className="btn-secondary w-full border-score-moderate py-1.5"
+          className="btn-secondary w-full px-4 py-2 text-sm"
           onClick={() => onAction(action)}
         >
           {action.type === "record-contestation" ? (
             <>
-              <Flag className="size-4 text-score-moderate" aria-hidden />
+              <Flag className="size-4 text-state-attention" aria-hidden />
               Registrar contestação
             </>
           ) : (
@@ -456,8 +471,8 @@ const AnswerView = ({
 };
 
 /**
- * Sources are clickable: on the analysis screen they select the node (graph,
- * tree and detail follow the URL); on the decision document they scroll to it.
+ * Sources are clickable: they select the node in the URL, so the analysis
+ * screen (tree, detail) and the decision document (accordion) open it.
  */
 const useOpenNode = () => {
   const { pageContext } = useAssistant();
@@ -465,16 +480,13 @@ const useOpenNode = () => {
   const { projectId = "" } = useParams();
 
   return (nodeId: string) => {
-    if (pageContext?.screen === "analysis") {
-      navigate(paths.analysis(projectId, nodeId, pageContext.analysis.framework));
-      return;
-    }
     if (!pageContext) return;
-    const target = document.getElementById(reportAnchorId(pageContext.analysis, nodeId));
-    target?.scrollIntoView({ behavior: "smooth", block: "start" });
-    target?.animate(
-      [{ backgroundColor: "var(--color-accent-soft)" }, { backgroundColor: "transparent" }],
-      { duration: 1600, easing: "ease-out" },
+    const { framework } = pageContext.analysis;
+    navigate(
+      pageContext.screen === "analysis"
+        ? paths.analysis(projectId, nodeId, framework)
+        : paths.decision(projectId, framework, nodeId),
+      { replace: pageContext.screen === "decision" },
     );
   };
 };

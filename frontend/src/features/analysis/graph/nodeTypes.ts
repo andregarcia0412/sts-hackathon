@@ -1,4 +1,5 @@
-import type { NodeTypes } from "@xyflow/react";
+import type { EdgeTypes, NodeTypes } from "@xyflow/react";
+import { BracketEdge } from "@/features/analysis/graph/BracketEdge";
 import {
   CriterionGraphNode,
   EvidenceGraphNode,
@@ -11,3 +12,5 @@ export const nodeTypes = {
   rule: RuleGraphNode,
   evidence: EvidenceGraphNode,
 } satisfies NodeTypes;
+
+export const edgeTypes = { bracket: BracketEdge } satisfies EdgeTypes;
