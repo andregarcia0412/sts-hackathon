@@ -283,6 +283,12 @@ export const listDemoUsers = async (): Promise<User[]> => {
 
 export const login = async (email: string, password: string): Promise<User> => {
   await delay();
+  if (dataSource() === "static") {
+    const exported = await staticUsers();
+    const user = exported?.find((u) => u.email.toLowerCase() === email.trim().toLowerCase());
+    if (!user || !password) throw new AuthError();
+    return structuredClone(user);
+  }
   const user = mockUsers.find((u) => u.email.toLowerCase() === email.trim().toLowerCase());
   if (!user || !password) throw new AuthError();
   return structuredClone(user);
@@ -290,6 +296,12 @@ export const login = async (email: string, password: string): Promise<User> => {
 
 export const getUser = async (userId: string): Promise<User> => {
   await delay(100);
+  if (dataSource() === "static") {
+    const exported = await staticUsers();
+    const user = exported?.find((u) => u.id === userId);
+    if (!user) throw new AuthError("Sessão expirada");
+    return structuredClone(user);
+  }
   const user = mockUsers.find((u) => u.id === userId);
   if (!user) throw new AuthError("Sessão expirada");
   return structuredClone(user);
