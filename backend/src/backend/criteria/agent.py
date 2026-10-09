@@ -47,12 +47,14 @@ class CriteriaRunner:
         fetch_per_front: int = 6,
         max_table_rows: int = 300,
         doc_pitfalls: bool = False,
+        flag_speculative: bool = False,
     ) -> None:
         self.llm, self.catalog, self.providers = llm, catalog, providers
         self._on_stage = on_stage
         self.queries_per_front, self.results_per_query = queries_per_front, results_per_query
         self.fetch_per_front, self.max_table_rows = fetch_per_front, max_table_rows
         self.doc_pitfalls = doc_pitfalls
+        self.flag_speculative = flag_speculative
         self.session = SearchSession()  # one per analysis: NOV, CRI and INC reuse each other's searches and pages
 
     async def on_stage(self, name: str, status: str, error: str | None = None) -> None:
@@ -68,7 +70,7 @@ class CriteriaRunner:
         web_rules = self.catalog.rules_for(criterion, "web")
         doc_rules = self.catalog.rules_for(criterion, "doc")
         tasks = [run_doc_sub(self.llm, self.catalog, criterion, doc_rules, canonical, self.max_table_rows,
-                             pitfalls=self.doc_pitfalls)]
+                             pitfalls=self.doc_pitfalls, flag_speculative=self.flag_speculative)]
         if web_rules:
             tasks.append(
                 run_web_sub(self.llm, self.catalog, criterion, web_rules, canonical, self.providers,

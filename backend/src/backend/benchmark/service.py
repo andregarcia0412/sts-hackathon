@@ -172,7 +172,7 @@ def snapshot_of(run: BenchmarkRun, analysis: Analysis | None) -> RunSnapshot:
             for item in rule.evidences:
                 snap.evidence_ids.append(item.id)
                 snap.evidences_without_source += not (item.source_id and item.quote)
-                snap.flagged_speculative += "justificativa_especulativa" in getattr(item, "flags", [])
+                snap.flagged_speculative += "justificativa_especulativa" in item.flags
                 snap.evidences_positive += item.polarity == "positiva"
                 snap.evidences_negative += item.polarity == "negativa"
         snap.web_searches += len(result.search_log)
