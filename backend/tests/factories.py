@@ -399,9 +399,34 @@ def fake_answers(answers: dict[str, str] | None = None):
     return handler
 
 
+ANSWERS_FOR_STATE = {
+    "NOV": {"DEMONSTRADA NO RECORTE": {"N1": "nao", "N2": "sim", "N3": "sim"}, "NÃO DEMONSTRADA": {"N1": "sim"},
+            "INDETERMINADA": {"N1": "nao", "N2": "sem_registro"}},
+    "CRI": {"DEMONSTRADA NO RECORTE": {"C1": "nao", "C2": "sim", "C3": "sim"}, "NÃO DEMONSTRADA": {"C1": "sim"},
+            "INDETERMINADA": {"C1": "nao", "C3": "nao"}},
+    "INC": {"INVESTIGADA": {"I1": "nao", "I2": "experimental", "I3": "sim"}, "NÃO CARACTERIZADA": {"I1": "sim"},
+            "ALEGADA, NÃO VERIFICÁVEL": {"I1": "nao", "I3": "sem_registro"}},
+    "SIS": {"DOCUMENTADA": {"S1": "sim", "S2": "experimento"}, "DOCUMENTADA COMO ACEITE": {"S1": "sim", "S2": "aceite"},
+            "PARCIAL": {"S1": "nao"}},
+    "REP": {"DOCUMENTADA NO ESCOPO": {"R1": "sim", "R2": "conhecimento", "R3": "nao"},
+            "DOCUMENTADA COM LIMITE": {"R1": "sim", "R2": "conhecimento", "R3": "sim"},
+            "DOCUMENTADA PARA A CONFIGURAÇÃO": {"R1": "sim", "R2": "configuracao"},
+            "INSUFICIENTE PARA O NÚCLEO ALEGADO": {"R1": "nao"}},
+}
+
+
+def answers_for(states: dict[str, str] | None = None) -> dict[str, str]:
+    """Questionnaire answers that lead the decision table to the given states (default: eligible)."""
+    answers = dict(ELIGIBLE_ANSWERS)
+    for criterion, state in (states or ELIGIBLE_STATES).items():
+        answers |= ANSWERS_FOR_STATE[criterion][state]
+    return answers
+
+
 def full_handlers(states: dict[str, str] | None = None) -> dict:
     from backend.criteria.doc_sub import DocSubOut
     from backend.criteria.web_sub import QueryPlanOut, WebJudgeOut
+    from backend.graph.questionnaire import QuestionnaireOut
     from backend.graph.states import StateJudgeOut
 
     return extraction_handlers() | {
@@ -409,6 +434,7 @@ def full_handlers(states: dict[str, str] | None = None) -> dict:
         QueryPlanOut: fake_query_plan,
         WebJudgeOut: fake_web_judge,
         StateJudgeOut: fake_state(states),
+        QuestionnaireOut: fake_answers(answers_for(states)),
     }
 
 

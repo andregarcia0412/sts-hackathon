@@ -56,7 +56,7 @@ class Settings(BaseSettings):
     manual_analysis_minutes: float | None = None
     manual_analysis_source: str | None = None
 
-    judge_mode: Literal["estado", "questionario"] = "estado"
+    judge_mode: Literal["estado", "questionario"] = "questionario"
     judge_handbooks: bool = True
     doc_handbook_pitfalls: bool = False
     justification_flags: bool = False
