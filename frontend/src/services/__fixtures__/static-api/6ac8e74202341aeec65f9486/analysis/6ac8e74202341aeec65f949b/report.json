@@ -1,0 +1,2462 @@
+{
+ "projeto_id": "PRJ90",
+ "titulo": "Fila adaptativa de conciliacao",
+ "gerado_em": "2026-10-09T13:12:01.737831Z",
+ "classe_sugerida": "insufficient_evidence",
+ "classificacao": "Evidência insuficiente",
+ "inconsistente": true,
+ "motivo_classe": "núcleo alegado não verificável (NOV, CRI)",
+ "caminho_arvore": [
+  "combinação fora dos padrões do gabarito",
+  "núcleo alegado não verificável (NOV, CRI)"
+ ],
+ "incompleto": [],
+ "resumo": "Classe sugerida: Evidência insuficiente (núcleo alegado não verificável – NOV, CRI). O núcleo de novidade e criatividade não pode ser comprovado porque faltam a descrição detalhada do mecanismo (parâmetros de desempate e janela de 15 minutos) e a comparação com a referência anterior. Há divergência entre a entrevista (acertou 200 lotes) e os registros (196/200). Também faltam objetivo, escopo, hipótese formal, controles experimentais e registro de desvios.",
+ "justificativa": "A novidade permanece indeterminada, pois a patente citada cobre apenas parte do elemento novo e não há documentação que mostre o critério de desempate nem a janela de 15 minutos. A criatividade técnica também está indeterminada, já que o parâmetro crítico 'limiar_desempate' está nulo e não há hipótese registrada antes dos testes, violando o requisito CRI-D1. A entrevista afirma sucesso total (200 lotes), mas os registros primários mostram 196 lotes corretos, indicando inconsistência que impede a verificação do desempenho alegado. A sistematicidade está parcial, pois faltam objetivo, escopo, registro de desvios e controles de desenho experimental, bem como ensaios da versão prioridade‑v1. A transferência está documentada com limite, pois o parâmetro nulo impede a reprodução completa e há lacuna para lotes acima de 500 itens. Esses elos ausentes impedem a verificação do núcleo alegado, justificando a classificação de evidência insuficiente.",
+ "limite": "Faltam: (i) descrição detalhada do mecanismo com parâmetros de desempate e janela de 15 minutos; (ii) comparação completa com a referência anterior; (iii) hipótese formal registrada antes dos testes e valor definido para 'limiar_desempate'; (iv) documento de objetivo, escopo e metas datado; (v) registro de desvios experimentais e justificativas; (vi) protocolo experimental com controles de desenho (estrato, repetições, ordem contrabalançada, separação temporal); (vii) ensaios para a versão prioridade‑v1; (viii) evidência de reprodução completa para lotes >500 itens.",
+ "texto_gerado_por_llm": true,
+ "ressalva": null,
+ "elo_ausente": {
+  "elo_ausente": "descrição detalhada do mecanismo proposto (parâmetros de desempate e janela de 15 minutos) e comparação com a referência anterior; Hipótese formal registrada antes dos testes e valor definido para o parâmetro 'limiar_desempate'; Objetivo e escopo do projeto; registro de desvios experimentais e justificativas; controles de desenho experimental (estrato, repetições, ordem contrabalançada, separação temporal); ensaios para a versão prioridade-v1",
+  "evidencias_a_solicitar": [
+   "ev-mech-001",
+   "ev-comp-001",
+   "hipótese_pre_teste.pdf",
+   "configuracao_com_limiar_desempate",
+   "Documento que descreva objetivo, escopo e metas do projeto, datado",
+   "Documento ou registro que descreva desvios experimentais e razões para mudança de rumo",
+   "Protocolo experimental detalhando os controles de desenho adotados",
+   "Medições ou resultados associados à versão prioridade-v1"
+  ]
+ },
+ "criterios": [
+  {
+   "chave": "NOV",
+   "criterio": "Novidade",
+   "estado": "INDETERMINADA",
+   "justificativa": "O patente [https://patents.google.com/patent/US11188228B1/en] cobre apenas parte do elemento novo, faltando o critério de desempate por menor atraso e a janela de 15 minutos. As buscas (NOV-W4, NOV-W5, NOV-W7) não encontraram solução idêntica anterior, mas não há documentação do mecanismo próprio com parâmetros nem comparação detalhada. Assim falta informação essencial para comprovar a novidade no recorte ensaiado. Portanto o critério permanece indeterminado.",
+   "fonte": "https://patents.google.com/patent/US11188228B1/en",
+   "nota": 100,
+   "fonte_normativa": "Frascati 2015 §2.14–2.16; Guia MCTI 2020 §6.2; FORMP&D 3.1.7",
+   "gates": [],
+   "regras": [
+    {
+     "regra": "NOV-W1",
+     "titulo": "Data de referência",
+     "status": "executada",
+     "motivo": "Data de referência 2025-01-06 (origem: PRJ90-EV01#cabecalho). 1 fonte(s) posterior(es) fora do estado da arte; 11 sem data verificável.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "LPI art. 11 §1º",
+      "INPI Res. 169/2016 itens 3.1 e 3.3",
+      "HMRC GfC3 parte 2, passo 5",
+      "IE TDM §8.1(e)"
+     ]
+    },
+    {
+     "regra": "NOV-W2",
+     "titulo": "Três frentes de busca",
+     "status": "executada",
+     "motivo": "Frentes com fontes: literatura (2 buscas, 6 fontes); patentes (2 buscas, 6 fontes); mercado (2 buscas, 6 fontes); documentacao (2 buscas, 6 fontes). Sem fontes: nenhuma.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "IT MIMIT 2024 §1.1.3.1",
+      "AU R&DTI"
+     ]
+    },
+    {
+     "regra": "NOV-W3",
+     "titulo": "Documento mais próximo",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 1,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Frascati 2015 §2.16",
+      "INPI itens 4.6 e 4.10",
+      "EPO G-VII 5 etapa (i)"
+     ]
+    },
+    {
+     "regra": "NOV-W4",
+     "titulo": "Setor, não a empresa",
+     "status": "sem_evidencia",
+     "motivo": "Nenhuma fonte encontrada que demonstre a existência de solução idêntica no setor antes da data de referência.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Frascati 2015 §2.15",
+      "UK DSIT ¶6, ¶20, ¶22",
+      "FAQ MCTI P4(a)"
+     ]
+    },
+    {
+     "regra": "NOV-W5",
+     "titulo": "Segredo industrial preserva novidade",
+     "status": "sem_evidencia",
+     "motivo": "Nenhuma fonte encontrada que mostre o mesmo resultado sem divulgação do método.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "UK DSIT ¶11, ¶21",
+      "IE TDM §3.4",
+      "IT MIMIT §1.1.3.1"
+     ]
+    },
+    {
+     "regra": "NOV-W6",
+     "titulo": "Trabalho simultâneo não elimina",
+     "status": "sem_evidencia",
+     "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em src-1b6e63a219",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "UK DSIT ¶21",
+      "IE TDM §3.4",
+      "IT MIMIT §1.1.3.1"
+     ]
+    },
+    {
+     "regra": "NOV-W7",
+     "titulo": "Página conta se achável e acessível",
+     "status": "sem_evidencia",
+     "motivo": "Nenhuma página achável e acessível antes da data de referência descrevendo o mecanismo proposto.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "INPI Res. 169/2016 item 3.33"
+     ]
+    },
+    {
+     "regra": "NOV-W8",
+     "titulo": "Busca reproduzível",
+     "status": "executada",
+     "motivo": "8 busca(s) registradas com base, query original × sanitizada, filtros, data/hora, nº de resultados e fontes selecionadas/descartadas (0 com erro ou não enviadas).",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "PRISMA-S (Rethlefsen et al. 2021)",
+      "WIPO Pub. 946"
+     ]
+    },
+    {
+     "regra": "NOV-D1",
+     "titulo": "Declara o elemento novo",
+     "status": "nao_executada",
+     "motivo": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "FORMP&D 3.1.7",
+      "Guia MCTI 2020 §6.2",
+      "FAQ MCTI P4(a) e (c)"
+     ]
+    },
+    {
+     "regra": "NOV-D2",
+     "titulo": "Estado da arte com modo de falha",
+     "status": "nao_executada",
+     "motivo": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Guia MCTI 2020 §6.2",
+      "IT MIMIT §1.1.3.1",
+      "IE TDM §8.1(e)",
+      "Históricos PRJ02, 03, 05 × PRJ08"
+     ]
+    },
+    {
+     "regra": "NOV-D3",
+     "titulo": "Novidade de conhecimento, não de funcionalidade",
+     "status": "nao_executada",
+     "motivo": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "FAQ MCTI P4",
+      "Frascati 2015 §2.16 e Tab. 2.1(a)",
+      "Guia MCTI 2020 §6.1"
+     ]
+    },
+    {
+     "regra": "NOV-D4",
+     "titulo": "Não é cópia nem compra de tecnologia",
+     "status": "nao_executada",
+     "motivo": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Frascati 2015 §2.15",
+      "UK DSIT ¶12, ¶22, ¶24",
+      "Guia ANPEI 2017 pp. 19 e 26",
+      "Guia MCTI 2020 Ap. B.3"
+     ]
+    },
+    {
+     "regra": "NOV-D5",
+     "titulo": "Exclusões de software",
+     "status": "nao_executada",
+     "motivo": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Frascati 2015 §2.70–2.72",
+      "IPCTN 2020 Anexo I"
+     ]
+    },
+    {
+     "regra": "NOV-D6",
+     "titulo": "Melhoria substancial com linha de base",
+     "status": "nao_executada",
+     "motivo": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Decreto 5.798 art. 2º II c",
+      "Guia MCTI 2020 Ap. B.1",
+      "UK DSIT ¶23–25"
+     ]
+    },
+    {
+     "regra": "NOV-D8",
+     "titulo": "Patente ou artigo como indício",
+     "status": "na",
+     "motivo": "Não há patentes, registros ou artigos nos artefatos do pacote.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "IT MIMIT §1.1.3.1",
+      "Frascati Tab. 2.1(d)",
+      "Guia ANPEI 2017 Fig. 1"
+     ]
+    },
+    {
+     "regra": "NOV-D10",
+     "titulo": "Referência anterior já fornece a função",
+     "status": "nao_executada",
+     "motivo": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Históricos PRJ01, 04, 09, 11, 12, 19, 20",
+      "Frascati 2015 §2.72"
+     ]
+    },
+    {
+     "regra": "NOV-D11",
+     "titulo": "Novidade vale no recorte ensaiado",
+     "status": "nao_executada",
+     "motivo": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Históricos PRJ02, 05, 07, 14",
+      "LEIA_ME"
+     ]
+    },
+    {
+     "regra": "NOV-D12",
+     "titulo": "Título não prova novidade",
+     "status": "nao_executada",
+     "motivo": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Históricos PRJ09, PRJ19, PRJ02"
+     ]
+    }
+   ],
+   "respostas": [],
+   "regra_de_decisao": null
+  },
+  {
+   "chave": "CRI",
+   "criterio": "Criatividade técnica",
+   "estado": "INDETERMINADA",
+   "justificativa": "A evidência [dossie_projeto.pdf#pergunta_registrada] mostra que não há hipótese explícita registrada antes dos ensaios, violando o requisito CRI-D1. Além disso, [evidencias/configuracao.json#parametros] indica que o parâmetro crítico 'limiar_desempate' está nulo, impedindo a definição completa do mecanismo (CRI-D8). Embora [https://github.com/glebec/batching-toposort], [https://patents.google.com/patent/US11854091], [checagens#CHK-CONFIG] e [evidencias/metodo.md#2] apontem criatividade, a falta desses elementos essenciais impede a demonstração no recorte. Portanto, o critério permanece indeterminado até que as evidências faltantes sejam apresentadas.",
+   "fonte": "dossie_projeto.pdf#pergunta_registrada",
+   "nota": 71,
+   "fonte_normativa": "Frascati 2015 §2.17 e Tab. 2.1(b)–(c); Guia MCTI 2020 §6",
+   "gates": [],
+   "regras": [
+    {
+     "regra": "CRI-W1",
+     "titulo": "Roteiro problema-solução",
+     "status": "sem_evidencia",
+     "motivo": "Nenhuma fonte encontrada que discuta se a solução seria óbvia a partir do estado da arte mais próximo (US11188228B1).",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "EPO G-VII 5",
+      "INPI Res. 169/2016 itens 5.9–5.21",
+      "LPI art. 13",
+      "Guia MCTI 2020 §6",
+      "Frascati 2002 §84"
+     ]
+    },
+    {
+     "regra": "CRI-W2",
+     "titulo": "Prática padrão ou tutorial",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 1,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Guia do desafio, Parte 4",
+      "Frascati 2015 §2.72"
+     ]
+    },
+    {
+     "regra": "CRI-W3",
+     "titulo": "Combinação além da soma",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 1,
+     "negativas": 0,
+     "fontes_normativas": [
+      "INPI itens 5.22 e 5.30"
+     ]
+    },
+    {
+     "regra": "CRI-W4",
+     "titulo": "Conhecimento de outro campo",
+     "status": "sem_evidencia",
+     "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em src-8f9bec11dc",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "UK DSIT ¶6 e ¶23",
+      "IT MIMIT 2024 §1.1.3.2",
+      "Frascati Tab. 2.1(b)"
+     ]
+    },
+    {
+     "regra": "CRI-W5",
+     "titulo": "Problema em aberto ou contra o consenso",
+     "status": "sem_evidencia",
+     "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em src-0dcb27b958",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "INPI itens 5.57 e 5.58"
+     ]
+    },
+    {
+     "regra": "CRI-D1",
+     "titulo": "Hipótese explícita antes dos testes",
+     "status": "executada",
+     "motivo": null,
+     "nota": 0,
+     "positivas": 0,
+     "negativas": 1,
+     "fontes_normativas": [
+      "Guia MCTI 2020 §6.2",
+      "CRA SR&ED",
+      "AU R&DTI",
+      "IE TDM §8.1(f)"
+     ]
+    },
+    {
+     "regra": "CRI-D2",
+     "titulo": "Barreira técnica concreta",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 1,
+     "negativas": 0,
+     "fontes_normativas": [
+      "IT MIMIT §1.1.3.2",
+      "Guia MCTI 2020 §6.3",
+      "FORMP&D 3.1.8"
+     ]
+    },
+    {
+     "regra": "CRI-D3",
+     "titulo": "Pesquisador na equipe",
+     "status": "parcial",
+     "motivo": "atividades.csv só traz responsavel_por_funcao (função, sem titulação); não dá para verificar pesquisador.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Frascati 2015 §2.17, §5.35–5.36",
+      "Decreto 5.798 art. 2º III",
+      "Guia ANPEI 2017 p. 27"
+     ]
+    },
+    {
+     "regra": "CRI-D4",
+     "titulo": "Alternativas consideradas e abandonadas",
+     "status": "sem_evidencia",
+     "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-FALHAS; trecho não encontrado literalmente em PRJ90-CHK-VERSOES",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "IT MIMIT §1.1.3.2",
+      "IE TDM §3.1",
+      "26 CFR §1.41-4(a)(5)"
+     ]
+    },
+    {
+     "regra": "CRI-D5",
+     "titulo": "Mudança não rotineira",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 1,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Frascati 2015 §2.17 e §2.56",
+      "Guia MCTI 2020 Ap. B.1",
+      "FAQ MCTI P17",
+      "Históricos PRJ01, 04, 09, 11, 12, 19, 20"
+     ]
+    },
+    {
+     "regra": "CRI-D6",
+     "titulo": "Método novo para tarefa comum conta",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 1,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Frascati 2015 §2.17",
+      "IT MIMIT §1.1.3.2"
+     ]
+    },
+    {
+     "regra": "CRI-D7",
+     "titulo": "Profissional competente afirma",
+     "status": "parcial",
+     "motivo": "revisao_tecnica.md dá só a função \"revisão técnica\"; não há qualificação dos revisores no pacote.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "HMRC GfC3 parte 3"
+     ]
+    },
+    {
+     "regra": "CRI-D8",
+     "titulo": "Regra de decisão com parâmetros concretos",
+     "status": "executada",
+     "motivo": null,
+     "nota": 0,
+     "positivas": 0,
+     "negativas": 1,
+     "fontes_normativas": [
+      "Históricos PRJ02, PRJ03, PRJ13 × PRJ08, PRJ10, PRJ17"
+     ]
+    },
+    {
+     "regra": "CRI-D10",
+     "titulo": "Combinação original testada",
+     "status": "sem_evidencia",
+     "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-VERSOES",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Históricos PRJ05, PRJ07, PRJ03",
+      "Frascati Tab. 2.1(b)"
+     ]
+    }
+   ],
+   "respostas": [],
+   "regra_de_decisao": null
+  },
+  {
+   "chave": "INC",
+   "criterio": "Incerteza tecnológica",
+   "estado": "INVESTIGADA",
+   "justificativa": "As evidências mostram que a solução proposta não era acessível e foi testada contra comparadores conhecidos, com medições por versão. O ensaio experimental ([checagens#CHK-FALHAS]) falhou, indicando incerteza tecnológica. O protótipo da fila por dependência ([dossie_projeto.pdf#trabalho_documentado]) foi avaliado contra FIFO e prioridade fixa ([evidencias/metodo.md#1]), confirmando a execução da hipótese. As medições versionadas ([checagens#CHK-VERSOES]) registram os resultados comparativos, atendendo ao critério de investigação.",
+   "fonte": "evidencias/metodo.md#1",
+   "nota": 89,
+   "fonte_normativa": "Frascati 2015 §2.18; Guia MCTI 2020 §6.3",
+   "gates": [],
+   "regras": [
+    {
+     "regra": "INC-W1",
+     "titulo": "Solução já disponível ou dedutível",
+     "status": "sem_evidencia",
+     "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em src-5a35a960e4",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "UK DSIT ¶13–14",
+      "CRA SR&ED",
+      "AU R&DTI",
+      "IE TDM §3.4",
+      "HMRC GfC3 parte 2, passo 4"
+     ]
+    },
+    {
+     "regra": "INC-W2",
+     "titulo": "Não saber internamente não conta",
+     "status": "sem_evidencia",
+     "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em src-5a35a960e4",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "IE TDM §3.4",
+      "IT MIMIT 2024 §1.1.3.3",
+      "CRA SR&ED"
+     ]
+    },
+    {
+     "regra": "INC-W3",
+     "titulo": "Problema relatado como em aberto",
+     "status": "sem_evidencia",
+     "motivo": "Nenhuma fonte encontrada relata o problema de lotes atrasados como aberto ou aponta limitações não resolvidas das soluções existentes.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Guia MCTI 2020 §6.2",
+      "INPI item 5.57"
+     ]
+    },
+    {
+     "regra": "INC-W4",
+     "titulo": "TRL como indício",
+     "status": "sem_evidencia",
+     "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em src-5aa087e125",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Guia MCTI 2020 §6.2",
+      "ISO 16290:2013",
+      "Mankins 2009"
+     ]
+    },
+    {
+     "regra": "INC-D1",
+     "titulo": "Incerteza técnica, não comercial",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 1,
+     "negativas": 0,
+     "fontes_normativas": [
+      "FAQ MCTI P4(b)",
+      "IT MIMIT §1.1.3.3",
+      "IE TDM §3.5",
+      "Histórico PRJ20"
+     ]
+    },
+    {
+     "regra": "INC-D2",
+     "titulo": "Pergunta técnica específica",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 1,
+     "negativas": 0,
+     "fontes_normativas": [
+      "IE TDM §3.5(a)–(b)",
+      "UK DSIT ¶13",
+      "HMRC GfC3 parte 2, passo 3",
+      "Guia MCTI 2020 §6.3"
+     ]
+    },
+    {
+     "regra": "INC-D3",
+     "titulo": "Por que um competente não resolveria",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 1,
+     "negativas": 0,
+     "fontes_normativas": [
+      "HMRC GfC3 parte 2, passo 4",
+      "UK DSIT ¶14"
+     ]
+    },
+    {
+     "regra": "INC-D4",
+     "titulo": "Resultado não previsível",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 1,
+     "negativas": 0,
+     "fontes_normativas": [
+      "IT MIMIT §1.1.3.3",
+      "Guia MCTI 2020 §6.3",
+      "IE TDM §3.1"
+     ]
+    },
+    {
+     "regra": "INC-D5",
+     "titulo": "Enfrentada, não contornada",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 1,
+     "negativas": 0,
+     "fontes_normativas": [
+      "CRA SR&ED"
+     ]
+    },
+    {
+     "regra": "INC-D6",
+     "titulo": "Integração só se não dedutível",
+     "status": "sem_evidencia",
+     "motivo": "O projeto não trata de integração de sistemas; não há evidência de incerteza sobre combinação de componentes.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "UK DSIT ¶29–30",
+      "Frascati 2015 §2.73"
+     ]
+    },
+    {
+     "regra": "INC-D7",
+     "titulo": "Protótipo testa conceito",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 1,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Frascati 2015 §2.18, §2.49–2.50, Tab. 2.3, §2.55–2.56"
+     ]
+    },
+    {
+     "regra": "INC-D8",
+     "titulo": "Início e fim da P&D",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 1,
+     "negativas": 0,
+     "fontes_normativas": [
+      "UK DSIT ¶33–34",
+      "HMRC GfC3 parte 2, passos 6–7",
+      "FAQ MCTI P4(c)"
+     ]
+    },
+    {
+     "regra": "INC-D9",
+     "titulo": "Bug, ajuste ou falha operacional não é incerteza",
+     "status": "executada",
+     "motivo": null,
+     "nota": 0,
+     "positivas": 0,
+     "negativas": 1,
+     "fontes_normativas": [
+      "Frascati 2015 §2.57, §2.72",
+      "UK DSIT ¶14, ¶35",
+      "Históricos PRJ01, 04, 09, 11, 12"
+     ]
+    },
+    {
+     "regra": "INC-D10",
+     "titulo": "Custo/tempo quando decorre da técnica",
+     "status": "sem_evidencia",
+     "motivo": "Não há menção a metas de custo, tempo ou latência como critério técnico no material fornecido.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Frascati 2015 §2.18",
+      "IT MIMIT §1.1.3.3",
+      "IE TDM §3.5"
+     ]
+    },
+    {
+     "regra": "INC-D12",
+     "titulo": "Investigada exige execução contra comparadores",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 1,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Históricos PRJ02, 03, 13–16 × PRJ08, 10, 17"
+     ]
+    }
+   ],
+   "respostas": [],
+   "regra_de_decisao": null
+  },
+  {
+   "chave": "SIS",
+   "criterio": "Sistematicidade",
+   "estado": "PARCIAL",
+   "justificativa": "Embora o plano prévio esteja registrado ([evidencias/cronologia.csv#PRJ90-CR02], [checagens#CHK-TEMPO]) e a metodologia experimental seja descrita ([evidencias/metodo.md#3]), faltam evidências essenciais como objetivo e escopo do projeto, registro de desvios e controles de desenho experimental, além de ensaios para a versão prioridade‑v1. A classificação de desempenho está presente ([checagens#CHK-RECALC]), mas a ausência desses elos impede a caracterização como DOCUMENTADA. Portanto, o critério está PARCIAL.",
+   "fonte": "evidencias/cronologia.csv#PRJ90-CR02",
+   "nota": 100,
+   "fonte_normativa": "Frascati 2015 §2.19; Guia MCTI 2020 §6.4",
+   "gates": [],
+   "regras": [
+    {
+     "regra": "SIS-D1",
+     "titulo": "Objetivo, escopo, início e fim",
+     "status": "sem_evidencia",
+     "motivo": "Nenhum fragmento menciona objetivo, escopo ou datas de início e fim de forma completa.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "FAQ MCTI P4(d)–(e)",
+      "Frascati 2015 §2.12",
+      "IT MIMIT 2024 §1.1.3.4"
+     ]
+    },
+    {
+     "regra": "SIS-D2",
+     "titulo": "Plano datado antes",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 2,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Guia MCTI 2020 Ap. B.4",
+      "IE TDM §8.1(f)",
+      "IT MIMIT §1.1.3.4"
+     ]
+    },
+    {
+     "regra": "SIS-D3",
+     "titulo": "Recursos próprios identificados",
+     "status": "parcial",
+     "motivo": "Orçamento e dispêndios estão fora do escopo do guia; a equipe só aparece por função (responsavel_por_funcao), sem titulação.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Frascati 2015 §2.19",
+      "FORMP&D",
+      "IE TDM §8.1(g)–(h)"
+     ]
+    },
+    {
+     "regra": "SIS-D4",
+     "titulo": "Dispêndios rastreáveis",
+     "status": "na",
+     "motivo": "O guia do desafio exclui explicitamente horas, despesas e requisitos fiscais.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Lei 11.196 art. 22 I",
+      "Decreto 5.798 art. 10 I",
+      "Portaria 9.563 art. 6º II"
+     ]
+    },
+    {
+     "regra": "SIS-D5",
+     "titulo": "Metodologia experimental, não aceite",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 1,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Guia MCTI 2020 §6.4",
+      "FAQ MCTI P4",
+      "CRA SR&ED",
+      "IE TDM §3.6",
+      "Históricos PRJ02, 13, 14, 16 × PRJ04, 09, 12"
+     ]
+    },
+    {
+     "regra": "SIS-D7",
+     "titulo": "Desvios registrados",
+     "status": "sem_evidencia",
+     "motivo": "Não há registro que descreva desvios experimentais nem as razões para mudança de rumo.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "IE TDM §3.1",
+      "IT MIMIT §1.1.3.4"
+     ]
+    },
+    {
+     "regra": "SIS-D10",
+     "titulo": "Documentação guardada",
+     "status": "na",
+     "motivo": "Não é input do pacote; é satisfeita no output pelo dossiê versionado da ferramenta (autor, data, hash).",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Decreto 5.798 art. 14 §1º",
+      "IE TDM §8.4"
+     ]
+    },
+    {
+     "regra": "SIS-D12",
+     "titulo": "Execução registrada por versão",
+     "status": "sem_evidencia",
+     "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-VERSOES",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Históricos PRJ08, 10, 17"
+     ]
+    },
+    {
+     "regra": "SIS-D13",
+     "titulo": "Controles de desenho experimental",
+     "status": "sem_evidencia",
+     "motivo": "Ausência de evidência sobre controles de desenho experimental (estrato difícil, repetições, ordem contrabalançada, separação temporal).",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Históricos PRJ02, PRJ13, PRJ15, PRJ16"
+     ]
+    },
+    {
+     "regra": "SIS-D14",
+     "titulo": "Entrega não é desempenho",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 1,
+     "negativas": 0,
+     "fontes_normativas": [
+      "LEIA_ME",
+      "Históricos PRJ08, 10, 17"
+     ]
+    }
+   ],
+   "respostas": [],
+   "regra_de_decisao": null
+  },
+  {
+   "chave": "REP",
+   "criterio": "Transferência/reprodução",
+   "estado": "DOCUMENTADA COM LIMITE",
+   "justificativa": "Os registros de configuração ([evidencias/configuracao.json#parametros], [evidencias/configuracao.json#versoes_registradas]) demonstram que o conhecimento está documentado, porém o parâmetro limiar_desempate está nulo, impedindo a reprodução completa ([evidencias/configuracao.json#parametros]). Além disso, o documento de revisão técnica indica que lotes acima de 500 itens não foram ensaiados, gerando uma lacuna dentro da pretensão original ([evidencias/revisao_tecnica.md#limites_e_pendencias]). Essa combinação de lacunas caracteriza uma limitação técnica, exigindo complementação para que o critério seja plenamente atendido. Portanto, o estado adequado é DOCUMENTADA COM LIMITE.",
+   "fonte": "evidencias/configuracao.json#parametros",
+   "nota": 33,
+   "fonte_normativa": "Frascati 2015 §2.20–2.21",
+   "gates": [],
+   "regras": [
+    {
+     "regra": "REP-D1",
+     "titulo": "Conhecimento codificado",
+     "status": "executada",
+     "motivo": null,
+     "nota": 100,
+     "positivas": 2,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Frascati 2015 §2.20",
+      "IPCTN 2020 Anexo I",
+      "Nonaka 1994"
+     ]
+    },
+    {
+     "regra": "REP-D2",
+     "titulo": "Detalhe suficiente para repetir",
+     "status": "executada",
+     "motivo": null,
+     "nota": 0,
+     "positivas": 0,
+     "negativas": 1,
+     "fontes_normativas": [
+      "Frascati 2015 §2.20",
+      "UK DSIT ¶34",
+      "NASEM 2019"
+     ]
+    },
+    {
+     "regra": "REP-D3",
+     "titulo": "Resultados negativos documentados",
+     "status": "sem_evidencia",
+     "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-FALHAS",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Frascati 2015 §2.20",
+      "Guia MCTI 2020 §6.2",
+      "IT MIMIT §1.1.3.5"
+     ]
+    },
+    {
+     "regra": "REP-D4",
+     "titulo": "Artefatos preservados e versionados",
+     "status": "parcial",
+     "motivo": "O pacote não tem código executável; o artefato reproduzível é especificação + configuracao.json + registros por versão.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Gundersen & Kjensmo 2018",
+      "Pineau et al. 2021",
+      "ACM Artifact Review v1.1"
+     ]
+    },
+    {
+     "regra": "REP-D5",
+     "titulo": "Mecanismo de transferência",
+     "status": "na",
+     "motivo": "Não há patentes, registros ou publicações no pacote; a \"Continuidade\" (§7) não é transferência.",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Frascati Tab. 2.1(d)",
+      "Decreto 5.798 art. 2º II d"
+     ]
+    },
+    {
+     "regra": "REP-D6",
+     "titulo": "Cadeia plano → resultado rastreável",
+     "status": "sem_evidencia",
+     "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-VERSOES; trecho não encontrado literalmente em PRJ90-CHK-VERSOES",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "IT MIMIT §1.1.3.5"
+     ]
+    },
+    {
+     "regra": "REP-D7",
+     "titulo": "Limite de escopo — excluído × lacuna na pretensão",
+     "status": "executada",
+     "motivo": null,
+     "nota": 0,
+     "positivas": 0,
+     "negativas": 1,
+     "fontes_normativas": [
+      "Históricos PRJ03, 14, 15, 16 × PRJ05, 06, 07, 18",
+      "GUIA_DO_PARTICIPANTE"
+     ]
+    },
+    {
+     "regra": "REP-D8",
+     "titulo": "Documentação de configuração não é conhecimento novo",
+     "status": "sem_evidencia",
+     "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-CONFIG",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "Históricos PRJ01, 04, 09, 11, 12, 19, 20"
+     ]
+    },
+    {
+     "regra": "REP-D9",
+     "titulo": "Números recalculáveis do registro primário",
+     "status": "sem_evidencia",
+     "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-RECALC",
+     "nota": null,
+     "positivas": 0,
+     "negativas": 0,
+     "fontes_normativas": [
+      "LEIA_ME",
+      "Históricos PRJ02, 13, 15"
+     ]
+    }
+   ],
+   "respostas": [],
+   "regra_de_decisao": null
+  }
+ ],
+ "fontes_decisivas": [
+  "dossie_projeto.pdf",
+  "evidencias/configuracao.json",
+  "evidencias/metodo.md",
+  "checagens",
+  "evidencias/cronologia.csv",
+  "evidencias/revisao_tecnica.md"
+ ],
+ "evidencias_usadas": [
+  {
+   "id": "ev-dfc9a7af5b617d36",
+   "regra": "NOV-W3",
+   "fonte": "https://patents.google.com/patent/US11188228B1/en",
+   "trecho": "A graph of the transaction operations may be generated to indicate the dependencies between transactions and an evaluation of the graph may be performed to determine whether the transactions were performed with serializable isolation.",
+   "polaridade": "positiva",
+   "natureza": "web",
+   "explicacao": "A fonte descreve uso de grafo de dependências para ordenar transações, mas não menciona o critério de desempate por menor atraso nem a janela de 15 minutos, portanto cobre apenas parte do elemento novo.",
+   "url": "https://patents.google.com/patent/US11188228B1/en",
+   "data_publicacao": "2019-03-25"
+  },
+  {
+   "id": "ev-735e38294f7939f0",
+   "regra": "CRI-W2",
+   "fonte": "https://github.com/glebec/batching-toposort",
+   "trecho": "Efficiently sort interdependent tasks into a sequence of concurrently-executable batches",
+   "polaridade": "positiva",
+   "natureza": "web",
+   "explicacao": "A documentação do projeto \"batching-toposort\" descreve a técnica genérica de ordenação por lotes usando grafos de dependência, mas não menciona o mecanismo específico de desempate por menor atraso e janela de 15 minutos, atendendo ao critério de criatividade técnica.",
+   "url": "https://github.com/glebec/batching-toposort",
+   "data_publicacao": "2019-02-23"
+  },
+  {
+   "id": "ev-04acbd410c34beb8",
+   "regra": "CRI-W3",
+   "fonte": "https://patents.google.com/patent/US11854091",
+   "trecho": "A method and apparatus is described for performing transaction tracing. The method may include mapping one or more funds flow transactions into each account to one or more funds flow transactions out of said each account based on a first-in-first-out ordering.",
+   "polaridade": "positiva",
+   "natureza": "web",
+   "explicacao": "A fonte mostra o uso isolado de FIFO como critério de ordenação, sem combinar com grafos de dependência ou o critério de desempate, indicando que a combinação proposta pelo projeto vai além da soma dos efeitos individuais.",
+   "url": "https://patents.google.com/patent/US11854091",
+   "data_publicacao": "2020-07-24"
+  },
+  {
+   "id": "ev-4b3370f04baa1c5a",
+   "regra": "CRI-D2",
+   "fonte": "dossie_projeto.pdf#contexto",
+   "trecho": "Lotes atrasados travavam a conciliacao noturna.",
+   "polaridade": "positiva",
+   "natureza": "sintese",
+   "explicacao": "Descreve claramente a barreira técnica que impede a conciliação, indicando um obstáculo concreto.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-df5cfe042f8406db",
+   "regra": "CRI-D5",
+   "fonte": "checagens#CHK-CONFIG",
+   "trecho": "algoritmo_nao_modificado\": false",
+   "polaridade": "positiva",
+   "natureza": "derivado",
+   "explicacao": "A checagem indica que o algoritmo foi modificado, caracterizando mudança não rotineira.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-543561480ac6db09",
+   "regra": "CRI-D6",
+   "fonte": "evidencias/metodo.md#2",
+   "trecho": "Ordenar lotes por grafo de dependência de saldo, com desempate pelo menor atraso e janela de 15 minutos.",
+   "polaridade": "positiva",
+   "natureza": "sintese",
+   "explicacao": "Apresenta um método novo para a tarefa comum de ordenar lotes, diferente das técnicas padrão.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-0a2db675c85fb595",
+   "regra": "INC-D1",
+   "fonte": "evidencias/metodo.md#1",
+   "trecho": "FIFO e prioridade fixa são comparadores conhecidos. Ambos falham quando dois lotes dependem do mesmo saldo.",
+   "polaridade": "positiva",
+   "natureza": "sintese",
+   "explicacao": "O fragmento demonstra que há risco técnico porque os métodos conhecidos falham em condição específica, indicando incerteza técnica.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-c6765670ea0ccc4d",
+   "regra": "INC-D2",
+   "fonte": "dossie_projeto.pdf#pergunta_registrada",
+   "trecho": "Como ordenar lotes sem violar a precedencia contabil?",
+   "polaridade": "positiva",
+   "natureza": "sintese",
+   "explicacao": "A pergunta registrada é técnica e específica, referindo‑se ao método de ordenação sem violar precedência.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-74f4edd1cd1c6358",
+   "regra": "INC-D3",
+   "fonte": "evidencias/metodo.md#1",
+   "trecho": "FIFO e prioridade fixa são comparadores conhecidos. Ambos falham quando dois lotes dependem do mesmo saldo.",
+   "polaridade": "positiva",
+   "natureza": "sintese",
+   "explicacao": "Explica que as alternativas conhecidas falham, justificando por que um profissional competente não resolveria o problema com elas.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-b4935c4344dc1f0e",
+   "regra": "INC-D4",
+   "fonte": "checagens#CHK-FALHAS",
+   "trecho": "ensaio_id\": \"PRJ90-S01\", \"metrica\": \"lotes na ordem\", \"taxa_percentual\": \"75.0\", \"versao\": \"fifo-v1",
+   "polaridade": "positiva",
+   "natureza": "derivado",
+   "explicacao": "A checagem indica falha experimental (taxa de 75% abaixo do critério de 95%), mostrando resultado não previsível.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-e27344bdd9162d4f",
+   "regra": "INC-D5",
+   "fonte": "dossie_projeto.pdf#trabalho_documentado",
+   "trecho": "Fila por dependencia testada contra FIFO e prioridade fixa nas mesmas 200 entradas.",
+   "polaridade": "positiva",
+   "natureza": "sintese",
+   "explicacao": "O registro mostra que a equipe enfrentou a barreira testando a nova fila contra comparadores conhecidos, não contornando o problema.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-ad8fcfddf31a8736",
+   "regra": "INC-D7",
+   "fonte": "dossie_projeto.pdf#trabalho_documentado",
+   "trecho": "Fila por dependencia testada contra FIFO e prioridade fixa nas mesmas 200 entradas.",
+   "polaridade": "positiva",
+   "natureza": "sintese",
+   "explicacao": "O teste da fila por dependência constitui protótipo que verifica um conceito técnico ainda incerto.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-1353281e7625768b",
+   "regra": "INC-D8",
+   "fonte": "checagens#CHK-TEMPO",
+   "trecho": "data_inicial\": \"2025-01-06",
+   "polaridade": "positiva",
+   "natureza": "derivado",
+   "explicacao": "A checagem de tempo evidencia início (2025‑01‑06) e fim (2025‑02‑10) da fase de P&D com eventos registrados.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-ad222bf0fb978259",
+   "regra": "INC-D12",
+   "fonte": "checagens#CHK-VERSOES",
+   "trecho": "versoes_com_medicao\": [ \"dependencia-v2\", \"fifo-v1\" ]",
+   "polaridade": "positiva",
+   "natureza": "derivado",
+   "explicacao": "A checagem mostra que medições foram realizadas para as versões hipóteses e comparadores, atendendo ao requisito de execução contra comparadores.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-defc633b9f559ee1",
+   "regra": "SIS-D2",
+   "fonte": "evidencias/cronologia.csv#PRJ90-CR02",
+   "trecho": "2025-01-20;protocolo-r1;Critérios descritos no método",
+   "polaridade": "positiva",
+   "natureza": "registro_primario",
+   "explicacao": "O registro mostra que os critérios foram descritos antes do primeiro ensaio, atendendo ao requisito de plano prévio.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-06f051d4e9fb5b30",
+   "regra": "SIS-D2",
+   "fonte": "checagens#CHK-TEMPO",
+   "trecho": "documento_inicial_antes_dos_ensaios\": true",
+   "polaridade": "positiva",
+   "natureza": "derivado",
+   "explicacao": "A checagem confirma que o documento inicial foi registrado antes dos ensaios, evidenciando plano datado previamente.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-d503049264d41ec5",
+   "regra": "SIS-D5",
+   "fonte": "evidencias/metodo.md#3",
+   "trecho": "Três filas nas mesmas 200 entradas. Critério prévio: pelo menos 95% de lotes na ordem correta.",
+   "polaridade": "positiva",
+   "natureza": "sintese",
+   "explicacao": "Descreve metodologia experimental com alternativas nas mesmas entradas e critério fixado antes da execução.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-5fd7a3033a366a5f",
+   "regra": "SIS-D14",
+   "fonte": "checagens#CHK-RECALC",
+   "trecho": "natureza\": \"desempenho",
+   "polaridade": "positiva",
+   "natureza": "derivado",
+   "explicacao": "Os resultados são classificados como desempenho, não apenas entrega, atendendo ao requisito da regra.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-e1d5862820beb81a",
+   "regra": "REP-D1",
+   "fonte": "evidencias/configuracao.json#parametros",
+   "trecho": "{\"janela_min\": 15, \"limiar_desempate\": null}",
+   "polaridade": "positiva",
+   "natureza": "registro_primario",
+   "explicacao": "O arquivo configuracao.json registra os parâmetros do mecanismo, demonstrando que o conhecimento está codificado em documento.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-c46e7c850112db01",
+   "regra": "REP-D1",
+   "fonte": "evidencias/configuracao.json#versoes_registradas",
+   "trecho": "[\"fifo-v1\", \"prioridade-v1\", \"dependencia-v2\"]",
+   "polaridade": "positiva",
+   "natureza": "registro_primario",
+   "explicacao": "As versões dos algoritmos são listadas no mesmo registro, confirmando a codificação das escolhas técnicas.",
+   "url": null,
+   "data_publicacao": null
+  }
+ ],
+ "evidencias_contrarias": [
+  {
+   "id": "ev-15250e5217cdf0c3",
+   "regra": "CRI-D1",
+   "fonte": "dossie_projeto.pdf#pergunta_registrada",
+   "trecho": "Como ordenar lotes sem violar a precedencia contabil?",
+   "polaridade": "negativa",
+   "natureza": "sintese",
+   "explicacao": "O registro contém apenas uma pergunta, não uma hipótese explícita antes dos ensaios.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-330da20f89e3be95",
+   "regra": "CRI-D8",
+   "fonte": "evidencias/configuracao.json#parametros",
+   "trecho": "{\"janela_min\": 15, \"limiar_desempate\": null}",
+   "polaridade": "negativa",
+   "natureza": "registro_primario",
+   "explicacao": "O parâmetro crítico 'limiar_desempate' está nulo, faltando valores concretos para a regra de decisão.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-7280dba2f8737a6b",
+   "regra": "INC-D9",
+   "fonte": "checagens#CHK-CONFIG",
+   "trecho": "algoritmo_nao_modificado\": false, \"faixa_ja_admitida\": false, \"indica_funcao_ja_fornecida\": false",
+   "polaridade": "negativa",
+   "natureza": "derivado",
+   "explicacao": "A checagem indica que a mudança não foi mera correção de parâmetro ou configuração, afastando a classificação como bug/ajuste operacional.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-9ce01a81198d0271",
+   "regra": "REP-D2",
+   "fonte": "evidencias/configuracao.json#parametros",
+   "trecho": "{\"janela_min\": 15, \"limiar_desempate\": null}",
+   "polaridade": "negativa",
+   "natureza": "registro_primario",
+   "explicacao": "O parâmetro limiar_desempate está nulo, indicando ausência de informação essencial para reproduzir o experimento.",
+   "url": null,
+   "data_publicacao": null
+  },
+  {
+   "id": "ev-bebc93da77629a48",
+   "regra": "REP-D7",
+   "fonte": "evidencias/revisao_tecnica.md#limites_e_pendencias",
+   "trecho": "Lotes acima de 500 itens não foram ensaiados.",
+   "polaridade": "negativa",
+   "natureza": "sintese",
+   "explicacao": "O documento indica que a hipótese de testar lotes maiores não foi executada, gerando lacuna dentro da pretensão original.",
+   "url": null,
+   "data_publicacao": null
+  }
+ ],
+ "divergencias": [
+  "A entrevista afirma \"A fila por dependencia acertou todos os 200 lotes.\"; o registro evidencias/resultados.csv#PRJ90-S02 mostra \"PRJ90-S02;dependencia-v2;lotes na ordem;contagem;196;200;Lotes;98.0;casos;evidencias/medicoes.csv#PRJ90-S02;desempenho\"; prevalece o registro, por ser primário e identificado por versão.",
+  "A entrevista afirma \"A fila por dependencia acertou todos os 200 lotes.\"; o registro evidencias/medicoes.csv#PRJ90-S02-M001 mostra \"PRJ90-S02-M001;PRJ90-S02;dependencia-v2;C001;contador;lotes na ordem;;196;200;;casos\"; prevalece o registro, por ser primário e identificado por versão."
+ ],
+ "elos_ausentes": [
+  "Ausência de documentação que estabeleça metas de custo/tempo como critério técnico da pesquisa. — solicitar: Documento de especificação de metas de custo, latência ou tempo vinculadas a requisitos técnicos.",
+  "Objetivo e escopo do projeto não identificados — solicitar: Documento que descreva objetivo, escopo e metas do projeto, datado",
+  "Registro de desvios experimentais e justificativas — solicitar: Documento ou registro que descreva desvios ocorridos e razões para mudança de rumo",
+  "Controles de desenho experimental (estrato difícil, repetições, ordem contrabalançada, separação temporal) — solicitar: Protocolo experimental detalhando os controles adotados",
+  "Ensaios para a versão 'prioridade-v1' — solicitar: Medições ou resultados associados à versão prioridade-v1"
+ ],
+ "lacunas": [
+  {
+   "regra": "NOV-W4",
+   "status": "sem_evidencia",
+   "motivo": "Nenhuma fonte encontrada que demonstre a existência de solução idêntica no setor antes da data de referência."
+  },
+  {
+   "regra": "NOV-W5",
+   "status": "sem_evidencia",
+   "motivo": "Nenhuma fonte encontrada que mostre o mesmo resultado sem divulgação do método."
+  },
+  {
+   "regra": "NOV-W6",
+   "status": "sem_evidencia",
+   "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em src-1b6e63a219"
+  },
+  {
+   "regra": "NOV-W7",
+   "status": "sem_evidencia",
+   "motivo": "Nenhuma página achável e acessível antes da data de referência descrevendo o mecanismo proposto."
+  },
+  {
+   "regra": "NOV-D1",
+   "status": "nao_executada",
+   "motivo": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+  },
+  {
+   "regra": "NOV-D2",
+   "status": "nao_executada",
+   "motivo": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+  },
+  {
+   "regra": "NOV-D3",
+   "status": "nao_executada",
+   "motivo": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+  },
+  {
+   "regra": "NOV-D4",
+   "status": "nao_executada",
+   "motivo": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+  },
+  {
+   "regra": "NOV-D5",
+   "status": "nao_executada",
+   "motivo": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+  },
+  {
+   "regra": "NOV-D6",
+   "status": "nao_executada",
+   "motivo": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+  },
+  {
+   "regra": "NOV-D8",
+   "status": "na",
+   "motivo": "Não há patentes, registros ou artigos nos artefatos do pacote."
+  },
+  {
+   "regra": "NOV-D10",
+   "status": "nao_executada",
+   "motivo": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+  },
+  {
+   "regra": "NOV-D11",
+   "status": "nao_executada",
+   "motivo": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+  },
+  {
+   "regra": "NOV-D12",
+   "status": "nao_executada",
+   "motivo": "falha do agente: LLMError: Invalid output for DocSubOut: 2 validation errors for DocSubOut\ndivergencias.0.depoimento_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing\ndivergencias.0.registro_fragmento_id\n  Field required [type=missing, input_value={'depoimento_fragment_id'...foram acertados (98%).'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+  },
+  {
+   "regra": "CRI-W1",
+   "status": "sem_evidencia",
+   "motivo": "Nenhuma fonte encontrada que discuta se a solução seria óbvia a partir do estado da arte mais próximo (US11188228B1)."
+  },
+  {
+   "regra": "CRI-W4",
+   "status": "sem_evidencia",
+   "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em src-8f9bec11dc"
+  },
+  {
+   "regra": "CRI-W5",
+   "status": "sem_evidencia",
+   "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em src-0dcb27b958"
+  },
+  {
+   "regra": "CRI-D3",
+   "status": "parcial",
+   "motivo": "atividades.csv só traz responsavel_por_funcao (função, sem titulação); não dá para verificar pesquisador."
+  },
+  {
+   "regra": "CRI-D4",
+   "status": "sem_evidencia",
+   "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-FALHAS; trecho não encontrado literalmente em PRJ90-CHK-VERSOES"
+  },
+  {
+   "regra": "CRI-D7",
+   "status": "parcial",
+   "motivo": "revisao_tecnica.md dá só a função \"revisão técnica\"; não há qualificação dos revisores no pacote."
+  },
+  {
+   "regra": "CRI-D10",
+   "status": "sem_evidencia",
+   "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-VERSOES"
+  },
+  {
+   "regra": "INC-W1",
+   "status": "sem_evidencia",
+   "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em src-5a35a960e4"
+  },
+  {
+   "regra": "INC-W2",
+   "status": "sem_evidencia",
+   "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em src-5a35a960e4"
+  },
+  {
+   "regra": "INC-W3",
+   "status": "sem_evidencia",
+   "motivo": "Nenhuma fonte encontrada relata o problema de lotes atrasados como aberto ou aponta limitações não resolvidas das soluções existentes."
+  },
+  {
+   "regra": "INC-W4",
+   "status": "sem_evidencia",
+   "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em src-5aa087e125"
+  },
+  {
+   "regra": "INC-D6",
+   "status": "sem_evidencia",
+   "motivo": "O projeto não trata de integração de sistemas; não há evidência de incerteza sobre combinação de componentes."
+  },
+  {
+   "regra": "INC-D10",
+   "status": "sem_evidencia",
+   "motivo": "Não há menção a metas de custo, tempo ou latência como critério técnico no material fornecido."
+  },
+  {
+   "regra": "SIS-D1",
+   "status": "sem_evidencia",
+   "motivo": "Nenhum fragmento menciona objetivo, escopo ou datas de início e fim de forma completa."
+  },
+  {
+   "regra": "SIS-D3",
+   "status": "parcial",
+   "motivo": "Orçamento e dispêndios estão fora do escopo do guia; a equipe só aparece por função (responsavel_por_funcao), sem titulação."
+  },
+  {
+   "regra": "SIS-D4",
+   "status": "na",
+   "motivo": "O guia do desafio exclui explicitamente horas, despesas e requisitos fiscais."
+  },
+  {
+   "regra": "SIS-D7",
+   "status": "sem_evidencia",
+   "motivo": "Não há registro que descreva desvios experimentais nem as razões para mudança de rumo."
+  },
+  {
+   "regra": "SIS-D10",
+   "status": "na",
+   "motivo": "Não é input do pacote; é satisfeita no output pelo dossiê versionado da ferramenta (autor, data, hash)."
+  },
+  {
+   "regra": "SIS-D12",
+   "status": "sem_evidencia",
+   "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-VERSOES"
+  },
+  {
+   "regra": "SIS-D13",
+   "status": "sem_evidencia",
+   "motivo": "Ausência de evidência sobre controles de desenho experimental (estrato difícil, repetições, ordem contrabalançada, separação temporal)."
+  },
+  {
+   "regra": "REP-D3",
+   "status": "sem_evidencia",
+   "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-FALHAS"
+  },
+  {
+   "regra": "REP-D4",
+   "status": "parcial",
+   "motivo": "O pacote não tem código executável; o artefato reproduzível é especificação + configuracao.json + registros por versão."
+  },
+  {
+   "regra": "REP-D5",
+   "status": "na",
+   "motivo": "Não há patentes, registros ou publicações no pacote; a \"Continuidade\" (§7) não é transferência."
+  },
+  {
+   "regra": "REP-D6",
+   "status": "sem_evidencia",
+   "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-VERSOES; trecho não encontrado literalmente em PRJ90-CHK-VERSOES"
+  },
+  {
+   "regra": "REP-D8",
+   "status": "sem_evidencia",
+   "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-CONFIG"
+  },
+  {
+   "regra": "REP-D9",
+   "status": "sem_evidencia",
+   "motivo": "citações descartadas pelo gate: trecho não encontrado literalmente em PRJ90-CHK-RECALC"
+  }
+ ],
+ "anexo_busca": [
+  {
+   "criterion": "NOV",
+   "front": "literatura",
+   "base": "openalex",
+   "original_query": "dependency graph batch ordering accounting",
+   "sanitized_query": "dependency graph batch ordering accounting",
+   "removed_terms": [],
+   "rules": [
+    "NOV-W2",
+    "NOV-W3",
+    "NOV-W4"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T13:08:26.269000",
+   "n_results": 5,
+   "selected": [
+    "src-8a303668ee",
+    "src-e057a61e21",
+    "src-daaa58a22f"
+   ],
+   "discarded": [
+    "src-2f0fc4594d: fora do limite de 6 documentos por frente",
+    "src-aa1133f35c: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "NOV",
+   "front": "literatura",
+   "base": "openalex",
+   "original_query": "graph based precedence reconciliation financial systems",
+   "sanitized_query": "graph based precedence reconciliation financial systems",
+   "removed_terms": [],
+   "rules": [
+    "NOV-W2",
+    "NOV-W3",
+    "NOV-W4"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T13:08:26.270000",
+   "n_results": 5,
+   "selected": [
+    "src-f9e90e9e27",
+    "src-3d23c8d56b",
+    "src-bac8b3666f"
+   ],
+   "discarded": [
+    "src-1f5f583bb3: fora do limite de 6 documentos por frente",
+    "src-2a24fcaf67: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "NOV",
+   "front": "patentes",
+   "base": "google_patents",
+   "original_query": "dependency graph batch processing patent",
+   "sanitized_query": "dependency graph batch processing patent",
+   "removed_terms": [],
+   "rules": [
+    "NOV-W2",
+    "NOV-W3",
+    "NOV-W5"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T13:08:26.270000",
+   "n_results": 5,
+   "selected": [
+    "src-7de70e6ce8",
+    "src-b5956a955f",
+    "src-d9e682929c"
+   ],
+   "discarded": [
+    "src-89765fbe87: fora do limite de 6 documentos por frente",
+    "src-d3f68698c5: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "NOV",
+   "front": "patentes",
+   "base": "google_patents",
+   "original_query": "financial transaction ordering graph algorithm",
+   "sanitized_query": "financial transaction ordering graph algorithm",
+   "removed_terms": [],
+   "rules": [
+    "NOV-W2",
+    "NOV-W3",
+    "NOV-W5"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T13:08:26.270000",
+   "n_results": 5,
+   "selected": [
+    "src-1f0eb14769",
+    "src-24e8454cc1",
+    "src-5a35a960e4"
+   ],
+   "discarded": [
+    "src-e12690f831: fora do limite de 6 documentos por frente",
+    "src-35cbfe4f54: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "NOV",
+   "front": "mercado",
+   "base": "ollama_web",
+   "original_query": "batch ordering dependency graph fintech",
+   "sanitized_query": "batch ordering dependency graph fintech",
+   "removed_terms": [],
+   "rules": [
+    "NOV-W2",
+    "NOV-W4",
+    "NOV-W5"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T13:08:26.271000",
+   "n_results": 5,
+   "selected": [
+    "src-46b1e19862",
+    "src-b455df48a2",
+    "src-1b6e63a219"
+   ],
+   "discarded": [
+    "src-982ae22596: fora do limite de 6 documentos por frente",
+    "src-7d32e66949: fora do limite de 6 documentos por frente",
+    "src-1b6e63a219: publicado em 2026-04-21, não é estado da arte (só NOV-W6)"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "NOV",
+   "front": "mercado",
+   "base": "ollama_web",
+   "original_query": "accounting reconciliation graph solution",
+   "sanitized_query": "accounting reconciliation graph solution",
+   "removed_terms": [],
+   "rules": [
+    "NOV-W2",
+    "NOV-W4",
+    "NOV-W5"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T13:08:26.271000",
+   "n_results": 5,
+   "selected": [
+    "src-fce3e70450",
+    "src-f1ed7d2b7b",
+    "src-35055efecf"
+   ],
+   "discarded": [
+    "src-fd2885c4ba: fora do limite de 6 documentos por frente",
+    "src-599d97429c: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "NOV",
+   "front": "documentacao",
+   "base": "ollama_web_docs",
+   "original_query": "graph based transaction ordering specification",
+   "sanitized_query": "graph based transaction ordering specification",
+   "removed_terms": [],
+   "rules": [
+    "NOV-W2",
+    "NOV-W7",
+    "NOV-W8"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T13:08:26.271000",
+   "n_results": 5,
+   "selected": [
+    "src-c99052d09e",
+    "src-6973345c65",
+    "src-41561c920c"
+   ],
+   "discarded": [
+    "src-2df247c36c: fora do limite de 6 documentos por frente",
+    "src-e53b90730a: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "NOV",
+   "front": "documentacao",
+   "base": "ollama_web_docs",
+   "original_query": "dependency graph scheduling accounting API",
+   "sanitized_query": "dependency graph scheduling accounting API",
+   "removed_terms": [],
+   "rules": [
+    "NOV-W2",
+    "NOV-W7",
+    "NOV-W8"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T13:08:26.271000",
+   "n_results": 5,
+   "selected": [
+    "src-d61fca37b4",
+    "src-9e4bdb0202",
+    "src-8fe75320d3"
+   ],
+   "discarded": [
+    "src-cad547f8dc: fora do limite de 6 documentos por frente",
+    "src-66fb5392d3: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "CRI",
+   "front": "literatura",
+   "base": "openalex",
+   "original_query": "dependency graph batch ordering accounting",
+   "sanitized_query": "dependency graph batch ordering accounting",
+   "removed_terms": [],
+   "rules": [
+    "CRI-W1",
+    "CRI-W3",
+    "CRI-W4"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T13:10:26.900000",
+   "n_results": 5,
+   "selected": [
+    "src-8a303668ee",
+    "src-e057a61e21"
+   ],
+   "discarded": [
+    "src-daaa58a22f: fora do limite de 6 documentos por frente",
+    "src-2f0fc4594d: fora do limite de 6 documentos por frente",
+    "src-aa1133f35c: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": "dependency graph batch ordering accounting"
+  },
+  {
+   "criterion": "CRI",
+   "front": "literatura",
+   "base": "openalex",
+   "original_query": "precedence graph financial reconciliation",
+   "sanitized_query": "precedence graph financial reconciliation",
+   "removed_terms": [],
+   "rules": [
+    "CRI-W1",
+    "CRI-W3"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T13:10:26.900000",
+   "n_results": 5,
+   "selected": [
+    "src-f9e90e9e27",
+    "src-3d23c8d56b"
+   ],
+   "discarded": [
+    "src-bac8b3666f: fora do limite de 6 documentos por frente",
+    "src-1f5f583bb3: fora do limite de 6 documentos por frente",
+    "src-2a24fcaf67: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": "graph based precedence reconciliation financial systems"
+  },
+  {
+   "criterion": "CRI",
+   "front": "literatura",
+   "base": "openalex",
+   "original_query": "graph-based batch scheduling accounting systems",
+   "sanitized_query": "graph-based batch scheduling accounting systems",
+   "removed_terms": [],
+   "rules": [
+    "CRI-W1",
+    "CRI-W4"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T13:10:26.900000",
+   "n_results": 5,
+   "selected": [
+    "src-478966ed5e",
+    "src-8f9bec11dc"
+   ],
+   "discarded": [
+    "src-bfaba48807: fora do limite de 6 documentos por frente",
+    "src-b5b1690964: fora do limite de 6 documentos por frente",
+    "src-0a49746ab4: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "CRI",
+   "front": "patentes",
+   "base": "google_patents",
+   "original_query": "dependency graph batch processing patent",
+   "sanitized_query": "dependency graph batch processing patent",
+   "removed_terms": [],
+   "rules": [
+    "CRI-W1",
+    "CRI-W3"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T13:10:26.901000",
+   "n_results": 5,
+   "selected": [
+    "src-7de70e6ce8",
+    "src-b5956a955f"
+   ],
+   "discarded": [
+    "src-d9e682929c: fora do limite de 6 documentos por frente",
+    "src-89765fbe87: fora do limite de 6 documentos por frente",
+    "src-d3f68698c5: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": "dependency graph batch processing patent"
+  },
+  {
+   "criterion": "CRI",
+   "front": "patentes",
+   "base": "google_patents",
+   "original_query": "financial transaction ordering graph patent",
+   "sanitized_query": "financial transaction ordering graph patent",
+   "removed_terms": [],
+   "rules": [
+    "CRI-W1",
+    "CRI-W5"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T13:10:26.901000",
+   "n_results": 5,
+   "selected": [
+    "src-1f0eb14769",
+    "src-24e8454cc1"
+   ],
+   "discarded": [
+    "src-5a35a960e4: fora do limite de 6 documentos por frente",
+    "src-e12690f831: fora do limite de 6 documentos por frente",
+    "src-35cbfe4f54: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": "financial transaction ordering graph algorithm"
+  },
+  {
+   "criterion": "CRI",
+   "front": "patentes",
+   "base": "google_patents",
+   "original_query": "accounting batch precedence system patent",
+   "sanitized_query": "accounting batch precedence system patent",
+   "removed_terms": [],
+   "rules": [
+    "CRI-W1",
+    "CRI-W3",
+    "CRI-W5"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T13:10:26.901000",
+   "n_results": 5,
+   "selected": [
+    "src-de5951491a",
+    "src-83639b2aaf"
+   ],
+   "discarded": [
+    "src-a8eaa55892: fora do limite de 6 documentos por frente",
+    "src-885cbe0633: fora do limite de 6 documentos por frente",
+    "src-2b46ef1761: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "CRI",
+   "front": "mercado",
+   "base": "ollama_web",
+   "original_query": "accounting software dependency graph ordering",
+   "sanitized_query": "accounting software dependency graph ordering",
+   "removed_terms": [],
+   "rules": [
+    "CRI-W2",
+    "CRI-W5"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T13:10:26.901000",
+   "n_results": 5,
+   "selected": [
+    "src-eb860b8d5f",
+    "src-d4df541c47"
+   ],
+   "discarded": [
+    "src-341e7b9ac6: fora do limite de 6 documentos por frente",
+    "src-ae1da868e6: fora do limite de 6 documentos por frente",
+    "src-731a06f6e5: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "CRI",
+   "front": "mercado",
+   "base": "ollama_web",
+   "original_query": "batch processing scheduler with precedence graph",
+   "sanitized_query": "batch processing scheduler with precedence graph",
+   "removed_terms": [],
+   "rules": [
+    "CRI-W2",
+    "CRI-W3"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T13:10:26.902000",
+   "n_results": 5,
+   "selected": [
+    "src-0dcb27b958",
+    "src-05dae5fc2d"
+   ],
+   "discarded": [
+    "src-7098aebc17: fora do limite de 6 documentos por frente",
+    "src-d842259816: fora do limite de 6 documentos por frente",
+    "src-ea1f70dd47: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "CRI",
+   "front": "mercado",
+   "base": "ollama_web",
+   "original_query": "financial reconciliation tool graph based ordering",
+   "sanitized_query": "financial reconciliation tool graph based ordering",
+   "removed_terms": [],
+   "rules": [
+    "CRI-W2",
+    "CRI-W5"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T13:10:26.903000",
+   "n_results": 5,
+   "selected": [
+    "src-d3aad387b5",
+    "src-76161ea16a"
+   ],
+   "discarded": [
+    "src-f1ed7d2b7b: fora do limite de 6 documentos por frente",
+    "src-df40895db1: fora do limite de 6 documentos por frente",
+    "src-2fb49291fc: fora do limite de 6 documentos por frente",
+    "src-d3aad387b5: publicado em 2026-07-03, não é estado da arte (só NOV-W6)"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "CRI",
+   "front": "documentacao",
+   "base": "ollama_web_docs",
+   "original_query": "dependency graph batch ordering tutorial",
+   "sanitized_query": "dependency graph batch ordering tutorial",
+   "removed_terms": [],
+   "rules": [
+    "CRI-W2",
+    "CRI-W1"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T13:10:26.903000",
+   "n_results": 5,
+   "selected": [
+    "src-0a299b39c9",
+    "src-ff518e20ed"
+   ],
+   "discarded": [
+    "src-006f06b400: fora do limite de 6 documentos por frente",
+    "src-0178f7bc3d: fora do limite de 6 documentos por frente",
+    "src-469f4036e9: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "CRI",
+   "front": "documentacao",
+   "base": "ollama_web_docs",
+   "original_query": "graph based transaction precedence configuration guide",
+   "sanitized_query": "graph based transaction precedence configuration guide",
+   "removed_terms": [],
+   "rules": [
+    "CRI-W2",
+    "CRI-W4"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T13:10:26.903000",
+   "n_results": 5,
+   "selected": [
+    "src-d18bd25bdf",
+    "src-659ee02197"
+   ],
+   "discarded": [
+    "src-58dac531b6: fora do limite de 6 documentos por frente",
+    "src-6498a14073: fora do limite de 6 documentos por frente",
+    "src-c5c4d5d235: fora do limite de 6 documentos por frente",
+    "src-d18bd25bdf: publicado em 2025-07-23, não é estado da arte (só NOV-W6)"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "CRI",
+   "front": "documentacao",
+   "base": "ollama_web_docs",
+   "original_query": "official documentation financial reconciliation dependency graph",
+   "sanitized_query": "official documentation financial reconciliation dependency graph",
+   "removed_terms": [],
+   "rules": [
+    "CRI-W2",
+    "CRI-W1"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T13:10:26.904000",
+   "n_results": 5,
+   "selected": [
+    "src-61e56c4531",
+    "src-fbddd83b0f"
+   ],
+   "discarded": [
+    "src-d1b429a27a: fora do limite de 6 documentos por frente",
+    "src-fa7bc9fdd5: fora do limite de 6 documentos por frente",
+    "src-59b7e8fb64: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "INC",
+   "front": "literatura",
+   "base": "openalex",
+   "original_query": "dependency graph batch ordering reconciliation literature",
+   "sanitized_query": "dependency graph batch ordering reconciliation literature",
+   "removed_terms": [],
+   "rules": [
+    "barreira"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T13:10:31.653000",
+   "n_results": 5,
+   "selected": [
+    "src-6594061630",
+    "src-64f2a50432"
+   ],
+   "discarded": [
+    "src-4279810dcf: fora do limite de 6 documentos por frente",
+    "src-bbddd5dfbe: fora do limite de 6 documentos por frente",
+    "src-d71f551d2a: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "INC",
+   "front": "literatura",
+   "base": "openalex",
+   "original_query": "open challenges dependency graph accounting precedence",
+   "sanitized_query": "open challenges dependency graph accounting precedence",
+   "removed_terms": [],
+   "rules": [
+    "problema_em_aberto"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T13:10:31.654000",
+   "n_results": 5,
+   "selected": [
+    "src-5aa087e125",
+    "src-683e380b73"
+   ],
+   "discarded": [
+    "src-fc750ec992: fora do limite de 6 documentos por frente",
+    "src-93f2c14e73: fora do limite de 6 documentos por frente",
+    "src-a28f243f41: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "INC",
+   "front": "literatura",
+   "base": "openalex",
+   "original_query": "technology readiness level reconciliation dependency graph",
+   "sanitized_query": "technology readiness level reconciliation dependency graph",
+   "removed_terms": [],
+   "rules": [
+    "maturidade"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T13:10:31.654000",
+   "n_results": 5,
+   "selected": [
+    "src-fabf2412ea",
+    "src-0a8976014a"
+   ],
+   "discarded": [
+    "src-f21c2ee728: fora do limite de 6 documentos por frente",
+    "src-b2ba502852: fora do limite de 6 documentos por frente",
+    "src-93f293bda3: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "INC",
+   "front": "patentes",
+   "base": "google_patents",
+   "original_query": "patent dependency graph batch ordering reconciliation",
+   "sanitized_query": "patent dependency graph batch ordering reconciliation",
+   "removed_terms": [],
+   "rules": [
+    "barreira"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T13:10:31.654000",
+   "n_results": 5,
+   "selected": [
+    "src-38d79b8d69",
+    "src-d9e682929c"
+   ],
+   "discarded": [
+    "src-d405930395: fora do limite de 6 documentos por frente",
+    "src-89765fbe87: fora do limite de 6 documentos por frente",
+    "src-d3f68698c5: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "INC",
+   "front": "patentes",
+   "base": "google_patents",
+   "original_query": "patent technology readiness accounting precedence",
+   "sanitized_query": "patent technology readiness accounting precedence",
+   "removed_terms": [],
+   "rules": [
+    "maturidade"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T13:10:31.655000",
+   "n_results": 5,
+   "selected": [
+    "src-7c843645d4",
+    "src-0960502e3e"
+   ],
+   "discarded": [
+    "src-26d07532eb: fora do limite de 6 documentos por frente",
+    "src-e70f809846: fora do limite de 6 documentos por frente",
+    "src-4735932d54: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "INC",
+   "front": "patentes",
+   "base": "google_patents",
+   "original_query": "financial institution patent batch dependency graph",
+   "sanitized_query": "financial institution patent batch dependency graph",
+   "removed_terms": [],
+   "rules": [
+    "setor"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T13:10:31.655000",
+   "n_results": 5,
+   "selected": [
+    "src-5a35a960e4",
+    "src-8787a77a4e"
+   ],
+   "discarded": [
+    "src-a9e4809601: fora do limite de 6 documentos por frente",
+    "src-b13db29d9c: fora do limite de 6 documentos por frente",
+    "src-7e5427b5b4: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "INC",
+   "front": "mercado",
+   "base": "ollama_web",
+   "original_query": "financial software dependency graph batch scheduling",
+   "sanitized_query": "financial software dependency graph batch scheduling",
+   "removed_terms": [],
+   "rules": [
+    "barreira"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T13:10:31.655000",
+   "n_results": 5,
+   "selected": [
+    "src-1c4b5072eb",
+    "src-01a9b67469"
+   ],
+   "discarded": [
+    "src-22d4cbd347: duplicado de outra query",
+    "src-b5c7897169: fora do limite de 6 documentos por frente",
+    "src-7badf70896: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "INC",
+   "front": "mercado",
+   "base": "ollama_web",
+   "original_query": "accounting platform batch ordering dependency graph maturity",
+   "sanitized_query": "accounting platform batch ordering dependency graph maturity",
+   "removed_terms": [],
+   "rules": [
+    "maturidade"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T13:10:31.655000",
+   "n_results": 5,
+   "selected": [
+    "src-b455df48a2",
+    "src-9a1b2923aa"
+   ],
+   "discarded": [
+    "src-35114604d2: fora do limite de 6 documentos por frente",
+    "src-4ef0b134d2: fora do limite de 6 documentos por frente",
+    "src-f445c78f34: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "INC",
+   "front": "mercado",
+   "base": "ollama_web",
+   "original_query": "bank fintech batch reconciliation dependency graph",
+   "sanitized_query": "bank fintech batch reconciliation dependency graph",
+   "removed_terms": [],
+   "rules": [
+    "setor"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T13:10:31.656000",
+   "n_results": 5,
+   "selected": [
+    "src-ccccaa797e",
+    "src-22d4cbd347"
+   ],
+   "discarded": [
+    "src-8c64929bfc: fora do limite de 6 documentos por frente",
+    "src-28c34203a8: fora do limite de 6 documentos por frente",
+    "src-e85cc432a9: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "INC",
+   "front": "documentacao",
+   "base": "ollama_web_docs",
+   "original_query": "official documentation dependency graph reconciliation",
+   "sanitized_query": "official documentation dependency graph reconciliation",
+   "removed_terms": [],
+   "rules": [
+    "barreira"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T13:10:31.656000",
+   "n_results": 5,
+   "selected": [
+    "src-61e56c4531",
+    "src-fbddd83b0f"
+   ],
+   "discarded": [
+    "src-d1b429a27a: fora do limite de 6 documentos por frente",
+    "src-fa7bc9fdd5: fora do limite de 6 documentos por frente",
+    "src-59b7e8fb64: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": "official documentation financial reconciliation dependency graph"
+  },
+  {
+   "criterion": "INC",
+   "front": "documentacao",
+   "base": "ollama_web_docs",
+   "original_query": "github issue batch ordering dependency graph maturity",
+   "sanitized_query": "github issue batch ordering dependency graph maturity",
+   "removed_terms": [],
+   "rules": [
+    "maturidade"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T13:10:31.656000",
+   "n_results": 5,
+   "selected": [
+    "src-c870479936",
+    "src-e8ea6055ca"
+   ],
+   "discarded": [
+    "src-0fe408cee7: fora do limite de 6 documentos por frente",
+    "src-ca9bd4d492: fora do limite de 6 documentos por frente",
+    "src-63074a5016: fora do limite de 6 documentos por frente",
+    "src-c870479936: publicado em 2026-04-21, não é estado da arte (só NOV-W6)",
+    "src-e8ea6055ca: publicado em 2026-03-18, não é estado da arte (só NOV-W6)"
+   ],
+   "error": null,
+   "reused_from": null
+  },
+  {
+   "criterion": "INC",
+   "front": "documentacao",
+   "base": "ollama_web_docs",
+   "original_query": "stack overflow question dependency graph batch reconciliation",
+   "sanitized_query": "stack overflow question dependency graph batch reconciliation",
+   "removed_terms": [],
+   "rules": [
+    "problema_em_aberto"
+   ],
+   "filters": {
+    "publicado_ate": "2025-01-06",
+    "max_resultados": "5"
+   },
+   "executed_at": "2026-10-09T13:10:31.656000",
+   "n_results": 5,
+   "selected": [
+    "src-5c01a9ff43",
+    "src-a17f1381b4"
+   ],
+   "discarded": [
+    "src-761ba1396e: fora do limite de 6 documentos por frente",
+    "src-7d32e66949: fora do limite de 6 documentos por frente",
+    "src-0a299b39c9: fora do limite de 6 documentos por frente"
+   ],
+   "error": null,
+   "reused_from": null
+  }
+ ],
+ "rastreabilidade": {
+  "analysis_id": "6ac8e74202341aeec65f949b",
+  "version": 1,
+  "schema_version": "1.1",
+  "catalog_version": "2026.10.09-6",
+  "models": {
+   "default": "gpt-oss:120b",
+   "extraction": "gemma4:31b",
+   "doc": "gpt-oss:120b",
+   "search": "gpt-oss:120b",
+   "judge": "gpt-oss:120b",
+   "report": "gpt-oss:120b",
+   "chat": "gpt-oss:120b"
+  },
+  "prompts": {},
+  "file_hashes": {
+   "dossie_projeto.pdf": "9b2a788aaa85d5a230546433c7c5b87a77cbc5d26683ea25fb3bd585214179e9",
+   "transcricao_entrevista_tecnica.pdf": "ea00144db3a2a7051f61242898c389ce4b973d7db3ff820327bc71ef6529b456",
+   "inventario_evidencias.csv": "9f9ac34b113a8c98bbfa47e059842cba84095a4c1f6307ae9756060df1a99395",
+   "evidencias/metodo.md": "66e0a567fda869f055e0d21b0558ad0cb1ef53b0600846a4f11c358ea8ea0e72",
+   "evidencias/revisao_tecnica.md": "4d51383897fd643216a41c62098ffac9eb8e83ab7fba9f9573c2e1c2d690c110",
+   "evidencias/cronologia.csv": "01f11672ac35acb04eaf674490d42e2accd46ede72c0bec5f18e43710695704d",
+   "evidencias/medicoes.csv": "95a698d7ebf751e1e81d8d2a3827bd644b1b13b1385a70f715627d95998d862b",
+   "evidencias/resultados.csv": "5a5f1a7ee1c2f5860ff25b71005d2625accdc61ef1dc514dae504ac744094c04",
+   "evidencias/configuracao.json": "bdbc4efcc03d60fcad6f4533ffa681e49ec676048f7e9d53f7bd29789d582a13",
+   "notas_soltas.txt": "17f4b03a301c1513b46c32657de579de79e78daa5d6b7521bb2450bafd391bf0"
+  },
+  "temperature": 0.0,
+  "regras_aplicadas": 66
+ },
+ "decisoes_analista": []
+}
