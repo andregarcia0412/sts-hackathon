@@ -17,9 +17,12 @@ Or everything in Docker (API + Mongo), from the repo root:
 
 ```bash
 cp backend/.env.example backend/.env   # same settings; MONGODB_URI is replaced to reach the mongo container
-docker compose up -d --build           # API at http://localhost:8000/docs (API_PORT changes the port)
+docker compose up -d --build           # API behind nginx at http://localhost/docs (NGINX_PORT changes the port)
 docker compose logs -f api
 ```
+
+nginx (`backend/nginx/nginx.conf`) is the only public entry point: the API port is not published.
+It accepts uploads up to 200 MB (the `.zip` limit), waits up to 600 s for LLM answers and gzips JSON.
 
 In Docker, a local Ollama on the host is `OLLAMA_HOST=http://host.docker.internal:11434`, and
 `PACKAGE_DIR` must be a path inside the container (mount the package as a volume first).

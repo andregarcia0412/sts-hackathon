@@ -21,8 +21,8 @@ services:
       timeout: 5s
       retries: 5
 
-  # FastAPI back-end: http://localhost:8000 (docs at /docs). Settings come from backend/.env
-  # (copy backend/.env.example); only the Mongo address is replaced to reach the container above.
+  # FastAPI back-end, reached through the nginx service below (docs at /docs). Settings come from
+  # backend/.env (copy backend/.env.example); only the Mongo address is replaced to reach the container above.
   api:
     build: ./backend
     container_name: sts-api
@@ -30,8 +30,9 @@ services:
     depends_on:
       mongo:
         condition: service_healthy
-    ports:
-      - "${API_PORT:-8000}:8000"
+    # Only inside the compose network: the public entry point is nginx
+    expose:
+      - "8000"
     env_file:
       - backend/.env
     environment:
@@ -45,6 +46,24 @@ services:
       timeout: 5s
       retries: 5
       start_period: 20s
+
+  # Reverse proxy: http://localhost (NGINX_PORT changes the port). Config in backend/nginx/nginx.conf
+  nginx:
+    image: nginx:1.28-alpine
+    container_name: sts-nginx
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "${NGINX_PORT:-80}:80"
+    volumes:
+      - ./backend/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/nginx-health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
 
 volumes:
   mongo-data:
