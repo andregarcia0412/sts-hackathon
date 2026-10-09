@@ -14,6 +14,8 @@ const query = (params: Record<string, string | undefined>) => {
 
 export const paths = {
   projects: () => "/projetos",
+  /** "Upload de arquivos" step: the new project screen */
+  newProject: () => "/projetos/novo",
   analysis: (projectId: string, nodeId?: string, framework?: Framework) =>
     `/projetos/${projectId}/analise${query({ [FRAMEWORK_PARAM]: framework, [SELECTED_NODE_PARAM]: nodeId })}`,
   /** `nodeId` opens that criterion / rule in the document */

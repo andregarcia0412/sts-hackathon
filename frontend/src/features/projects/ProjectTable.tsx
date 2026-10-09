@@ -35,10 +35,15 @@ interface ProjectTableProps {
   footer?: ReactNode;
 }
 
+/*
+ * On large screens the card fills the space left under the header: only the
+ * rows scroll (visible scrollbar), the column header and the footer stay put
+ * and the rows pass behind the footer's fade.
+ */
 export const ProjectTable = ({ projects, onResend, toolbar, footer }: ProjectTableProps) => (
-  <div className="overflow-hidden rounded-3xl bg-white/80 shadow-[0_4px_16px_rgb(0_0_0/0.1)]">
+  <div className="flex flex-col overflow-hidden rounded-3xl bg-white/80 shadow-[0_4px_16px_rgb(0_0_0/0.1)] lg:min-h-0 lg:flex-1">
     {toolbar}
-    <div className="overflow-x-auto">
+    <div className="scroll-visible overflow-x-auto lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:pb-16">
       <table className="w-full min-w-[1100px] table-fixed text-left">
         <colgroup>
           <col className="w-[28%]" />
@@ -48,7 +53,7 @@ export const ProjectTable = ({ projects, onResend, toolbar, footer }: ProjectTab
           <col className="w-[12%]" />
           <col className="w-[16%]" />
         </colgroup>
-        <thead className="border-b border-track text-xs font-semibold text-fg-muted">
+        <thead className="sticky top-0 z-10 border-b border-track bg-white text-xs font-semibold text-fg-muted">
           <tr>
             <th scope="col" className="py-3.5 pr-4 pl-6">Projeto</th>
             <th scope="col" className="px-4 py-3.5" title="Data de corte do período analisado">
@@ -69,7 +74,12 @@ export const ProjectTable = ({ projects, onResend, toolbar, footer }: ProjectTab
         </tbody>
       </table>
     </div>
-    {footer}
+    {footer && (
+      <div className="relative shrink-0 bg-white">
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-full hidden h-20 bg-gradient-to-b from-white/0 to-white lg:block" />
+        {footer}
+      </div>
+    )}
   </div>
 );
 

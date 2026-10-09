@@ -5,6 +5,10 @@
  * identity: Heebo, wine #A6193C). Components use the semantic names
  * (bg-surface, text-fg-muted, text-state-positive, ...), never raw hex.
  */
+/* Short viewports (login without scroll): compact spacing */
+@custom-variant short (@media (max-height: 66rem));
+@custom-variant shorter (@media (max-height: 48rem));
+
 @theme {
   --font-sans: "Heebo", ui-sans-serif, system-ui, sans-serif;
 
@@ -78,6 +82,14 @@
 
   --animate-assistant-in: assistant-in 220ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
   --animate-assistant-out: assistant-out 160ms ease-in both;
+  --animate-dropdown-in: dropdown-in 140ms ease-out both;
+
+  @keyframes dropdown-in {
+    from {
+      opacity: 0;
+      transform: translateY(-4px) scale(0.98);
+    }
+  }
 
   @keyframes assistant-in {
     from {
@@ -114,6 +126,11 @@
 
 /* Primitives of the design system ("Botão", fields) */
 @layer components {
+  /* Pill text field of the design (login, upload): hover, focus and error states */
+  .input-pill {
+    @apply h-12 w-full rounded-full border border-border-strong bg-surface px-4 text-base leading-5 text-fg transition-colors placeholder:text-fg-muted hover:border-fg-faint focus-visible:border-action focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-action aria-invalid:border-danger disabled:cursor-not-allowed disabled:bg-surface-sunken;
+  }
+
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 rounded-full bg-action px-6 py-3 text-base leading-5 font-semibold whitespace-nowrap text-white transition-[filter] hover:brightness-95 disabled:cursor-not-allowed disabled:bg-surface-sunken disabled:text-fg-muted disabled:hover:brightness-100;
   }
@@ -171,6 +188,23 @@
 /* React Flow: nodes are clickable even though built-in selection is off */
 .react-flow__node {
   cursor: pointer;
+}
+
+/* Scroll area with a visible scrollbar ("demonstrador de scroll" in the design) */
+@utility scroll-visible {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-fg-faint) transparent;
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: var(--color-fg-faint);
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
 }
 
 /* Assistant open/close: still fires animationend (the panel unmounts on it) */

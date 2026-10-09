@@ -50,3 +50,13 @@ export const test = base.extend<{ pageErrors: string[] }>({
 });
 
 export { expect };
+
+/** Pill dropdown of the design (role combobox): its accessible name starts with the label */
+export const combobox = (page: Page, label: string) =>
+  page.getByRole("combobox", { name: new RegExp(`^${label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`) });
+
+/** Opens the pill dropdown and picks an option, like a person would */
+export const chooseOption = async (page: Page, label: string, option: string) => {
+  await combobox(page, label).click();
+  await page.getByRole("option", { name: option, exact: true }).click();
+};

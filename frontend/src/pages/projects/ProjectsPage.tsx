@@ -1,19 +1,18 @@
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, Navigate, useSearchParams } from "react-router-dom";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Pagination } from "@/components/ui/Pagination";
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui/states";
 import type { ProjectSummary } from "@/domain/types";
 import { useCurrentUser } from "@/features/auth/authState";
-import { NewProjectDialog } from "@/features/projects/NewProjectDialog";
 import { ProjectSearch } from "@/features/projects/ProjectSearch";
 import { ProjectTable } from "@/features/projects/ProjectTable";
 import { ResendFileDialog } from "@/features/projects/ResendFileDialog";
 import { ProjectFilterBar } from "@/features/projects/ProjectFilterBar";
 import { StatCards } from "@/features/projects/StatCards";
 import { PAGE_SIZE, useProjectFilters } from "@/features/projects/useProjectFilters";
-import { NEW_PROJECT_PARAM } from "@/routes/paths";
+import { NEW_PROJECT_PARAM, paths } from "@/routes/paths";
 import { useProjects } from "@/services/queries";
 
 export const ProjectsPage = () => {
@@ -21,36 +20,24 @@ export const ProjectsPage = () => {
   const [resending, setResending] = useState<ProjectSummary | null>(null);
   const { filters, update, clear, activeCount } = useProjectFilters();
   const projects = useProjects({ ...filters, ownerId: user.id, pageSize: PAGE_SIZE });
-  // "Upload de arquivos" in the header links here with ?novo=1
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [openedHere, setDialogOpen] = useState(false);
-  const dialogOpen = openedHere || searchParams.has(NEW_PROJECT_PARAM);
-  const closeDialog = () => {
-    setDialogOpen(false);
-    if (searchParams.has(NEW_PROJECT_PARAM)) {
-      setSearchParams(
-        (prev) => {
-          const next = new URLSearchParams(prev);
-          next.delete(NEW_PROJECT_PARAM);
-          return next;
-        },
-        { replace: true },
-      );
-    }
-  };
+  // Old links (?novo=1) open the upload screen
+  const [searchParams] = useSearchParams();
 
   const newProjectButton = (
-    <button type="button" className="btn-primary" onClick={() => setDialogOpen(true)}>
+    <Link to={paths.newProject()} className="btn-primary">
       <Plus className="size-6" aria-hidden />
       Novo projeto
-    </button>
+    </Link>
   );
+
+  if (searchParams.has(NEW_PROJECT_PARAM)) return <Navigate to={paths.newProject()} replace />;
 
   const data = projects.data;
   const ownsNothing = data && Object.values(data.statusCounts).every((n) => n === 0);
 
   return (
-    <div className="flex flex-1 flex-col">
+    // Large screens: header and filters stay fixed, only the list scrolls (design)
+    <div className="flex flex-1 flex-col lg:min-h-0 lg:overflow-hidden">
       <PageHeader
         title="Meus Projetos"
         description={<p>Análise preliminar de enquadramento na Lei do Bem · dados fictícios de demonstração</p>}
@@ -71,7 +58,7 @@ export const ProjectsPage = () => {
         )}
       </PageHeader>
 
-      <div className="mx-auto flex w-full max-w-[1440px] flex-1 flex-col p-4">
+      <div className="flex w-full flex-1 flex-col p-4 lg:min-h-0">
         {projects.isError && !data ? (
           <ErrorState
             title="Não foi possível carregar os projetos"
@@ -89,7 +76,7 @@ export const ProjectsPage = () => {
         ) : (
           // Dim while a new page/filter loads; the previous page stays visible
           <div
-            className={`transition-opacity ${projects.isPlaceholderData ? "opacity-60" : ""}`}
+            className={`flex flex-col transition-opacity lg:min-h-0 lg:flex-1 ${projects.isPlaceholderData ? "opacity-60" : ""}`}
             aria-busy={projects.isFetching}
           >
             {data.items.length === 0 ? (
@@ -123,7 +110,6 @@ export const ProjectsPage = () => {
           </div>
         )}
       </div>
-      <NewProjectDialog open={dialogOpen} onClose={closeDialog} />
       <ResendFileDialog project={resending} onClose={() => setResending(null)} />
     </div>
   );

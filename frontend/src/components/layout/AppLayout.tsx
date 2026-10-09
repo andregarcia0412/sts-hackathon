@@ -1,12 +1,12 @@
 import { LogOut } from "lucide-react";
 import { useEffect, useRef } from "react";
-import { Link, Outlet, useLocation, useMatch } from "react-router-dom";
+import { Link, Outlet, useMatch } from "react-router-dom";
 import logoBnb from "@/assets/logo-bnb.svg";
 import { KeyboardArrowRightIcon } from "@/components/icons/MaterialIcons";
 import { APP_NAME } from "@/config/app";
 import { useAuth } from "@/features/auth/authState";
 import { initials } from "@/lib/format";
-import { NEW_PROJECT_PARAM, paths } from "@/routes/paths";
+import { paths } from "@/routes/paths";
 
 type StepKey = "projects" | "upload" | "analysis" | "decision";
 
@@ -22,17 +22,13 @@ const useSteps = (): { steps: Step[]; current: StepKey | null } => {
   const analysis = useMatch("/projetos/:projectId/analise");
   const decision = useMatch("/projetos/:projectId/decisao");
   const projects = useMatch("/projetos");
-  const { search } = useLocation();
+  const upload = useMatch("/projetos/novo");
   const projectId = (analysis ?? decision)?.params.projectId;
-
-  // On the list, opening the upload keeps the filters in the URL
-  const uploadSearch = new URLSearchParams(projects ? search : "");
-  uploadSearch.set(NEW_PROJECT_PARAM, "1");
 
   return {
     steps: [
       { key: "projects", label: "Projetos", to: paths.projects() },
-      { key: "upload", label: "Upload de arquivos", to: `${paths.projects()}?${uploadSearch}` },
+      { key: "upload", label: "Upload de arquivos", to: paths.newProject() },
       {
         key: "analysis",
         label: "Árvore de evidências",
@@ -44,7 +40,7 @@ const useSteps = (): { steps: Step[]; current: StepKey | null } => {
         to: projectId ? paths.decision(projectId) : null,
       },
     ],
-    current: analysis ? "analysis" : decision ? "decision" : projects ? "projects" : null,
+    current: analysis ? "analysis" : decision ? "decision" : upload ? "upload" : projects ? "projects" : null,
   };
 };
 
@@ -100,10 +96,10 @@ export const AppLayout = () => {
 
   return (
     <div className="relative isolate flex h-dvh flex-col overflow-hidden bg-canvas print:block print:h-auto print:overflow-visible print:bg-white">
-      {/* Background glows of the design (wine top-left, orange bottom-right) */}
+      {/* Background glows of the design, both at the top (wine left, orange right) */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden print:hidden">
-        <div className="absolute -top-60 -left-96 size-[594px] rounded-full bg-action opacity-60 blur-[180px]" />
-        <div className="absolute -right-96 -bottom-80 size-[594px] rounded-full bg-brand-orange opacity-60 blur-[180px]" />
+        <div className="absolute -top-[355px] -left-[297px] size-[594px] rounded-full bg-action opacity-50 blur-[180px]" />
+        <div className="absolute -top-[289px] -right-[297px] size-[528px] rounded-full bg-brand-orange opacity-60 blur-[180px]" />
       </div>
 
       <header className="flex shrink-0 flex-wrap items-center justify-between gap-x-6 gap-y-3 border-b border-border bg-white/50 px-4 pt-6 pb-4 sm:px-10 print:hidden">

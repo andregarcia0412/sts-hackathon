@@ -1,4 +1,4 @@
-import { USERS, expect, signInAs, test } from "./fixtures.ts";
+import { USERS, chooseOption, expect, signInAs, test } from "./fixtures.ts";
 
 test.beforeEach(async ({ page }) => {
   await signInAs(page, USERS.ana);
@@ -16,7 +16,7 @@ test("card de status filtra e o total bate com a paginação", async ({ page }) 
 });
 
 test("decisão filtra a lista e o botão de filtro limpa", async ({ page }) => {
-  await page.getByLabel("Decisão").selectOption("with_reservations");
+  await chooseOption(page, "Decisão", "Com ressalvas");
   await expect(page).toHaveURL(/decisao=with_reservations/);
   await expect
     .poll(async () => {
@@ -41,8 +41,8 @@ test("busca filtra por nome ou empresa", async ({ page }) => {
 });
 
 test("critério mais fraco + ordenação", async ({ page }) => {
-  await page.getByLabel("Força da evidência do critério mais fraco").selectOption("weak");
-  await page.getByLabel("Ordenar por").selectOption("weakest");
+  await chooseOption(page, "Força da evidência do critério mais fraco", "Mais fraco: evidência fraca");
+  await chooseOption(page, "Ordenar por", "Mais fraco primeiro");
   await expect(page).toHaveURL(/ordem=weakest/);
   await expect(page).toHaveURL(/banda=weak/);
   await expect
@@ -77,15 +77,15 @@ test("paginação e botão voltar", async ({ page }) => {
 });
 
 test("upload recusa formato não aceito", async ({ page }) => {
-  await page.getByRole("button", { name: "Novo projeto" }).first().click();
+  await page.getByRole("link", { name: "Novo projeto" }).first().click();
   await page.getByLabel("Selecionar arquivos").setInputFiles({
     name: "foto.png",
     mimeType: "image/png",
     buffer: Buffer.from("x"),
   });
   await expect(page.getByText(/formato não aceito/)).toBeVisible();
-  await page.keyboard.press("Escape");
-  await expect(page.getByRole("heading", { name: "Novo projeto" })).toBeHidden();
+  await page.getByRole("link", { name: "Cancelar" }).click();
+  await expect(page).toHaveURL(/\/projetos$/);
 });
 
 test("clicar num resultado logo depois de digitar não volta para a lista", async ({ page }) => {

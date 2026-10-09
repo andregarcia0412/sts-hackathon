@@ -1,4 +1,5 @@
 import { ListFilter } from "lucide-react";
+import { PillSelect } from "@/components/ui/PillSelect";
 import { DECISION_OUTCOMES, DECISION_OUTCOME_LABELS } from "@/domain/labels";
 import { SCORE_BAND_LABELS, SCORE_BANDS } from "@/domain/score";
 import type { ProjectSort } from "@/domain/types";
@@ -12,13 +13,6 @@ const SORT_LABELS: Record<ProjectSort, string> = {
   weakest: "Mais fraco primeiro",
 };
 
-
-/*
- * Pill select of the design; highlighted when it filters something. Each width
- * fits its longest option (a chosen option is never cut).
- */
-const pillSelect = (active: boolean, width = "sm:w-48") =>
-  `select h-12 w-full rounded-full py-0 pr-10 pl-4 text-base ${width} ${active ? "border-action" : ""}`;
 
 interface ProjectFilterBarProps {
   filters: ProjectFilters;
@@ -46,48 +40,41 @@ export const ProjectFilterBar = ({ filters, update, clear, activeCount }: Projec
       )}
     </button>
 
-    <select
-      aria-label="Força da evidência do critério mais fraco"
-      className={pillSelect(!!filters.weakestBand, "sm:w-72")}
-      value={filters.weakestBand ?? ""}
-      onChange={(e) => update({ weakestBand: (e.target.value || undefined) as ProjectFilters["weakestBand"] })}
-    >
-      <option value="">Critério mais fraco</option>
-      {SCORE_BANDS.map((band) => (
-        <option key={band} value={band}>
-          Mais fraco: {SCORE_BAND_LABELS[band].toLowerCase()}
-        </option>
-      ))}
-    </select>
+    <PillSelect
+      label="Força da evidência do critério mais fraco"
+      placeholder="Critério mais fraco"
+      className="w-full sm:w-auto"
+      highlighted={!!filters.weakestBand}
+      value={filters.weakestBand}
+      onChange={(weakestBand) => update({ weakestBand })}
+      options={SCORE_BANDS.map((band) => ({
+        value: band,
+        label: `Mais fraco: ${SCORE_BAND_LABELS[band].toLowerCase()}`,
+      }))}
+    />
 
-    <select
-      aria-label="Decisão"
-      className={pillSelect(!!filters.outcome, "sm:w-54")}
-      value={filters.outcome ?? ""}
-      onChange={(e) => update({ outcome: (e.target.value || undefined) as ProjectFilters["outcome"] })}
-    >
-      <option value="">Decisão</option>
-      {DECISION_OUTCOMES.map((outcome) => (
-        <option key={outcome} value={outcome}>
-          {DECISION_OUTCOME_LABELS[outcome]}
-        </option>
-      ))}
-      <option value="none">Sem decisão</option>
-    </select>
+    <PillSelect
+      label="Decisão"
+      placeholder="Decisão"
+      className="w-full sm:w-auto"
+      highlighted={!!filters.outcome}
+      value={filters.outcome}
+      onChange={(outcome) => update({ outcome })}
+      options={[
+        ...DECISION_OUTCOMES.map((outcome) => ({ value: outcome, label: DECISION_OUTCOME_LABELS[outcome] })),
+        { value: "none" as const, label: "Sem decisão" },
+      ]}
+    />
 
     <DateRangeField from={filters.from} to={filters.to} onChange={(range) => update(range)} />
 
-    <select
-      aria-label="Ordenar por"
-      className={pillSelect(false, "sm:w-56")}
+    <PillSelect
+      label="Ordenar por"
+      className="w-full sm:w-auto"
       value={filters.sort}
-      onChange={(e) => update({ sort: e.target.value as ProjectSort, page: filters.page })}
-    >
-      {(Object.keys(SORT_LABELS) as ProjectSort[]).map((sort) => (
-        <option key={sort} value={sort}>
-          {sort === "recent" ? "Ordenar: mais recentes" : SORT_LABELS[sort]}
-        </option>
-      ))}
-    </select>
+      onChange={(sort) => update({ sort: sort ?? "recent", page: filters.page })}
+      display={(option) => `Ordenar: ${option.label.toLowerCase()}`}
+      options={(Object.keys(SORT_LABELS) as ProjectSort[]).map((sort) => ({ value: sort, label: SORT_LABELS[sort] }))}
+    />
   </div>
 );

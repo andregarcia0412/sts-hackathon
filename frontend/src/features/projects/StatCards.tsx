@@ -43,15 +43,17 @@ export const StatCards = ({ counts, selected, onSelect }: StatCardsProps) => {
             type="button"
             aria-pressed={active}
             onClick={() => onSelect(status && !active ? [status] : [])}
-            className={`flex items-start justify-between rounded-2xl border-2 bg-surface p-4 text-left transition-colors ${
-              active ? "border-action" : "border-transparent hover:border-border-strong"
+            className={`group flex items-start justify-between rounded-2xl border-2 bg-surface p-4 text-left shadow-card transition-[translate,scale,box-shadow,border-color] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-card-accent active:translate-y-0 active:scale-[0.98] motion-reduce:transition-none motion-reduce:hover:translate-y-0 ${
+              active ? "border-action shadow-card-accent" : "border-transparent hover:border-border-strong"
             }`}
           >
             <span className="flex flex-col gap-2">
               <span className="text-base text-fg-subtle">{label}</span>
               <span className="text-[32px] leading-none font-semibold text-fg tabular-nums">{count}</span>
             </span>
-            <span className={`flex size-10 shrink-0 items-center justify-center rounded-full ${circle}`}>
+            <span
+              className={`flex size-10 shrink-0 items-center justify-center rounded-full transition-transform duration-200 group-hover:scale-110 group-aria-pressed:scale-110 motion-reduce:transition-none ${circle}`}
+            >
               <Icon className="size-6" />
             </span>
           </button>

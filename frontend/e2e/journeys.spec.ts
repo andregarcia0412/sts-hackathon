@@ -1,4 +1,4 @@
-import { USERS, expect, signInAs, test, typeLikeAPerson } from "./fixtures.ts";
+import { USERS, chooseOption, combobox, expect, signInAs, test, typeLikeAPerson } from "./fixtures.ts";
 
 // Journeys type like a person and walk through several screens: give them time
 test.describe.configure({ timeout: 120_000 });
@@ -101,7 +101,7 @@ test("analista discorda do modelo, contesta e vê a reanálise na trilha", async
   await test.step("entra pelo formulário de login", async () => {
     await page.goto("/login");
     await typeLikeAPerson(page.getByLabel("Email"), USERS.ana.email);
-    await typeLikeAPerson(page.getByLabel("Senha"), "123");
+    await typeLikeAPerson(page.getByLabel("Senha", { exact: true }), "123");
     await page.keyboard.press("Enter");
     await expect(page.getByRole("heading", { name: "Meus projetos" })).toBeVisible();
   });
@@ -154,10 +154,11 @@ test("analista envia um projeto novo e abre a análise quando fica pronta", asyn
     await expect(page.getByRole("heading", { name: "Novo projeto" })).toBeVisible();
   });
 
-  await test.step("tenta enviar vazio e vê os avisos", async () => {
-    await page.getByRole("button", { name: "Enviar para análise" }).click();
-    await expect(page.getByText("Informe o nome do projeto.")).toBeVisible();
-    await expect(page.getByText(/Anexe ao menos um documento/)).toBeVisible();
+  await test.step("vazio, não dá para enviar e o rodapé diz o que falta", async () => {
+    for (const button of await page.getByRole("button", { name: "Enviar para análise" }).all()) {
+      await expect(button).toBeDisabled();
+    }
+    await expect(page.getByText(/Preencha o nome do projeto e anexe um documento/)).toBeVisible();
   });
 
   await test.step("preenche, anexa, remove um arquivo e envia", async () => {
@@ -173,8 +174,9 @@ test("analista envia um projeto novo e abre a análise quando fica pronta", asyn
     ]);
     await page.getByRole("button", { name: "Remover relatorio.docx" }).click();
     await expect(page.getByText("relatorio.docx")).toHaveCount(0);
-    await page.getByRole("button", { name: "Enviar para análise" }).click();
-    await expect(page.getByRole("heading", { name: "Novo projeto" })).toBeHidden();
+    await expect(page.getByText("Tudo pronto para enviar.")).toBeVisible();
+    await page.getByRole("button", { name: "Enviar para análise" }).last().click();
+    await expect(page.getByRole("heading", { name: "Meus Projetos" })).toBeVisible();
   });
 
   await test.step("acompanha o processamento até ficar pronto", async () => {
@@ -192,8 +194,8 @@ test("analista faz a triagem da fila com filtros e volta pelo navegador", async 
 
   await test.step("filtra pelos cards e pelo critério mais fraco", async () => {
     await page.getByRole("button", { name: /Em análise/ }).click();
-    await page.getByLabel("Força da evidência do critério mais fraco").selectOption("weak");
-    await page.getByLabel("Ordenar por").selectOption({ label: "Mais fraco primeiro" });
+    await chooseOption(page, "Força da evidência do critério mais fraco", "Mais fraco: evidência fraca");
+    await chooseOption(page, "Ordenar por", "Mais fraco primeiro");
     await expect(page).toHaveURL(/status=ready/);
     await expect(page).toHaveURL(/banda=weak/);
     const weakest = page.locator("tbody td:nth-child(4)");
@@ -204,12 +206,12 @@ test("analista faz a triagem da fila com filtros e volta pelo navegador", async 
     await page.getByRole("link", { name: "Abrir análise" }).first().click();
     await expect(page.locator(".react-flow__node").first()).toBeVisible();
     await page.goBack();
-    await expect(page.getByLabel("Força da evidência do critério mais fraco")).toHaveValue("weak");
+    await expect(combobox(page, "Força da evidência do critério mais fraco")).toContainText("Mais fraco: evidência fraca");
   });
 
   await test.step("limpa os filtros", async () => {
     await page.getByRole("button", { name: /Limpar/ }).click();
-    await expect(page.getByLabel("Força da evidência do critério mais fraco")).toHaveValue("");
+    await expect(combobox(page, "Força da evidência do critério mais fraco")).toContainText("Critério mais fraco");
   });
 });
 
