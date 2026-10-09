@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Literal
+from typing import Any, Literal
 
 from beanie import Document
 from pydantic import Field
@@ -27,6 +27,8 @@ class BenchmarkConfig(CamelModel):
     catalog_version: str | None = None
     prompts: dict[str, str] = Field(default_factory=dict)
     backend_version: str | None = None
+    rejudged_from: str | None = None  # re-judge benchmark: id of the benchmark whose analyses were re-judged
+    judge_options: dict[str, Any] = Field(default_factory=dict)
 
 
 class BenchmarkRun(CamelModel):
@@ -79,6 +81,7 @@ class RunSnapshot(CamelModel):
     divergences: list[DivergenceSnapshot] = Field(default_factory=list)
     missing_links: int = 0
     usage: LLMUsage | None = None
+    rejudged: bool = False  # only the conclusion stage ran again, over the saved evidence
 
 
 class Distribution(CamelModel):
