@@ -20,7 +20,7 @@ describe("static provider (spec 14 E1)", () => {
     vi.resetModules();
     stubBrowserGlobals();
     vi.stubEnv("VITE_DATA_SOURCE", "static");
-    vi.stubEnv("VITE_STATIC_API_DIR", "src/services/__fixtures__/static-export");
+    vi.stubEnv("VITE_STATIC_API_DIR", "/static-api");
   });
   afterEach(() => {
     vi.unstubAllEnvs();
