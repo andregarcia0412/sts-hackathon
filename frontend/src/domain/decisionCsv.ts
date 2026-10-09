@@ -73,7 +73,7 @@ export const decisionCsvRow = (
       .filter((p) => p.kind === "divergence")
       .map((p) => `${p.ref}: ${p.text}`)
       .join(" "),
-    metodo: FRAMEWORKS[analysis.framework].name,
+    metodo: `${FRAMEWORKS[analysis.framework].name}${analysis.illustrative ? " (exemplo ilustrativo)" : ""}`,
     analista: decision?.analystName ?? "",
     decidido_em: decision ? formatDateTime(decision.decidedAt) : "",
   };

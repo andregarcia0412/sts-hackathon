@@ -33,11 +33,17 @@ Pontos deixados para depois. Separados em dois grupos:
       falar em "força da evidência" e sempre citar a fonte.
 - [ ] **Reanálise de contestações:** trocar o mock (`src/mocks/reanalysis.ts`) pela
       reanálise real do modelo, mantendo o formato `ContestationResolution`.
-- [ ] **Exportar CSV:** `exportDecisionCsv` (`src/services/api.ts`) passa a baixar
-      `GET /analyses/{id}/report.csv`. Combinar com o back-end duas diferenças do mock
-      (`src/domain/decisionCsv.ts`): no front, `classificacao`/`justificativa` são a decisão
-      do analista (no back-end, a classe sugerida pelo sistema), e o front acrescenta
-      `metodo`, `analista` e `decidido_em` depois das 27 colunas.
+- [ ] **Exportar CSV:** hoje `exportDecisionCsv` monta o CSV no navegador em todos os modos,
+      com os mesmos dados da tela. Se for usar `GET /analyses/{id}/report.csv`, combinar com o
+      back-end duas diferenças (`src/domain/decisionCsv.ts`): no front,
+      `classificacao`/`justificativa` são a decisão do analista (no back-end, a classe sugerida
+      pelo sistema), e o front acrescenta `metodo`, `analista` e `decidido_em` depois das 27 colunas.
+- [ ] **Formulário MCTI no back-end:** enquanto o back-end só gerar Frascati, o front mostra um
+      MCTI **ilustrativo** (`src/mocks/illustrativeMcti.ts`, `Analysis.illustrative`). Quando o
+      back-end mandar `mcti_form`, o exemplo some sozinho.
+- [ ] **Leitura do critério:** o back-end manda o `state` do juiz ("NÃO DEMONSTRADA",
+      "INDETERMINADA"…), mas o front ainda deriva a leitura da nota (`criterionStatusInfo`). Os
+      dois podem divergir; decidir qual mostrar.
 
 ### Conteúdo e terminologia
 

@@ -76,14 +76,15 @@ test("paginação e botão voltar", async ({ page }) => {
   await expect(page).not.toHaveURL(/pagina=2/);
 });
 
-test("upload recusa formato não aceito", async ({ page }) => {
+test("upload aceita qualquer formato: o back-end reconhece o arquivo pelo conteúdo", async ({ page }) => {
   await page.getByRole("link", { name: "Novo projeto" }).first().click();
   await page.getByLabel("Selecionar arquivos").setInputFiles({
     name: "foto.png",
     mimeType: "image/png",
     buffer: Buffer.from("x"),
   });
-  await expect(page.getByText(/formato não aceito/)).toBeVisible();
+  await expect(page.getByText("foto.png")).toBeVisible();
+  await expect(page.getByText(/formato não aceito/)).toHaveCount(0);
   await page.getByRole("link", { name: "Cancelar" }).click();
   await expect(page).toHaveURL(/\/projetos$/);
 });
