@@ -97,7 +97,8 @@ async def rejudge_benchmark(benchmark_id: str, body: RejudgeRequest, user: Curre
 
     The source analyses are never written; the result is a new benchmark, comparable through /compare."""
     source = await _owned(benchmark_id, user, request)
-    options = JudgeOptions.from_settings(service.settings, coherence_mode=body.coherence)
+    options = JudgeOptions.from_settings(service.settings, coherence_mode=body.coherence,
+                                         judge_mode=body.judge_mode)
     benchmark = await create_rejudge(source, str(user.id), service.models_by_role(), service.catalog, options,
                                      name=body.name, projects=body.projects, repeats=body.repeats)
     if not benchmark.runs:

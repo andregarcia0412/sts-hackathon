@@ -89,6 +89,14 @@ def build_graph(
         for evidence_id_ in state.decisive_evidence_ids if state else []:
             if f"evidence:{evidence_id_}" in g.nodes:
                 g.edge(f"evidence:{evidence_id_}", "decisiva", criterion_node)
+        for answer in state.answers if state else []:
+            node = g.node(f"answer:{criterion}:{answer.pergunta}", "answer", f"{answer.pergunta} = {answer.effective}",
+                          criterion=criterion, decision_rule=state.decision_rule, effective=answer.effective,
+                          **answer.model_dump())
+            g.edge(node, "responde", criterion_node)
+            for evidence_id_ in answer.evidencias:
+                if f"evidence:{evidence_id_}" in g.nodes:
+                    g.edge(f"evidence:{evidence_id_}", "fundamenta", node)
         if state and state.coherence:
             coherence = state.coherence
             node = g.node(f"coherence:{criterion}", "coherence",

@@ -64,12 +64,57 @@ class CatalogRule(BaseModel):
         return self.papel != "informativa"
 
 
+DEFAULT_OPTIONS = ["sim", "nao", "sem_registro"]
+NO_RECORD = "sem_registro"
+
+
+class Question(BaseModel):
+    """A closed question of the judge questionnaire (catalog/questionario.yaml)."""
+
+    id: str
+    texto: str
+    opcoes: list[str] = Field(default_factory=lambda: list(DEFAULT_OPTIONS))
+    descricao_opcoes: dict[str, str] = Field(default_factory=dict)
+    regras: list[str] = Field(default_factory=list)
+    exige_registro_numerico: bool = False  # "sim" needs numeric evidence (medicoes/resultados) in the criterion
+    explicacao: str = ""  # the handbook pitfall that applies to this question
+
+
+class DecisionLine(BaseModel):
+    """`quando`: question → accepted answer(s); `senao`: matches anything. The first matching line wins."""
+
+    quando: dict[str, str | list[str]] = Field(default_factory=dict)
+    senao: bool = False
+    estado: str
+
+    def accepted(self, question_id: str) -> list[str]:
+        value = self.quando[question_id]
+        return [value] if isinstance(value, str) else list(value)
+
+    def matches(self, answers: dict[str, str]) -> bool:
+        return self.senao or all(answers.get(q, NO_RECORD) in self.accepted(q) for q in self.quando)
+
+    def label(self) -> str:
+        if self.senao:
+            return "senão"
+        return ", ".join(f"{q} = {' ou '.join(self.accepted(q))}" for q in self.quando)
+
+
+class Questionnaire(BaseModel):
+    perguntas: dict[CriterionId, list[Question]]
+    decisao: dict[CriterionId, list[DecisionLine]]
+
+    def question(self, criterion: str, question_id: str) -> Question | None:
+        return next((q for q in self.perguntas.get(criterion, []) if q.id == question_id), None)
+
+
 class Catalog(BaseModel):
     versao: str
     tipos_de_arquivo: list[str]
     familias_web: dict[str, str] = Field(default_factory=dict)
     criteria: dict[CriterionId, CriterionInfo]
     rules: list[CatalogRule]
+    questionnaire: Questionnaire | None = None
 
     def get(self, rule_id: str) -> CatalogRule | None:
         return next((rule for rule in self.rules if rule.id == rule_id), None)

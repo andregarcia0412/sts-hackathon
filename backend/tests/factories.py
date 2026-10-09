@@ -367,6 +367,35 @@ def fake_state(states: dict[str, str] | None = None):
     return handler
 
 
+ELIGIBLE_ANSWERS = {"N1": "nao", "N2": "sim", "N3": "sim", "C1": "nao", "C2": "sim", "C3": "sim",
+                    "I1": "nao", "I2": "experimental", "I3": "sim", "S1": "sim", "S2": "experimento",
+                    "R1": "sim", "R2": "conhecimento", "R3": "nao"}
+
+
+def fake_answers(answers: dict[str, str] | None = None):
+    """Questionnaire judge: answers every asked question (from the <perguntas> block) citing the first evidence."""
+    answers = ELIGIBLE_ANSWERS | (answers or {})
+
+    def handler(messages):
+        from backend.graph.questionnaire import QuestionnaireOut
+
+        text = messages[1]["content"]
+        block = text.split("<perguntas>")[1].split("</perguntas>")[0]
+        asked = re.findall(r"^([A-Z]\d) \[", block, flags=re.M)
+        evidence_ids = re.findall(r"\[(ev-[0-9a-f]+)\]", text)
+        out = []
+        for question in asked:
+            value = answers[question]
+            if value == "sem_registro":
+                out.append({"pergunta": question, "resposta": value, "o_que_falta": "registro da execução"})
+            else:
+                out.append({"pergunta": question, "resposta": value, "evidencias": evidence_ids[:1],
+                            "explicacao": "O trecho mostra o fato."})
+        return QuestionnaireOut(respostas=out)
+
+    return handler
+
+
 def full_handlers(states: dict[str, str] | None = None) -> dict:
     from backend.criteria.doc_sub import DocSubOut
     from backend.criteria.web_sub import QueryPlanOut, WebJudgeOut

@@ -48,6 +48,7 @@ class Settings(BaseSettings):
 
     analysis_concurrency: int = 2
 
+    judge_mode: Literal["estado", "questionario"] = "estado"
     coherence_mode: Literal["off", "flag", "reask"] = "reask"
     coherence_high: int = 75
     coherence_low: int = 25

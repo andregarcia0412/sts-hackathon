@@ -86,7 +86,12 @@ numeric record (medicoes/resultados) → undetermined column. **Coherence gate**
 (e.g. INDETERMINADA with score 89, SIS PARCIAL with score 100) makes the judge decide once more with the
 contradiction spelled out; a configuration gate does not force against a strong positive score (it is judged again).
 If the contradiction persists, the judge's state stays, the criterion is flagged "revisar" and the class gets
-`inconsistent` — the code never picks the state from the score. The class comes from the exact answer-key
+`inconsistent` — the code never picks the state from the score. **Questionnaire mode** (`JUDGE_MODE=questionario`,
+`graph/questionnaire.py`): instead of picking the label, the judge answers closed questions about facts (N1–N3,
+C1–C3, I1–I3, S1–S2, R1–R3), each with evidence ids (no evidence after one new attempt → `nao_fundamentada`, counted
+as `sem_registro`), and the decision table of `catalog/questionario.yaml` turns the answers into the state in code;
+the gates lock answers (NOV-W3 / configuration gates → N1/C1 = sim; numeric record → I3/S1/R1 cannot be sim) and the
+report shows question → answer → evidence. The class comes from the exact answer-key
 patterns; a mixed vector gets a suggestion from the decision tree of the historical cases **in code**
 (`graph/classify.py`) and the flag `inconsistent`.
 
@@ -152,7 +157,7 @@ backend/
     config.py               # Settings; LLM roles: extraction, doc, search, judge, report, chat
     llm/                    # LLMClient (Ollama chat/structured/web_search/web_fetch, temperature 0, retries) + prompt registry
                             # + usage meter (calls/tokens/time per role, saved on every Analysis)
-    catalog/                # rules.yaml (versioned), loader + Mongo sync, GET /regras, /regras/{id}
+    catalog/                # rules.yaml (versioned), questionario.yaml (judge questions + decision table), loader + Mongo sync, GET /regras
     storage.py              # GridFS: immutable originals with sha256
     projects/               # Project + files (superseded, never deleted), upload (multipart/.zip), list (ProjectQuery), CLI import
     extraction/             # 1. raw text → extraction agent (mapping) → slicer (verbatim fragments) → canonical JSON + context
@@ -193,7 +198,7 @@ uv run backend-import <folder> # import + analyse every project folder as a batc
 uv run backend-ingest-norms    # (re)index data/normas (also done in the background on the first start)
 uv run backend-calibrate historicos_classificados.csv nosso.csv   # confusion matrix vs the answer key
 uv run backend-benchmark --projects PRJ01,PRJ21   # benchmark (all 40 without --projects; --repeats 2 = determinism)
-uv run backend-benchmark --rejudge <benchmark_id> # re-run only judge → gates → class over its finished analyses
+uv run backend-benchmark --rejudge <benchmark_id> [--coherence off|flag|reask|force] [--judge-mode estado|questionario]
 uv run pytest                  # unit + API tests, needs Mongo; no network
 uv run pytest -m live          # opt-in: PRJ21 end to end with the real Ollama (reads backend/.env)
 uv add <package>               # always manage dependencies with uv, never pip

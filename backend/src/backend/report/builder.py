@@ -43,6 +43,18 @@ class RuleLine(BaseModel):
     fontes_normativas: list[str] = Field(default_factory=list)
 
 
+class AnswerLine(BaseModel):
+    """Questionnaire mode: question → answer → evidence (what an auditor needs to redo the reasoning)."""
+
+    pergunta: str
+    texto: str
+    resposta: str
+    explicacao: str
+    fontes: list[str] = Field(default_factory=list)
+    origem: str = "juiz"
+    o_que_falta: str | None = None
+
+
 class CriterionSection(BaseModel):
     chave: str
     criterio: str
@@ -53,6 +65,8 @@ class CriterionSection(BaseModel):
     fonte_normativa: str
     gates: list[str] = Field(default_factory=list)
     regras: list[RuleLine] = Field(default_factory=list)
+    respostas: list[AnswerLine] = Field(default_factory=list)
+    regra_de_decisao: str | None = None
 
 
 class Gap(BaseModel):
@@ -200,10 +214,18 @@ def build_parecer(catalog: Catalog, analysis: Analysis, decisions: list[AnalystD
                                   fontes_normativas=rule.fontes_normativas if rule else []))
             if run.status in GAP_STATUSES:
                 gaps.append(Gap(regra=run.rule_id, status=run.status, motivo=run.reason or "-"))
+        answers = []
+        for answer in state.answers if state else []:
+            question = catalog.questionnaire.question(criterion, answer.pergunta) if catalog.questionnaire else None
+            answers.append(AnswerLine(
+                pergunta=answer.pergunta, texto=question.texto.strip() if question else "", resposta=answer.effective,
+                explicacao=answer.explicacao, origem=answer.origem, o_que_falta=answer.o_que_falta,
+                fontes=list(dict.fromkeys(index[i].source_alias for i in answer.evidencias if i in index))))
         sections.append(CriterionSection(
             chave=criterion, criterio=info.nome, estado=state.state if state else None, justificativa=justification,
             fonte=main_source.source_alias if main_source else "", nota=analysis.criterion_scores.get(criterion),
-            fonte_normativa=info.fonte_normativa, gates=state.gates if state else [], regras=rules))
+            fonte_normativa=info.fonte_normativa, gates=state.gates if state else [], regras=rules,
+            respostas=answers, regra_de_decisao=state.decision_rule if state else None))
         used += [_ref(e) for e in evidences if e.polarity == "positiva"]
         contrary += [_ref(e) for e in evidences if e.polarity == "negativa"]
         if result:
