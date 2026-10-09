@@ -4,7 +4,7 @@ test("rota protegida leva ao login e depois de volta", async ({ page }) => {
   await page.goto("/projetos/p1/decisao");
   await expect(page).toHaveURL(/\/login\?next=/);
   await page.getByLabel("Email").fill(USERS.ana.email);
-  await page.getByLabel("Senha").fill("qualquer");
+  await page.getByLabel("Senha", { exact: true }).fill("qualquer");
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
   await expect(page).toHaveURL(/\/projetos\/p1\/decisao$/);
 });
@@ -12,7 +12,7 @@ test("rota protegida leva ao login e depois de volta", async ({ page }) => {
 test("e-mail desconhecido mostra erro", async ({ page }) => {
   await page.goto("/login");
   await page.getByLabel("Email").fill("ninguem@exemplo.com");
-  await page.getByLabel("Senha").fill("x");
+  await page.getByLabel("Senha", { exact: true }).fill("x");
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
   await expect(page.getByRole("alert")).toHaveText("E-mail ou senha inválidos");
 });
@@ -44,7 +44,7 @@ test("cadastro cria um analista sem projetos e entra", async ({ page }) => {
   await page.getByRole("tab", { name: "Cadastro" }).click();
   await page.getByLabel("Nome").fill("Daniela Souza");
   await page.getByLabel("Email").fill("daniela.souza@exemplo.com");
-  await page.getByLabel("Senha").fill("qualquer");
+  await page.getByLabel("Senha", { exact: true }).fill("qualquer");
   await page.getByRole("button", { name: "Criar conta e entrar" }).click();
   await expect(page).toHaveURL(/\/projetos$/);
   await expect(page.getByText("Nenhum projeto ainda")).toBeVisible();
@@ -56,7 +56,7 @@ test("cadastro recusa e-mail já usado", async ({ page }) => {
   await page.getByRole("tab", { name: "Cadastro" }).click();
   await page.getByLabel("Nome").fill("Outra Ana");
   await page.getByLabel("Email").fill(USERS.ana.email);
-  await page.getByLabel("Senha").fill("x");
+  await page.getByLabel("Senha", { exact: true }).fill("x");
   await page.getByRole("button", { name: "Criar conta e entrar" }).click();
   await expect(page.getByRole("alert")).toHaveText("Já existe uma conta com este e-mail");
 });
