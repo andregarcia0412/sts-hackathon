@@ -59,6 +59,10 @@ def print_summary(metrics: BenchmarkMetrics) -> None:
     e = metrics.evidence
     print(f"== Evidência: cobertura de regras {e.rule_coverage} · descarte no gate {e.gate_drop_rate} · "
           f"divergências/projeto {e.divergences_per_run.mean}")
+    if (c := metrics.coherence).contradictions:
+        print(f"== Coerência: contradições {c.contradictions} · origem {c.by_source} · novos julgamentos "
+              f"{c.rejudged} · resolvidas {c.resolved} · incoerentes {c.incoherent} · mudaram de coluna "
+              f"{c.changed_column} (acertos {c.changed_column_hits}, erros {c.changed_column_misses})")
     if d := metrics.determinism:
         print(f"== Determinismo: classe {d.class_agreement} · jaccard evidências {d.evidence_jaccard} · "
               f"instáveis: {', '.join(d.unstable) or '-'}")
@@ -94,7 +98,7 @@ async def rejudge(args: argparse.Namespace, service: AnalysisService) -> Benchma
     source = await Benchmark.get(PydanticObjectId(args.rejudge))
     if source is None:
         raise SystemExit(f"benchmark not found: {args.rejudge}")
-    options = JudgeOptions.from_settings(service.settings)
+    options = JudgeOptions.from_settings(service.settings, coherence_mode=args.coherence)
     benchmark = await create_rejudge(source, source.owner_id, service.models_by_role(), service.catalog, options,
                                      name=args.name if args.name != "benchmark" else None, projects=args.projects,
                                      repeats=args.repeats)
@@ -146,6 +150,8 @@ def parser() -> argparse.ArgumentParser:
     parser.add_argument("--out", type=Path, help="also write the metrics as JSON")
     parser.add_argument("--rejudge", metavar="BENCHMARK_ID",
                         help="re-run only judge → gates → class over the finished analyses of this benchmark")
+    parser.add_argument("--coherence", choices=["off", "flag", "reask", "force"],
+                        help="re-judge only: coherence gate mode (default COHERENCE_MODE; force = diagnostic ceiling)")
     return parser
 
 

@@ -85,3 +85,17 @@ async def test_save_is_idempotent_and_trace_walks_to_sources(db, inputs):
     reached_ids = {n.node_id for n in reached}
     assert {"criterion:NOV", "rule:NOV-D2", f"evidence:{ev_doc.id}", "source:PRJ90-EV06#1", "source:src-a"} <= reached_ids
     assert await trace("an-2", "class:suggested") == []
+
+
+async def test_coherence_record_becomes_a_node_linked_to_the_criterion(inputs):
+    from backend.graph.coherence import Coherence
+
+    canonical, results, scores, states, suggestion, (_, ev_neg, _) = inputs
+    states["NOV"].coherence = Coherence(score=80, rules_with_evidence=5, strength="forte_positivo",
+                                        original_state="INDETERMINADA", original_source="juiz", rejudged=True,
+                                        status="resolvida")
+    nodes, edges = build_graph("a1", canonical, get_catalog(), results, scores, states, suggestion)
+    node = next(n for n in nodes if n.kind == "coherence")
+    assert node.props["original_state"] == "INDETERMINADA" and node.props["final_state"] == "NÃO DEMONSTRADA"
+    links = {(e.kind, e.target) for e in edges if e.source == node.node_id}
+    assert ("afeta", "criterion:NOV") in links and ("cita", f"evidence:{ev_neg.id}") in links

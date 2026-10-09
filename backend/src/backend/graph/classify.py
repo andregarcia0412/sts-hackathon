@@ -51,6 +51,15 @@ def _finish(cls: SuggestedClass, states: dict[str, CriterionState], inconsistent
 
 
 def classify(states: dict[str, CriterionState]) -> ClassSuggestion:
+    suggestion = _classify(states)
+    incoherent = [c for c, s in states.items() if s.coherence and s.coherence.status == "incoerente"]
+    if incoherent:  # the coherence gate never changes the class: it sends it to the analyst
+        suggestion.inconsistent = True
+        suggestion.path.append(f"estado em conflito com o score das evidências ({', '.join(incoherent)}): revisar")
+    return suggestion
+
+
+def _classify(states: dict[str, CriterionState]) -> ClassSuggestion:
     missing = [c for c, s in states.items() if s.state is None or s.column is None]
     if missing:
         return ClassSuggestion(suggested_class=None, inconsistent=True,

@@ -184,7 +184,9 @@ class AnalysisService:
 
         await self._set_stage(analysis, GRAPH, "rodando")
         try:
-            outcome = await judge_and_classify(self.llm, self.catalog, results, JudgeOptions.from_settings(self.settings))
+            options = JudgeOptions.from_settings(self.settings)
+            analysis.versions.judge = options.model_dump()
+            outcome = await judge_and_classify(self.llm, self.catalog, results, options)
             analysis.scores, analysis.criterion_scores = outcome.scores, outcome.criterion_scores
             analysis.states, analysis.suggestion = outcome.states, outcome.suggestion
             nodes, edges = build_graph(str(analysis.id), canonical, self.catalog, results, analysis.scores,

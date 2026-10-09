@@ -81,7 +81,12 @@ insuficiente** (insufficient evidence; requires the missing link and the evidenc
 The criterion state is suggested by an LLM judge that reads only that criterion's evidence nodes and must
 answer with the exact vocabulary; then code gates force it: NOV-W3 with full coverage, or NOV-D4 /
 NOV-D10 / CRI-D5 with predominant negative evidence → negative column; a positive state without
-numeric record (medicoes/resultados) → undetermined column. The class comes from the exact answer-key
+numeric record (medicoes/resultados) → undetermined column. **Coherence gate** (`graph/coherence.py`,
+`COHERENCE_MODE`): a strong criterion score (≥ 75 or ≤ 25 with ≥ 4 rules with evidence) that contradicts the state
+(e.g. INDETERMINADA with score 89, SIS PARCIAL with score 100) makes the judge decide once more with the
+contradiction spelled out; a configuration gate does not force against a strong positive score (it is judged again).
+If the contradiction persists, the judge's state stays, the criterion is flagged "revisar" and the class gets
+`inconsistent` — the code never picks the state from the score. The class comes from the exact answer-key
 patterns; a mixed vector gets a suggestion from the decision tree of the historical cases **in code**
 (`graph/classify.py`) and the flag `inconsistent`.
 

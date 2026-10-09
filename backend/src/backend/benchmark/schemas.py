@@ -25,6 +25,8 @@ class BenchmarkRequest(CamelModel):
 
 class RejudgeRequest(CamelModel):
     name: str | None = None
+    coherence: Literal["off", "flag", "reask", "force"] | None = Field(
+        default=None, description="coherence gate mode; default COHERENCE_MODE; force = diagnostic ceiling")
     projects: list[str] = Field(default_factory=list, description="e.g. ['PRJ01']; empty = every finished analysis")
     repeats: int = Field(default=1, ge=1, le=5)
 

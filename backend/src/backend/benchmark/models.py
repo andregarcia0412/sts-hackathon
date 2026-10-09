@@ -6,6 +6,7 @@ from pydantic import Field
 
 from backend.api_schema import CamelModel
 from backend.benchmark.reference import ExpectedCase
+from backend.graph.coherence import Coherence
 from backend.llm.usage import LLMUsage, RoleUsage
 from backend.projects.models import now
 
@@ -82,6 +83,7 @@ class RunSnapshot(CamelModel):
     missing_links: int = 0
     usage: LLMUsage | None = None
     rejudged: bool = False  # only the conclusion stage ran again, over the saved evidence
+    coherence: dict[str, Coherence] = Field(default_factory=dict)  # criterion → coherence gate record
 
 
 class Distribution(CamelModel):
@@ -170,6 +172,19 @@ class DeterminismMetrics(CamelModel):
     unstable: list[str] = Field(default_factory=list)
 
 
+class CoherenceMetrics(CamelModel):
+    """Score × state contradictions found by the coherence gate (spec 11)."""
+
+    contradictions: dict[str, int] = Field(default_factory=dict)  # per criterion
+    by_source: dict[str, int] = Field(default_factory=dict)  # "juiz" (state choice) / "gate" (configuration gate)
+    rejudged: int = 0
+    resolved: int = 0
+    incoherent: int = 0
+    changed_column: int = 0  # the new judgement moved the criterion to another column
+    changed_column_hits: int = 0  # ... and the final state matches the official answer key
+    changed_column_misses: int = 0
+
+
 class BenchmarkMetrics(CamelModel):
     accuracy: dict[str, AccuracyMetrics] = Field(default_factory=dict)  # "oficial" / "preliminar"
     timing: TimingMetrics = Field(default_factory=TimingMetrics)
@@ -177,6 +192,7 @@ class BenchmarkMetrics(CamelModel):
     evidence: EvidenceMetrics = Field(default_factory=EvidenceMetrics)
     usage: UsageMetrics = Field(default_factory=UsageMetrics)
     determinism: DeterminismMetrics | None = None
+    coherence: CoherenceMetrics = Field(default_factory=CoherenceMetrics)
     class_distribution: dict[str, dict[str, int]] = Field(default_factory=dict)  # "sugerida"/reference → class → n
     by_set: dict[str, TimingMetrics] = Field(default_factory=dict)
 
