@@ -408,9 +408,10 @@ Mais detalhes: [`backend/AGENTS.md`](backend/AGENTS.md) (arquitetura, domínio e
 
 | Pessoa | Frente |
 |---|---|
-| **João Pedro Lima** | Front-end |
+| **João Pedro Lima** ([@limajpp](https://github.com/limajpp)) | Front-end |
 | **André Paiva Garcia** ([@andregarcia0412](https://github.com/andregarcia0412)) | Backend e pipeline de IA |
-| **João Victor Barreto** ([@Jv1ctor](https://github.com/Jv1ctor)) | Integração front × back, export estático e merge final |
+| **João Victor Barreto** ([@Jv1ctor](https://github.com/Jv1ctor)) | Backend, pipeline de IA, integração front × back, export estático e merge final |
+| **Guilherme Sales** ([@GuiSales404](https://github.com/GuiSales404)) | Pipeline de IA |
 
 O visual de alta fidelidade veio do Figma de um designer parceiro do time.
 
