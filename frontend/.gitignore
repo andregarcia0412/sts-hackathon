@@ -33,3 +33,5 @@ blob-report
 .env*
 !.env.example
 /static-api
+# verbatim copy of that export for staticProvider.integration.test.ts: same confidentiality
+src/services/__fixtures__/static-api/
